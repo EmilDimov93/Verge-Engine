@@ -1,0 +1,3 @@
+C:/Users/user/Desktop/VergeEngine/build/CMakeFiles/VergeEngine.dir
+C:/Users/user/Desktop/VergeEngine/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/user/Desktop/VergeEngine/build/CMakeFiles/ZERO_CHECK.dir

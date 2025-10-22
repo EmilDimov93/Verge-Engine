@@ -51,6 +51,9 @@ private:
 
     std::vector<ErrorCode> log;
 
+    const double targetFPS = 140.0;
+    const double frameTime = 1.0 / targetFPS;
+
     void initWindow()
     {
         if(!glfwInit()){
@@ -59,7 +62,7 @@ private:
         }
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan Window", nullptr, nullptr);
+        window = glfwCreateWindow(WIDTH, HEIGHT, "Verge Engine", nullptr, nullptr);
         if(!window){
             log.push_back(ErrorCode{'G', 201});
             return;
@@ -83,9 +86,6 @@ private:
 
     void mainLoop()
     {
-        const double targetFPS = 140.0;
-        const double frameTime = 1.0 / targetFPS;
-
         int frames = 0;
         auto lastTime = std::chrono::high_resolution_clock::now();
 
@@ -97,18 +97,7 @@ private:
 
             glfwPollEvents();
             input.RefreshInput(window);
-            if (input.LMBState)
-            {
-                count++;
-            }
-            else
-            {
-                count = 0;
-            }
-            if (count != 0)
-            {
-                //printf("%d\n", count);
-            }
+            std::cout << input.IsKeyDown(VRG_KEY_ESCAPE);
             drawFrame();
             frames++;
 
@@ -128,8 +117,7 @@ private:
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> elapsed = end - start;
             if (elapsed.count() < frameTime)
-                std::this_thread::sleep_for(
-                    std::chrono::duration<double>(frameTime - elapsed.count()));
+                std::this_thread::sleep_for(std::chrono::duration<double>(frameTime - elapsed.count()));
         }
 
         vkDeviceWaitIdle(device);

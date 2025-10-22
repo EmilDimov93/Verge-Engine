@@ -9,11 +9,107 @@ typedef enum{
     KEY_STATE_RELEASED
 }KeyState;
 
+#define VRG_MOUSE_KEY_COUNT 8
+#define VRG_KEY_COUNT 349
+
+typedef enum {
+    VRG_KEY_MOUSE_LMB = GLFW_MOUSE_BUTTON_1,
+    VRG_KEY_MOUSE_RMB = GLFW_MOUSE_BUTTON_2,
+    VRG_KEY_MOUSE_MMB = GLFW_MOUSE_BUTTON_3,
+    VRG_KEY_MOUSE_4   = GLFW_MOUSE_BUTTON_4,
+    VRG_KEY_MOUSE_5   = GLFW_MOUSE_BUTTON_5,
+
+    VRG_KEY_A = GLFW_KEY_A,
+    VRG_KEY_B = GLFW_KEY_B,
+    VRG_KEY_C = GLFW_KEY_C,
+    VRG_KEY_D = GLFW_KEY_D,
+    VRG_KEY_E = GLFW_KEY_E,
+    VRG_KEY_F = GLFW_KEY_F,
+    VRG_KEY_G = GLFW_KEY_G,
+    VRG_KEY_H = GLFW_KEY_H,
+    VRG_KEY_I = GLFW_KEY_I,
+    VRG_KEY_J = GLFW_KEY_J,
+    VRG_KEY_K = GLFW_KEY_K,
+    VRG_KEY_L = GLFW_KEY_L,
+    VRG_KEY_M = GLFW_KEY_M,
+    VRG_KEY_N = GLFW_KEY_N,
+    VRG_KEY_O = GLFW_KEY_O,
+    VRG_KEY_P = GLFW_KEY_P,
+    VRG_KEY_Q = GLFW_KEY_Q,
+    VRG_KEY_R = GLFW_KEY_R,
+    VRG_KEY_S = GLFW_KEY_S,
+    VRG_KEY_T = GLFW_KEY_T,
+    VRG_KEY_U = GLFW_KEY_U,
+    VRG_KEY_V = GLFW_KEY_V,
+    VRG_KEY_W = GLFW_KEY_W,
+    VRG_KEY_X = GLFW_KEY_X,
+    VRG_KEY_Y = GLFW_KEY_Y,
+    VRG_KEY_Z = GLFW_KEY_Z,
+
+    VRG_KEY_0 = GLFW_KEY_0,
+    VRG_KEY_1 = GLFW_KEY_1,
+    VRG_KEY_2 = GLFW_KEY_2,
+    VRG_KEY_3 = GLFW_KEY_3,
+    VRG_KEY_4 = GLFW_KEY_4,
+    VRG_KEY_5 = GLFW_KEY_5,
+    VRG_KEY_6 = GLFW_KEY_6,
+    VRG_KEY_7 = GLFW_KEY_7,
+    VRG_KEY_8 = GLFW_KEY_8,
+    VRG_KEY_9 = GLFW_KEY_9,
+
+    VRG_KEY_F1  = GLFW_KEY_F1,
+    VRG_KEY_F2  = GLFW_KEY_F2,
+    VRG_KEY_F3  = GLFW_KEY_F3,
+    VRG_KEY_F4  = GLFW_KEY_F4,
+    VRG_KEY_F5  = GLFW_KEY_F5,
+    VRG_KEY_F6  = GLFW_KEY_F6,
+    VRG_KEY_F7  = GLFW_KEY_F7,
+    VRG_KEY_F8  = GLFW_KEY_F8,
+    VRG_KEY_F9  = GLFW_KEY_F9,
+    VRG_KEY_F10 = GLFW_KEY_F10,
+    VRG_KEY_F11 = GLFW_KEY_F11,
+    VRG_KEY_F12 = GLFW_KEY_F12,
+
+    VRG_KEY_SPACE       = GLFW_KEY_SPACE,
+    VRG_KEY_ENTER       = GLFW_KEY_ENTER,
+    VRG_KEY_ESCAPE      = GLFW_KEY_ESCAPE,
+    VRG_KEY_TAB         = GLFW_KEY_TAB,
+    VRG_KEY_BACKSPACE   = GLFW_KEY_BACKSPACE,
+    VRG_KEY_INSERT      = GLFW_KEY_INSERT,
+    VRG_KEY_DELETE      = GLFW_KEY_DELETE,
+    VRG_KEY_RIGHT       = GLFW_KEY_RIGHT,
+    VRG_KEY_LEFT        = GLFW_KEY_LEFT,
+    VRG_KEY_UP          = GLFW_KEY_UP,
+    VRG_KEY_DOWN        = GLFW_KEY_DOWN,
+    VRG_KEY_HOME        = GLFW_KEY_HOME,
+    VRG_KEY_END         = GLFW_KEY_END,
+    VRG_KEY_PAGE_UP     = GLFW_KEY_PAGE_UP,
+    VRG_KEY_PAGE_DOWN   = GLFW_KEY_PAGE_DOWN,
+    VRG_KEY_LEFT_SHIFT  = GLFW_KEY_LEFT_SHIFT,
+    VRG_KEY_RIGHT_SHIFT = GLFW_KEY_RIGHT_SHIFT,
+    VRG_KEY_LEFT_CONTROL= GLFW_KEY_LEFT_CONTROL,
+    VRG_KEY_RIGHT_CONTROL= GLFW_KEY_RIGHT_CONTROL,
+    VRG_KEY_LEFT_ALT    = GLFW_KEY_LEFT_ALT,
+    VRG_KEY_RIGHT_ALT   = GLFW_KEY_RIGHT_ALT
+
+} VRGKeys;
+
 class InputHandler{
     private:
-        
-    public:bool LMBState;
+        KeyState mouseKeyStates[VRG_MOUSE_KEY_COUNT];
+        KeyState keyStates[VRG_KEY_COUNT];
+    public:
+        InputHandler();
+
         void RefreshInput(GLFWwindow *window);
 
-        void IsLMBPressed();
+        bool IsMouseKeyDown(int key);
+        bool IsMouseKeyUp(int key);
+        bool IsMouseKeyPressed(int key);
+        bool IsMouseKeyReleased(int key);
+
+        bool IsKeyDown(int key);
+        bool IsKeyUp(int key);
+        bool IsKeyPressed(int key);
+        bool IsKeyReleased(int key);
 };

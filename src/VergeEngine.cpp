@@ -8,6 +8,7 @@
 
 #include "InputHandler.h"
 #include "ErrorCodes.h"
+#include "FPSManager.h"
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
@@ -19,6 +20,7 @@ public:
     {
         initWindow();
         initVulkan();
+        initVerge();
         mainLoop();
         cleanup();
     }
@@ -49,21 +51,22 @@ private:
 
     InputHandler input;
 
-    std::vector<ErrorCode> log;
+    FPSManager FPSManager;
 
-    const double targetFPS = 140.0;
-    const double frameTime = 1.0 / targetFPS;
+    std::vector<ErrorCode> log;
 
     void initWindow()
     {
-        if(!glfwInit()){
+        if (!glfwInit())
+        {
             log.push_back(ErrorCode{'G', 200});
             return;
         }
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         window = glfwCreateWindow(WIDTH, HEIGHT, "Verge Engine", nullptr, nullptr);
-        if(!window){
+        if (!window)
+        {
             log.push_back(ErrorCode{'G', 201});
             return;
         }
@@ -84,40 +87,29 @@ private:
         createSemaphores();
     }
 
+    void initVerge(){
+        FPSManager.InitFPSManager(140);
+    }
+
     void mainLoop()
     {
-        int frames = 0;
-        auto lastTime = std::chrono::high_resolution_clock::now();
-
         while (!glfwWindowShouldClose(window))
         {
-            auto start = std::chrono::high_resolution_clock::now();
-
-            static int count = 0;
+            FPSManager.CaptureFrameStartTime();
 
             glfwPollEvents();
             input.RefreshInput(window);
-            std::cout << input.IsKeyDown(VRG_KEY_ESCAPE);
+            //std::cout << input.IsKeyDown(VRG_KEY_ESCAPE);
             drawFrame();
-            frames++;
 
-            auto now = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> delta = now - lastTime;
-            if (delta.count() >= 1.0) // one second passed
+            for (int i = 0; i < log.capacity(); i++)
             {
-                //printf("FPS: %d\n", frames);
-                frames = 0;
-                lastTime = now;
-            }
-
-            for(int i = 0; i < log.capacity(); i++){log[i].GetMessage();
+                log[i].GetMessage();
                 std::cout << log[i].GetMessage() << std::endl;
             }
 
-            auto end = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> elapsed = end - start;
-            if (elapsed.count() < frameTime)
-                std::this_thread::sleep_for(std::chrono::duration<double>(frameTime - elapsed.count()));
+            FPSManager.CorrectFrameTime();
+            std::cout << FPSManager.GetFPS() << std::endl;
         }
 
         vkDeviceWaitIdle(device);

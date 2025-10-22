@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_executable(VergeEngine 
     src/VergeEngine.cpp
     src/InputHandler.cpp
+    src/FrameTimeHandler.cpp
 )
 
 target_include_directories(VergeEngine PRIVATE

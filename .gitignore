@@ -1,0 +1,5 @@
+.vscode/
+build/
+logo/
+desktop.ini
+build.ps1

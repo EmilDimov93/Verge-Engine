@@ -1,14 +1,5 @@
 #include "FPSManager.h"
 
-#include <chrono>
-#include <thread>
-
-#include <iostream>
-
-void FPSManager::InitFPSManager(int targetFPS){
-    targetFrameTime = 1.0 / targetFPS;
-}
-
 void FPSManager::CorrectFrameTime()
 {
     while (true)

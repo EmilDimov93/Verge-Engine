@@ -7,7 +7,7 @@
 #include <chrono>
 
 #include "InputHandler.h"
-#include "ErrorCodes.h"
+#include "LogManager.h"
 #include "FPSManager.h"
 
 const int WIDTH = 800;
@@ -54,6 +54,7 @@ private:
     FPSManager FPSManager;
 
     std::vector<ErrorCode> log;
+    int prevFrameLogSize;
 
     void initWindow()
     {
@@ -87,8 +88,9 @@ private:
         createSemaphores();
     }
 
-    void initVerge(){
-        FPSManager.InitFPSManager(140);
+    void initVerge()
+    {
+        FPSManager.SetTargetFPS(140);
     }
 
     void mainLoop()
@@ -99,17 +101,20 @@ private:
 
             glfwPollEvents();
             input.RefreshInput(window);
-            //std::cout << input.IsKeyDown(VRG_KEY_ESCAPE);
-            drawFrame();
 
-            for (int i = 0; i < log.capacity(); i++)
-            {
-                log[i].GetMessage();
-                std::cout << log[i].GetMessage() << std::endl;
+            if(input.IsKeyPressed(VRG_KEY_A)){
+                log.push_back(ErrorCode{'O', 200});
             }
 
+            if (prevFrameLogSize != log.size() && log.size() > 0)
+            {
+                std::cout << log.back().GetMessage() << std::endl;
+
+                prevFrameLogSize = log.size();
+            }
+
+            drawFrame();
             FPSManager.CorrectFrameTime();
-            std::cout << FPSManager.GetFPS() << std::endl;
         }
 
         vkDeviceWaitIdle(device);

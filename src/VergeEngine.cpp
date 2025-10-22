@@ -13,15 +13,13 @@
 const int WIDTH = 800;
 const int HEIGHT = 600;
 
-class VulkanApp
+class VergeEngine
 {
 public:
     void run()
     {
-        initWindow();
-        initVulkan();
-        initVerge();
-        mainLoop();
+        InitVerge();
+        Tick();
         cleanup();
     }
 
@@ -56,7 +54,15 @@ private:
     std::vector<ErrorCode> log;
     int prevFrameLogSize;
 
-    void initWindow()
+    void InitVerge()
+    {
+        InitWindow();
+        InitVulkan();
+
+        FPSManager.SetTargetFPS(140);
+    }
+
+    void InitWindow()
     {
         if (!glfwInit())
         {
@@ -65,6 +71,7 @@ private:
         }
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
         window = glfwCreateWindow(WIDTH, HEIGHT, "Verge Engine", nullptr, nullptr);
         if (!window)
         {
@@ -73,7 +80,7 @@ private:
         }
     }
 
-    void initVulkan()
+    void InitVulkan()
     {
         createInstance();
         createSurface();
@@ -88,12 +95,7 @@ private:
         createSemaphores();
     }
 
-    void initVerge()
-    {
-        FPSManager.SetTargetFPS(140);
-    }
-
-    void mainLoop()
+    void Tick()
     {
         while (!glfwWindowShouldClose(window))
         {
@@ -219,7 +221,7 @@ private:
             throw std::runtime_error("Failed to create logical device!");
 
         vkGetDeviceQueue(device, graphicsFamily, 0, &graphicsQueue);
-        presentQueue = graphicsQueue; // minimal example assumes same queue
+        presentQueue = graphicsQueue;
     }
 
     void createSwapChain()
@@ -332,7 +334,7 @@ private:
     {
         VkCommandPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-        poolInfo.queueFamilyIndex = 0; // minimal example
+        poolInfo.queueFamilyIndex = 0;
         if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
             throw std::runtime_error("Failed to create command pool!");
     }
@@ -364,7 +366,7 @@ private:
             renderPassInfo.renderArea.offset = {0, 0};
             renderPassInfo.renderArea.extent = swapChainExtent;
 
-            VkClearValue clearColor = {{{1.0f, 0.0f, 0.0f, 1.0f}}}; // red
+            VkClearValue clearColor = {{{1.0f, 0.0f, 0.0f, 1.0f}}};
             renderPassInfo.clearValueCount = 1;
             renderPassInfo.pClearValues = &clearColor;
 
@@ -424,10 +426,10 @@ private:
 
 int main()
 {
-    VulkanApp app;
+    VergeEngine verge;
     try
     {
-        app.run();
+        verge.run();
     }
     catch (const std::runtime_error &e)
     {

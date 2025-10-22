@@ -7,6 +7,7 @@
 #include <chrono>
 
 #include "InputHandler.h"
+#include "ErrorCodes.h"
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
@@ -48,11 +49,21 @@ private:
 
     InputHandler input;
 
+    std::vector<ErrorCode> log;
+
     void initWindow()
     {
-        glfwInit();
+        if(!glfwInit()){
+            log.push_back(ErrorCode{'G', 200});
+            return;
+        }
+
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan Window", nullptr, nullptr);
+        if(!window){
+            log.push_back(ErrorCode{'G', 201});
+            return;
+        }
     }
 
     void initVulkan()
@@ -96,7 +107,7 @@ private:
             }
             if (count != 0)
             {
-                printf("%d\n", count);
+                //printf("%d\n", count);
             }
             drawFrame();
             frames++;
@@ -105,9 +116,13 @@ private:
             std::chrono::duration<double> delta = now - lastTime;
             if (delta.count() >= 1.0) // one second passed
             {
-                printf("FPS: %d\n", frames);
+                //printf("FPS: %d\n", frames);
                 frames = 0;
                 lastTime = now;
+            }
+
+            for(int i = 0; i < log.capacity(); i++){log[i].GetMessage();
+                std::cout << log[i].GetMessage() << std::endl;
             }
 
             auto end = std::chrono::high_resolution_clock::now();

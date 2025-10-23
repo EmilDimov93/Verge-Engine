@@ -7,6 +7,7 @@ add_executable(VergeEngine
     src/VergeEngine.cpp
     src/InputHandler.cpp
     src/FPSManager.cpp
+    src/LogManager.cpp
 )
 
 target_include_directories(VergeEngine PRIVATE

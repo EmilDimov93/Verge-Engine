@@ -51,8 +51,7 @@ private:
 
     FPSManager FPSManager;
 
-    std::vector<ErrorCode> log;
-    int prevFrameLogSize;
+    LogManager log;
 
     void InitVerge()
     {
@@ -66,7 +65,7 @@ private:
     {
         if (!glfwInit())
         {
-            log.push_back(ErrorCode{'G', 200});
+            log.AddToLog('G', 200);
             return;
         }
 
@@ -75,7 +74,7 @@ private:
         window = glfwCreateWindow(WIDTH, HEIGHT, "Verge Engine", nullptr, nullptr);
         if (!window)
         {
-            log.push_back(ErrorCode{'G', 201});
+            log.AddToLog('G', 201);
             return;
         }
     }
@@ -104,15 +103,19 @@ private:
             glfwPollEvents();
             input.RefreshInput(window);
 
-            if(input.IsKeyPressed(VRG_KEY_A)){
-                log.push_back(ErrorCode{'O', 200});
+            if (input.IsKeyPressed(VRG_KEY_A))
+            {
+                log.AddToLog('O', 300);
             }
 
-            if (prevFrameLogSize != log.size() && log.size() > 0)
+            if (log.HasNewMessages())
             {
-                std::cout << log.back().GetMessage() << std::endl;
+                std::vector<std::string> newMessages = log.GetNewMessages();
 
-                prevFrameLogSize = log.size();
+                for (int i = 0; i < newMessages.size(); i++)
+                {
+                    std::cout << newMessages[i] << std::endl;
+                }
             }
 
             drawFrame();

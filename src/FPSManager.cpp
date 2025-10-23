@@ -1,7 +1,5 @@
 #include "FPSManager.h"
 
-#include <iostream>
-
 void FPSManager::CorrectFrameTime()
 {
     while (true)

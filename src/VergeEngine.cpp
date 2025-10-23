@@ -9,6 +9,7 @@
 #include "InputHandler.h"
 #include "LogManager.h"
 #include "FPSManager.h"
+#include "version.h"
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
@@ -18,9 +19,9 @@ class VergeEngine
 public:
     void run()
     {
-        InitVerge();
+        Init();
         Tick();
-        cleanup();
+        Cleanup();
     }
 
 private:
@@ -53,7 +54,7 @@ private:
 
     LogManager log;
 
-    void InitVerge()
+    void Init()
     {
         InitWindow();
         InitVulkan();
@@ -116,14 +117,14 @@ private:
                 }
             }
             drawFrame();
-            std::cout << FPSManager.GetFPS() << std::endl;
+
             FPSManager.CorrectFrameTime();
         }
 
         vkDeviceWaitIdle(device);
     }
 
-    void cleanup()
+    void Cleanup()
     {
         vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
         vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
@@ -149,11 +150,9 @@ private:
     {
         VkApplicationInfo appInfo{};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = "Minimal Vulkan";
-        appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.pEngineName = "No Engine";
-        appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.apiVersion = VK_API_VERSION_1_0;
+        appInfo.pApplicationName = "Verge Engine";
+        appInfo.applicationVersion = VK_MAKE_VERSION(0, 0, VERGE_ENGINE_VERSION);
+        appInfo.apiVersion = VK_API_VERSION_1_3;
 
         VkInstanceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;

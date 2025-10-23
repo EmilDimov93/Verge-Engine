@@ -2,13 +2,15 @@
 
 #include <chrono>
 
-class FPSManager{
-    private:
-        std::chrono::steady_clock::time_point timeAtStartOfFrame;
-        double targetFrameTime;
-    public:
-        void CorrectFrameTime();
-        void CaptureFrameStartTime();
-        void SetTargetFPS(int targetFps);
-        int GetFPS();
+class FPSManager
+{
+private:
+    std::chrono::steady_clock::time_point timeAtStartOfFrame;
+    double targetFrameTime;
+    int currentFPS;
+
+public:
+    void CorrectFrameTime();
+    void SetTargetFPS(int targetFps);
+    int GetFPS();
 };

@@ -26,13 +26,15 @@ private:
         {{'G', 201}, "GLFW window creation failed"}};
 };
 
-class LogManager{
+class LogManager
+{
 private:
     std::vector<ErrorCode> logList;
     int newMessageCount = 0;
     bool hasNewMessages;
 
     void FreeLogSpace();
+
 public:
     int clearedLogMessages = 0;
     void AddToLog(char letter, int number);

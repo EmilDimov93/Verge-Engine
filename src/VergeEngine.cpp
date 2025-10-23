@@ -98,8 +98,6 @@ private:
     {
         while (!glfwWindowShouldClose(window))
         {
-            FPSManager.CaptureFrameStartTime();
-
             glfwPollEvents();
             input.RefreshInput(window);
 
@@ -117,8 +115,8 @@ private:
                     std::cout << newMessages[i] << std::endl;
                 }
             }
-
             drawFrame();
+            std::cout << FPSManager.GetFPS() << std::endl;
             FPSManager.CorrectFrameTime();
         }
 

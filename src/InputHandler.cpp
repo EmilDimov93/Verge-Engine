@@ -1,11 +1,14 @@
 #include "InputHandler.h"
 
-InputHandler::InputHandler(){
-    for(int i = 0; i < VRG_MOUSE_KEY_COUNT; i++){
+InputHandler::InputHandler()
+{
+    for (int i = 0; i < VRG_MOUSE_KEY_COUNT; i++)
+    {
         mouseKeyStates[i] = KEY_STATE_UP;
     }
 
-    for(int i = 0; i < VRG_KEY_COUNT; i++){
+    for (int i = 0; i < VRG_KEY_COUNT; i++)
+    {
         keyStates[i] = KEY_STATE_UP;
     }
 }

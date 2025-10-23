@@ -12,9 +12,12 @@ std::string ErrorCode::GetMessage()
     return "";
 }
 
-void LogManager::FreeLogSpace(){
-    for(int i = logList.size() / 4; i >= 0; i--){
-        if(logList[i].number / 100 != 2){
+void LogManager::FreeLogSpace()
+{
+    for (int i = logList.size() / 4; i >= 0; i--)
+    {
+        if (logList[i].number / 100 != 2)
+        {
             logList.erase(logList.begin() + i);
             clearedLogMessages++;
         }
@@ -44,6 +47,7 @@ std::vector<std::string> LogManager::GetNewMessages()
     return newMessages;
 }
 
-bool LogManager::HasNewMessages(){
+bool LogManager::HasNewMessages()
+{
     return hasNewMessages;
 }

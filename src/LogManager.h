@@ -16,8 +16,7 @@ public:
 
 private:
     inline static const std::map<std::pair<char, int>, std::string> messages{
-        {{'O', 200}, "Invalid error code"},
-        {{'O', 300}, "Test error code"},
+        {{'C', 000}, "Verge Engine loaded successfully"},
 
         {{'V', 000}, "Vulkan loaded successfully"},
         {{'V', 200}, "Vulkan failed to create instance"},
@@ -34,7 +33,10 @@ private:
 
         {{'G', 000}, "GLFW loaded successfully"},
         {{'G', 200}, "GLFW initialization failed"},
-        {{'G', 201}, "GLFW window creation failed"}};
+        {{'G', 201}, "GLFW window creation failed"},
+
+        {{'O', 200}, "Invalid error code"},
+        {{'O', 300}, "Test error code"}};
 };
 
 class LogManager
@@ -51,4 +53,5 @@ public:
     void add(char letter, int number);
     std::vector<std::string> getNewMessages();
     bool hasNewMessages();
+    void writeToLogFile();
 };

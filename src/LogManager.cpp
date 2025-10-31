@@ -1,5 +1,12 @@
 #include "LogManager.h"
 
+#include <fstream>
+#include <iomanip>
+#include <ctime>
+#include <chrono>
+
+#include "version.h"
+
 #define LOG_MESSAGE_LIMIT 1000
 
 std::string ErrorCode::getMessage()
@@ -50,4 +57,15 @@ std::vector<std::string> LogManager::getNewMessages()
 bool LogManager::hasNewMessages()
 {
     return hasNewMessagesFlag;
+}
+
+void LogManager::writeToLogFile(){
+    std::ofstream file("log.txt");
+
+    auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    file << "Verge Engine Log - " << std::put_time(std::localtime(&now), "%Y-%m-%d - %H:%M:%S") << " - Version " << VERGE_ENGINE_VERSION << "\n\n";
+
+    for (auto& entry : entries){
+        file << entry.letter << std::setfill('0') << std::setw(3) << entry.number << ": " << entry.getMessage() << '\n';
+    }
 }

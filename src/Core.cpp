@@ -11,8 +11,8 @@
 #include "FPSManager.h"
 #include "version.h"
 
-const int WIDTH = 800;
-const int HEIGHT = 600;
+const uint32_t WIDTH = 800;
+const uint32_t HEIGHT = 600;
 
 class VergeEngine
 {
@@ -60,6 +60,8 @@ private:
         InitVulkan();
 
         fpsManager.setTargetFps(140);
+
+        log.add('C', 000);
     }
 
     void InitWindow()
@@ -78,6 +80,8 @@ private:
             log.add('G', 201);
             return;
         }
+
+        log.add('G', 000);
     }
 
     void InitVulkan()
@@ -93,50 +97,54 @@ private:
         createCommandPool();
         createCommandBuffers();
         createSemaphores();
+
+        log.add('V', 000);
     }
 
     void Tick()
     {
-        while (!glfwWindowShouldClose(window))
+        glfwPollEvents();
+        input.refresh(window);
+
+        if (log.hasNewMessages())
         {
-            glfwPollEvents();
-            input.refresh(window);
+            std::vector<std::string> newMessages = log.getNewMessages();
 
-            if (input.isKeyPressed(VRG_KEY_A))
+            for (size_t i = 0; i < newMessages.size(); i++)
             {
-                log.add('O', 300);
+                std::cout << newMessages[i] << std::endl;
             }
-
-            if (log.hasNewMessages())
-            {
-                std::vector<std::string> newMessages = log.getNewMessages();
-
-                for (int i = 0; i < newMessages.size(); i++)
-                {
-                    std::cout << newMessages[i] << std::endl;
-                }
-            }
-            drawFrame();
-
-            fpsManager.syncFrameTime();
         }
+        drawFrame();
 
-        vkDeviceWaitIdle(device);
+        fpsManager.syncFrameTime();
+
+        if (!glfwWindowShouldClose(window))
+        {
+            Tick();
+        }
     }
 
     void Cleanup()
     {
+        log.writeToLogFile();
+        vkDeviceWaitIdle(device);
+
         vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
         vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
         vkDestroyCommandPool(device, commandPool, nullptr);
 
         for (auto framebuffer : swapChainFramebuffers)
+        {
             vkDestroyFramebuffer(device, framebuffer, nullptr);
+        }
 
         vkDestroyRenderPass(device, renderPass, nullptr);
 
         for (auto imageView : swapChainImageViews)
+        {
             vkDestroyImageView(device, imageView, nullptr);
+        }
 
         vkDestroySwapchainKHR(device, swapChain, nullptr);
         vkDestroyDevice(device, nullptr);
@@ -163,14 +171,16 @@ private:
         createInfo.enabledExtensionCount = glfwExtensionCount;
         createInfo.ppEnabledExtensionNames = glfwExtensions;
 
-        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS){
+        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
+        {
             log.add('V', 200);
         }
     }
 
     void createSurface()
     {
-        if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS){
+        if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS)
+        {
             log.add('V', 201);
         }
     }
@@ -179,14 +189,15 @@ private:
     {
         uint32_t deviceCount = 0;
         vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
-        if (deviceCount == 0){
+        if (deviceCount == 0)
+        {
             log.add('V', 202);
         }
 
         std::vector<VkPhysicalDevice> devices(deviceCount);
         vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
         VkPhysicalDeviceProperties deviceProperties;
-        physicalDevice = devices[1];
+        physicalDevice = devices[deviceCount - 1];
     }
 
     void createLogicalDevice()
@@ -220,7 +231,8 @@ private:
         createInfo.enabledExtensionCount = 1;
         createInfo.ppEnabledExtensionNames = deviceExtensions;
 
-        if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS){
+        if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
+        {
             log.add('V', 203);
         }
 
@@ -249,7 +261,8 @@ private:
         createInfo.clipped = VK_TRUE;
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS){
+        if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS)
+        {
             log.add('V', 204);
         }
 
@@ -280,7 +293,8 @@ private:
             viewInfo.subresourceRange.levelCount = 1;
             viewInfo.subresourceRange.baseArrayLayer = 0;
             viewInfo.subresourceRange.layerCount = 1;
-            if (vkCreateImageView(device, &viewInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS){
+            if (vkCreateImageView(device, &viewInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS)
+            {
                 log.add('V', 205);
             }
         }
@@ -312,7 +326,8 @@ private:
         renderPassInfo.subpassCount = 1;
         renderPassInfo.pSubpasses = &subpass;
 
-        if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS){
+        if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
+        {
             log.add('V', 206);
         }
     }
@@ -332,7 +347,8 @@ private:
             framebufferInfo.height = swapChainExtent.height;
             framebufferInfo.layers = 1;
 
-            if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS){
+            if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS)
+            {
                 log.add('V', 207);
             }
         }
@@ -343,7 +359,8 @@ private:
         VkCommandPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.queueFamilyIndex = 0;
-        if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS){
+        if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
+        {
             log.add('V', 208);
         }
     }
@@ -358,7 +375,8 @@ private:
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
-        if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS){
+        if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
+        {
             log.add('V', 209);
         }
 
@@ -383,7 +401,8 @@ private:
             vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
             vkCmdEndRenderPass(commandBuffers[i]);
 
-            if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS){
+            if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
+            {
                 log.add('V', 210);
             }
         }

@@ -16,7 +16,7 @@ public:
 
 private:
     inline static const std::map<std::pair<char, uint16_t>, std::string> messages{
-        {{'C', 000}, "Verge Engine loaded successfully"},
+        {{'C', 000}, "All resources loaded! Welcome!"},
 
         {{'V', 000}, "Vulkan loaded successfully"},
         {{'V', 200}, "Vulkan failed to create instance"},
@@ -35,6 +35,7 @@ private:
         {{'G', 200}, "GLFW initialization failed"},
         {{'G', 201}, "GLFW window creation failed"},
 
+        {{'O', 000}, "DEV MODE ON"},
         {{'O', 200}, "Invalid error code"},
         {{'O', 300}, "Test error code"}};
 };

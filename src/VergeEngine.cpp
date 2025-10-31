@@ -163,22 +163,25 @@ private:
         createInfo.enabledExtensionCount = glfwExtensionCount;
         createInfo.ppEnabledExtensionNames = glfwExtensions;
 
-        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
-            throw std::runtime_error("Failed to create instance!");
+        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS){
+            log.AddToLog('V', 200);
+        }
     }
 
     void createSurface()
     {
-        if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS)
-            throw std::runtime_error("Failed to create window surface!");
+        if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS){
+            log.AddToLog('V', 201);
+        }
     }
 
     void pickPhysicalDevice()
     {
         uint32_t deviceCount = 0;
         vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
-        if (deviceCount == 0)
-            throw std::runtime_error("No Vulkan GPU found!");
+        if (deviceCount == 0){
+            log.AddToLog('V', 202);
+        }
 
         std::vector<VkPhysicalDevice> devices(deviceCount);
         vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
@@ -217,8 +220,9 @@ private:
         createInfo.enabledExtensionCount = 1;
         createInfo.ppEnabledExtensionNames = deviceExtensions;
 
-        if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
-            throw std::runtime_error("Failed to create logical device!");
+        if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS){
+            log.AddToLog('V', 203);
+        }
 
         vkGetDeviceQueue(device, graphicsFamily, 0, &graphicsQueue);
         presentQueue = graphicsQueue;
@@ -245,8 +249,9 @@ private:
         createInfo.clipped = VK_TRUE;
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS)
-            throw std::runtime_error("Failed to create swap chain!");
+        if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS){
+            log.AddToLog('V', 204);
+        }
 
         uint32_t imageCount;
         vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
@@ -275,8 +280,9 @@ private:
             viewInfo.subresourceRange.levelCount = 1;
             viewInfo.subresourceRange.baseArrayLayer = 0;
             viewInfo.subresourceRange.layerCount = 1;
-            if (vkCreateImageView(device, &viewInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS)
-                throw std::runtime_error("Failed to create image views!");
+            if (vkCreateImageView(device, &viewInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS){
+                log.AddToLog('V', 205);
+            }
         }
     }
 
@@ -306,8 +312,9 @@ private:
         renderPassInfo.subpassCount = 1;
         renderPassInfo.pSubpasses = &subpass;
 
-        if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
-            throw std::runtime_error("Failed to create render pass!");
+        if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS){
+            log.AddToLog('V', 206);
+        }
     }
 
     void createFramebuffers()
@@ -325,8 +332,9 @@ private:
             framebufferInfo.height = swapChainExtent.height;
             framebufferInfo.layers = 1;
 
-            if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS)
-                throw std::runtime_error("Failed to create framebuffer!");
+            if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS){
+                log.AddToLog('V', 207);
+            }
         }
     }
 
@@ -335,8 +343,9 @@ private:
         VkCommandPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.queueFamilyIndex = 0;
-        if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
-            throw std::runtime_error("Failed to create command pool!");
+        if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS){
+            log.AddToLog('V', 208);
+        }
     }
 
     void createCommandBuffers()
@@ -349,8 +358,9 @@ private:
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
-        if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
-            throw std::runtime_error("Failed to allocate command buffers!");
+        if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS){
+            log.AddToLog('V', 209);
+        }
 
         for (size_t i = 0; i < commandBuffers.size(); i++)
         {
@@ -373,8 +383,9 @@ private:
             vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
             vkCmdEndRenderPass(commandBuffers[i]);
 
-            if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
-                throw std::runtime_error("Failed to record command buffer!");
+            if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS){
+                log.AddToLog('V', 210);
+            }
         }
     }
 

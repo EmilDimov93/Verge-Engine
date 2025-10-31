@@ -20,6 +20,17 @@ private:
         {{'O', 300}, "Test error code"},
 
         {{'V', 000}, "Vulkan loaded successfully"},
+        {{'V', 200}, "Vulkan failed to create instance"},
+        {{'V', 201}, "Vulkan failed to create window surface"},
+        {{'V', 202}, "Vulkan failed to find GPU"},
+        {{'V', 203}, "Vulkan failed to create logical device"},
+        {{'V', 204}, "Vulkan failed to create swapchain"},
+        {{'V', 205}, "Vulkan failed to create image views"},
+        {{'V', 206}, "Vulkan failed to create render pass"},
+        {{'V', 207}, "Vulkan failed to create framebuffer"},
+        {{'V', 208}, "Vulkan failed to create command pool"},
+        {{'V', 209}, "Vulkan failed to allocate command buffers"},
+        {{'V', 210}, "Vulkan failed to record command buffer"},
 
         {{'G', 000}, "GLFW loaded successfully"},
         {{'G', 200}, "GLFW initialization failed"},

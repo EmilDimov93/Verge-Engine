@@ -2,15 +2,15 @@
 
 #include <chrono>
 
-class FPSManager
+class FpsManager
 {
 private:
     std::chrono::steady_clock::time_point timeAtStartOfFrame;
     double targetFrameTime;
-    int currentFPS;
+    int currentFps;
 
 public:
-    void CorrectFrameTime();
-    void SetTargetFPS(int targetFps);
-    int GetFPS();
+    void syncFrameTime();
+    void setTargetFps(int targetFps);
+    int getFps();
 };

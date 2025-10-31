@@ -10,7 +10,7 @@ public:
     char letter;
     int number;
 
-    std::string GetMessage();
+    std::string getMessage();
 
     ErrorCode(char l, int n) : letter(l), number(n) {}
 
@@ -40,15 +40,15 @@ private:
 class LogManager
 {
 private:
-    std::vector<ErrorCode> logList;
+    std::vector<ErrorCode> entries;
     int newMessageCount = 0;
-    bool hasNewMessages;
+    bool hasNewMessagesFlag = false;
+    int clearedEntriesCount = 0;
 
-    void FreeLogSpace();
+    void freeLogSpace();
 
 public:
-    int clearedLogMessages = 0;
-    void AddToLog(char letter, int number);
-    std::vector<std::string> GetNewMessages();
-    bool HasNewMessages();
+    void add(char letter, int number);
+    std::vector<std::string> getNewMessages();
+    bool hasNewMessages();
 };

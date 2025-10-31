@@ -2,7 +2,7 @@
 
 #define LOG_MESSAGE_LIMIT 1000
 
-std::string ErrorCode::GetMessage()
+std::string ErrorCode::getMessage()
 {
     auto it = messages.find({letter, number});
     if (it != messages.end())
@@ -12,42 +12,42 @@ std::string ErrorCode::GetMessage()
     return "";
 }
 
-void LogManager::FreeLogSpace()
+void LogManager::freeLogSpace()
 {
-    for (int i = logList.size() / 4; i >= 0; i--)
+    for (int i = entries.size() / 4; i >= 0; i--)
     {
-        if (logList[i].number / 100 != 2)
+        if (entries[i].number / 100 != 2)
         {
-            logList.erase(logList.begin() + i);
-            clearedLogMessages++;
+            entries.erase(entries.begin() + i);
+            clearedEntriesCount++;
         }
     }
 }
 
-void LogManager::AddToLog(char letter, int number)
+void LogManager::add(char letter, int number)
 {
-    logList.push_back(ErrorCode{letter, number});
-    hasNewMessages = true;
+    entries.push_back(ErrorCode{letter, number});
+    hasNewMessagesFlag = true;
     newMessageCount++;
-    if (logList.size() > LOG_MESSAGE_LIMIT)
+    if (entries.size() > LOG_MESSAGE_LIMIT)
     {
-        FreeLogSpace();
+        freeLogSpace();
     }
 }
 
-std::vector<std::string> LogManager::GetNewMessages()
+std::vector<std::string> LogManager::getNewMessages()
 {
     std::vector<std::string> newMessages;
-    for (int i = logList.size() - newMessageCount; i < logList.size(); i++)
+    for (int i = entries.size() - newMessageCount; i < entries.size(); i++)
     {
-        newMessages.push_back(logList[i].GetMessage());
+        newMessages.push_back(entries[i].getMessage());
     }
     newMessageCount = 0;
-    hasNewMessages = false;
+    hasNewMessagesFlag = false;
     return newMessages;
 }
 
-bool LogManager::HasNewMessages()
+bool LogManager::hasNewMessages()
 {
-    return hasNewMessages;
+    return hasNewMessagesFlag;
 }

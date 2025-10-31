@@ -1,6 +1,6 @@
-#include "InputHandler.h"
+#include "InputManager.h"
 
-InputHandler::InputHandler()
+InputManager::InputManager()
 {
     for (int i = 0; i < VRG_MOUSE_KEY_COUNT; i++)
     {
@@ -13,7 +13,7 @@ InputHandler::InputHandler()
     }
 }
 
-void InputHandler::RefreshInput(GLFWwindow *window)
+void InputManager::refresh(GLFWwindow *window)
 {
     for (int i = 0; i < VRG_MOUSE_KEY_COUNT; i++)
     {
@@ -50,42 +50,42 @@ void InputHandler::RefreshInput(GLFWwindow *window)
     }
 }
 
-bool InputHandler::IsMouseKeyDown(int key)
+bool InputManager::isMouseKeyDown(int key)
 {
     return mouseKeyStates[key] == KEY_STATE_DOWN || mouseKeyStates[key] == KEY_STATE_PRESSED;
 }
 
-bool InputHandler::IsMouseKeyUp(int key)
+bool InputManager::isMouseKeyUp(int key)
 {
     return mouseKeyStates[key] == KEY_STATE_UP || mouseKeyStates[key] == KEY_STATE_RELEASED;
 }
 
-bool InputHandler::IsMouseKeyPressed(int key)
+bool InputManager::isMouseKeyPressed(int key)
 {
     return mouseKeyStates[key] == KEY_STATE_PRESSED;
 }
 
-bool InputHandler::IsMouseKeyReleased(int key)
+bool InputManager::isMouseKeyReleased(int key)
 {
     return mouseKeyStates[key] == KEY_STATE_RELEASED;
 }
 
-bool InputHandler::IsKeyDown(int key)
+bool InputManager::isKeyDown(int key)
 {
     return keyStates[key] == KEY_STATE_DOWN || keyStates[key] == KEY_STATE_PRESSED;
 }
 
-bool InputHandler::IsKeyUp(int key)
+bool InputManager::isKeyUp(int key)
 {
     return keyStates[key] == KEY_STATE_UP || keyStates[key] == KEY_STATE_RELEASED;
 }
 
-bool InputHandler::IsKeyPressed(int key)
+bool InputManager::isKeyPressed(int key)
 {
     return keyStates[key] == KEY_STATE_PRESSED;
 }
 
-bool InputHandler::IsKeyReleased(int key)
+bool InputManager::isKeyReleased(int key)
 {
     return keyStates[key] == KEY_STATE_RELEASED;
 }

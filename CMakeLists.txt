@@ -6,9 +6,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(VergeEngine 
-    src/VergeEngine.cpp
-    src/InputHandler.cpp
-    src/FPSManager.cpp
+    src/Core.cpp
+    src/InputManager.cpp
+    src/FpsManager.cpp
     src/LogManager.cpp
 )
 

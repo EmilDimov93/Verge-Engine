@@ -2,5 +2,5 @@
 build/
 logo/
 desktop.ini
-build.ps1
-push.ps1
+run.ps1
+git.ps1

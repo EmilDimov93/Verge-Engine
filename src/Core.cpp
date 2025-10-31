@@ -6,7 +6,7 @@
 #include <thread>
 #include <chrono>
 
-#include "InputHandler.h"
+#include "InputManager.h"
 #include "LogManager.h"
 #include "FPSManager.h"
 #include "version.h"
@@ -48,9 +48,9 @@ private:
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
 
-    InputHandler input;
+    InputManager input;
 
-    FPSManager FPSManager;
+    FpsManager fpsManager;
 
     LogManager log;
 
@@ -59,14 +59,14 @@ private:
         InitWindow();
         InitVulkan();
 
-        FPSManager.SetTargetFPS(140);
+        fpsManager.setTargetFps(140);
     }
 
     void InitWindow()
     {
         if (!glfwInit())
         {
-            log.AddToLog('G', 200);
+            log.add('G', 200);
             return;
         }
 
@@ -75,7 +75,7 @@ private:
         window = glfwCreateWindow(WIDTH, HEIGHT, "Verge Engine", nullptr, nullptr);
         if (!window)
         {
-            log.AddToLog('G', 201);
+            log.add('G', 201);
             return;
         }
     }
@@ -100,16 +100,16 @@ private:
         while (!glfwWindowShouldClose(window))
         {
             glfwPollEvents();
-            input.RefreshInput(window);
+            input.refresh(window);
 
-            if (input.IsKeyPressed(VRG_KEY_A))
+            if (input.isKeyPressed(VRG_KEY_A))
             {
-                log.AddToLog('O', 300);
+                log.add('O', 300);
             }
 
-            if (log.HasNewMessages())
+            if (log.hasNewMessages())
             {
-                std::vector<std::string> newMessages = log.GetNewMessages();
+                std::vector<std::string> newMessages = log.getNewMessages();
 
                 for (int i = 0; i < newMessages.size(); i++)
                 {
@@ -118,7 +118,7 @@ private:
             }
             drawFrame();
 
-            FPSManager.CorrectFrameTime();
+            fpsManager.syncFrameTime();
         }
 
         vkDeviceWaitIdle(device);
@@ -164,14 +164,14 @@ private:
         createInfo.ppEnabledExtensionNames = glfwExtensions;
 
         if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS){
-            log.AddToLog('V', 200);
+            log.add('V', 200);
         }
     }
 
     void createSurface()
     {
         if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS){
-            log.AddToLog('V', 201);
+            log.add('V', 201);
         }
     }
 
@@ -180,7 +180,7 @@ private:
         uint32_t deviceCount = 0;
         vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
         if (deviceCount == 0){
-            log.AddToLog('V', 202);
+            log.add('V', 202);
         }
 
         std::vector<VkPhysicalDevice> devices(deviceCount);
@@ -221,7 +221,7 @@ private:
         createInfo.ppEnabledExtensionNames = deviceExtensions;
 
         if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS){
-            log.AddToLog('V', 203);
+            log.add('V', 203);
         }
 
         vkGetDeviceQueue(device, graphicsFamily, 0, &graphicsQueue);
@@ -250,7 +250,7 @@ private:
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
         if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS){
-            log.AddToLog('V', 204);
+            log.add('V', 204);
         }
 
         uint32_t imageCount;
@@ -281,7 +281,7 @@ private:
             viewInfo.subresourceRange.baseArrayLayer = 0;
             viewInfo.subresourceRange.layerCount = 1;
             if (vkCreateImageView(device, &viewInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS){
-                log.AddToLog('V', 205);
+                log.add('V', 205);
             }
         }
     }
@@ -313,7 +313,7 @@ private:
         renderPassInfo.pSubpasses = &subpass;
 
         if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS){
-            log.AddToLog('V', 206);
+            log.add('V', 206);
         }
     }
 
@@ -333,7 +333,7 @@ private:
             framebufferInfo.layers = 1;
 
             if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS){
-                log.AddToLog('V', 207);
+                log.add('V', 207);
             }
         }
     }
@@ -344,7 +344,7 @@ private:
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.queueFamilyIndex = 0;
         if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS){
-            log.AddToLog('V', 208);
+            log.add('V', 208);
         }
     }
 
@@ -359,7 +359,7 @@ private:
         allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
         if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS){
-            log.AddToLog('V', 209);
+            log.add('V', 209);
         }
 
         for (size_t i = 0; i < commandBuffers.size(); i++)
@@ -384,7 +384,7 @@ private:
             vkCmdEndRenderPass(commandBuffers[i]);
 
             if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS){
-                log.AddToLog('V', 210);
+                log.add('V', 210);
             }
         }
     }

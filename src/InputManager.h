@@ -96,24 +96,24 @@ typedef enum
 
 } VRGKeys;
 
-class InputHandler
+class InputManager
 {
 private:
     KeyState mouseKeyStates[VRG_MOUSE_KEY_COUNT];
     KeyState keyStates[VRG_KEY_COUNT];
 
 public:
-    InputHandler();
+    InputManager();
 
-    void RefreshInput(GLFWwindow *window);
+    void refresh(GLFWwindow *window);
 
-    bool IsMouseKeyDown(int key);
-    bool IsMouseKeyUp(int key);
-    bool IsMouseKeyPressed(int key);
-    bool IsMouseKeyReleased(int key);
+    bool isMouseKeyDown(int key);
+    bool isMouseKeyUp(int key);
+    bool isMouseKeyPressed(int key);
+    bool isMouseKeyReleased(int key);
 
-    bool IsKeyDown(int key);
-    bool IsKeyUp(int key);
-    bool IsKeyPressed(int key);
-    bool IsKeyReleased(int key);
+    bool isKeyDown(int key);
+    bool isKeyUp(int key);
+    bool isKeyPressed(int key);
+    bool isKeyReleased(int key);
 };

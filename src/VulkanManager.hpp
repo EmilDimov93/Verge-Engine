@@ -1,3 +1,6 @@
+// Copyright 2025 Emil Dimov
+// Licensed under the Apache License, Version 2.0
+
 #include <vulkan/vulkan.h>
 #include <vector>
 #include <GLFW/glfw3.h>

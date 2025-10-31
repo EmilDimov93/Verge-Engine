@@ -1,4 +1,5 @@
-#include "FPSManager.h"
+#include "FPSManager.hpp"
+
 #include <thread>
 
 void FpsManager::syncFrameTime()

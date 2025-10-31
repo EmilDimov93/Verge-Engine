@@ -1,11 +1,11 @@
-#include "LogManager.h"
+#include "LogManager.hpp"
 
 #include <fstream>
 #include <iomanip>
 #include <ctime>
 #include <chrono>
 
-#include "version.h"
+#include "version.hpp"
 
 #define LOG_MESSAGE_LIMIT 1000
 

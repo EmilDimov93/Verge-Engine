@@ -1,5 +1,5 @@
-#include "VulkanManager.h"
-#include "version.h"
+#include "VulkanManager.hpp"
+#include "version.hpp"
 
 void VulkanManager::InitVulkan(GLFWwindow *window, Size windowSize, LogManager *logRef)
 {

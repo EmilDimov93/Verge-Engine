@@ -6,13 +6,13 @@
 #include <thread>
 #include <chrono>
 
-#include "VulkanManager.h"
-#include "InputManager.h"
-#include "LogManager.h"
-#include "FPSManager.h"
-#include "version.h"
-#include "definitions.h"
-#include "local.h"
+#include "VulkanManager.hpp"
+#include "InputManager.hpp"
+#include "LogManager.hpp"
+#include "FPSManager.hpp"
+#include "version.hpp"
+#include "definitions.hpp"
+#include "local.hpp"
 
 const Size windowSize = {800, 600};
 

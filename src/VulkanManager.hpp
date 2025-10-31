@@ -2,8 +2,8 @@
 #include <vector>
 #include <GLFW/glfw3.h>
 
-#include "LogManager.h"
-#include "definitions.h"
+#include "LogManager.hpp"
+#include "definitions.hpp"
 
 class VulkanManager
 {

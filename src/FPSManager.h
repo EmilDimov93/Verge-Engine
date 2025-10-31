@@ -7,10 +7,10 @@ class FpsManager
 private:
     std::chrono::steady_clock::time_point timeAtStartOfFrame;
     double targetFrameTime;
-    int currentFps;
+    uint16_t currentFps;
 
 public:
     void syncFrameTime();
-    void setTargetFps(int targetFps);
-    int getFps();
+    void setTargetFps(uint16_t targetFps);
+    uint16_t getFps();
 };

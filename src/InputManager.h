@@ -107,13 +107,13 @@ public:
 
     void refresh(GLFWwindow *window);
 
-    bool isMouseKeyDown(int key);
-    bool isMouseKeyUp(int key);
-    bool isMouseKeyPressed(int key);
-    bool isMouseKeyReleased(int key);
+    bool isMouseKeyDown(uint16_t key);
+    bool isMouseKeyUp(uint16_t key);
+    bool isMouseKeyPressed(uint16_t key);
+    bool isMouseKeyReleased(uint16_t key);
 
-    bool isKeyDown(int key);
-    bool isKeyUp(int key);
-    bool isKeyPressed(int key);
-    bool isKeyReleased(int key);
+    bool isKeyDown(uint16_t key);
+    bool isKeyUp(uint16_t key);
+    bool isKeyPressed(uint16_t key);
+    bool isKeyReleased(uint16_t key);
 };

@@ -2,12 +2,12 @@
 
 InputManager::InputManager()
 {
-    for (int i = 0; i < VRG_MOUSE_KEY_COUNT; i++)
+    for (size_t i = 0; i < VRG_MOUSE_KEY_COUNT; i++)
     {
         mouseKeyStates[i] = KEY_STATE_UP;
     }
 
-    for (int i = 0; i < VRG_KEY_COUNT; i++)
+    for (size_t i = 0; i < VRG_KEY_COUNT; i++)
     {
         keyStates[i] = KEY_STATE_UP;
     }
@@ -15,7 +15,7 @@ InputManager::InputManager()
 
 void InputManager::refresh(GLFWwindow *window)
 {
-    for (int i = 0; i < VRG_MOUSE_KEY_COUNT; i++)
+    for (size_t i = 0; i < VRG_MOUSE_KEY_COUNT; i++)
     {
         bool isKeyDown = glfwGetMouseButton(window, i) == GLFW_PRESS;
 
@@ -32,7 +32,7 @@ void InputManager::refresh(GLFWwindow *window)
         }
     }
 
-    for (int i = 0; i < VRG_KEY_COUNT; i++)
+    for (size_t i = 0; i < VRG_KEY_COUNT; i++)
     {
         bool isKeyDown = glfwGetKey(window, i) == GLFW_PRESS;
 
@@ -50,42 +50,42 @@ void InputManager::refresh(GLFWwindow *window)
     }
 }
 
-bool InputManager::isMouseKeyDown(int key)
+bool InputManager::isMouseKeyDown(uint16_t key)
 {
     return mouseKeyStates[key] == KEY_STATE_DOWN || mouseKeyStates[key] == KEY_STATE_PRESSED;
 }
 
-bool InputManager::isMouseKeyUp(int key)
+bool InputManager::isMouseKeyUp(uint16_t key)
 {
     return mouseKeyStates[key] == KEY_STATE_UP || mouseKeyStates[key] == KEY_STATE_RELEASED;
 }
 
-bool InputManager::isMouseKeyPressed(int key)
+bool InputManager::isMouseKeyPressed(uint16_t key)
 {
     return mouseKeyStates[key] == KEY_STATE_PRESSED;
 }
 
-bool InputManager::isMouseKeyReleased(int key)
+bool InputManager::isMouseKeyReleased(uint16_t key)
 {
     return mouseKeyStates[key] == KEY_STATE_RELEASED;
 }
 
-bool InputManager::isKeyDown(int key)
+bool InputManager::isKeyDown(uint16_t key)
 {
     return keyStates[key] == KEY_STATE_DOWN || keyStates[key] == KEY_STATE_PRESSED;
 }
 
-bool InputManager::isKeyUp(int key)
+bool InputManager::isKeyUp(uint16_t key)
 {
     return keyStates[key] == KEY_STATE_UP || keyStates[key] == KEY_STATE_RELEASED;
 }
 
-bool InputManager::isKeyPressed(int key)
+bool InputManager::isKeyPressed(uint16_t key)
 {
     return keyStates[key] == KEY_STATE_PRESSED;
 }
 
-bool InputManager::isKeyReleased(int key)
+bool InputManager::isKeyReleased(uint16_t key)
 {
     return keyStates[key] == KEY_STATE_RELEASED;
 }

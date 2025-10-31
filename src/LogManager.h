@@ -8,14 +8,14 @@ class ErrorCode
 {
 public:
     char letter;
-    int number;
+    uint16_t number;
 
     std::string getMessage();
 
-    ErrorCode(char l, int n) : letter(l), number(n) {}
+    ErrorCode(char l, uint16_t n) : letter(l), number(n) {}
 
 private:
-    inline static const std::map<std::pair<char, int>, std::string> messages{
+    inline static const std::map<std::pair<char, uint16_t>, std::string> messages{
         {{'C', 000}, "Verge Engine loaded successfully"},
 
         {{'V', 000}, "Vulkan loaded successfully"},
@@ -43,14 +43,14 @@ class LogManager
 {
 private:
     std::vector<ErrorCode> entries;
-    int newMessageCount = 0;
+    size_t newMessageCount = 0;
     bool hasNewMessagesFlag = false;
-    int clearedEntriesCount = 0;
+    size_t clearedEntriesCount = 0;
 
     void freeLogSpace();
 
 public:
-    void add(char letter, int number);
+    void add(char letter, uint16_t number);
     std::vector<std::string> getNewMessages();
     bool hasNewMessages();
     void writeToLogFile();

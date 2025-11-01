@@ -10,6 +10,7 @@
 #include <chrono>
 
 #include "VulkanManager.hpp"
+#include "GlfwManager.hpp"
 #include "InputManager.hpp"
 #include "LogManager.hpp"
 #include "FPSManager.hpp"
@@ -32,6 +33,8 @@ public:
 private:
     VulkanManager vulkan;
 
+    GlfwManager glfw;
+
     GLFWwindow *window;
     
     InputManager input;
@@ -46,32 +49,12 @@ private:
             log.add('O', 000);
         }
 
-        InitWindow();
-        vulkan.InitVulkan(window, windowSize, &log);
+        glfw.initWindow(&window, windowSize, &log);
+        vulkan.initVulkan(window, windowSize, &log);
 
         fpsManager.setTargetFps(140);
 
         log.add('C', 000);
-    }
-
-    void InitWindow()
-    {
-        if (!glfwInit())
-        {
-            log.add('G', 200);
-            return;
-        }
-
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-
-        window = glfwCreateWindow(windowSize.w, windowSize.h, "Verge Engine", nullptr, nullptr);
-        if (!window)
-        {
-            log.add('G', 201);
-            return;
-        }
-
-        log.add('G', 000);
     }
 
     void Tick()

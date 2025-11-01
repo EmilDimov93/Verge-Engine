@@ -33,15 +33,15 @@ public:
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
 
-    LogManager *log;
-
-    void InitVulkan(GLFWwindow *window, Size windowSize, LogManager *logRef);
+    void initVulkan(GLFWwindow *window, Size windowSize, LogManager *logRef);
 
     void drawFrame();
 
     void cleanup();
 
 private:
+    LogManager *log;
+
     void createInstance();
     void createSurface(GLFWwindow *window);
     void pickPhysicalDevice();

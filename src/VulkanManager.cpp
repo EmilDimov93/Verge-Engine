@@ -4,7 +4,7 @@
 #include "VulkanManager.hpp"
 #include "version.hpp"
 
-void VulkanManager::InitVulkan(GLFWwindow *window, Size windowSize, LogManager *logRef)
+void VulkanManager::initVulkan(GLFWwindow *window, Size windowSize, LogManager *logRef)
 {
     log = logRef;
 

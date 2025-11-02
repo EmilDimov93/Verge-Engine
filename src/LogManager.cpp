@@ -19,7 +19,7 @@ std::string ErrorCode::getMessage()
     {
         return it->second;
     }
-    return "";
+    return "Invalid error code";
 }
 
 void LogManager::freeLogSpace()
@@ -39,6 +39,11 @@ void LogManager::add(char letter, uint16_t number)
     entries.push_back(ErrorCode{letter, number});
     hasNewMessagesFlag = true;
     newMessageCount++;
+
+    if(number / 100 == 2){
+        InduceCrash();
+    }
+
     if (entries.size() > LOG_MESSAGE_LIMIT)
     {
         freeLogSpace();
@@ -71,4 +76,10 @@ void LogManager::writeToLogFile(){
     for (auto& entry : entries){
         file << entry.letter << std::setfill('0') << std::setw(3) << entry.number << ": " << entry.getMessage() << '\n';
     }
+}
+
+void LogManager::InduceCrash(){
+    entries.push_back(ErrorCode{'C', 200});
+    writeToLogFile();
+    exit(EXIT_FAILURE);
 }

@@ -1,8 +1,6 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#include <vulkan/vulkan.h>
-#include <GLFW/glfw3.h>
 #include <iostream>
 #include <vector>
 #include <stdexcept>
@@ -58,7 +56,7 @@ private:
     }
 
     void Tick()
-    {
+    {std::cout << "\033[31mRed text\033[0m Normal text\n";
         glfwPollEvents();
         input.refresh(window);
 
@@ -84,12 +82,13 @@ private:
 
     void Cleanup()
     {
-        log.writeToLogFile();
-
         vulkan.cleanup();
         
         glfwDestroyWindow(window);
         glfwTerminate();
+
+        log.add('C', 001);
+        log.writeToLogFile();
     }
 };
 

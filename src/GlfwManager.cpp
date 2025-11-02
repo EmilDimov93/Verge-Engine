@@ -3,8 +3,6 @@
 
 #include "GlfwManager.hpp"
 
-#include <GLFW/glfw3.h>
-
 void GlfwManager::initWindow(GLFWwindow **window, Size windowSize, LogManager *logRef)
 {
     log = logRef;

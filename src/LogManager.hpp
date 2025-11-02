@@ -20,6 +20,8 @@ public:
 private:
     inline static const std::map<std::pair<char, uint16_t>, std::string> messages{
         {{'C', 000}, "All resources loaded! Welcome!"},
+        {{'C', 001}, "Verge Engine exited successfully"},
+        {{'C', 200}, "Verge Engine crashed"},
 
         {{'V', 000}, "Vulkan loaded successfully"},
         {{'V', 200}, "Vulkan failed to create instance"},
@@ -39,8 +41,7 @@ private:
         {{'G', 201}, "GLFW window creation failed"},
 
         {{'O', 000}, "DEV MODE ON"},
-        {{'O', 200}, "Invalid error code"},
-        {{'O', 300}, "Test error code"}};
+        {{'O', 100}, "Test error code"}};
 };
 
 class LogManager
@@ -58,4 +59,5 @@ public:
     std::vector<std::string> getNewMessages();
     bool hasNewMessages();
     void writeToLogFile();
+    void InduceCrash();
 };

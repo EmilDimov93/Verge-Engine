@@ -23,7 +23,9 @@ void FpsManager::syncFrameTime()
 
 void FpsManager::setTargetFps(uint16_t targetFps)
 {
-    targetFrameTime = 1.0 / targetFps;
+    if(targetFps != 0){
+        targetFrameTime = 1.0 / targetFps;
+    }
 }
 
 uint16_t FpsManager::getFps()

@@ -37,6 +37,8 @@ public:
 
     void drawFrame();
 
+    void vkCheck(VkResult res, ErrorCode errorCode);
+
     void cleanup();
 
 private:

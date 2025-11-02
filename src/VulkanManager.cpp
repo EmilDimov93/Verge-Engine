@@ -40,18 +40,12 @@ void VulkanManager::createInstance()
     createInfo.enabledExtensionCount = glfwExtensionCount;
     createInfo.ppEnabledExtensionNames = glfwExtensions;
 
-    if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
-    {
-        log->add('V', 200);
-    }
+    vkCheck(vkCreateInstance(&createInfo, nullptr, &instance), {'V', 200});
 }
 
 void VulkanManager::createSurface(GLFWwindow *window)
 {
-    if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS)
-    {
-        log->add('V', 201);
-    }
+    vkCheck(glfwCreateWindowSurface(instance, window, nullptr, &surface), {'V', 201});
 }
 
 void VulkanManager::pickPhysicalDevice()
@@ -100,10 +94,7 @@ void VulkanManager::createLogicalDevice()
     createInfo.enabledExtensionCount = 1;
     createInfo.ppEnabledExtensionNames = deviceExtensions;
 
-    if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
-    {
-        log->add('V', 203);
-    }
+    vkCheck(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device), {'V', 203});
 
     vkGetDeviceQueue(device, graphicsFamily, 0, &graphicsQueue);
     presentQueue = graphicsQueue;
@@ -126,14 +117,11 @@ void VulkanManager::createSwapChain(Size windowSize)
     createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
     createInfo.preTransform = capabilities.currentTransform;
     createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    createInfo.presentMode = VK_PRESENT_MODE_FIFO_KHR;
+    createInfo.presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
     createInfo.clipped = VK_TRUE;
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-    if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS)
-    {
-        log->add('V', 204);
-    }
+    vkCheck(vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain), {'V', 204});
 
     uint32_t imageCount;
     vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
@@ -162,10 +150,7 @@ void VulkanManager::createImageViews()
         viewInfo.subresourceRange.levelCount = 1;
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
-        if (vkCreateImageView(device, &viewInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS)
-        {
-            log->add('V', 205);
-        }
+        vkCheck(vkCreateImageView(device, &viewInfo, nullptr, &swapChainImageViews[i]), {'V', 205});
     }
 }
 
@@ -195,10 +180,7 @@ void VulkanManager::createRenderPass()
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
 
-    if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
-    {
-        log->add('V', 206);
-    }
+    vkCheck(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass), {'V', 206});
 }
 
 void VulkanManager::createFramebuffers()
@@ -216,10 +198,7 @@ void VulkanManager::createFramebuffers()
         framebufferInfo.height = swapChainExtent.height;
         framebufferInfo.layers = 1;
 
-        if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS)
-        {
-            log->add('V', 207);
-        }
+        vkCheck(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]), {'V', 207});
     }
 }
 
@@ -228,10 +207,7 @@ void VulkanManager::createCommandPool()
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.queueFamilyIndex = 0;
-    if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
-    {
-        log->add('V', 208);
-    }
+    vkCheck(vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool), {'V', 208});
 }
 
 void VulkanManager::createCommandBuffers()
@@ -244,10 +220,7 @@ void VulkanManager::createCommandBuffers()
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
-    if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
-    {
-        log->add('V', 209);
-    }
+    vkCheck(vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()), {'V', 209});
 
     for (size_t i = 0; i < commandBuffers.size(); i++)
     {
@@ -270,10 +243,7 @@ void VulkanManager::createCommandBuffers()
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdEndRenderPass(commandBuffers[i]);
 
-        if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
-        {
-            log->add('V', 210);
-        }
+        vkCheck(vkEndCommandBuffer(commandBuffers[i]), {'V', 210});
     }
 }
 
@@ -320,6 +290,12 @@ void VulkanManager::drawFrame()
 
     vkQueuePresentKHR(presentQueue, &presentInfo);
     vkQueueWaitIdle(presentQueue);
+}
+
+void VulkanManager::vkCheck(VkResult res, ErrorCode errorCode){
+    if(res != VK_SUCCESS){
+        log->add(errorCode.letter, errorCode.number);
+    }
 }
 
 void VulkanManager::cleanup()

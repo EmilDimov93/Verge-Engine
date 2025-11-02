@@ -9,8 +9,8 @@ class FpsManager
 {
 private:
     std::chrono::steady_clock::time_point timeAtStartOfFrame;
-    double targetFrameTime;
-    uint16_t currentFps;
+    double targetFrameTime = 0;
+    uint16_t currentFps = 0;
 
 public:
     void syncFrameTime();

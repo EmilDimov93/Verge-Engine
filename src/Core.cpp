@@ -8,15 +8,12 @@
 #include <chrono>
 
 #include "VulkanManager.hpp"
-#include "GlfwManager.hpp"
 #include "InputManager.hpp"
 #include "LogManager.hpp"
 #include "FPSManager.hpp"
 #include "version.hpp"
 #include "definitions.hpp"
 #include "local.hpp"
-
-const Size windowSize = {800, 600};
 
 class VergeEngine
 {
@@ -31,10 +28,9 @@ public:
 private:
     VulkanManager vulkan;
 
-    GlfwManager glfw;
-
     GLFWwindow *window;
-    
+    Size windowSize = {0, 0};
+
     InputManager input;
 
     FpsManager fpsManager;
@@ -43,11 +39,30 @@ private:
 
     void Init()
     {
-        if(DEVELOPER_MODE){
+        if (DEVELOPER_MODE)
+        {
             log.add('O', 000);
         }
 
-        glfw.initWindow(&window, windowSize, &log);
+        if (!glfwInit())
+        {
+            log.add('G', 200);
+        }
+
+        const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        windowSize.w = mode->width / 2;
+        windowSize.h = mode->height / 2;
+
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
+        window = glfwCreateWindow(windowSize.w, windowSize.h, "Verge Engine", nullptr, nullptr);
+        if (!window)
+        {
+            log.add('G', 201);
+        }
+
+        log.add('G', 000);
+
         vulkan.initVulkan(window, windowSize, &log);
 
         fpsManager.setTargetFps(140);
@@ -56,7 +71,7 @@ private:
     }
 
     void Tick()
-    {std::cout << "\033[31mRed text\033[0m Normal text\n";
+    {
         glfwPollEvents();
         input.refresh(window);
 
@@ -83,7 +98,7 @@ private:
     void Cleanup()
     {
         vulkan.cleanup();
-        
+
         glfwDestroyWindow(window);
         glfwTerminate();
 
@@ -95,14 +110,8 @@ private:
 int main()
 {
     VergeEngine verge;
-    try
-    {
-        verge.run();
-    }
-    catch (const std::runtime_error &e)
-    {
-        std::cerr << e.what() << std::endl;
-        return -1;
-    }
+
+    verge.run();
+
     return 0;
 }

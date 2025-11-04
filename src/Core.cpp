@@ -81,7 +81,7 @@ private:
 
             for (size_t i = 0; i < newMessages.size(); i++)
             {
-                std::cout << newMessages[i] << std::endl;
+                std::cout << "LOG: " << newMessages[i] << std::endl;
             }
         }
 

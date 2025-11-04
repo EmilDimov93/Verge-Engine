@@ -13,17 +13,23 @@ typedef enum
     KEY_STATE_RELEASED
 } KeyState;
 
-#define VRG_MOUSE_KEY_COUNT 8
-#define VRG_KEY_COUNT 349
+#define VRG_MOUSE_KEY_COUNT GLFW_MOUSE_BUTTON_LAST
+#define VRG_KEY_COUNT GLFW_KEY_LAST
 
 typedef enum
 {
-    VRG_KEY_MOUSE_LMB = GLFW_MOUSE_BUTTON_1,
-    VRG_KEY_MOUSE_RMB = GLFW_MOUSE_BUTTON_2,
-    VRG_KEY_MOUSE_MMB = GLFW_MOUSE_BUTTON_3,
-    VRG_KEY_MOUSE_4 = GLFW_MOUSE_BUTTON_4,
-    VRG_KEY_MOUSE_5 = GLFW_MOUSE_BUTTON_5,
+    VRG_MOUSE_BTN_LEFT = GLFW_MOUSE_BUTTON_1,
+    VRG_MOUSE_BTN_RIGHT = GLFW_MOUSE_BUTTON_2,
+    VRG_MOUSE_BTN_MIDDLE = GLFW_MOUSE_BUTTON_3,
+    VRG_MOUSE_BTN_4 = GLFW_MOUSE_BUTTON_4,
+    VRG_MOUSE_BTN_5 = GLFW_MOUSE_BUTTON_5,
+    VRG_MOUSE_BTN_6 = GLFW_MOUSE_BUTTON_6,
+    VRG_MOUSE_BTN_7 = GLFW_MOUSE_BUTTON_7,
+    VRG_MOUSE_BTN_8 = GLFW_MOUSE_BUTTON_8
+} VRGMouseBtn;
 
+typedef enum
+{
     VRG_KEY_A = GLFW_KEY_A,
     VRG_KEY_B = GLFW_KEY_B,
     VRG_KEY_C = GLFW_KEY_C,
@@ -50,7 +56,6 @@ typedef enum
     VRG_KEY_X = GLFW_KEY_X,
     VRG_KEY_Y = GLFW_KEY_Y,
     VRG_KEY_Z = GLFW_KEY_Z,
-
     VRG_KEY_0 = GLFW_KEY_0,
     VRG_KEY_1 = GLFW_KEY_1,
     VRG_KEY_2 = GLFW_KEY_2,
@@ -61,7 +66,6 @@ typedef enum
     VRG_KEY_7 = GLFW_KEY_7,
     VRG_KEY_8 = GLFW_KEY_8,
     VRG_KEY_9 = GLFW_KEY_9,
-
     VRG_KEY_F1 = GLFW_KEY_F1,
     VRG_KEY_F2 = GLFW_KEY_F2,
     VRG_KEY_F3 = GLFW_KEY_F3,
@@ -74,7 +78,6 @@ typedef enum
     VRG_KEY_F10 = GLFW_KEY_F10,
     VRG_KEY_F11 = GLFW_KEY_F11,
     VRG_KEY_F12 = GLFW_KEY_F12,
-
     VRG_KEY_SPACE = GLFW_KEY_SPACE,
     VRG_KEY_ENTER = GLFW_KEY_ENTER,
     VRG_KEY_ESCAPE = GLFW_KEY_ESCAPE,
@@ -96,13 +99,12 @@ typedef enum
     VRG_KEY_RIGHT_CONTROL = GLFW_KEY_RIGHT_CONTROL,
     VRG_KEY_LEFT_ALT = GLFW_KEY_LEFT_ALT,
     VRG_KEY_RIGHT_ALT = GLFW_KEY_RIGHT_ALT
-
-} VRGKeys;
+} VRGKey;
 
 class InputManager
 {
 private:
-    KeyState mouseKeyStates[VRG_MOUSE_KEY_COUNT];
+    KeyState mouseBtnStates[VRG_MOUSE_KEY_COUNT];
     KeyState keyStates[VRG_KEY_COUNT];
 
 public:
@@ -110,13 +112,13 @@ public:
 
     void refresh(GLFWwindow *window);
 
-    bool isMouseKeyDown(uint16_t key);
-    bool isMouseKeyUp(uint16_t key);
-    bool isMouseKeyPressed(uint16_t key);
-    bool isMouseKeyReleased(uint16_t key);
+    bool isDown(VRGMouseBtn key);
+    bool isUp(VRGMouseBtn key);
+    bool isPressed(VRGMouseBtn key);
+    bool isReleased(VRGMouseBtn key);
 
-    bool isKeyDown(uint16_t key);
-    bool isKeyUp(uint16_t key);
-    bool isKeyPressed(uint16_t key);
-    bool isKeyReleased(uint16_t key);
+    bool isDown(VRGKey key);
+    bool isUp(VRGKey key);
+    bool isPressed(VRGKey key);
+    bool isReleased(VRGKey key);
 };

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <iostream> // temporary
+
 #include <cstdint>
 
 struct Size { 

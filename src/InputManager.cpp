@@ -7,7 +7,7 @@ InputManager::InputManager()
 {
     for (size_t i = 0; i < VRG_MOUSE_KEY_COUNT; i++)
     {
-        mouseKeyStates[i] = KEY_STATE_UP;
+        mouseBtnStates[i] = KEY_STATE_UP;
     }
 
     for (size_t i = 0; i < VRG_KEY_COUNT; i++)
@@ -22,15 +22,15 @@ void InputManager::refresh(GLFWwindow *window)
     {
         bool isKeyDown = glfwGetMouseButton(window, i) == GLFW_PRESS;
 
-        switch (mouseKeyStates[i])
+        switch (mouseBtnStates[i])
         {
         case KEY_STATE_UP:
         case KEY_STATE_RELEASED:
-            mouseKeyStates[i] = isKeyDown ? KEY_STATE_PRESSED : KEY_STATE_UP;
+            mouseBtnStates[i] = isKeyDown ? KEY_STATE_PRESSED : KEY_STATE_UP;
             break;
         case KEY_STATE_DOWN:
         case KEY_STATE_PRESSED:
-            mouseKeyStates[i] = isKeyDown ? KEY_STATE_DOWN : KEY_STATE_RELEASED;
+            mouseBtnStates[i] = isKeyDown ? KEY_STATE_DOWN : KEY_STATE_RELEASED;
             break;
         }
     }
@@ -53,42 +53,42 @@ void InputManager::refresh(GLFWwindow *window)
     }
 }
 
-bool InputManager::isMouseKeyDown(uint16_t key)
+bool InputManager::isDown(VRGMouseBtn btn)
 {
-    return mouseKeyStates[key] == KEY_STATE_DOWN || mouseKeyStates[key] == KEY_STATE_PRESSED;
+    return mouseBtnStates[btn] == KEY_STATE_DOWN || mouseBtnStates[btn] == KEY_STATE_PRESSED;
 }
 
-bool InputManager::isMouseKeyUp(uint16_t key)
+bool InputManager::isUp(VRGMouseBtn btn)
 {
-    return mouseKeyStates[key] == KEY_STATE_UP || mouseKeyStates[key] == KEY_STATE_RELEASED;
+    return mouseBtnStates[btn] == KEY_STATE_UP || mouseBtnStates[btn] == KEY_STATE_RELEASED;
 }
 
-bool InputManager::isMouseKeyPressed(uint16_t key)
+bool InputManager::isPressed(VRGMouseBtn btn)
 {
-    return mouseKeyStates[key] == KEY_STATE_PRESSED;
+    return mouseBtnStates[btn] == KEY_STATE_PRESSED;
 }
 
-bool InputManager::isMouseKeyReleased(uint16_t key)
+bool InputManager::isReleased(VRGMouseBtn btn)
 {
-    return mouseKeyStates[key] == KEY_STATE_RELEASED;
+    return mouseBtnStates[btn] == KEY_STATE_RELEASED;
 }
 
-bool InputManager::isKeyDown(uint16_t key)
+bool InputManager::isDown(VRGKey key)
 {
     return keyStates[key] == KEY_STATE_DOWN || keyStates[key] == KEY_STATE_PRESSED;
 }
 
-bool InputManager::isKeyUp(uint16_t key)
+bool InputManager::isUp(VRGKey key)
 {
     return keyStates[key] == KEY_STATE_UP || keyStates[key] == KEY_STATE_RELEASED;
 }
 
-bool InputManager::isKeyPressed(uint16_t key)
+bool InputManager::isPressed(VRGKey key)
 {
     return keyStates[key] == KEY_STATE_PRESSED;
 }
 
-bool InputManager::isKeyReleased(uint16_t key)
+bool InputManager::isReleased(VRGKey key)
 {
     return keyStates[key] == KEY_STATE_RELEASED;
 }

@@ -25,20 +25,20 @@ void VulkanManager::initVulkan(GLFWwindow *window, Size windowSize, LogManager *
 
 void VulkanManager::createInstance()
 {
-    VkApplicationInfo appInfo{};
-    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "Verge Engine";
-    appInfo.applicationVersion = VK_MAKE_VERSION(0, 0, VERGE_ENGINE_VERSION);
-    appInfo.apiVersion = VK_API_VERSION_1_3;
-
-    VkInstanceCreateInfo createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    createInfo.pApplicationInfo = &appInfo;
+    VkApplicationInfo appInfo = {
+        .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+        .pApplicationName = "Verge Engine",
+        .applicationVersion = VK_MAKE_VERSION(0, 0, VERGE_ENGINE_VERSION),
+        .apiVersion = VK_API_VERSION_1_3};
 
     uint32_t glfwExtensionCount = 0;
     const char **glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    createInfo.enabledExtensionCount = glfwExtensionCount;
-    createInfo.ppEnabledExtensionNames = glfwExtensions;
+
+    VkInstanceCreateInfo createInfo = {
+        .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+        .pApplicationInfo = &appInfo,
+        .enabledExtensionCount = glfwExtensionCount,
+        .ppEnabledExtensionNames = glfwExtensions};
 
     vkCheck(vkCreateInstance(&createInfo, nullptr, &instance), {'V', 200});
 }
@@ -48,19 +48,57 @@ void VulkanManager::createSurface(GLFWwindow *window)
     vkCheck(glfwCreateWindowSurface(instance, window, nullptr, &surface), {'V', 201});
 }
 
+int rateDevice(VkPhysicalDevice device)
+{
+    VkPhysicalDeviceProperties props;
+    VkPhysicalDeviceFeatures feats;
+    vkGetPhysicalDeviceProperties(device, &props);
+    vkGetPhysicalDeviceFeatures(device, &feats);
+
+    int score = 0;
+
+    if (props.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+    {
+        score += 1000;
+    }
+
+    score += props.limits.maxImageDimension2D;
+
+    if (!feats.geometryShader)
+    {
+        return 0;
+    }
+
+    return score;
+}
+#include <iostream>
 void VulkanManager::pickPhysicalDevice()
 {
     uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+    vkCheck(vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr), {'V', 202});
     if (deviceCount == 0)
     {
         log->add('V', 202);
     }
 
     std::vector<VkPhysicalDevice> devices(deviceCount);
-    vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
-    VkPhysicalDeviceProperties deviceProperties;
-    physicalDevice = devices[deviceCount - 1];
+    vkCheck(vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data()), {'V', 202});
+
+    int bestScore = 0;
+    for (auto device : devices)
+    {
+        int score = rateDevice(device);
+        if (score > bestScore)
+        {
+            bestScore = score;
+            physicalDevice = device;
+        }
+    }
+
+    if (bestScore == 0)
+    {
+        log->add('V', 202);
+    }
 }
 
 void VulkanManager::createLogicalDevice()
@@ -72,27 +110,28 @@ void VulkanManager::createLogicalDevice()
 
     uint32_t graphicsFamily = 0;
     for (uint32_t i = 0; i < queueFamilies.size(); i++)
+    {
         if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
         {
             graphicsFamily = i;
             break;
         }
+    }
 
     float queuePriority = 1.0f;
-    VkDeviceQueueCreateInfo queueCreateInfo{};
-    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo.queueFamilyIndex = graphicsFamily;
-    queueCreateInfo.queueCount = 1;
-    queueCreateInfo.pQueuePriorities = &queuePriority;
-
-    VkDeviceCreateInfo createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    createInfo.queueCreateInfoCount = 1;
-    createInfo.pQueueCreateInfos = &queueCreateInfo;
+    VkDeviceQueueCreateInfo queueCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+        .queueFamilyIndex = graphicsFamily,
+        .queueCount = 1,
+        .pQueuePriorities = &queuePriority};
 
     const char *deviceExtensions[] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-    createInfo.enabledExtensionCount = 1;
-    createInfo.ppEnabledExtensionNames = deviceExtensions;
+    VkDeviceCreateInfo createInfo = {
+        .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+        .queueCreateInfoCount = 1,
+        .pQueueCreateInfos = &queueCreateInfo,
+        .enabledExtensionCount = 1,
+        .ppEnabledExtensionNames = deviceExtensions};
 
     vkCheck(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device), {'V', 203});
 
@@ -105,21 +144,21 @@ void VulkanManager::createSwapChain(Size windowSize)
     VkSurfaceCapabilitiesKHR capabilities;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities);
 
-    VkSwapchainCreateInfoKHR createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface = surface;
-    createInfo.minImageCount = capabilities.minImageCount + 1;
-    createInfo.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
-    createInfo.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-    createInfo.imageExtent = {windowSize.w, windowSize.h};
-    createInfo.imageArrayLayers = 1;
-    createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    createInfo.preTransform = capabilities.currentTransform;
-    createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    createInfo.presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
-    createInfo.clipped = VK_TRUE;
-    createInfo.oldSwapchain = VK_NULL_HANDLE;
+    VkSwapchainCreateInfoKHR createInfo = {
+        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+        .surface = surface,
+        .minImageCount = capabilities.minImageCount + 1,
+        .imageFormat = VK_FORMAT_B8G8R8A8_SRGB,
+        .imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
+        .imageExtent = {windowSize.w, windowSize.h},
+        .imageArrayLayers = 1,
+        .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+        .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        .preTransform = capabilities.currentTransform,
+        .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+        .presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR,
+        .clipped = VK_TRUE,
+        .oldSwapchain = VK_NULL_HANDLE};
 
     vkCheck(vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain), {'V', 204});
 
@@ -292,8 +331,10 @@ void VulkanManager::drawFrame()
     vkQueueWaitIdle(presentQueue);
 }
 
-void VulkanManager::vkCheck(VkResult res, ErrorCode errorCode){
-    if(res != VK_SUCCESS){
+void VulkanManager::vkCheck(VkResult res, ErrorCode errorCode)
+{
+    if (res != VK_SUCCESS)
+    {
         log->add(errorCode.letter, errorCode.number);
     }
 }

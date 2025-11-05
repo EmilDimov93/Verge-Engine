@@ -15,13 +15,20 @@
 #include "definitions.hpp"
 #include "local.hpp"
 
+#include <glm/glm.hpp>
+#include <glm/mat4x4.hpp>
+
 class VergeEngine
 {
 public:
     void run()
     {
         Init();
-        Tick();
+
+        while(!glfwWindowShouldClose(window)){
+            Tick();
+        }
+
         Cleanup();
     }
 
@@ -72,7 +79,6 @@ private:
 
     void Tick()
     {
-        glfwPollEvents();
         input.refresh(window);
 
         if (log.hasNewMessages())
@@ -88,11 +94,6 @@ private:
         vulkan.drawFrame();
 
         fpsManager.syncFrameTime();
-
-        if (!glfwWindowShouldClose(window))
-        {
-            Tick();
-        }
     }
 
     void Cleanup()
@@ -113,5 +114,5 @@ int main()
 
     verge.run();
 
-    return 0;
+    return EXIT_SUCCESS;
 }

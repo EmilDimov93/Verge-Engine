@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#include "definitions.hpp"
+
 class ErrorCode
 {
 public:
@@ -15,7 +17,10 @@ public:
 
     std::string getMessage();
 
-    ErrorCode(char l, uint16_t n) : letter(l), number(n) {}
+    ErrorCode(char newLetter, uint16_t newNumber){
+        letter = newLetter;
+        number = newNumber;
+    }
 
 private:
     inline static const std::map<std::pair<char, uint16_t>, std::string> messages{

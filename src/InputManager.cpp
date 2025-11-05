@@ -18,6 +18,8 @@ InputManager::InputManager()
 
 void InputManager::refresh(GLFWwindow *window)
 {
+    glfwPollEvents();
+    
     for (size_t i = 0; i < VRG_MOUSE_KEY_COUNT; i++)
     {
         bool isKeyDown = glfwGetMouseButton(window, i) == GLFW_PRESS;

@@ -16,6 +16,7 @@ add_executable(VergeEngine
 target_include_directories(VergeEngine PRIVATE
     "C:/Program Files/glfw-3.4.bin.WIN64/include"
     "$ENV{VULKAN_SDK}/Include"
+    externals/glm
 )
 
 target_link_libraries(VergeEngine PRIVATE

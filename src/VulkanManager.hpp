@@ -11,6 +11,15 @@
 class VulkanManager
 {
 public:
+    void initVulkan(GLFWwindow *window, Size windowSize, LogManager *logRef);
+
+    void drawFrame();
+
+    void vkCheck(VkResult res, ErrorCode errorCode);
+
+    void cleanup();
+
+private:
     VkInstance instance;
     VkSurfaceKHR surface;
 
@@ -32,16 +41,7 @@ public:
     std::vector<VkCommandBuffer> commandBuffers;
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
-
-    void initVulkan(GLFWwindow *window, Size windowSize, LogManager *logRef);
-
-    void drawFrame();
-
-    void vkCheck(VkResult res, ErrorCode errorCode);
-
-    void cleanup();
-
-private:
+    
     LogManager *log;
 
     void createInstance();

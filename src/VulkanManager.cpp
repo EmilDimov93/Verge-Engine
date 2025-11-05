@@ -69,9 +69,32 @@ int rateDevice(VkPhysicalDevice device)
         return 0;
     }
 
+    uint32_t queueFamilyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+    std::vector<VkQueueFamilyProperties> queueFamilyList(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilyList.data());
+
+    int graphicsFamilyIndex = -1;
+    int i = 0;
+    for (const auto &queueFamily : queueFamilyList)
+    {
+        if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+        {
+            graphicsFamilyIndex = i;
+            break;
+        }
+
+        i++;
+    }
+
+    if (graphicsFamilyIndex < 0)
+    {
+        return 0;
+    }
+
     return score;
 }
-#include <iostream>
+
 void VulkanManager::pickPhysicalDevice()
 {
     uint32_t deviceCount = 0;
@@ -126,12 +149,14 @@ void VulkanManager::createLogicalDevice()
         .pQueuePriorities = &queuePriority};
 
     const char *deviceExtensions[] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    VkPhysicalDeviceFeatures deviceFeatures = {};
     VkDeviceCreateInfo createInfo = {
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
         .queueCreateInfoCount = 1,
         .pQueueCreateInfos = &queueCreateInfo,
         .enabledExtensionCount = 1,
-        .ppEnabledExtensionNames = deviceExtensions};
+        .ppEnabledExtensionNames = deviceExtensions,
+        .pEnabledFeatures = &deviceFeatures};
 
     vkCheck(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device), {'V', 203});
 
@@ -297,7 +322,7 @@ void VulkanManager::createSemaphores()
 void VulkanManager::drawFrame()
 {
     uint32_t imageIndex;
-    vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+    vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex), {'V', 211});
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -315,7 +340,7 @@ void VulkanManager::drawFrame()
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkCheck(vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE), {'V', 211});
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -327,8 +352,8 @@ void VulkanManager::drawFrame()
     presentInfo.pSwapchains = swapChains;
     presentInfo.pImageIndices = &imageIndex;
 
-    vkQueuePresentKHR(presentQueue, &presentInfo);
-    vkQueueWaitIdle(presentQueue);
+    vkCheck(vkQueuePresentKHR(presentQueue, &presentInfo), {'V', 211});
+    vkCheck(vkQueueWaitIdle(presentQueue), {'V', 211});
 }
 
 void VulkanManager::vkCheck(VkResult res, ErrorCode errorCode)

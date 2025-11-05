@@ -40,6 +40,7 @@ private:
         {{'V', 208}, "Vulkan failed to create command pool"},
         {{'V', 209}, "Vulkan failed to allocate command buffers"},
         {{'V', 210}, "Vulkan failed to record command buffer"},
+        {{'V', 211}, "Vulkan failed to draw frame"},
 
         {{'G', 000}, "GLFW loaded successfully"},
         {{'G', 200}, "GLFW initialization failed"},

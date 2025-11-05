@@ -181,7 +181,7 @@ void VulkanManager::createSwapChain(Size windowSize)
         .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .preTransform = capabilities.currentTransform,
         .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-        .presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR,
+        .presentMode = VK_PRESENT_MODE_MAILBOX_KHR,
         .clipped = VK_TRUE,
         .oldSwapchain = VK_NULL_HANDLE};
 
@@ -300,7 +300,7 @@ void VulkanManager::createCommandBuffers()
         renderPassInfo.renderArea.offset = {0, 0};
         renderPassInfo.renderArea.extent = swapChainExtent;
 
-        VkClearValue clearColor = {{{1.0f, 0.0f, 0.0f, 1.0f}}};
+        VkClearValue clearColor = {{{0.878f, 0.0f, 0.0f, 1.0f}}};
         renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues = &clearColor;
 

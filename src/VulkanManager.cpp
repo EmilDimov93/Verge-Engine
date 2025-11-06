@@ -48,7 +48,7 @@ void VulkanManager::createSurface(GLFWwindow *window)
     vkCheck(glfwCreateWindowSurface(instance, window, nullptr, &surface), {'V', 201});
 }
 
-int rateDevice(VkPhysicalDevice device)
+int rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface)
 {
     VkPhysicalDeviceProperties props;
     VkPhysicalDeviceFeatures feats;
@@ -71,23 +71,39 @@ int rateDevice(VkPhysicalDevice device)
 
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-    std::vector<VkQueueFamilyProperties> queueFamilyList(queueFamilyCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilyList.data());
+    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
-    int graphicsFamilyIndex = -1;
+    uint32_t graphicsFamily = -1;
+    uint32_t presentationFamily = -1;
     int i = 0;
-    for (const auto &queueFamily : queueFamilyList)
+    for (const auto &queueFamily : queueFamilies)
     {
         if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
         {
-            graphicsFamilyIndex = i;
+            graphicsFamily = i;
+        }
+
+        VkBool32 presentationSupport = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentationSupport); //should vkcheck
+
+        if(queueFamily.queueCount > 0 && presentationSupport){
+            presentationFamily = i;
+        }
+
+        if(graphicsFamily >= 0 && presentationFamily >= 0){
             break;
         }
 
         i++;
     }
 
-    if (graphicsFamilyIndex < 0)
+    bool supportsRequiredExtentions = true; //temp
+    if(!supportsRequiredExtentions){
+        return 0;
+    }
+
+    if (graphicsFamily < 0 || presentationFamily < 0)
     {
         return 0;
     }
@@ -110,7 +126,7 @@ void VulkanManager::pickPhysicalDevice()
     int bestScore = 0;
     for (auto device : devices)
     {
-        int score = rateDevice(device);
+        int score = rateDevice(device, surface);
         if (score > bestScore)
         {
             bestScore = score;
@@ -132,13 +148,15 @@ void VulkanManager::createLogicalDevice()
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
 
     uint32_t graphicsFamily = 0;
-    for (uint32_t i = 0; i < queueFamilies.size(); i++)
+    int i = 0;
+    for (const auto &queueFamily : queueFamilies)
     {
-        if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+        if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
         {
             graphicsFamily = i;
             break;
         }
+        i++;
     }
 
     float queuePriority = 1.0f;
@@ -161,7 +179,7 @@ void VulkanManager::createLogicalDevice()
     vkCheck(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device), {'V', 203});
 
     vkGetDeviceQueue(device, graphicsFamily, 0, &graphicsQueue);
-    presentQueue = graphicsQueue;
+    presentQueue = graphicsQueue; // temporary
 }
 
 void VulkanManager::createSwapChain(Size windowSize)
@@ -169,16 +187,21 @@ void VulkanManager::createSwapChain(Size windowSize)
     VkSurfaceCapabilitiesKHR capabilities;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities);
 
+    swapChainImageFormat = VK_FORMAT_R8G8B8A8_UNORM;
+    swapChainExtent = {windowSize.w, windowSize.h};
+
     VkSwapchainCreateInfoKHR createInfo = {
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
         .surface = surface,
-        .minImageCount = capabilities.minImageCount + 1,
-        .imageFormat = VK_FORMAT_B8G8R8A8_SRGB,
+        .minImageCount = capabilities.minImageCount + (capabilities.minImageCount != capabilities.maxImageCount),
+        .imageFormat = swapChainImageFormat,
         .imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
-        .imageExtent = {windowSize.w, windowSize.h},
+        .imageExtent = swapChainExtent,
         .imageArrayLayers = 1,
         .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
         .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        .queueFamilyIndexCount = 0,
+        .pQueueFamilyIndices = nullptr,
         .preTransform = capabilities.currentTransform,
         .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
         .presentMode = VK_PRESENT_MODE_MAILBOX_KHR,
@@ -187,12 +210,10 @@ void VulkanManager::createSwapChain(Size windowSize)
 
     vkCheck(vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain), {'V', 204});
 
-    uint32_t imageCount;
-    vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
-    swapChainImages.resize(imageCount);
-    vkGetSwapchainImagesKHR(device, swapChain, &imageCount, swapChainImages.data());
-    swapChainImageFormat = VK_FORMAT_B8G8R8A8_SRGB;
-    swapChainExtent = {windowSize.w, windowSize.h};
+    uint32_t swapChainImageCount;
+    vkGetSwapchainImagesKHR(device, swapChain, &swapChainImageCount, nullptr);
+    swapChainImages.resize(swapChainImageCount);
+    vkGetSwapchainImagesKHR(device, swapChain, &swapChainImageCount, swapChainImages.data());
 }
 
 void VulkanManager::createImageViews()
@@ -228,9 +249,9 @@ void VulkanManager::createRenderPass()
     colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-    VkAttachmentReference colorAttachmentRef{};
-    colorAttachmentRef.attachment = 0;
-    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    VkAttachmentReference colorAttachmentRef = {
+    .attachment = 0,
+    .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
 
     VkSubpassDescription subpass{};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;

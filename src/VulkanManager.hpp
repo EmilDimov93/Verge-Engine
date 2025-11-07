@@ -4,6 +4,7 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 #include <GLFW/glfw3.h>
+#include <fstream>
 
 #include "LogManager.hpp"
 #include "definitions.hpp"
@@ -50,9 +51,12 @@ private:
     void createLogicalDevice();
     void createSwapChain(Size windowSize);
     void createImageViews();
+    void createGraphicsPipeline();
     void createRenderPass();
     void createFramebuffers();
     void createCommandPool();
     void createCommandBuffers();
     void createSemaphores();
+
+    VkShaderModule createShaderModule(const std::vector<char> &code);
 };

@@ -14,6 +14,7 @@ void VulkanManager::initVulkan(GLFWwindow *window, Size windowSize, LogManager *
     createLogicalDevice();
     createSwapChain(windowSize);
     createImageViews();
+    createGraphicsPipeline();
     createRenderPass();
     createFramebuffers();
     createCommandPool();
@@ -21,6 +22,72 @@ void VulkanManager::initVulkan(GLFWwindow *window, Size windowSize, LogManager *
     createSemaphores();
 
     log->add('V', 000);
+}
+
+static std::vector<char> readFile(const std::string &fileName){
+    std::ifstream file(fileName, std::ios::binary | std::ios::ate);
+
+    if(!file.is_open()){
+        // log
+        return {}; //
+    }
+
+    size_t fileSize = (size_t)file.tellg();
+
+    std::vector<char> fileBuffer(fileSize);
+
+    file.seekg(0);
+
+    file.read(fileBuffer.data(), fileSize);
+
+    file.close();
+
+    return fileBuffer;
+}
+
+VkShaderModule VulkanManager::createShaderModule(const std::vector<char> &code){
+    VkShaderModuleCreateInfo shaderModuleCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+        .codeSize = code.size(),
+        .pCode = reinterpret_cast<const uint32_t *>(code.data())};
+
+    VkShaderModule shaderModule;
+
+    vkCheck(vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr, &shaderModule), {'V', 212});
+
+    return shaderModule;
+}
+
+void VulkanManager::createGraphicsPipeline()
+{
+    auto vertexShaderCode = readFile("src/shaders/vert.spv");
+    auto fragmentShaderCode = readFile("src/shaders/frag.spv");
+
+    VkShaderModule vertexShaderModule = createShaderModule(vertexShaderCode);
+    VkShaderModule fragmentShaderModule = createShaderModule(fragmentShaderCode);
+
+    VkPipelineShaderStageCreateInfo vertexShaderStageCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        .stage = VK_SHADER_STAGE_VERTEX_BIT,
+        .module = vertexShaderModule,
+        .pName = "main"
+    };
+
+    VkPipelineShaderStageCreateInfo fragmentShaderStageCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        .stage = VK_SHADER_STAGE_FRAGMENT_BIT,
+        .module = fragmentShaderModule,
+        .pName = "main"
+    };
+
+    VkPipelineShaderStageCreateInfo shaderStaged[] = {vertexShaderStageCreateInfo, fragmentShaderStageCreateInfo};
+
+    VkGraphicsPipelineCreateInfo VkGraphicsPipelineCreateInfo = {
+            
+    };
+
+    vkDestroyShaderModule(device, vertexShaderModule, nullptr);
+    vkDestroyShaderModule(device, fragmentShaderModule, nullptr);
 }
 
 void VulkanManager::createInstance()
@@ -85,7 +152,7 @@ int rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface)
         }
 
         VkBool32 presentationSupport = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentationSupport); //should vkcheck
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentationSupport); // should vkcheck
 
         if(queueFamily.queueCount > 0 && presentationSupport){
             presentationFamily = i;
@@ -98,7 +165,7 @@ int rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface)
         i++;
     }
 
-    bool supportsRequiredExtentions = true; //temp
+    bool supportsRequiredExtentions = true; // temporary
     if(!supportsRequiredExtentions){
         return 0;
     }

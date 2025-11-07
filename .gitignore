@@ -2,7 +2,7 @@
 build/
 logo/
 desktop.ini
+log.txt
 run.ps1
 git.ps1
-log.txt
-shaderCompiler.bat
+shaderCompiler.ps1

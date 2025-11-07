@@ -42,6 +42,7 @@ private:
         {{'V', 210}, "Vulkan failed to record command buffer"},
         {{'V', 211}, "Vulkan failed to draw frame"},
         {{'V', 212}, "Vulkan failed to create shader"},
+        {{'V', 213}, "Vulkan failed to get physical device surface details"},
 
         {{'G', 000}, "GLFW loaded successfully"},
         {{'G', 200}, "GLFW initialization failed"},

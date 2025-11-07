@@ -4,7 +4,6 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 #include <GLFW/glfw3.h>
-#include <fstream>
 
 #include "LogManager.hpp"
 #include "definitions.hpp"
@@ -59,4 +58,5 @@ private:
     void createSemaphores();
 
     VkShaderModule createShaderModule(const std::vector<char> &code);
+    int rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
 };

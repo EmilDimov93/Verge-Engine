@@ -35,6 +35,8 @@ private:
     VkExtent2D swapChainExtent;
     std::vector<VkImageView> swapChainImageViews;
 
+    VkPipelineLayout pipelineLayout;
+
     VkRenderPass renderPass;
     std::vector<VkFramebuffer> swapChainFramebuffers;
     VkCommandPool commandPool;

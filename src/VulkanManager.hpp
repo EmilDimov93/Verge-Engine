@@ -35,9 +35,11 @@ private:
     VkExtent2D swapChainExtent;
     std::vector<VkImageView> swapChainImageViews;
 
+    VkPipeline graphicsPipeline;
     VkPipelineLayout pipelineLayout;
 
     VkRenderPass renderPass;
+
     std::vector<VkFramebuffer> swapChainFramebuffers;
     VkCommandPool commandPool;
     std::vector<VkCommandBuffer> commandBuffers;
@@ -52,8 +54,8 @@ private:
     void createLogicalDevice();
     void createSwapChain(Size windowSize);
     void createImageViews();
-    void createGraphicsPipeline();
     void createRenderPass();
+    void createGraphicsPipeline();
     void createFramebuffers();
     void createCommandPool();
     void createCommandBuffers();

@@ -44,6 +44,7 @@ private:
         {{'V', 212}, "Vulkan failed to create shader"},
         {{'V', 213}, "Vulkan failed to get physical device surface details"},
         {{'V', 214}, "Vulkan failed to create pipeline layout"},
+        {{'V', 215}, "Vulkan failed to create graphics pipeline"},
 
         {{'G', 000}, "GLFW loaded successfully"},
         {{'G', 200}, "GLFW initialization failed"},

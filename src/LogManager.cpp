@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0
 
 #include "LogManager.hpp"
+#include "LogCodes.hpp"
 
 #include <fstream>
 #include <iomanip>
@@ -10,7 +11,11 @@
 
 #include "version.hpp"
 
-#define LOG_MESSAGE_LIMIT 1000
+#define LOG_MESSAGE_LIMIT pow(10, 5)
+
+#define IS_ENTRY_ERROR(num) (((num) / 100) % 10 == 2)
+
+const std::map<std::pair<char, uint16_t>, std::string> ErrorCode::messages = LOG_MESSAGES;
 
 std::string ErrorCode::getMessage()
 {
@@ -24,9 +29,10 @@ std::string ErrorCode::getMessage()
 
 void LogManager::freeLogSpace()
 {
+    // Remove non-error messages from the oldest quarter
     for (size_t i = entries.size() / 4; i >= 0; i--)
     {
-        if (entries[i].number / 100 != 2)
+        if (!IS_ENTRY_ERROR(entries[i].number))
         {
             entries.erase(entries.begin() + i);
             clearedEntriesCount++;
@@ -40,7 +46,7 @@ void LogManager::add(char letter, uint16_t number)
     hasNewMessagesFlag = true;
     newMessageCount++;
 
-    if(number / 100 == 2){
+    if(IS_ENTRY_ERROR(number)){
         InduceCrash();
     }
 

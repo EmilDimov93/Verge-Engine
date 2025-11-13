@@ -86,7 +86,7 @@ int VulkanManager::rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface)
         }
 
         VkBool32 presentationSupport = false;
-        vkCheck(vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentationSupport), {'V', 213});
+        vkCheck(vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentationSupport), {'V', 214});
 
         if (queueFamily.queueCount > 0 && presentationSupport)
         {
@@ -243,6 +243,20 @@ void VulkanManager::createImageViews()
     }
 }
 
+VkShaderModule VulkanManager::createShaderModule(const std::vector<char> &code)
+{
+    VkShaderModuleCreateInfo shaderModuleCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+        .codeSize = code.size(),
+        .pCode = reinterpret_cast<const uint32_t *>(code.data())};
+
+    VkShaderModule shaderModule;
+
+    vkCheck(vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr, &shaderModule), {'V', 209});
+
+    return shaderModule;
+}
+
 void VulkanManager::createGraphicsPipeline()
 {
     auto vertexShaderCode = readFile("src/shaders/vert.spv");
@@ -250,7 +264,7 @@ void VulkanManager::createGraphicsPipeline()
 
     if (vertexShaderCode.empty() || fragmentShaderCode.empty())
     {
-        log->add('V', 212);
+        log->add('V', 209);
     }
 
     VkShaderModule vertexShaderModule = createShaderModule(vertexShaderCode);
@@ -338,7 +352,7 @@ void VulkanManager::createGraphicsPipeline()
         .pushConstantRangeCount = 0,
         .pPushConstantRanges = nullptr};
 
-    vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout), {'V', 214});
+    vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout), {'V', 210});
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -359,7 +373,7 @@ void VulkanManager::createGraphicsPipeline()
         .basePipelineIndex = -1
     };
 
-    vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &graphicsPipeline), {'V', 215});
+    vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &graphicsPipeline), {'V', 211});
 
     vkDestroyShaderModule(device, vertexShaderModule, nullptr);
     vkDestroyShaderModule(device, fragmentShaderModule, nullptr);
@@ -458,14 +472,14 @@ void VulkanManager::createCommandBuffers()
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
-    vkCheck(vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()), {'V', 209});
+    vkCheck(vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()), {'V', 212});
 
     for (size_t i = 0; i < commandBuffers.size(); i++)
     {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-        vkBeginCommandBuffer(commandBuffers[i], &beginInfo);
+        vkCheck(vkBeginCommandBuffer(commandBuffers[i], &beginInfo), {'V', 213});
 
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -481,7 +495,7 @@ void VulkanManager::createCommandBuffers()
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdEndRenderPass(commandBuffers[i]);
 
-        vkCheck(vkEndCommandBuffer(commandBuffers[i]), {'V', 210});
+        vkCheck(vkEndCommandBuffer(commandBuffers[i]), {'V', 213});
     }
 }
 
@@ -493,24 +507,10 @@ void VulkanManager::createSemaphores()
     vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphore);
 }
 
-VkShaderModule VulkanManager::createShaderModule(const std::vector<char> &code)
-{
-    VkShaderModuleCreateInfo shaderModuleCreateInfo = {
-        .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-        .codeSize = code.size(),
-        .pCode = reinterpret_cast<const uint32_t *>(code.data())};
-
-    VkShaderModule shaderModule;
-
-    vkCheck(vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr, &shaderModule), {'V', 212});
-
-    return shaderModule;
-}
-
 void VulkanManager::drawFrame()
 {
     uint32_t imageIndex;
-    vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex), {'V', 211});
+    vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex), {'V', 230});
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -528,7 +528,7 @@ void VulkanManager::drawFrame()
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    vkCheck(vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE), {'V', 211});
+    vkCheck(vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE), {'V', 230});
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -540,8 +540,8 @@ void VulkanManager::drawFrame()
     presentInfo.pSwapchains = swapChains;
     presentInfo.pImageIndices = &imageIndex;
 
-    vkCheck(vkQueuePresentKHR(presentQueue, &presentInfo), {'V', 211});
-    vkCheck(vkQueueWaitIdle(presentQueue), {'V', 211});
+    vkCheck(vkQueuePresentKHR(presentQueue, &presentInfo), {'V', 230});
+    vkCheck(vkQueueWaitIdle(presentQueue), {'V', 230});
 }
 
 void VulkanManager::vkCheck(VkResult res, ErrorCode errorCode)

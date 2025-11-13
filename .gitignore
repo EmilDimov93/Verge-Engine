@@ -1,6 +1,7 @@
 .vscode/
 build/
 logo/
+early_dev/
 desktop.ini
 log.txt
 run.ps1

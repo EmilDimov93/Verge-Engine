@@ -29,20 +29,24 @@ private:
     VkQueue graphicsQueue;
     VkQueue presentQueue;
 
+    uint32_t graphicsQueueFamilyIndex;
+
     VkSwapchainKHR swapChain;
-    std::vector<VkImage> swapChainImages;
     VkFormat swapChainImageFormat;
     VkExtent2D swapChainExtent;
+
+    std::vector<VkImage> swapChainImages;
     std::vector<VkImageView> swapChainImageViews;
+    std::vector<VkFramebuffer> swapChainFramebuffers;
+    std::vector<VkCommandBuffer> commandBuffers;
 
     VkPipeline graphicsPipeline;
     VkPipelineLayout pipelineLayout;
 
     VkRenderPass renderPass;
 
-    std::vector<VkFramebuffer> swapChainFramebuffers;
-    VkCommandPool commandPool;
-    std::vector<VkCommandBuffer> commandBuffers;
+    VkCommandPool graphicsCommandPool;
+
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
     
@@ -60,6 +64,8 @@ private:
     void createCommandPool();
     void createCommandBuffers();
     void createSemaphores();
+
+    void recordCommands();
 
     VkShaderModule createShaderModule(const std::vector<char> &code);
     int rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);

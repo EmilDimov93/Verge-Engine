@@ -4,6 +4,8 @@
 #include "VulkanManager.hpp"
 #include "version.hpp"
 
+const int MAX_FRAME_DRAWS = 2;
+
 void VulkanManager::initVulkan(GLFWwindow *window, Size windowSize, LogManager *logRef)
 {
     log = logRef;
@@ -299,14 +301,14 @@ void VulkanManager::createGraphicsPipeline()
     VkViewport viewport = {
         .x = 0.0f,
         .y = 0.0f,
-        .width = (float)swapChainExtent.width * 3 / 4,
-        .height = (float)swapChainExtent.height * 3 / 4,
+        .width = (float)swapChainExtent.width * 4 / 4,   // make 3/4 to make space for viewport
+        .height = (float)swapChainExtent.height * 4 / 4, // make 3/4 to make space for viewport
         .minDepth = 0.0f,
         .maxDepth = 1.0f};
 
     VkRect2D scissor = {
         .offset = {0, 0},
-        .extent = VkExtent2D(swapChainExtent.width * 3 / 4, swapChainExtent.height * 3 / 4)};
+        .extent = VkExtent2D(swapChainExtent.width * 4 / 4, swapChainExtent.height * 4 / 4)}; // make 3/4 to make space for viewport
 
     VkPipelineViewportStateCreateInfo viewportStateCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
@@ -479,8 +481,7 @@ void VulkanManager::createCommandBuffers()
 void VulkanManager::recordCommands()
 {
     VkCommandBufferBeginInfo commandBufferBeginInfo = {
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-        .flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT};
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
 
     for (size_t i = 0; i < commandBuffers.size(); i++)
     {
@@ -511,47 +512,57 @@ void VulkanManager::recordCommands()
 
 void VulkanManager::createSemaphores()
 {
-    VkSemaphoreCreateInfo semaphoreCreateInfo{};
-    semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &imageAvailableSemaphore);
-    vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphore);
+    imageAvailableSemaphores.resize(MAX_FRAME_DRAWS);
+    renderFinishedSemaphores.resize(MAX_FRAME_DRAWS);
+    VkSemaphoreCreateInfo semaphoreCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
+    };
+
+    drawFences.resize(MAX_FRAME_DRAWS);
+    VkFenceCreateInfo fenceCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+        .flags = VK_FENCE_CREATE_SIGNALED_BIT
+    };
+    for(size_t i = 0; i < MAX_FRAME_DRAWS; i++){
+        vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &imageAvailableSemaphores[i]), {'V', 215});
+        vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores[i]), {'V', 215});
+        vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &drawFences[i]), {'V', 216});
+    }
 }
 
 void VulkanManager::drawFrame()
 {
+    vkCheck(vkWaitForFences(device, 1, &drawFences[currentFrame], VK_TRUE, UINT64_MAX), {'V', 231});
+    vkCheck(vkResetFences(device, 1, &drawFences[currentFrame]), {'V', 232});
+    
     uint32_t imageIndex;
-    vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex), {'V', 230});
+    vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex), {'V', 230});
 
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-    VkSemaphore waitSemaphores[] = {imageAvailableSemaphore};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-    submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = waitSemaphores;
-    submitInfo.pWaitDstStageMask = waitStages;
 
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+    VkSubmitInfo submitInfo = {
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .waitSemaphoreCount = 1,
+        .pWaitSemaphores = &imageAvailableSemaphores[currentFrame],
+        .pWaitDstStageMask = waitStages,
+        .commandBufferCount = 1,
+        .pCommandBuffers = &commandBuffers[imageIndex],
+        .signalSemaphoreCount = 1,
+        .pSignalSemaphores = &renderFinishedSemaphores[currentFrame]};
 
-    VkSemaphore signalSemaphores[] = {renderFinishedSemaphore};
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = signalSemaphores;
+    vkCheck(vkQueueSubmit(graphicsQueue, 1, &submitInfo, drawFences[currentFrame]), {'V', 233});
 
-    vkCheck(vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE), {'V', 230});
+    VkPresentInfoKHR presentInfo = {
+        .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+        .waitSemaphoreCount = 1,
+        .pWaitSemaphores = &renderFinishedSemaphores[currentFrame],
+        .swapchainCount = 1,
+        .pSwapchains = &swapChain,
+        .pImageIndices = &imageIndex};
 
-    VkPresentInfoKHR presentInfo{};
-    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores = signalSemaphores;
+    vkCheck(vkQueuePresentKHR(presentQueue, &presentInfo), {'V', 234});
 
-    VkSwapchainKHR swapChains[] = {swapChain};
-    presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = swapChains;
-    presentInfo.pImageIndices = &imageIndex;
-
-    vkCheck(vkQueuePresentKHR(presentQueue, &presentInfo), {'V', 230});
-    vkCheck(vkQueueWaitIdle(presentQueue), {'V', 230});
+    currentFrame = (currentFrame) % MAX_FRAME_DRAWS;
 }
 
 void VulkanManager::vkCheck(VkResult res, ErrorCode errorCode)
@@ -564,14 +575,14 @@ void VulkanManager::vkCheck(VkResult res, ErrorCode errorCode)
 
 void VulkanManager::cleanup()
 {
-    vkDeviceWaitIdle(device);
+    vkCheck(vkDeviceWaitIdle(device), {'V', 235});
 
-    vkDestroyPipeline(device, graphicsPipeline, nullptr);
+    for(size_t i = 0; i < MAX_FRAME_DRAWS; i++){
+        vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
+        vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
+        vkDestroyFence(device, drawFences[i], nullptr);
+    }
 
-    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-
-    vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
-    vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
     vkDestroyCommandPool(device, graphicsCommandPool, nullptr);
 
     for (auto framebuffer : swapChainFramebuffers)
@@ -579,6 +590,8 @@ void VulkanManager::cleanup()
         vkDestroyFramebuffer(device, framebuffer, nullptr);
     }
 
+    vkDestroyPipeline(device, graphicsPipeline, nullptr);
+    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
     vkDestroyRenderPass(device, renderPass, nullptr);
 
     for (auto imageView : swapChainImageViews)

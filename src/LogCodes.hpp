@@ -23,7 +23,14 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
         {{'V', 212}, "Vulkan failed to allocate command buffers"},
         {{'V', 213}, "Vulkan failed to record command buffer"},
         {{'V', 214}, "Vulkan failed to get physical device surface details"},
-        {{'V', 230}, "Vulkan failed to draw frame"},
+        {{'V', 215}, "Vulkan failed to create semaphore"},
+        {{'V', 216}, "Vulkan failed to create fence"},
+        {{'V', 230}, "Vulkan failed to acquire swapchain image"},
+        {{'V', 231}, "Vulkan failed to wait for fence"},
+        {{'V', 232}, "Vulkan failed to reset fence"},
+        {{'V', 233}, "Vulkan failed to submit graphics queue"},
+        {{'V', 234}, "Vulkan failed to present image"},
+        {{'V', 235}, "Vulkan failed: vkDeviceWaitIdle"}, // rename
 
         {{'G', 000}, "GLFW loaded successfully"},
         {{'G', 200}, "GLFW initialization failed"},

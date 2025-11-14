@@ -20,6 +20,8 @@ public:
     void cleanup();
 
 private:
+    int currentFrame = 0;
+
     VkInstance instance;
     VkSurfaceKHR surface;
 
@@ -47,8 +49,9 @@ private:
 
     VkCommandPool graphicsCommandPool;
 
-    VkSemaphore imageAvailableSemaphore;
-    VkSemaphore renderFinishedSemaphore;
+    std::vector<VkSemaphore> imageAvailableSemaphores;
+    std::vector<VkSemaphore> renderFinishedSemaphores;
+    std::vector<VkFence> drawFences;
     
     LogManager *log;
 

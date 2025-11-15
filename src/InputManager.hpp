@@ -13,7 +13,7 @@ typedef enum
     KEY_STATE_RELEASED
 } KeyState;
 
-#define VRG_MOUSE_KEY_COUNT GLFW_MOUSE_BUTTON_LAST
+#define VRG_MOUSE_BTN_COUNT GLFW_MOUSE_BUTTON_LAST
 #define VRG_KEY_COUNT GLFW_KEY_LAST
 
 typedef enum
@@ -104,7 +104,7 @@ typedef enum
 class InputManager
 {
 private:
-    KeyState mouseBtnStates[VRG_MOUSE_KEY_COUNT];
+    KeyState mouseBtnStates[VRG_MOUSE_BTN_COUNT];
     KeyState keyStates[VRG_KEY_COUNT];
 
 public:

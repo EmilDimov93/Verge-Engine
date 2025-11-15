@@ -38,11 +38,11 @@ private:
     GLFWwindow *window;
     Size windowSize = {0, 0};
 
+    LogManager log;
+
     InputManager input;
 
     FpsManager fpsManager;
-
-    LogManager log;
 
     void Init()
     {
@@ -73,6 +73,7 @@ private:
 
         vulkan.initVulkan(window, windowSize, &log);
 
+        input.initInputManager(&log);
         fpsManager.setTargetFps(140);
 
         log.add('C', 000);

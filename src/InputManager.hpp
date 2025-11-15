@@ -5,6 +5,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include "LogManager.hpp"
+
 typedef enum
 {
     KEY_STATE_DOWN,
@@ -107,8 +109,10 @@ private:
     KeyState mouseBtnStates[VRG_MOUSE_BTN_COUNT];
     KeyState keyStates[VRG_KEY_COUNT];
 
+    LogManager *log;
+
 public:
-    InputManager();
+    void initInputManager(LogManager *logRef);
 
     void refresh(GLFWwindow *window);
 

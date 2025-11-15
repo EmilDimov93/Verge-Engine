@@ -5,6 +5,9 @@
 inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGES{
         {{'C', 000}, "All resources loaded! Welcome!"},
         {{'C', 001}, "Verge Engine exited successfully"},
+
+        {{'C', 100}, "Invalid key detected"},
+
         {{'C', 200}, "Verge Engine crashed"},
 
         {{'V', 000}, "Vulkan loaded successfully"},

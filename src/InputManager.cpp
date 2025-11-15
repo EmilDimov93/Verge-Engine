@@ -3,8 +3,10 @@
 
 #include "InputManager.hpp"
 
-InputManager::InputManager()
+void InputManager::initInputManager(LogManager *logRef)
 {
+    log = logRef;
+
     for (size_t i = 0; i < VRG_MOUSE_BTN_COUNT; i++)
     {
         mouseBtnStates[i] = KEY_STATE_UP;
@@ -57,48 +59,72 @@ void InputManager::refresh(GLFWwindow *window)
 
 bool InputManager::isDown(VRGMouseBtn btn)
 {
-    if(btn > VRG_MOUSE_BTN_COUNT) return false;
+    if(btn > VRG_MOUSE_BTN_COUNT){
+        log->add('C', 100);
+        return false;
+    }
     return mouseBtnStates[btn] == KEY_STATE_DOWN || mouseBtnStates[btn] == KEY_STATE_PRESSED;
 }
 
 bool InputManager::isUp(VRGMouseBtn btn)
 {
-    if(btn > VRG_MOUSE_BTN_COUNT) return false;
+    if(btn > VRG_MOUSE_BTN_COUNT){
+        log->add('C', 100);
+        return false;
+    }
     return mouseBtnStates[btn] == KEY_STATE_UP || mouseBtnStates[btn] == KEY_STATE_RELEASED;
 }
 
 bool InputManager::isPressed(VRGMouseBtn btn)
 {
-    if(btn > VRG_MOUSE_BTN_COUNT) return false;
+    if(btn > VRG_MOUSE_BTN_COUNT){
+        log->add('C', 100);
+        return false;
+    }
     return mouseBtnStates[btn] == KEY_STATE_PRESSED;
 }
 
 bool InputManager::isReleased(VRGMouseBtn btn)
 {
-    if(btn > VRG_MOUSE_BTN_COUNT) return false;
+    if(btn > VRG_MOUSE_BTN_COUNT){
+        log->add('C', 100);
+        return false;
+    }
     return mouseBtnStates[btn] == KEY_STATE_RELEASED;
 }
 
 bool InputManager::isDown(VRGKey key)
 {
-    if(key > VRG_KEY_COUNT) return false;
+    if(key > VRG_KEY_COUNT){
+        log->add('C', 100);
+        return false;
+    }
     return keyStates[key] == KEY_STATE_DOWN || keyStates[key] == KEY_STATE_PRESSED;
 }
 
 bool InputManager::isUp(VRGKey key)
 {
-    if(key > VRG_KEY_COUNT) return false;
+    if(key > VRG_KEY_COUNT){
+        log->add('C', 100);
+        return false;
+    }
     return keyStates[key] == KEY_STATE_UP || keyStates[key] == KEY_STATE_RELEASED;
 }
 
 bool InputManager::isPressed(VRGKey key)
 {
-    if(key > VRG_KEY_COUNT) return false;
+    if(key > VRG_KEY_COUNT){
+        log->add('C', 100);
+        return false;
+    }
     return keyStates[key] == KEY_STATE_PRESSED;
 }
 
 bool InputManager::isReleased(VRGKey key)
 {
-    if(key > VRG_KEY_COUNT) return false;
+    if(key > VRG_KEY_COUNT){
+        log->add('C', 100);
+        return false;
+    }
     return keyStates[key] == KEY_STATE_RELEASED;
 }

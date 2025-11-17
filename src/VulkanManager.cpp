@@ -2,6 +2,9 @@
 // Licensed under the Apache License, Version 2.0
 
 #include "VulkanManager.hpp"
+
+#include <array>
+
 #include "version.hpp"
 
 const int MAX_FRAME_DRAWS = 2;
@@ -286,12 +289,24 @@ void VulkanManager::createGraphicsPipeline()
 
     VkPipelineShaderStageCreateInfo shaderStages[] = {vertexShaderStageCreateInfo, fragmentShaderStageCreateInfo};
 
+    VkVertexInputBindingDescription bindingDescription = {
+        .binding = 0,
+        .stride = sizeof(Vertex),
+        .inputRate = VK_VERTEX_INPUT_RATE_VERTEX};
+
+    std::array<VkVertexInputAttributeDescription, 1> attributeDescriptions;
+
+    attributeDescriptions[0].binding = 0;
+    attributeDescriptions[0].location = 0;
+    attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescriptions[0].offset = offsetof(Vertex, pos);
+
     VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
-        .vertexBindingDescriptionCount = 0,
-        .pVertexBindingDescriptions = nullptr,
-        .vertexAttributeDescriptionCount = 0,
-        .pVertexAttributeDescriptions = nullptr};
+        .vertexBindingDescriptionCount = 1,
+        .pVertexBindingDescriptions = &bindingDescription,
+        .vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size()),
+        .pVertexAttributeDescriptions = attributeDescriptions.data()};
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
@@ -515,15 +530,14 @@ void VulkanManager::createSemaphores()
     imageAvailableSemaphores.resize(MAX_FRAME_DRAWS);
     renderFinishedSemaphores.resize(MAX_FRAME_DRAWS);
     VkSemaphoreCreateInfo semaphoreCreateInfo = {
-        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
-    };
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
 
     drawFences.resize(MAX_FRAME_DRAWS);
     VkFenceCreateInfo fenceCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-        .flags = VK_FENCE_CREATE_SIGNALED_BIT
-    };
-    for(size_t i = 0; i < MAX_FRAME_DRAWS; i++){
+        .flags = VK_FENCE_CREATE_SIGNALED_BIT};
+    for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+    {
         vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &imageAvailableSemaphores[i]), {'V', 215});
         vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores[i]), {'V', 215});
         vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &drawFences[i]), {'V', 216});
@@ -534,7 +548,7 @@ void VulkanManager::drawFrame()
 {
     vkCheck(vkWaitForFences(device, 1, &drawFences[currentFrame], VK_TRUE, UINT64_MAX), {'V', 231});
     vkCheck(vkResetFences(device, 1, &drawFences[currentFrame]), {'V', 232});
-    
+
     uint32_t imageIndex;
     vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex), {'V', 230});
 
@@ -577,7 +591,8 @@ void VulkanManager::cleanup()
 {
     vkCheck(vkDeviceWaitIdle(device), {'V', 235});
 
-    for(size_t i = 0; i < MAX_FRAME_DRAWS; i++){
+    for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+    {
         vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
         vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
         vkDestroyFence(device, drawFences[i], nullptr);
@@ -603,4 +618,81 @@ void VulkanManager::cleanup()
     vkDestroyDevice(device, nullptr);
     vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);
+}
+
+Mesh::Mesh(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, std::vector<Vertex> *vertices)
+{
+    vertexCount = vertices->size();
+    physicalDevice = newPhysicalDevice;
+    device = newDevice;
+    vertexBuffer = createVertexBuffer(vertices);
+}
+
+int Mesh::getVertexCount()
+{
+    return vertexCount;
+}
+
+VkBuffer Mesh::getVertexBuffer()
+{
+    return vertexBuffer;
+}
+
+VkBuffer Mesh::createVertexBuffer(std::vector<Vertex> *vertices)
+{
+    VkBufferCreateInfo bufferCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .size = sizeof(Vertex) * vertices->size(),
+        .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
+
+    // should vkCheck()
+    VkResult res = vkCreateBuffer(device, &bufferCreateInfo, nullptr, &vertexBuffer);
+    if (res != VK_SUCCESS)
+    {
+        std::cout << "Create buffer error";
+        exit(EXIT_FAILURE);
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(device, vertexBuffer, &memRequirements);
+
+    VkMemoryAllocateInfo memoryAllocInfo = {
+        .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+        .allocationSize = memRequirements.size,
+        .memoryTypeIndex = findMemoryTypeIndex(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)};
+
+    res = vkAllocateMemory(device, &memoryAllocInfo, nullptr, &vertexBufferMemory);
+    if (res != VK_SUCCESS)
+    {
+        std::cout << "Failed to allocate vertex buffer memory";
+        exit(EXIT_FAILURE);
+    }
+
+    res = vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
+    if (res != VK_SUCCESS)
+    {
+        std::cout << "Failed to bunf buffer memory";
+        exit(EXIT_FAILURE);
+    }
+}
+
+void Mesh::destroyVertexBuffer()
+{
+    vkDestroyBuffer(device, vertexBuffer, nullptr);
+    vkFreeMemory(device, vertexBufferMemory, nullptr);
+}
+
+uint32_t Mesh::findMemoryTypeIndex(uint32_t allowedTypes, VkMemoryPropertyFlags properties)
+{
+    VkPhysicalDeviceMemoryProperties memoryProperties;
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
+
+    for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++)
+    {
+        if ((allowedTypes & (1 << i)) && ((memoryProperties.memoryTypes[i].propertyFlags & properties) == properties))
+        {
+            return i;
+        }
+    }
 }

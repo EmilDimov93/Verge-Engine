@@ -8,6 +8,13 @@
 #include "LogManager.hpp"
 #include "definitions.hpp"
 
+#include <glm/glm.hpp>
+
+struct Vertex
+{
+    glm::vec3 pos;
+};
+
 class VulkanManager
 {
 public:
@@ -72,4 +79,28 @@ private:
 
     VkShaderModule createShaderModule(const std::vector<char> &code);
     int rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
+};
+
+class Mesh
+{
+public:
+    Mesh(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, std::vector<Vertex> * vertices);
+
+    int getVertexCount();
+
+    VkBuffer getVertexBuffer();
+
+    void destroyVertexBuffer();
+
+private:
+    int vertexCount;
+    VkBuffer vertexBuffer;
+    VkDeviceMemory vertexBufferMemory;
+
+    VkPhysicalDevice physicalDevice;
+    VkDevice device;
+
+    VkBuffer createVertexBuffer(std::vector<Vertex> * vertices);
+
+    uint32_t findMemoryTypeIndex(uint32_t allowedTypes, VkMemoryPropertyFlags properties);
 };

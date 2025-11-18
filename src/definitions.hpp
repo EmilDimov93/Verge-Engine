@@ -7,10 +7,17 @@
 #include <fstream>
 
 #include <cstdint>
+#include <glm/glm.hpp>
 
 struct Size { 
     uint32_t w;
     uint32_t h; 
+};
+
+struct Vertex
+{
+    glm::vec3 pos;
+    glm::vec3 col;
 };
 
 static std::vector<char> readFile(const std::string &fileName){

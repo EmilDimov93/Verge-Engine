@@ -15,9 +15,6 @@
 #include "definitions.hpp"
 #include "local.hpp"
 
-#include <glm/glm.hpp>
-#include <glm/mat4x4.hpp>
-
 class VergeEngine
 {
 public:

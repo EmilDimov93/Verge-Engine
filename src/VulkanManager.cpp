@@ -17,6 +17,18 @@ void VulkanManager::initVulkan(GLFWwindow *window, Size windowSize, LogManager *
     createSurface(window);
     pickPhysicalDevice();
     createLogicalDevice();
+
+    std::vector<Vertex> meshVertices = {
+        {{0.4, -0.4, 0.0}, {1.0f, 1.0f, 1.0f}},
+        {{0.4, 0.4, 0.0}, {1.0f, 0.0f, 1.0f}},
+        {{-0.4, 0.4, 0.0}, {1.0f, 1.0f, 0.0f}},
+
+        {{-0.4, 0.4, 0.0}, {0.0f, 0.0f, 0.0f}},
+        {{-0.4, -0.4, 0.0}, {0.0f, 0.0f, 1.0f}},
+        {{0.4, -0.4, 0.0}, {0.0f, 1.0f, 0.0f}}
+    };
+    firstMesh = Mesh(physicalDevice, device, &meshVertices);
+
     createSwapChain(windowSize);
     createImageViews();
     createRenderPass();
@@ -294,12 +306,17 @@ void VulkanManager::createGraphicsPipeline()
         .stride = sizeof(Vertex),
         .inputRate = VK_VERTEX_INPUT_RATE_VERTEX};
 
-    std::array<VkVertexInputAttributeDescription, 1> attributeDescriptions;
+    std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions;
 
     attributeDescriptions[0].binding = 0;
     attributeDescriptions[0].location = 0;
     attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
     attributeDescriptions[0].offset = offsetof(Vertex, pos);
+
+    attributeDescriptions[1].binding = 0;
+    attributeDescriptions[1].location = 1;
+    attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescriptions[1].offset = offsetof(Vertex, col);
 
     VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
@@ -517,7 +534,11 @@ void VulkanManager::recordCommands()
 
         vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-        vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+        VkBuffer vertexBuffers[] = {firstMesh.getVertexBuffer()};
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+
+        vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(firstMesh.getVertexCount()), 1, 0, 0);
 
         vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -591,6 +612,8 @@ void VulkanManager::cleanup()
 {
     vkCheck(vkDeviceWaitIdle(device), {'V', 235});
 
+    firstMesh.destroyVertexBuffer();
+
     for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
     {
         vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
@@ -618,81 +641,4 @@ void VulkanManager::cleanup()
     vkDestroyDevice(device, nullptr);
     vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);
-}
-
-Mesh::Mesh(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, std::vector<Vertex> *vertices)
-{
-    vertexCount = vertices->size();
-    physicalDevice = newPhysicalDevice;
-    device = newDevice;
-    vertexBuffer = createVertexBuffer(vertices);
-}
-
-int Mesh::getVertexCount()
-{
-    return vertexCount;
-}
-
-VkBuffer Mesh::getVertexBuffer()
-{
-    return vertexBuffer;
-}
-
-VkBuffer Mesh::createVertexBuffer(std::vector<Vertex> *vertices)
-{
-    VkBufferCreateInfo bufferCreateInfo = {
-        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-        .size = sizeof(Vertex) * vertices->size(),
-        .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-        .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
-
-    // should vkCheck()
-    VkResult res = vkCreateBuffer(device, &bufferCreateInfo, nullptr, &vertexBuffer);
-    if (res != VK_SUCCESS)
-    {
-        std::cout << "Create buffer error";
-        exit(EXIT_FAILURE);
-    }
-
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(device, vertexBuffer, &memRequirements);
-
-    VkMemoryAllocateInfo memoryAllocInfo = {
-        .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-        .allocationSize = memRequirements.size,
-        .memoryTypeIndex = findMemoryTypeIndex(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)};
-
-    res = vkAllocateMemory(device, &memoryAllocInfo, nullptr, &vertexBufferMemory);
-    if (res != VK_SUCCESS)
-    {
-        std::cout << "Failed to allocate vertex buffer memory";
-        exit(EXIT_FAILURE);
-    }
-
-    res = vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
-    if (res != VK_SUCCESS)
-    {
-        std::cout << "Failed to bunf buffer memory";
-        exit(EXIT_FAILURE);
-    }
-}
-
-void Mesh::destroyVertexBuffer()
-{
-    vkDestroyBuffer(device, vertexBuffer, nullptr);
-    vkFreeMemory(device, vertexBufferMemory, nullptr);
-}
-
-uint32_t Mesh::findMemoryTypeIndex(uint32_t allowedTypes, VkMemoryPropertyFlags properties)
-{
-    VkPhysicalDeviceMemoryProperties memoryProperties;
-    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
-
-    for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++)
-    {
-        if ((allowedTypes & (1 << i)) && ((memoryProperties.memoryTypes[i].propertyFlags & properties) == properties))
-        {
-            return i;
-        }
-    }
 }

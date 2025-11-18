@@ -5,19 +5,15 @@
 #include <vector>
 #include <GLFW/glfw3.h>
 
+#include "Mesh.hpp"
 #include "LogManager.hpp"
 #include "definitions.hpp"
-
-#include <glm/glm.hpp>
-
-struct Vertex
-{
-    glm::vec3 pos;
-};
 
 class VulkanManager
 {
 public:
+    VulkanManager() {}
+
     void initVulkan(GLFWwindow *window, Size windowSize, LogManager *logRef);
 
     void drawFrame();
@@ -59,8 +55,10 @@ private:
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> drawFences;
-    
+
     LogManager *log;
+
+    Mesh firstMesh;
 
     void createInstance();
     void createSurface(GLFWwindow *window);
@@ -79,28 +77,4 @@ private:
 
     VkShaderModule createShaderModule(const std::vector<char> &code);
     int rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
-};
-
-class Mesh
-{
-public:
-    Mesh(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, std::vector<Vertex> * vertices);
-
-    int getVertexCount();
-
-    VkBuffer getVertexBuffer();
-
-    void destroyVertexBuffer();
-
-private:
-    int vertexCount;
-    VkBuffer vertexBuffer;
-    VkDeviceMemory vertexBufferMemory;
-
-    VkPhysicalDevice physicalDevice;
-    VkDevice device;
-
-    VkBuffer createVertexBuffer(std::vector<Vertex> * vertices);
-
-    uint32_t findMemoryTypeIndex(uint32_t allowedTypes, VkMemoryPropertyFlags properties);
 };

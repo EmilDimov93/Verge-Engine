@@ -17,6 +17,12 @@ void VulkanManager::initVulkan(GLFWwindow *window, Size windowSize, LogManager *
     createSurface(window);
     pickPhysicalDevice();
     createLogicalDevice();
+    createSwapChain(windowSize);
+    createImageViews();
+    createRenderPass();
+    createGraphicsPipeline();
+    createFramebuffers();
+    createCommandPool();
 
     std::vector<Vertex> meshVertices = {
         {{0.4, -0.4, 0.0}, {1.0f, 1.0f, 1.0f}},
@@ -27,14 +33,8 @@ void VulkanManager::initVulkan(GLFWwindow *window, Size windowSize, LogManager *
         {{-0.4, -0.4, 0.0}, {0.0f, 0.0f, 1.0f}},
         {{0.4, -0.4, 0.0}, {0.0f, 1.0f, 0.0f}}
     };
-    firstMesh = Mesh(physicalDevice, device, &meshVertices);
+    firstMesh = Mesh(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices);
 
-    createSwapChain(windowSize);
-    createImageViews();
-    createRenderPass();
-    createGraphicsPipeline();
-    createFramebuffers();
-    createCommandPool();
     createCommandBuffers();
     createSemaphores();
 

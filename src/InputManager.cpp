@@ -8,12 +8,12 @@ void InputManager::init(GLFWwindow *windowRef, LogManager *logRef)
     window = windowRef;
     log = logRef;
 
-    for (size_t i = 0; i < VRG_MOUSE_BTN_COUNT; i++)
+    for (size_t i = 0; i < VE_MOUSE_BTN_COUNT; i++)
     {
         mouseBtnStates[i] = KEY_STATE_UP;
     }
 
-    for (size_t i = 0; i < VRG_KEY_COUNT; i++)
+    for (size_t i = 0; i < VE_KEY_COUNT; i++)
     {
         keyStates[i] = KEY_STATE_UP;
     }
@@ -23,7 +23,7 @@ void InputManager::refresh()
 {
     glfwPollEvents();
     
-    for (size_t i = 0; i < VRG_MOUSE_BTN_COUNT; i++)
+    for (size_t i = 0; i < VE_MOUSE_BTN_COUNT; i++)
     {
         bool isKeyDown = glfwGetMouseButton(window, i) == GLFW_PRESS;
 
@@ -40,7 +40,7 @@ void InputManager::refresh()
         }
     }
 
-    for (size_t i = 0; i < VRG_KEY_COUNT; i++)
+    for (size_t i = 0; i < VE_KEY_COUNT; i++)
     {
         bool isKeyDown = glfwGetKey(window, i) == GLFW_PRESS;
 
@@ -58,72 +58,72 @@ void InputManager::refresh()
     }
 }
 
-bool InputManager::isDown(VRGMouseBtn btn)
+bool InputManager::isDown(VEMouseBtn btn)
 {
-    if(btn > VRG_MOUSE_BTN_COUNT){
+    if(btn > VE_MOUSE_BTN_COUNT){
         log->add('C', 100);
         return false;
     }
     return mouseBtnStates[btn] == KEY_STATE_DOWN || mouseBtnStates[btn] == KEY_STATE_PRESSED;
 }
 
-bool InputManager::isUp(VRGMouseBtn btn)
+bool InputManager::isUp(VEMouseBtn btn)
 {
-    if(btn > VRG_MOUSE_BTN_COUNT){
+    if(btn > VE_MOUSE_BTN_COUNT){
         log->add('C', 100);
         return false;
     }
     return mouseBtnStates[btn] == KEY_STATE_UP || mouseBtnStates[btn] == KEY_STATE_RELEASED;
 }
 
-bool InputManager::isPressed(VRGMouseBtn btn)
+bool InputManager::isPressed(VEMouseBtn btn)
 {
-    if(btn > VRG_MOUSE_BTN_COUNT){
+    if(btn > VE_MOUSE_BTN_COUNT){
         log->add('C', 100);
         return false;
     }
     return mouseBtnStates[btn] == KEY_STATE_PRESSED;
 }
 
-bool InputManager::isReleased(VRGMouseBtn btn)
+bool InputManager::isReleased(VEMouseBtn btn)
 {
-    if(btn > VRG_MOUSE_BTN_COUNT){
+    if(btn > VE_MOUSE_BTN_COUNT){
         log->add('C', 100);
         return false;
     }
     return mouseBtnStates[btn] == KEY_STATE_RELEASED;
 }
 
-bool InputManager::isDown(VRGKey key)
+bool InputManager::isDown(VEKey key)
 {
-    if(key > VRG_KEY_COUNT){
+    if(key > VE_KEY_COUNT){
         log->add('C', 100);
         return false;
     }
     return keyStates[key] == KEY_STATE_DOWN || keyStates[key] == KEY_STATE_PRESSED;
 }
 
-bool InputManager::isUp(VRGKey key)
+bool InputManager::isUp(VEKey key)
 {
-    if(key > VRG_KEY_COUNT){
+    if(key > VE_KEY_COUNT){
         log->add('C', 100);
         return false;
     }
     return keyStates[key] == KEY_STATE_UP || keyStates[key] == KEY_STATE_RELEASED;
 }
 
-bool InputManager::isPressed(VRGKey key)
+bool InputManager::isPressed(VEKey key)
 {
-    if(key > VRG_KEY_COUNT){
+    if(key > VE_KEY_COUNT){
         log->add('C', 100);
         return false;
     }
     return keyStates[key] == KEY_STATE_PRESSED;
 }
 
-bool InputManager::isReleased(VRGKey key)
+bool InputManager::isReleased(VEKey key)
 {
-    if(key > VRG_KEY_COUNT){
+    if(key > VE_KEY_COUNT){
         log->add('C', 100);
         return false;
     }

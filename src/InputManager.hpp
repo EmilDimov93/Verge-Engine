@@ -5,7 +5,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "LogManager.hpp"
+class LogManager;
 
 typedef enum
 {

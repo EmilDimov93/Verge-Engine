@@ -1,13 +1,18 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
+#pragma once
+
 #include <vulkan/vulkan.h>
 #include <vector>
-#include <GLFW/glfw3.h>
 
 #include "Mesh.hpp"
-#include "LogManager.hpp"
 #include "definitions.hpp"
+
+struct GLFWwindow;
+
+class LogManager;
+class ErrorCode;
 
 class VulkanManager
 {

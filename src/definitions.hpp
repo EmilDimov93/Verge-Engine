@@ -8,6 +8,7 @@
 
 #include <cstdint>
 #include <glm/glm.hpp>
+#include <vector>
 
 struct Size { 
     uint32_t w;

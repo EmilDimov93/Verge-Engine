@@ -3,8 +3,10 @@
 
 #include "VulkanManager.hpp"
 
+#include <GLFW/glfw3.h>
 #include <array>
 
+#include "LogManager.hpp"
 #include "version.hpp"
 
 const int MAX_FRAME_DRAWS = 2;

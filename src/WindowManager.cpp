@@ -3,6 +3,10 @@
 
 #include "WindowManager.hpp"
 
+#include <GLFW/glfw3.h>
+
+#include "LogManager.hpp"
+
 void WindowManager::init(LogManager *logRef)
 {
     log = logRef;

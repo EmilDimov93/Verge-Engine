@@ -1,9 +1,13 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#include "LogManager.hpp"
+#pragma once
 
-#include <GLFW/glfw3.h>
+#include "definitions.hpp"
+
+class LogManager;
+
+struct GLFWwindow;
 
 class WindowManager
 {

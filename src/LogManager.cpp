@@ -5,8 +5,6 @@
 #include "LogCodes.hpp"
 
 #include <fstream>
-#include <iomanip>
-#include <ctime>
 #include <chrono>
 
 #include "version.hpp"

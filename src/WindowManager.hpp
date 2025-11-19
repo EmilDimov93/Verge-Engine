@@ -13,15 +13,15 @@ class WindowManager
 {
 public:
 
-    void init(LogManager *logRef);
+    WindowManager(LogManager *logRef);
 
     GLFWwindow *getWindowReference();
 
     Size getWindowSize();
 
-    void cleanup();
+    bool isOpen();
 
-    bool shouldNotClose();
+    ~WindowManager();
 
 private:
     GLFWwindow *window;

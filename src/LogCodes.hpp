@@ -43,5 +43,4 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
         {{'G', 200}, "GLFW initialization failed"},
         {{'G', 201}, "GLFW window creation failed"},
 
-        {{'O', 000}, "Developer mode on"},
         {{'O', 100}, "Invalid error code"}};

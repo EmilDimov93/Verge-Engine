@@ -11,7 +11,7 @@
 
 const int MAX_FRAME_DRAWS = 2;
 
-void VulkanManager::init(GLFWwindow *window, Size windowSize, LogManager *logRef)
+VulkanManager::VulkanManager(GLFWwindow *window, Size windowSize, LogManager *logRef)
 {
     log = logRef;
 
@@ -628,7 +628,7 @@ void VulkanManager::vkCheck(VkResult res, ErrorCode errorCode)
     }
 }
 
-void VulkanManager::cleanup()
+VulkanManager::~VulkanManager()
 {
     vkCheck(vkDeviceWaitIdle(device), {'V', 235});
 

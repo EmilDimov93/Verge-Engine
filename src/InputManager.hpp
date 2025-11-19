@@ -105,16 +105,8 @@ typedef enum
 
 class InputManager
 {
-private:
-    KeyState mouseBtnStates[VE_MOUSE_BTN_COUNT];
-    KeyState keyStates[VE_KEY_COUNT];
-
-    GLFWwindow *window;
-
-    LogManager *log;
-
 public:
-    void init(GLFWwindow *windowRef, LogManager *logRef);
+    InputManager(GLFWwindow *windowRef, LogManager *logRef);
 
     void refresh();
 
@@ -127,4 +119,12 @@ public:
     bool isUp(VEKey key);
     bool isPressed(VEKey key);
     bool isReleased(VEKey key);
+
+private:
+    KeyState mouseBtnStates[VE_MOUSE_BTN_COUNT];
+    KeyState keyStates[VE_KEY_COUNT];
+
+    GLFWwindow *window;
+
+    LogManager *log;
 };

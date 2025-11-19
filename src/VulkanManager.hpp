@@ -17,15 +17,13 @@ class ErrorCode;
 class VulkanManager
 {
 public:
-    VulkanManager() {}
-
-    void init(GLFWwindow *window, Size windowSize, LogManager *logRef);
+    VulkanManager(GLFWwindow *window, Size windowSize, LogManager *logRef);
 
     void drawFrame();
 
     void vkCheck(VkResult res, ErrorCode errorCode);
 
-    void cleanup();
+    ~VulkanManager();
 
 private:
     int currentFrame = 0;

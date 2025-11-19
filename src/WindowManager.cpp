@@ -7,7 +7,7 @@
 
 #include "LogManager.hpp"
 
-void WindowManager::init(LogManager *logRef)
+WindowManager::WindowManager(LogManager *logRef)
 {
     log = logRef;
 
@@ -42,11 +42,11 @@ Size WindowManager::getWindowSize()
     return windowSize;
 }
 
-void WindowManager::cleanup(){
-    glfwDestroyWindow(window);
-    glfwTerminate();
+bool WindowManager::isOpen(){
+    return !glfwWindowShouldClose(window);
 }
 
-bool WindowManager::shouldNotClose(){
-    return !glfwWindowShouldClose(window);
+WindowManager::~WindowManager(){
+    glfwDestroyWindow(window);
+    glfwTerminate();
 }

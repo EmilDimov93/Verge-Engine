@@ -3,6 +3,18 @@
 
 #include "Mesh.hpp"
 
+VkResult Mesh::init(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex> *vertices, std::vector<uint32_t> *indeces)
+{
+    vertexCount = vertices->size();
+    indexCount = indeces->size();
+    physicalDevice = newPhysicalDevice;
+    device = newDevice;
+    createVertexBuffer(transferQueue, transferCommandPool, vertices);
+    createIndexBuffer(transferQueue, transferCommandPool, indeces);
+
+    return VK_SUCCESS;
+}
+
 uint32_t findMemoryTypeIndex(VkPhysicalDevice physicalDevice, uint32_t allowedTypes, VkMemoryPropertyFlags properties)
 {
     VkPhysicalDeviceMemoryProperties memoryProperties;
@@ -59,18 +71,6 @@ void createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize
     }
 }
 
-VkResult Mesh::init(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex> *vertices, std::vector<uint32_t> *indeces)
-{
-    vertexCount = vertices->size();
-    indexCount = indeces->size();
-    physicalDevice = newPhysicalDevice;
-    device = newDevice;
-    createVertexBuffer(transferQueue, transferCommandPool, vertices);
-    createIndexBuffer(transferQueue, transferCommandPool, indeces);
-
-    return VK_SUCCESS;
-}
-
 int Mesh::getVertexCount()
 {
     return vertexCount;
@@ -89,14 +89,6 @@ int Mesh::getIndexCount()
 VkBuffer Mesh::getIndexBuffer()
 {
     return indexBuffer;
-}
-
-void Mesh::destroyBuffers()
-{
-    vkDestroyBuffer(device, vertexBuffer, nullptr);
-    vkFreeMemory(device, vertexBufferMemory, nullptr);
-    vkDestroyBuffer(device, indexBuffer, nullptr);
-    vkFreeMemory(device, indexBufferMemory, nullptr);
 }
 
 void copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBufer, VkBuffer dstBuffer, VkDeviceSize bufferSize)
@@ -216,4 +208,12 @@ void Mesh::createIndexBuffer(VkQueue transferQueue, VkCommandPool transferComman
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
+}
+
+void Mesh::destroyBuffers()
+{
+    vkDestroyBuffer(device, vertexBuffer, nullptr);
+    vkFreeMemory(device, vertexBufferMemory, nullptr);
+    vkDestroyBuffer(device, indexBuffer, nullptr);
+    vkFreeMemory(device, indexBufferMemory, nullptr);
 }

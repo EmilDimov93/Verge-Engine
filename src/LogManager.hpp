@@ -33,6 +33,14 @@ private:
 
 class LogManager
 {
+public:
+    LogManager(){}
+    void add(char letter, uint16_t number);
+    std::vector<std::string> getNewMessages();
+    bool hasNewMessages();
+    void printNewMessages();
+    ~LogManager();
+
 private:
     std::vector<ErrorCode> entries;
     size_t newMessageCount = 0;
@@ -42,11 +50,4 @@ private:
     void writeToLogFile();
     void freeLogSpace();
     void induceCrash();
-
-public:
-    void add(char letter, uint16_t number);
-    std::vector<std::string> getNewMessages();
-    bool hasNewMessages();
-    void printNewMessages();
-    void cleanup();
 };

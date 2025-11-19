@@ -105,7 +105,7 @@ void LogManager::induceCrash()
     exit(EXIT_FAILURE);
 }
 
-void LogManager::cleanup(){
+LogManager::~LogManager(){
     add('C', 001);
     writeToLogFile();
 }

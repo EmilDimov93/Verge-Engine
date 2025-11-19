@@ -5,6 +5,10 @@
 
 #include <thread>
 
+FpsManager::FpsManager(uint16_t targetFps){
+    setTarget(targetFps);
+}
+
 void FpsManager::sync()
 {
     using namespace std::chrono;

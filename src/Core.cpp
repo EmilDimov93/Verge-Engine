@@ -13,42 +13,27 @@
 class VergeEngine
 {
 public:
+    VergeEngine() : log(),
+                    window(&log),
+                    vulkan(window.getWindowReference(), window.getWindowSize(), &log),
+                    input(window.getWindowReference(), &log),
+                    fps(VE_DEFAULT_FPS)
+    {
+        log.add('C', 0);
+    }
+
     void run()
     {
-        init();
-
-        while(window.shouldNotClose())
+        while (window.isOpen())
             tick();
-
-        cleanup();
     }
 
 private:
-    VulkanManager vulkan;
-
-    WindowManager window;
-
     LogManager log;
-
+    WindowManager window;
+    VulkanManager vulkan;
     InputManager input;
-
     FpsManager fps;
-
-    void init()
-    {
-        if (DEVELOPER_MODE)
-            log.add('O', 000);
-
-        window.init(&log);
-
-        vulkan.init(window.getWindowReference(), window.getWindowSize(), &log);
-
-        input.init(window.getWindowReference(), &log);
-
-        fps.setTarget(140);
-
-        log.add('C', 000);
-    }
 
     void tick()
     {
@@ -60,22 +45,11 @@ private:
 
         fps.sync();
     }
-
-    void cleanup()
-    {
-        vulkan.cleanup();
-
-        window.cleanup();
-
-        log.cleanup();
-    }
 };
 
 int main()
 {
-    VergeEngine verge;
+    VergeEngine VE;
 
-    verge.run();
-
-    return EXIT_SUCCESS;
+    VE.run();
 }

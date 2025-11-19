@@ -13,7 +13,7 @@ private:
     uint16_t currentFps = 0;
 
 public:
-    void syncFrameTime();
-    void setTargetFps(uint16_t targetFps);
+    void sync();
+    void setTarget(uint16_t targetFps);
     uint16_t getFps();
 };

@@ -5,9 +5,11 @@
 
 #include <thread>
 
-void FpsManager::syncFrameTime()
+void FpsManager::sync()
 {
     using namespace std::chrono;
+    using std::this_thread::sleep_for;
+    
     auto now = steady_clock::now();
     auto elapsed = now - timeAtStartOfFrame;
     auto target = duration<double>(targetFrameTime);
@@ -17,7 +19,7 @@ void FpsManager::syncFrameTime()
         auto remaining = target - elapsed;
         if (remaining > milliseconds(1))
         {
-            std::this_thread::sleep_for(remaining - milliseconds(1));
+            sleep_for(remaining - milliseconds(1));
         }
     }
 
@@ -31,7 +33,7 @@ void FpsManager::syncFrameTime()
     timeAtStartOfFrame = now;
 }
 
-void FpsManager::setTargetFps(uint16_t targetFps)
+void FpsManager::setTarget(uint16_t targetFps)
 {
     if (targetFps != 0)
     {

@@ -14,7 +14,7 @@ class VulkanManager
 public:
     VulkanManager() {}
 
-    void initVulkan(GLFWwindow *window, Size windowSize, LogManager *logRef);
+    void init(GLFWwindow *window, Size windowSize, LogManager *logRef);
 
     void drawFrame();
 

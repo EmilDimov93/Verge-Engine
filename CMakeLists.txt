@@ -8,6 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_executable(VergeEngine 
     src/Core.cpp
     src/VulkanManager.cpp
+    src/WindowManager.cpp
     src/Mesh.cpp
     src/InputManager.cpp
     src/FpsManager.cpp

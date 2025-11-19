@@ -1,0 +1,48 @@
+// Copyright 2025 Emil Dimov
+// Licensed under the Apache License, Version 2.0
+
+#include "WindowManager.hpp"
+
+void WindowManager::init(LogManager *logRef)
+{
+    log = logRef;
+
+    if (!glfwInit())
+    {
+        log->add('G', 200);
+    }
+
+    const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    windowSize.w = mode->width / 2;
+    windowSize.h = mode->height / 2;
+
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+    window = glfwCreateWindow(windowSize.w, windowSize.h, "Verge Engine", nullptr, nullptr);
+    if (!window)
+    {
+        log->add('G', 201);
+    }
+
+    log->add('G', 000);
+}
+
+GLFWwindow *WindowManager::getWindowReference()
+{
+    return window;
+}
+
+Size WindowManager::getWindowSize()
+{
+    return windowSize;
+}
+
+void WindowManager::cleanup(){
+    glfwDestroyWindow(window);
+    glfwTerminate();
+}
+
+bool WindowManager::shouldNotClose(){
+    return !glfwWindowShouldClose(window);
+}

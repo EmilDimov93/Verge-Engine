@@ -46,7 +46,8 @@ void LogManager::add(char letter, uint16_t number)
     hasNewMessagesFlag = true;
     newMessageCount++;
 
-    if(IS_ENTRY_ERROR(number)){
+    if (IS_ENTRY_ERROR(number))
+    {
         InduceCrash();
     }
 
@@ -73,18 +74,34 @@ bool LogManager::hasNewMessages()
     return hasNewMessagesFlag;
 }
 
-void LogManager::writeToLogFile(){
+void LogManager::writeToLogFile()
+{
     std::ofstream file("log.txt");
 
     auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     file << "Verge Engine Log - " << std::put_time(std::localtime(&now), "%Y-%m-%d - %H:%M:%S") << " - Version " << VERGE_ENGINE_VERSION << "\n\n";
 
-    for (auto& entry : entries){
+    for (auto &entry : entries)
+    {
         file << entry.letter << std::setfill('0') << std::setw(3) << entry.number << ": " << entry.getMessage() << '\n';
     }
 }
 
-void LogManager::InduceCrash(){
+void LogManager::printNewMessages()
+{
+    if (hasNewMessages())
+    {
+        std::vector<std::string> newMessages = getNewMessages();
+
+        for (size_t i = 0; i < newMessages.size(); i++)
+        {
+            std::cout << "LOG: " << newMessages[i] << std::endl;
+        }
+    }
+}
+
+void LogManager::InduceCrash()
+{
     entries.push_back(ErrorCode{'C', 200});
     writeToLogFile();
     exit(EXIT_FAILURE);

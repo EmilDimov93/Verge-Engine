@@ -109,12 +109,14 @@ private:
     KeyState mouseBtnStates[VRG_MOUSE_BTN_COUNT];
     KeyState keyStates[VRG_KEY_COUNT];
 
+    GLFWwindow *window;
+
     LogManager *log;
 
 public:
-    void initInputManager(LogManager *logRef);
+    void init(GLFWwindow *windowRef, LogManager *logRef);
 
-    void refresh(GLFWwindow *window);
+    void refresh();
 
     bool isDown(VRGMouseBtn key);
     bool isUp(VRGMouseBtn key);

@@ -47,4 +47,5 @@ public:
     std::vector<std::string> getNewMessages();
     bool hasNewMessages();
     void writeToLogFile();
+    void printNewMessages();
 };

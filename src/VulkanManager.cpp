@@ -9,7 +9,7 @@
 
 const int MAX_FRAME_DRAWS = 2;
 
-void VulkanManager::initVulkan(GLFWwindow *window, Size windowSize, LogManager *logRef)
+void VulkanManager::init(GLFWwindow *window, Size windowSize, LogManager *logRef)
 {
     log = logRef;
 

@@ -3,8 +3,9 @@
 
 #include "InputManager.hpp"
 
-void InputManager::initInputManager(LogManager *logRef)
+void InputManager::init(GLFWwindow *windowRef, LogManager *logRef)
 {
+    window = windowRef;
     log = logRef;
 
     for (size_t i = 0; i < VRG_MOUSE_BTN_COUNT; i++)
@@ -18,7 +19,7 @@ void InputManager::initInputManager(LogManager *logRef)
     }
 }
 
-void InputManager::refresh(GLFWwindow *window)
+void InputManager::refresh()
 {
     glfwPollEvents();
     

@@ -41,8 +41,11 @@ void VulkanManager::init(GLFWwindow *window, Size windowSize, LogManager *logRef
     std::vector<uint32_t> meshIndeces = {
         0, 1, 2, 2, 3, 0};
 
-    Mesh firstMesh = Mesh(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices, &meshIndeces);
-    Mesh secondMesh = Mesh(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices2, &meshIndeces);
+    Mesh firstMesh;
+    Mesh secondMesh;
+
+    firstMesh.init(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices, &meshIndeces);
+    secondMesh.init(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices2, &meshIndeces);
 
     meshes.push_back(firstMesh);
     meshes.push_back(secondMesh);

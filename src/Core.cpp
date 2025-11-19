@@ -15,13 +15,12 @@ class VergeEngine
 public:
     void run()
     {
-        Init();
+        init();
 
-        while(window.shouldNotClose()){
-            Tick();
-        }
+        while(window.shouldNotClose())
+            tick();
 
-        Cleanup();
+        cleanup();
     }
 
 private:
@@ -35,7 +34,7 @@ private:
 
     FpsManager fps;
 
-    void Init()
+    void init()
     {
         if (DEVELOPER_MODE)
             log.add('O', 000);
@@ -51,7 +50,7 @@ private:
         log.add('C', 000);
     }
 
-    void Tick()
+    void tick()
     {
         input.refresh();
 
@@ -62,14 +61,13 @@ private:
         fps.sync();
     }
 
-    void Cleanup()
+    void cleanup()
     {
         vulkan.cleanup();
 
         window.cleanup();
 
-        log.add('C', 001);
-        log.writeToLogFile();
+        log.cleanup();
     }
 };
 

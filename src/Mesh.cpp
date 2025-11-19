@@ -59,7 +59,7 @@ void createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize
     }
 }
 
-Mesh::Mesh(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex> *vertices, std::vector<uint32_t> *indeces)
+VkResult Mesh::init(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex> *vertices, std::vector<uint32_t> *indeces)
 {
     vertexCount = vertices->size();
     indexCount = indeces->size();
@@ -67,14 +67,8 @@ Mesh::Mesh(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, VkQueue trans
     device = newDevice;
     createVertexBuffer(transferQueue, transferCommandPool, vertices);
     createIndexBuffer(transferQueue, transferCommandPool, indeces);
-}
 
-Mesh::Mesh() : vertexCount(0),
-               vertexBuffer(VK_NULL_HANDLE),
-               vertexBufferMemory(VK_NULL_HANDLE),
-               physicalDevice(VK_NULL_HANDLE),
-               device(VK_NULL_HANDLE)
-{
+    return VK_SUCCESS;
 }
 
 int Mesh::getVertexCount()

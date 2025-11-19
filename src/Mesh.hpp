@@ -8,11 +8,12 @@
 
 #include "definitions.hpp"
 
+#define VE_SUCCESS VK_SUCCESS
+
 class Mesh
 {
 public:
-    Mesh();
-    Mesh(VkPhysicalDevice newPhysicalDevice,
+    VkResult init(VkPhysicalDevice newPhysicalDevice,
          VkDevice newDevice,
          VkQueue transferQueue,
          VkCommandPool transferCommandPool,

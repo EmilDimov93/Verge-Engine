@@ -46,7 +46,7 @@ void LogManager::add(char letter, uint16_t number)
 
     if (IS_ENTRY_ERROR(number))
     {
-        InduceCrash();
+        induceCrash();
     }
 
     if (entries.size() > LOG_MESSAGE_LIMIT)
@@ -98,9 +98,14 @@ void LogManager::printNewMessages()
     }
 }
 
-void LogManager::InduceCrash()
+void LogManager::induceCrash()
 {
     entries.push_back(ErrorCode{'C', 200});
     writeToLogFile();
     exit(EXIT_FAILURE);
+}
+
+void LogManager::cleanup(){
+    add('C', 001);
+    writeToLogFile();
 }

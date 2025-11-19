@@ -39,13 +39,14 @@ private:
     bool hasNewMessagesFlag = false;
     size_t clearedEntriesCount = 0;
 
+    void writeToLogFile();
     void freeLogSpace();
-    void InduceCrash();
+    void induceCrash();
 
 public:
     void add(char letter, uint16_t number);
     std::vector<std::string> getNewMessages();
     bool hasNewMessages();
-    void writeToLogFile();
     void printNewMessages();
+    void cleanup();
 };

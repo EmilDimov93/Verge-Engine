@@ -58,7 +58,7 @@ private:
 
     LogManager *log;
 
-    Mesh firstMesh;
+    std::vector<Mesh> meshes;
 
     void createInstance();
     void createSurface(GLFWwindow *window);

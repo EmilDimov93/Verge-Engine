@@ -20,7 +20,8 @@ uint32_t findMemoryTypeIndex(VkPhysicalDevice physicalDevice, uint32_t allowedTy
     return -1;
 }
 
-void createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory){
+void createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory)
+{
     VkBufferCreateInfo bufferCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
         .size = bufferSize,
@@ -58,12 +59,14 @@ void createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize
     }
 }
 
-Mesh::Mesh(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex> *vertices)
+Mesh::Mesh(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex> *vertices, std::vector<uint32_t> *indeces)
 {
     vertexCount = vertices->size();
+    indexCount = indeces->size();
     physicalDevice = newPhysicalDevice;
     device = newDevice;
     createVertexBuffer(transferQueue, transferCommandPool, vertices);
+    createIndexBuffer(transferQueue, transferCommandPool, indeces);
 }
 
 Mesh::Mesh() : vertexCount(0),
@@ -71,7 +74,8 @@ Mesh::Mesh() : vertexCount(0),
                vertexBufferMemory(VK_NULL_HANDLE),
                physicalDevice(VK_NULL_HANDLE),
                device(VK_NULL_HANDLE)
-{}
+{
+}
 
 int Mesh::getVertexCount()
 {
@@ -83,25 +87,38 @@ VkBuffer Mesh::getVertexBuffer()
     return vertexBuffer;
 }
 
-void Mesh::destroyVertexBuffer()
+int Mesh::getIndexCount()
+{
+    return indexCount;
+}
+
+VkBuffer Mesh::getIndexBuffer()
+{
+    return indexBuffer;
+}
+
+void Mesh::destroyBuffers()
 {
     vkDestroyBuffer(device, vertexBuffer, nullptr);
     vkFreeMemory(device, vertexBufferMemory, nullptr);
+    vkDestroyBuffer(device, indexBuffer, nullptr);
+    vkFreeMemory(device, indexBufferMemory, nullptr);
 }
 
-void copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBufer, VkBuffer dstBuffer, VkDeviceSize bufferSize){
+void copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBufer, VkBuffer dstBuffer, VkDeviceSize bufferSize)
+{
     VkCommandBuffer transferCommandBuffer;
 
     VkCommandBufferAllocateInfo allocInfo = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
         .commandPool = transferCommandPool,
         .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-        .commandBufferCount = 1
-    };
+        .commandBufferCount = 1};
 
     // should vkCheck
     VkResult res = vkAllocateCommandBuffers(device, &allocInfo, &transferCommandBuffer);
-    if(res != VK_SUCCESS){
+    if (res != VK_SUCCESS)
+    {
         std::cout << "Failed to allocate command buffers";
         exit(EXIT_FAILURE);
     }
@@ -112,7 +129,8 @@ void copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCo
     };
 
     res = vkBeginCommandBuffer(transferCommandBuffer, &beginInfo);
-    if(res != VK_SUCCESS){
+    if (res != VK_SUCCESS)
+    {
         std::cout << "Failed to begin command buffer";
         exit(EXIT_FAILURE);
     }
@@ -120,13 +138,13 @@ void copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCo
     VkBufferCopy bufferCopyRegion = {
         .srcOffset = 0,
         .dstOffset = 0,
-        .size = bufferSize
-    };
+        .size = bufferSize};
 
     vkCmdCopyBuffer(transferCommandBuffer, srcBufer, dstBuffer, 1, &bufferCopyRegion);
 
     res = vkEndCommandBuffer(transferCommandBuffer);
-    if(res != VK_SUCCESS){
+    if (res != VK_SUCCESS)
+    {
         std::cout << "Failed to end command buffer";
         exit(EXIT_FAILURE);
     }
@@ -134,17 +152,18 @@ void copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCo
     VkSubmitInfo submitInfo = {
         .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
         .commandBufferCount = 1,
-        .pCommandBuffers = &transferCommandBuffer
-    };
+        .pCommandBuffers = &transferCommandBuffer};
 
     res = vkQueueSubmit(transferQueue, 1, &submitInfo, VK_NULL_HANDLE);
-    if(res != VK_SUCCESS){
+    if (res != VK_SUCCESS)
+    {
         std::cout << "Failed to submit queue";
         exit(EXIT_FAILURE);
     }
 
     res = vkQueueWaitIdle(transferQueue);
-    if(res != VK_SUCCESS){
+    if (res != VK_SUCCESS)
+    {
         std::cout << "Failed to wait idle";
         exit(EXIT_FAILURE);
     }
@@ -174,6 +193,32 @@ void Mesh::createVertexBuffer(VkQueue transferQueue, VkCommandPool transferComma
     createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &vertexBuffer, &vertexBufferMemory);
 
     copyBuffer(device, transferQueue, transferCommandPool, stagingBuffer, vertexBuffer, bufferSize);
+
+    vkDestroyBuffer(device, stagingBuffer, nullptr);
+    vkFreeMemory(device, stagingBufferMemory, nullptr);
+}
+
+void Mesh::createIndexBuffer(VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t> *indeces)
+{
+    VkDeviceSize bufferSize = sizeof(uint32_t) * indeces->size();
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
+
+    void *data;
+    VkResult res = vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    if (res != VK_SUCCESS)
+    {
+        std::cout << "Failed to map memory";
+        exit(EXIT_FAILURE);
+    }
+    memcpy(data, indeces->data(), (size_t)bufferSize);
+    vkUnmapMemory(device, stagingBufferMemory);
+
+    createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &indexBuffer, &indexBufferMemory);
+
+    copyBuffer(device, transferQueue, transferCommandPool, stagingBuffer, indexBuffer, bufferSize);
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);

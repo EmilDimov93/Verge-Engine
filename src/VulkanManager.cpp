@@ -25,15 +25,25 @@ void VulkanManager::initVulkan(GLFWwindow *window, Size windowSize, LogManager *
     createCommandPool();
 
     std::vector<Vertex> meshVertices = {
-        {{0.4, -0.4, 0.0}, {1.0f, 1.0f, 1.0f}},
-        {{0.4, 0.4, 0.0}, {1.0f, 0.0f, 1.0f}},
-        {{-0.4, 0.4, 0.0}, {1.0f, 1.0f, 0.0f}},
+        {{-0.1, -0.4, 0.0}, {1.0f, 1.0f, 1.0f}},
+        {{-0.1, 0.4, 0.0}, {1.0f, 0.0f, 1.0f}},
+        {{-0.9, 0.4, 0.0}, {1.0f, 1.0f, 0.0f}},
+        {{-0.9, -0.4, 0.0}, {0.0f, 0.0f, 1.0f}}};
 
-        {{-0.4, 0.4, 0.0}, {0.0f, 0.0f, 0.0f}},
-        {{-0.4, -0.4, 0.0}, {0.0f, 0.0f, 1.0f}},
-        {{0.4, -0.4, 0.0}, {0.0f, 1.0f, 0.0f}}
-    };
-    firstMesh = Mesh(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices);
+    std::vector<Vertex> meshVertices2 = {
+        {{0.9, -0.4, 0.0}, {1.0f, 1.0f, 1.0f}},
+        {{0.9, 0.4, 0.0}, {1.0f, 0.0f, 1.0f}},
+        {{0.1, 0.4, 0.0}, {1.0f, 1.0f, 0.0f}},
+        {{0.1, -0.4, 0.0}, {0.0f, 0.0f, 1.0f}}};
+
+    std::vector<uint32_t> meshIndeces = {
+        0, 1, 2, 2, 3, 0};
+
+    Mesh firstMesh = Mesh(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices, &meshIndeces);
+    Mesh secondMesh = Mesh(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices2, &meshIndeces);
+
+    meshes.push_back(firstMesh);
+    meshes.push_back(secondMesh);
 
     createCommandBuffers();
     createSemaphores();
@@ -534,11 +544,16 @@ void VulkanManager::recordCommands()
 
         vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-        VkBuffer vertexBuffers[] = {firstMesh.getVertexBuffer()};
-        VkDeviceSize offsets[] = {0};
-        vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+        for (size_t j = 0; j < meshes.size(); j++)
+        {
+            VkBuffer vertexBuffers[] = {meshes[j].getVertexBuffer()};
+            VkDeviceSize offsets[] = {0};
+            vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
 
-        vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(firstMesh.getVertexCount()), 1, 0, 0);
+            vkCmdBindIndexBuffer(commandBuffers[i], meshes[j].getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+
+            vkCmdDrawIndexed(commandBuffers[i], meshes[j].getIndexCount(), 1, 0, 0, 0);
+        }
 
         vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -612,7 +627,10 @@ void VulkanManager::cleanup()
 {
     vkCheck(vkDeviceWaitIdle(device), {'V', 235});
 
-    firstMesh.destroyVertexBuffer();
+    for (size_t i = 0; i < meshes.size(); i++)
+    {
+        meshes[i].destroyBuffers();
+    }
 
     for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
     {

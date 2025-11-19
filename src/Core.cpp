@@ -1,12 +1,6 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#include <iostream>
-#include <vector>
-#include <stdexcept>
-#include <thread>
-#include <chrono>
-
 #include "VulkanManager.hpp"
 #include "WindowManager.hpp"
 #include "InputManager.hpp"

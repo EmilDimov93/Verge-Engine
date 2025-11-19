@@ -7,23 +7,34 @@
 
 void FpsManager::syncFrameTime()
 {
-    while (true)
+    using namespace std::chrono;
+    auto now = steady_clock::now();
+    auto elapsed = now - timeAtStartOfFrame;
+    auto target = duration<double>(targetFrameTime);
+
+    if (elapsed < target)
     {
-        std::chrono::duration<double> elapsed = std::chrono::steady_clock::now() - timeAtStartOfFrame;
-        if (elapsed.count() >= targetFrameTime)
+        auto remaining = target - elapsed;
+        if (remaining > milliseconds(1))
         {
-            break;
+            std::this_thread::sleep_for(remaining - milliseconds(1));
         }
     }
 
-    auto now = std::chrono::steady_clock::now();
-    currentFps = static_cast<uint16_t>(1.0 / std::chrono::duration<double>(now - timeAtStartOfFrame).count());
+    while ((steady_clock::now() - timeAtStartOfFrame) < target)
+    {
+        std::this_thread::yield();
+    }
+
+    now = steady_clock::now();
+    currentFps = static_cast<uint16_t>(1.0 / duration<double>(now - timeAtStartOfFrame).count());
     timeAtStartOfFrame = now;
 }
 
 void FpsManager::setTargetFps(uint16_t targetFps)
 {
-    if(targetFps != 0){
+    if (targetFps != 0)
+    {
         targetFrameTime = 1.0 / targetFps;
     }
 }

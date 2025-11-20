@@ -291,8 +291,8 @@ VkShaderModule VulkanManager::createShaderModule(const std::vector<char> &code)
 
 void VulkanManager::createGraphicsPipeline()
 {
-    auto vertexShaderCode = readFile("src/shaders/vert.spv");
-    auto fragmentShaderCode = readFile("src/shaders/frag.spv");
+    auto vertexShaderCode = readFile("build/Release/shaders/vert.spv");
+    auto fragmentShaderCode = readFile("build/Release/shaders/frag.spv");
 
     if (vertexShaderCode.empty() || fragmentShaderCode.empty())
     {

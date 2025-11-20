@@ -19,7 +19,7 @@ public:
                     input(window.getWindowReference(), &log),
                     fps(VE_DEFAULT_FPS)
     {
-        log.add('C', 0);
+        log.add('C', 000);
     }
 
     void run()

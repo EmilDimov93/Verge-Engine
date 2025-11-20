@@ -11,7 +11,7 @@
 
 const int MAX_FRAME_DRAWS = 2;
 
-VulkanManager::VulkanManager(GLFWwindow *window, Size windowSize, LogManager *logRef)
+VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize, LogManager *logRef)
 {
     log = logRef;
 
@@ -218,7 +218,7 @@ void VulkanManager::createLogicalDevice()
     presentQueue = graphicsQueue;
 }
 
-void VulkanManager::createSwapChain(Size windowSize)
+void VulkanManager::createSwapChain(Size2 windowSize)
 {
     VkSurfaceCapabilitiesKHR capabilities;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities);

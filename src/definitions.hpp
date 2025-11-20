@@ -10,9 +10,26 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-struct Size { 
+struct Size2 { 
     uint32_t w;
     uint32_t h; 
+};
+
+struct Size3 { 
+    uint32_t w;
+    uint32_t h;
+    uint32_t d; 
+};
+
+struct Position2 { 
+    double x;
+    double y;
+};
+
+struct Position3 { 
+    double x;
+    double y;
+    double z;
 };
 
 struct Vertex

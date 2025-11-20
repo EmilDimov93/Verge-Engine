@@ -17,7 +17,7 @@ public:
 
     GLFWwindow *getWindowReference();
 
-    Size getWindowSize();
+    Size2 getWindowSize();
 
     bool isOpen();
 
@@ -25,7 +25,7 @@ public:
 
 private:
     GLFWwindow *window;
-    Size windowSize = {0, 0};
+    Size2 windowSize = {0, 0};
 
     LogManager *log;
 };

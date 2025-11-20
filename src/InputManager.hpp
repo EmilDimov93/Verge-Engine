@@ -5,6 +5,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include "definitions.hpp"
+
 class LogManager;
 
 typedef enum
@@ -120,9 +122,13 @@ public:
     bool isPressed(VEKey key);
     bool isReleased(VEKey key);
 
+    Position2 getMousePos();
+
 private:
     KeyState mouseBtnStates[VE_MOUSE_BTN_COUNT];
     KeyState keyStates[VE_KEY_COUNT];
+
+    Position2 mousePosition;
 
     GLFWwindow *window;
 

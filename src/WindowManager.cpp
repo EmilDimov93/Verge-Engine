@@ -37,7 +37,7 @@ GLFWwindow *WindowManager::getWindowReference()
     return window;
 }
 
-Size WindowManager::getWindowSize()
+Size2 WindowManager::getWindowSize()
 {
     return windowSize;
 }

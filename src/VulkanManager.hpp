@@ -17,7 +17,7 @@ class ErrorCode;
 class VulkanManager
 {
 public:
-    VulkanManager(GLFWwindow *window, Size windowSize, LogManager *logRef);
+    VulkanManager(GLFWwindow *window, Size2 windowSize, LogManager *logRef);
 
     void drawFrame();
 
@@ -67,7 +67,7 @@ private:
     void createSurface(GLFWwindow *window);
     void pickPhysicalDevice();
     void createLogicalDevice();
-    void createSwapChain(Size windowSize);
+    void createSwapChain(Size2 windowSize);
     void createImageViews();
     void createRenderPass();
     void createGraphicsPipeline();

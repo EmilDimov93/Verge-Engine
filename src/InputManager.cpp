@@ -19,6 +19,8 @@ InputManager::InputManager(GLFWwindow *windowRef, LogManager *logRef)
     {
         keyStates[i] = KEY_STATE_UP;
     }
+
+    mousePosition = {0, 0};
 }
 
 void InputManager::refresh()
@@ -58,6 +60,8 @@ void InputManager::refresh()
             break;
         }
     }
+
+    glfwGetCursorPos(window, &mousePosition.x, &mousePosition.y);
 }
 
 bool InputManager::isDown(VEMouseBtn btn)
@@ -130,4 +134,8 @@ bool InputManager::isReleased(VEKey key)
         return false;
     }
     return keyStates[key] == KEY_STATE_RELEASED;
+}
+
+Position2 InputManager::getMousePos(){
+    return mousePosition;
 }

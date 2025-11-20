@@ -8,8 +8,6 @@
 
 #include "definitions.hpp"
 
-#define VE_SUCCESS VK_SUCCESS
-
 class Mesh
 {
 public:
@@ -20,26 +18,26 @@ public:
          std::vector<Vertex> *vertices,
          std::vector<uint32_t> *indeces);
 
-    int getVertexCount();
+    uint64_t getVertexCount();
     VkBuffer getVertexBuffer();
 
-    int getIndexCount();
+    uint64_t getIndexCount();
     VkBuffer getIndexBuffer();
 
     void destroyBuffers();
 
 private:
-    int vertexCount;
+    uint64_t vertexCount;
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;
 
-    int indexCount;
+    uint64_t indexCount;
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;
 
     VkPhysicalDevice physicalDevice;
     VkDevice device;
 
-    void createVertexBuffer(VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex> *vertices);
-    void createIndexBuffer(VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t> *indeces);
+    VkResult createVertexBuffer(VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex> *vertices);
+    VkResult createIndexBuffer(VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t> *indeces);
 };

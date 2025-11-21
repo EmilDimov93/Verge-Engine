@@ -27,5 +27,7 @@ private:
     GLFWwindow *window;
     Size2 windowSize = {0, 0};
 
+    bool isGlfwInitialized = false;
+
     LogManager *log;
 };

@@ -12,9 +12,8 @@ WindowManager::WindowManager(LogManager *logRef)
     log = logRef;
 
     if (!glfwInit())
-    {
         log->add('G', 200);
-    }
+    isGlfwInitialized = true;
 
     const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     windowSize.w = mode->width / 2;
@@ -47,6 +46,12 @@ bool WindowManager::isOpen(){
 }
 
 WindowManager::~WindowManager(){
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    if (window){
+        glfwDestroyWindow(window);
+        window = nullptr;
+    }
+
+    if(isGlfwInitialized)
+        glfwTerminate();
+    isGlfwInitialized = false;
 }

@@ -49,7 +49,13 @@ private:
 
 int main()
 {
-    VergeEngine VE;
+    try{
+        VergeEngine VE;
 
-    VE.run();
+        VE.run();
+    }catch (const EngineCrash&) {
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
 }

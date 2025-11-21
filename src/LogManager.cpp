@@ -102,10 +102,11 @@ void LogManager::induceCrash()
 {
     entries.push_back(ErrorCode{'C', 200});
     writeToLogFile();
-    exit(EXIT_FAILURE);
+    throw EngineCrash{};
 }
 
 LogManager::~LogManager(){
-    add('C', 001);
+    if(entries.back() != ErrorCode{'C', 200})
+        add('C', 001);
     writeToLogFile();
 }

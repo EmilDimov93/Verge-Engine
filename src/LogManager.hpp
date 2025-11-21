@@ -31,6 +31,12 @@ private:
     static const std::map<std::pair<char, uint16_t>, std::string> messages;
 };
 
+inline bool operator!=(const ErrorCode& lhs, const ErrorCode& rhs) {
+    return lhs.letter != rhs.letter || lhs.number != rhs.number;
+}
+
+struct EngineCrash : public std::exception {};
+
 class LogManager
 {
 public:

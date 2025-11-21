@@ -170,8 +170,18 @@ VkResult Mesh::createIndexBuffer(VkQueue transferQueue, VkCommandPool transferCo
 
 void Mesh::destroyBuffers()
 {
-    vkDestroyBuffer(device, vertexBuffer, nullptr);
-    vkFreeMemory(device, vertexBufferMemory, nullptr);
-    vkDestroyBuffer(device, indexBuffer, nullptr);
-    vkFreeMemory(device, indexBufferMemory, nullptr);
+    if (vertexBuffer)
+        vkDestroyBuffer(device, vertexBuffer, nullptr);
+    if (vertexBufferMemory)
+        vkFreeMemory(device, vertexBufferMemory, nullptr);
+
+    if (indexBuffer)
+        vkDestroyBuffer(device, indexBuffer, nullptr);
+    if (indexBufferMemory)
+        vkFreeMemory(device, indexBufferMemory, nullptr);
+
+    vertexBuffer = VK_NULL_HANDLE;
+    vertexBufferMemory = VK_NULL_HANDLE;
+    indexBuffer = VK_NULL_HANDLE;
+    indexBufferMemory = VK_NULL_HANDLE;
 }

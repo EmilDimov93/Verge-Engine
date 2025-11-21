@@ -647,38 +647,51 @@ void VulkanManager::vkCheck(VkResult res, ErrorCode errorCode)
 
 VulkanManager::~VulkanManager()
 {
-    vkCheck(vkDeviceWaitIdle(device), {'V', 235});
+    if(device != VK_NULL_HANDLE)
+        vkCheck(vkDeviceWaitIdle(device), {'V', 235});
 
-    for (size_t i = 0; i < meshes.size(); i++)
-    {
-        meshes[i].destroyBuffers();
-    }
+    for (auto& mesh : meshes)
+        mesh.destroyBuffers();
 
     for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
     {
-        vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
-        vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
-        vkDestroyFence(device, drawFences[i], nullptr);
+        if (renderFinishedSemaphores[i])
+            vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
+        if (imageAvailableSemaphores[i])
+            vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
+        if (drawFences[i])
+            vkDestroyFence(device, drawFences[i], nullptr);
     }
 
-    vkDestroyCommandPool(device, graphicsCommandPool, nullptr);
+    if (graphicsCommandPool)
+        vkDestroyCommandPool(device, graphicsCommandPool, nullptr);
 
-    for (auto framebuffer : swapChainFramebuffers)
-    {
-        vkDestroyFramebuffer(device, framebuffer, nullptr);
-    }
+    for (auto fb : swapChainFramebuffers)
+        if (fb) vkDestroyFramebuffer(device, fb, nullptr);
+    swapChainFramebuffers.clear();
 
-    vkDestroyPipeline(device, graphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-    vkDestroyRenderPass(device, renderPass, nullptr);
+    if (graphicsPipeline)
+        vkDestroyPipeline(device, graphicsPipeline, nullptr);
 
-    for (auto imageView : swapChainImageViews)
-    {
-        vkDestroyImageView(device, imageView, nullptr);
-    }
+    if (pipelineLayout)
+        vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 
-    vkDestroySwapchainKHR(device, swapChain, nullptr);
-    vkDestroyDevice(device, nullptr);
-    vkDestroySurfaceKHR(instance, surface, nullptr);
-    vkDestroyInstance(instance, nullptr);
+    if (renderPass)
+        vkDestroyRenderPass(device, renderPass, nullptr);
+
+    for (auto iv : swapChainImageViews)
+        if (iv) vkDestroyImageView(device, iv, nullptr);
+    swapChainImageViews.clear();
+
+    if (swapChain)
+        vkDestroySwapchainKHR(device, swapChain, nullptr);
+
+    if (device)
+        vkDestroyDevice(device, nullptr);
+
+    if (surface)
+        vkDestroySurfaceKHR(instance, surface, nullptr);
+
+    if (instance)
+        vkDestroyInstance(instance, nullptr);
 }

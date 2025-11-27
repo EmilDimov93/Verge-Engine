@@ -1,11 +1,19 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#include "InputManager.hpp"
+#include "Input.hpp"
 
 #include "LogManager.hpp"
 
-InputManager::InputManager(GLFWwindow* windowRef, LogManager* logRef)
+KeyState Input::mouseBtnStates[VE_MOUSE_BTN_COUNT] = {};
+KeyState Input::keyStates[VE_KEY_COUNT] = {};
+
+Position2 Input::mousePosition = {0, 0};
+
+GLFWwindow* Input::window = nullptr;
+LogManager* Input::log = nullptr;
+
+void Input::init(GLFWwindow* windowRef, LogManager* logRef)
 {
     window = windowRef;
     log = logRef;
@@ -23,7 +31,7 @@ InputManager::InputManager(GLFWwindow* windowRef, LogManager* logRef)
     mousePosition = {0, 0};
 }
 
-void InputManager::refresh()
+void Input::refresh()
 {
     glfwPollEvents();
     
@@ -64,7 +72,7 @@ void InputManager::refresh()
     glfwGetCursorPos(window, &mousePosition.x, &mousePosition.y);
 }
 
-bool InputManager::isDown(VEMouseBtn btn)
+bool Input::isDown(VEMouseBtn btn)
 {
     if(btn > VE_MOUSE_BTN_COUNT){
         log->add('C', 100);
@@ -73,7 +81,7 @@ bool InputManager::isDown(VEMouseBtn btn)
     return mouseBtnStates[btn] == KEY_STATE_DOWN || mouseBtnStates[btn] == KEY_STATE_PRESSED;
 }
 
-bool InputManager::isUp(VEMouseBtn btn)
+bool Input::isUp(VEMouseBtn btn)
 {
     if(btn > VE_MOUSE_BTN_COUNT){
         log->add('C', 100);
@@ -82,7 +90,7 @@ bool InputManager::isUp(VEMouseBtn btn)
     return mouseBtnStates[btn] == KEY_STATE_UP || mouseBtnStates[btn] == KEY_STATE_RELEASED;
 }
 
-bool InputManager::isPressed(VEMouseBtn btn)
+bool Input::isPressed(VEMouseBtn btn)
 {
     if(btn > VE_MOUSE_BTN_COUNT){
         log->add('C', 100);
@@ -91,7 +99,7 @@ bool InputManager::isPressed(VEMouseBtn btn)
     return mouseBtnStates[btn] == KEY_STATE_PRESSED;
 }
 
-bool InputManager::isReleased(VEMouseBtn btn)
+bool Input::isReleased(VEMouseBtn btn)
 {
     if(btn > VE_MOUSE_BTN_COUNT){
         log->add('C', 100);
@@ -100,7 +108,7 @@ bool InputManager::isReleased(VEMouseBtn btn)
     return mouseBtnStates[btn] == KEY_STATE_RELEASED;
 }
 
-bool InputManager::isDown(VEKey key)
+bool Input::isDown(VEKey key)
 {
     if(key > VE_KEY_COUNT){
         log->add('C', 100);
@@ -109,7 +117,7 @@ bool InputManager::isDown(VEKey key)
     return keyStates[key] == KEY_STATE_DOWN || keyStates[key] == KEY_STATE_PRESSED;
 }
 
-bool InputManager::isUp(VEKey key)
+bool Input::isUp(VEKey key)
 {
     if(key > VE_KEY_COUNT){
         log->add('C', 100);
@@ -118,7 +126,7 @@ bool InputManager::isUp(VEKey key)
     return keyStates[key] == KEY_STATE_UP || keyStates[key] == KEY_STATE_RELEASED;
 }
 
-bool InputManager::isPressed(VEKey key)
+bool Input::isPressed(VEKey key)
 {
     if(key > VE_KEY_COUNT){
         log->add('C', 100);
@@ -127,7 +135,7 @@ bool InputManager::isPressed(VEKey key)
     return keyStates[key] == KEY_STATE_PRESSED;
 }
 
-bool InputManager::isReleased(VEKey key)
+bool Input::isReleased(VEKey key)
 {
     if(key > VE_KEY_COUNT){
         log->add('C', 100);
@@ -136,6 +144,6 @@ bool InputManager::isReleased(VEKey key)
     return keyStates[key] == KEY_STATE_RELEASED;
 }
 
-Position2 InputManager::getMousePos(){
+Position2 Input::getMousePos(){
     return mousePosition;
 }

@@ -105,32 +105,32 @@ typedef enum
     VE_KEY_RIGHT_ALT = GLFW_KEY_RIGHT_ALT
 } VEKey;
 
-class InputManager
+class Input
 {
 public:
-    InputManager(GLFWwindow* windowRef, LogManager* logRef);
+    static void init(GLFWwindow* windowRef, LogManager* logRef);
 
-    void refresh();
+    static void refresh();
 
-    bool isDown(VEMouseBtn key);
-    bool isUp(VEMouseBtn key);
-    bool isPressed(VEMouseBtn key);
-    bool isReleased(VEMouseBtn key);
+    static bool isDown(VEMouseBtn key);
+    static bool isUp(VEMouseBtn key);
+    static bool isPressed(VEMouseBtn key);
+    static bool isReleased(VEMouseBtn key);
 
-    bool isDown(VEKey key);
-    bool isUp(VEKey key);
-    bool isPressed(VEKey key);
-    bool isReleased(VEKey key);
+    static bool isDown(VEKey key);
+    static bool isUp(VEKey key);
+    static bool isPressed(VEKey key);
+    static bool isReleased(VEKey key);
 
-    Position2 getMousePos();
+    static Position2 getMousePos();
 
 private:
-    KeyState mouseBtnStates[VE_MOUSE_BTN_COUNT];
-    KeyState keyStates[VE_KEY_COUNT];
+    static KeyState mouseBtnStates[VE_MOUSE_BTN_COUNT];
+    static KeyState keyStates[VE_KEY_COUNT];
 
-    Position2 mousePosition;
+    static Position2 mousePosition;
 
-    GLFWwindow* window;
+    static GLFWwindow* window;
 
-    LogManager* log;
+    static LogManager* log;
 };

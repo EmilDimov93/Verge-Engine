@@ -3,7 +3,7 @@
 
 #include "VulkanManager.hpp"
 #include "WindowManager.hpp"
-#include "InputManager.hpp"
+#include "Input.hpp"
 #include "LogManager.hpp"
 #include "FPSManager.hpp"
 #include "version.hpp"
@@ -16,9 +16,9 @@ public:
     VergeEngine() : log(),
                     window(&log),
                     vulkan(window.getWindowReference(), window.getWindowSize(), &log),
-                    input(window.getWindowReference(), &log),
                     fps(VE_DEFAULT_FPS)
     {
+        Input::init(window.getWindowReference(), &log);
         log.add('C', 000);
     }
 
@@ -32,12 +32,15 @@ private:
     LogManager log;
     WindowManager window;
     VulkanManager vulkan;
-    InputManager input;
     FpsManager fps;
 
     void tick()
     {
-        input.refresh();
+        Input::refresh();
+
+        if(Input::isDown(VE_KEY_A)){
+            std::cout << "A";
+        }
 
         log.printNewMessages();
 

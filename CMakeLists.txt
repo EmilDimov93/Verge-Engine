@@ -10,7 +10,7 @@ add_executable(VergeEngine
     src/VulkanManager.cpp
     src/WindowManager.cpp
     src/Mesh.cpp
-    src/InputManager.cpp
+    src/Input.cpp
     src/FpsManager.cpp
     src/LogManager.cpp
 )

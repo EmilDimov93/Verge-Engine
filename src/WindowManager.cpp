@@ -7,7 +7,7 @@
 
 #include "LogManager.hpp"
 
-WindowManager::WindowManager(LogManager *logRef)
+WindowManager::WindowManager(LogManager* logRef)
 {
     log = logRef;
 
@@ -15,7 +15,7 @@ WindowManager::WindowManager(LogManager *logRef)
         log->add('G', 200);
     isGlfwInitialized = true;
 
-    const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     windowSize.w = mode->width / 2;
     windowSize.h = mode->height / 2;
 
@@ -31,7 +31,7 @@ WindowManager::WindowManager(LogManager *logRef)
     log->add('G', 000);
 }
 
-GLFWwindow *WindowManager::getWindowReference()
+GLFWwindow* WindowManager::getWindowReference()
 {
     return window;
 }

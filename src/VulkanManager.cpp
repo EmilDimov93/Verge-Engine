@@ -11,7 +11,7 @@
 
 const int MAX_FRAME_DRAWS = 2;
 
-VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize, LogManager *logRef)
+VulkanManager::VulkanManager(GLFWwindow* window, Size2 windowSize, LogManager* logRef)
 {
     log = logRef;
 
@@ -65,7 +65,7 @@ void VulkanManager::createInstance()
         .apiVersion = VK_API_VERSION_1_3};
 
     uint32_t glfwExtensionCount = 0;
-    const char **glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
     VkInstanceCreateInfo instanceCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
@@ -76,7 +76,7 @@ void VulkanManager::createInstance()
     vkCheck(vkCreateInstance(&instanceCreateInfo, nullptr, &instance), {'V', 200});
 }
 
-void VulkanManager::createSurface(GLFWwindow *window)
+void VulkanManager::createSurface(GLFWwindow* window)
 {
     vkCheck(glfwCreateWindowSurface(instance, window, nullptr, &surface), {'V', 201});
 }
@@ -202,7 +202,7 @@ void VulkanManager::createLogicalDevice()
         .queueCount = 1,
         .pQueuePriorities = &queuePriority};
 
-    const char *deviceExtensions[] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    const char* deviceExtensions[] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
     VkPhysicalDeviceFeatures deviceFeatures = {};
     VkDeviceCreateInfo deviceCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,

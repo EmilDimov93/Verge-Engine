@@ -5,7 +5,7 @@
 
 #include "LogManager.hpp"
 
-InputManager::InputManager(GLFWwindow *windowRef, LogManager *logRef)
+InputManager::InputManager(GLFWwindow* windowRef, LogManager* logRef)
 {
     window = windowRef;
     log = logRef;

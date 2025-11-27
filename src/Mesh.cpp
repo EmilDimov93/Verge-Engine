@@ -5,7 +5,7 @@
 
 #define VK_CHECK(res) do { if (res != VK_SUCCESS) return res; } while(0)
 
-VkResult Mesh::init(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex> *vertices, std::vector<uint32_t> *indeces)
+VkResult Mesh::init(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex>* vertices, std::vector<uint32_t>* indeces)
 {
     vertexCount = vertices->size();
     indexCount = indeces->size();
@@ -34,7 +34,7 @@ uint32_t findMemoryTypeIndex(VkPhysicalDevice physicalDevice, uint32_t allowedTy
     return -1;
 }
 
-VkResult createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory)
+VkResult createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer* buffer, VkDeviceMemory* bufferMemory)
 {
     VkBufferCreateInfo bufferCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
@@ -121,7 +121,7 @@ VkResult copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transf
     return VK_SUCCESS;
 }
 
-VkResult Mesh::createVertexBuffer(VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex> *vertices)
+VkResult Mesh::createVertexBuffer(VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex>* vertices)
 {
     VkDeviceSize bufferSize = sizeof(Vertex) * vertices->size();
 
@@ -130,7 +130,7 @@ VkResult Mesh::createVertexBuffer(VkQueue transferQueue, VkCommandPool transferC
 
     VK_CHECK(createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory));
 
-    void *data;
+    void* data;
     VK_CHECK(vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data));
     memcpy(data, vertices->data(), (size_t)bufferSize);
     vkUnmapMemory(device, stagingBufferMemory);
@@ -145,7 +145,7 @@ VkResult Mesh::createVertexBuffer(VkQueue transferQueue, VkCommandPool transferC
     return VK_SUCCESS;
 }
 
-VkResult Mesh::createIndexBuffer(VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t> *indeces)
+VkResult Mesh::createIndexBuffer(VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t>* indeces)
 {
     VkDeviceSize bufferSize = sizeof(uint32_t) * indeces->size();
 
@@ -153,7 +153,7 @@ VkResult Mesh::createIndexBuffer(VkQueue transferQueue, VkCommandPool transferCo
     VkDeviceMemory stagingBufferMemory;
     createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
 
-    void *data;
+    void* data;
     VK_CHECK(vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data));
     memcpy(data, indeces->data(), (size_t)bufferSize);
     vkUnmapMemory(device, stagingBufferMemory);

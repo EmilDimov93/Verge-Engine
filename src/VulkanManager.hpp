@@ -17,7 +17,7 @@ class ErrorCode;
 class VulkanManager
 {
 public:
-    VulkanManager(GLFWwindow *window, Size2 windowSize, LogManager *logRef);
+    VulkanManager(GLFWwindow* window, Size2 windowSize, LogManager* logRef);
 
     void drawFrame();
 
@@ -59,12 +59,12 @@ private:
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> drawFences;
 
-    LogManager *log;
+    LogManager* log;
 
     std::vector<Mesh> meshes;
 
     void createInstance();
-    void createSurface(GLFWwindow *window);
+    void createSurface(GLFWwindow* window);
     void pickPhysicalDevice();
     void createLogicalDevice();
     void createSwapChain(Size2 windowSize);

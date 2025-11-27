@@ -13,9 +13,9 @@ class WindowManager
 {
 public:
 
-    WindowManager(LogManager *logRef);
+    WindowManager(LogManager* logRef);
 
-    GLFWwindow *getWindowReference();
+    GLFWwindow* getWindowReference();
 
     Size2 getWindowSize();
 
@@ -24,10 +24,10 @@ public:
     ~WindowManager();
 
 private:
-    GLFWwindow *window;
+    GLFWwindow* window;
     Size2 windowSize = {0, 0};
 
     bool isGlfwInitialized = false;
 
-    LogManager *log;
+    LogManager* log;
 };

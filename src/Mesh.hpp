@@ -15,8 +15,8 @@ public:
          VkDevice newDevice,
          VkQueue transferQueue,
          VkCommandPool transferCommandPool,
-         std::vector<Vertex> *vertices,
-         std::vector<uint32_t> *indeces);
+         std::vector<Vertex>* vertices,
+         std::vector<uint32_t>* indeces);
 
     uint64_t getVertexCount();
     VkBuffer getVertexBuffer();
@@ -38,6 +38,6 @@ private:
     VkPhysicalDevice physicalDevice;
     VkDevice device;
 
-    VkResult createVertexBuffer(VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex> *vertices);
-    VkResult createIndexBuffer(VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t> *indeces);
+    VkResult createVertexBuffer(VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex>* vertices);
+    VkResult createIndexBuffer(VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t>* indeces);
 };

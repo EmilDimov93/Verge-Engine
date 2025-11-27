@@ -108,7 +108,7 @@ typedef enum
 class InputManager
 {
 public:
-    InputManager(GLFWwindow *windowRef, LogManager *logRef);
+    InputManager(GLFWwindow* windowRef, LogManager* logRef);
 
     void refresh();
 
@@ -130,7 +130,7 @@ private:
 
     Position2 mousePosition;
 
-    GLFWwindow *window;
+    GLFWwindow* window;
 
-    LogManager *log;
+    LogManager* log;
 };

@@ -38,10 +38,6 @@ private:
     {
         Input::refresh();
 
-        if(Input::isDown(VE_KEY_A)){
-            std::cout << "A";
-        }
-
         log.printNewMessages();
 
         vulkan.drawFrame();

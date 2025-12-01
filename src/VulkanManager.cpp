@@ -5,6 +5,7 @@
 
 #include <GLFW/glfw3.h>
 #include <array>
+#include <sstream>
 
 #include "LogManager.hpp"
 #include "version.hpp"
@@ -26,7 +27,71 @@ VulkanManager::VulkanManager(GLFWwindow* window, Size2 windowSize, LogManager* l
     createFramebuffers();
     createCommandPool();
 
-    std::vector<Vertex> meshVertices = {
+    /*std::vector<Vertex> meshVertices;
+    std::vector<uint32_t> meshIndeces;
+
+    {
+        std::ifstream file("cube.obj");
+        if (!file.is_open())
+            throw std::runtime_error("Cannot open OBJ file.");
+
+        std::vector<glm::vec3> positions;
+        std::string line;
+
+        while (std::getline(file, line))
+        {
+            if (line.rfind("v ", 0) == 0)
+            {
+                glm::vec3 p;
+                std::stringstream ss(line.substr(2));
+                ss >> p.x >> p.y >> p.z;
+                positions.push_back(p);
+            }
+            else if (line.rfind("f ", 0) == 0)
+            {
+                std::stringstream ss(line.substr(2));
+                std::string a, b, c;
+                ss >> a >> b >> c;
+
+                auto parseIndex = [&](const std::string &s)
+                {
+                    return std::stoi(s.substr(0, s.find('/'))) - 1;
+                };
+
+                uint32_t i1 = parseIndex(a);
+                uint32_t i2 = parseIndex(b);
+                uint32_t i3 = parseIndex(c);
+
+                // add verts
+                auto addVert = [&](uint32_t idx)
+                {
+                    Vertex v;
+                    v.pos = positions[idx];
+                    v.col = {0, 0, 0};
+                    meshIndeces.push_back(meshVertices.size());
+                    meshVertices.push_back(v);
+                };
+
+                addVert(i1);
+                addVert(i2);
+                addVert(i3);
+            }
+        }
+    }
+
+    Mesh objMesh;
+    vkCheck(objMesh.init(
+                physicalDevice,
+                device,
+                graphicsQueue,
+                graphicsCommandPool,
+                &meshVertices,
+                &meshIndeces),
+            {'V', 217});
+
+    meshes.push_back(objMesh);*/
+
+    std::vector<Vertex> meshVertices1 = {
         {{-0.1, -0.4, 0.0}, {1.0f, 1.0f, 1.0f}},
         {{-0.1, 0.4, 0.0}, {1.0f, 0.0f, 1.0f}},
         {{-0.9, 0.4, 0.0}, {1.0f, 1.0f, 0.0f}},
@@ -44,7 +109,7 @@ VulkanManager::VulkanManager(GLFWwindow* window, Size2 windowSize, LogManager* l
     Mesh firstMesh;
     Mesh secondMesh;
 
-    vkCheck(firstMesh.init(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices, &meshIndeces), {'V', 217});
+    vkCheck(firstMesh.init(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices1, &meshIndeces), {'V', 217});
     vkCheck(secondMesh.init(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices2, &meshIndeces), {'V', 217});
 
     meshes.push_back(firstMesh);

@@ -48,6 +48,8 @@ private:
     std::vector<VkFramebuffer> swapChainFramebuffers;
     std::vector<VkCommandBuffer> commandBuffers;
 
+    VkDescriptorSetLayout descriptorSetLayout;
+
     VkPipeline graphicsPipeline;
     VkPipelineLayout pipelineLayout;
 
@@ -63,6 +65,13 @@ private:
 
     std::vector<Mesh> meshes;
 
+    struct MVP
+    {
+        glm::mat4 projection;
+        glm::mat4 view;
+        glm::mat4 model;
+    }mvp;
+
     void createInstance();
     void createSurface(GLFWwindow* window);
     void pickPhysicalDevice();
@@ -70,6 +79,7 @@ private:
     void createSwapChain(Size2 windowSize);
     void createImageViews();
     void createRenderPass();
+    void createDescriptorSetLayout();
     void createGraphicsPipeline();
     void createFramebuffers();
     void createCommandPool();

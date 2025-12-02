@@ -52,6 +52,9 @@ VulkanManager::VulkanManager(GLFWwindow* window, Size2 windowSize, LogManager* l
     meshes.push_back(secondMesh);
 
     createCommandBuffers();
+    createUniformBuffers();
+    createDescriptorPool();
+    recordCommands();
     createSemaphores();
 
     log->add('V', 000);
@@ -541,8 +544,6 @@ void VulkanManager::createCommandBuffers()
         .commandBufferCount = static_cast<uint32_t>(commandBuffers.size())};
 
     vkCheck(vkAllocateCommandBuffers(device, &commandBufferAllocInfo, commandBuffers.data()), {'V', 212});
-
-    recordCommands();
 }
 
 void VulkanManager::recordCommands()
@@ -603,6 +604,83 @@ void VulkanManager::createSemaphores()
         vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores[i]), {'V', 215});
         vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &drawFences[i]), {'V', 216});
     }
+}
+
+// Duplicate: exists in Mesh.cpp already
+#define VK_CHECK(res) do { if (res != VK_SUCCESS) return res; } while(0)
+
+// Duplicate: exists in Mesh.cpp already
+uint32_t findMemoryTypeIndex(VkPhysicalDevice physicalDevice, uint32_t allowedTypes, VkMemoryPropertyFlags properties)
+{
+    VkPhysicalDeviceMemoryProperties memoryProperties;
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
+
+    for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++)
+    {
+        if ((allowedTypes & (1 << i)) && ((memoryProperties.memoryTypes[i].propertyFlags & properties) == properties))
+        {
+            return i;
+        }
+    }
+
+    std::cout << "No suitable memory type index";
+    return -1;
+}
+
+// Duplicate: exists in Mesh.cpp already
+VkResult createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer* buffer, VkDeviceMemory* bufferMemory)
+{
+    VkBufferCreateInfo bufferCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .size = bufferSize,
+        .usage = bufferUsageFlags,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
+
+    VK_CHECK(vkCreateBuffer(device, &bufferCreateInfo, nullptr, buffer));
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(device, *buffer, &memRequirements);
+
+    VkMemoryAllocateInfo memoryAllocInfo = {
+        .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+        .allocationSize = memRequirements.size,
+        .memoryTypeIndex = findMemoryTypeIndex(physicalDevice, memRequirements.memoryTypeBits, bufferPropertyFlags)};
+
+    VK_CHECK(vkAllocateMemory(device, &memoryAllocInfo, nullptr, bufferMemory));
+
+    VK_CHECK(vkBindBufferMemory(device, *buffer, *bufferMemory, 0));
+
+    return VK_SUCCESS;
+}
+
+void VulkanManager::createUniformBuffers()
+{
+    VkDeviceSize bufferSize = sizeof(MVP);
+
+    uniformBuffer.resize(swapChainImages.size());
+    uniformBufferMemory.resize(swapChainImages.size());
+
+    for(size_t i = 0; i < swapChainImages.size(); i++)
+    {
+        vkCheck(createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &uniformBuffer[i], &uniformBufferMemory[i]), {'V', 219});
+    }
+}
+
+void VulkanManager::createDescriptorPool()
+{
+    VkDescriptorPoolSize poolSize = {
+        .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+        .descriptorCount = static_cast<uint32_t>(uniformBuffer.size())
+    };
+
+    VkDescriptorPoolCreateInfo poolCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+        .maxSets = static_cast<uint32_t>(uniformBuffer.size()),
+        .poolSizeCount = 1,
+        .pPoolSizes = &poolSize
+    };
+
+    vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &descriptorPool), {'V', 219});
 }
 
 void VulkanManager::drawFrame()
@@ -670,8 +748,17 @@ VulkanManager::~VulkanManager()
     if(device != VK_NULL_HANDLE)
         vkCheck(vkDeviceWaitIdle(device), {'V', 235});
 
+    if(descriptorPool)
+        vkDestroyDescriptorPool(device, descriptorPool, nullptr);
     if(descriptorSetLayout)
         vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+
+    for(size_t i = 0; i < uniformBuffer.size(); i++){
+        if(uniformBuffer[i])
+            vkDestroyBuffer(device, uniformBuffer[i], nullptr);
+        if(uniformBufferMemory[i])
+            vkFreeMemory(device, uniformBufferMemory[i], nullptr);
+    }
     
     for (auto& mesh : meshes)
         mesh.destroyBuffers();

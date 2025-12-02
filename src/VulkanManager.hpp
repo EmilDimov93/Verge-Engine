@@ -50,6 +50,11 @@ private:
 
     VkDescriptorSetLayout descriptorSetLayout;
 
+    VkDescriptorPool descriptorPool;
+
+    std::vector<VkBuffer> uniformBuffer;
+    std::vector<VkDeviceMemory> uniformBufferMemory;
+
     VkPipeline graphicsPipeline;
     VkPipelineLayout pipelineLayout;
 
@@ -85,6 +90,8 @@ private:
     void createCommandPool();
     void createCommandBuffers();
     void createSemaphores();
+    void createUniformBuffers();
+    void createDescriptorPool();
 
     void recordCommands();
 

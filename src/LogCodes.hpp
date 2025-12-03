@@ -41,10 +41,10 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'V', 214}, "Vulkan failed to get physical device surface details"},
     {{'V', 215}, "Vulkan failed to create semaphore"},
     {{'V', 216}, "Vulkan failed to create fence"},
-    {{'V', 217}, "Vulkan failed to initialize mesh"}, // should move?
-    {{'V', 218}, "Vulkan failed to create descriptor set layout"},
-    {{'V', 219}, "Vulkan failed to create buffer"}, //
+    {{'V', 217}, "Vulkan failed to create descriptor set layout"},
+    {{'V', 218}, "Vulkan failed to create buffer"}, //
     {{'V', 219}, "Vulkan failed to create descriptor pool"},
+    {{'V', 229}, "Vulkan failed to initialize mesh"},
     {{'V', 230}, "Vulkan failed to acquire swapchain image"},
     {{'V', 231}, "Vulkan failed to wait for fence"},
     {{'V', 232}, "Vulkan failed to reset fence"},

@@ -45,8 +45,8 @@ VulkanManager::VulkanManager(GLFWwindow* window, Size2 windowSize, LogManager* l
     Mesh firstMesh;
     Mesh secondMesh;
 
-    vkCheck(firstMesh.init(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices1, &meshIndeces), {'V', 217});
-    vkCheck(secondMesh.init(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices2, &meshIndeces), {'V', 217});
+    vkCheck(firstMesh.init(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices1, &meshIndeces), {'V', 229});
+    vkCheck(secondMesh.init(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices2, &meshIndeces), {'V', 229});
 
     meshes.push_back(firstMesh);
     meshes.push_back(secondMesh);
@@ -502,7 +502,7 @@ void VulkanManager::createDescriptorSetLayout()
         .pBindings = &mvpLayoutBinding
     };
 
-    vkCheck(vkCreateDescriptorSetLayout(device, &layoutCreateInfo, nullptr, &descriptorSetLayout), {'V', 218});
+    vkCheck(vkCreateDescriptorSetLayout(device, &layoutCreateInfo, nullptr, &descriptorSetLayout), {'V', 217});
 }
 
 void VulkanManager::createFramebuffers()
@@ -662,7 +662,7 @@ void VulkanManager::createUniformBuffers()
 
     for(size_t i = 0; i < swapChainImages.size(); i++)
     {
-        vkCheck(createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &uniformBuffer[i], &uniformBufferMemory[i]), {'V', 219});
+        vkCheck(createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &uniformBuffer[i], &uniformBufferMemory[i]), {'V', 218});
     }
 }
 

@@ -44,6 +44,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'V', 217}, "Vulkan failed to create descriptor set layout"},
     {{'V', 218}, "Vulkan failed to create buffer"}, //
     {{'V', 219}, "Vulkan failed to create descriptor pool"},
+    {{'V', 220}, "Vulkan failed to allocate descriptor sets"},
     {{'V', 229}, "Vulkan failed to initialize mesh"},
     {{'V', 230}, "Vulkan failed to acquire swapchain image"},
     {{'V', 231}, "Vulkan failed to wait for fence"},
@@ -51,6 +52,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'V', 233}, "Vulkan failed to submit graphics queue"},
     {{'V', 234}, "Vulkan failed to present image"},
     {{'V', 235}, "Vulkan failed: vkDeviceWaitIdle"},
+    {{'V', 236}, "Vulkan failed to map memory"},
 
     // GLFW
     {{'G', 000}, "GLFW loaded successfully"},

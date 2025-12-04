@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include <vulkan/vulkan.h>
 #include <vector>
 
@@ -51,6 +54,7 @@ private:
     VkDescriptorSetLayout descriptorSetLayout;
 
     VkDescriptorPool descriptorPool;
+    std::vector<VkDescriptorSet> descriptorSets;
 
     std::vector<VkBuffer> uniformBuffer;
     std::vector<VkDeviceMemory> uniformBufferMemory;
@@ -92,8 +96,11 @@ private:
     void createSemaphores();
     void createUniformBuffers();
     void createDescriptorPool();
+    void createDescriptorSets();
 
     void recordCommands();
+
+    void updateUniformBuffer(uint32_t imageIndex);
 
     VkShaderModule createShaderModule(const std::vector<char> &code);
     int rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);

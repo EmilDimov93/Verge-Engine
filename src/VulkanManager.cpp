@@ -11,7 +11,7 @@
 
 const int MAX_FRAME_DRAWS = 2;
 
-VulkanManager::VulkanManager(GLFWwindow* window, Size2 windowSize, LogManager* logRef)
+VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize, LogManager *logRef)
 {
     log = logRef;
 
@@ -27,6 +27,12 @@ VulkanManager::VulkanManager(GLFWwindow* window, Size2 windowSize, LogManager* l
     createFramebuffers();
     createCommandPool();
 
+    mvp.projection = glm::perspective(glm::radians(45.0f), (float)swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
+    mvp.view = glm::lookAt(glm::vec3(3.0f, 1.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    mvp.model = glm::mat4(1.0f);
+
+    mvp.projection[1][1] *= -1;
+
     std::vector<Vertex> meshVertices1 = {
         {{-0.1, -0.4, 0.0}, {1.0f, 1.0f, 1.0f}},
         {{-0.1, 0.4, 0.0}, {1.0f, 0.0f, 1.0f}},
@@ -39,14 +45,14 @@ VulkanManager::VulkanManager(GLFWwindow* window, Size2 windowSize, LogManager* l
         {{0.1, 0.4, 0.0}, {1.0f, 1.0f, 0.0f}},
         {{0.1, -0.4, 0.0}, {0.0f, 0.0f, 1.0f}}};
 
-    std::vector<uint32_t> meshIndeces = {
+    std::vector<uint32_t> meshIndices = {
         0, 1, 2, 2, 3, 0};
 
     Mesh firstMesh;
     Mesh secondMesh;
 
-    vkCheck(firstMesh.init(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices1, &meshIndeces), {'V', 229});
-    vkCheck(secondMesh.init(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices2, &meshIndeces), {'V', 229});
+    vkCheck(firstMesh.init(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices1, &meshIndices), {'V', 229});
+    vkCheck(secondMesh.init(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices2, &meshIndices), {'V', 229});
 
     meshes.push_back(firstMesh);
     meshes.push_back(secondMesh);
@@ -54,6 +60,7 @@ VulkanManager::VulkanManager(GLFWwindow* window, Size2 windowSize, LogManager* l
     createCommandBuffers();
     createUniformBuffers();
     createDescriptorPool();
+    createDescriptorSets();
     recordCommands();
     createSemaphores();
 
@@ -69,7 +76,7 @@ void VulkanManager::createInstance()
         .apiVersion = VK_API_VERSION_1_3};
 
     uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    const char **glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
     VkInstanceCreateInfo instanceCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
@@ -80,7 +87,7 @@ void VulkanManager::createInstance()
     vkCheck(vkCreateInstance(&instanceCreateInfo, nullptr, &instance), {'V', 200});
 }
 
-void VulkanManager::createSurface(GLFWwindow* window)
+void VulkanManager::createSurface(GLFWwindow *window)
 {
     vkCheck(glfwCreateWindowSurface(instance, window, nullptr, &surface), {'V', 201});
 }
@@ -206,7 +213,7 @@ void VulkanManager::createLogicalDevice()
         .queueCount = 1,
         .pQueuePriorities = &queuePriority};
 
-    const char* deviceExtensions[] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    const char *deviceExtensions[] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
     VkPhysicalDeviceFeatures deviceFeatures = {};
     VkDeviceCreateInfo deviceCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -374,7 +381,7 @@ void VulkanManager::createGraphicsPipeline()
         .rasterizerDiscardEnable = VK_FALSE,
         .polygonMode = VK_POLYGON_MODE_FILL,
         .cullMode = VK_CULL_MODE_BACK_BIT,
-        .frontFace = VK_FRONT_FACE_CLOCKWISE,
+        .frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
         .depthBiasEnable = VK_FALSE,
         .lineWidth = 1.0f};
 
@@ -493,14 +500,12 @@ void VulkanManager::createDescriptorSetLayout()
         .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
         .descriptorCount = 1,
         .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
-        .pImmutableSamplers = nullptr
-    };
+        .pImmutableSamplers = nullptr};
 
     VkDescriptorSetLayoutCreateInfo layoutCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
         .bindingCount = 1,
-        .pBindings = &mvpLayoutBinding
-    };
+        .pBindings = &mvpLayoutBinding};
 
     vkCheck(vkCreateDescriptorSetLayout(device, &layoutCreateInfo, nullptr, &descriptorSetLayout), {'V', 217});
 }
@@ -546,6 +551,14 @@ void VulkanManager::createCommandBuffers()
     vkCheck(vkAllocateCommandBuffers(device, &commandBufferAllocInfo, commandBuffers.data()), {'V', 212});
 }
 
+void VulkanManager::updateUniformBuffer(uint32_t imageIndex)
+{
+    void *data;
+    vkCheck(vkMapMemory(device, uniformBufferMemory[imageIndex], 0, sizeof(MVP), 0, &data), {'V', 236});
+    memcpy(data, &mvp, sizeof(MVP));
+    vkUnmapMemory(device, uniformBufferMemory[imageIndex]);
+}
+
 void VulkanManager::recordCommands()
 {
     VkCommandBufferBeginInfo commandBufferBeginInfo = {
@@ -578,6 +591,8 @@ void VulkanManager::recordCommands()
 
             vkCmdBindIndexBuffer(commandBuffers[i], meshes[j].getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
+            vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
+
             vkCmdDrawIndexed(commandBuffers[i], meshes[j].getIndexCount(), 1, 0, 0, 0);
         }
 
@@ -607,10 +622,15 @@ void VulkanManager::createSemaphores()
 }
 
 // Duplicate: exists in Mesh.cpp already
-#define VK_CHECK(res) do { if (res != VK_SUCCESS) return res; } while(0)
+#define VK_CHECK1(res)          \
+    do                         \
+    {                          \
+        if (res != VK_SUCCESS) \
+            return res;        \
+    } while (0)
 
 // Duplicate: exists in Mesh.cpp already
-uint32_t findMemoryTypeIndex(VkPhysicalDevice physicalDevice, uint32_t allowedTypes, VkMemoryPropertyFlags properties)
+uint32_t findMemoryTypeIndex1(VkPhysicalDevice physicalDevice, uint32_t allowedTypes, VkMemoryPropertyFlags properties)
 {
     VkPhysicalDeviceMemoryProperties memoryProperties;
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
@@ -628,7 +648,7 @@ uint32_t findMemoryTypeIndex(VkPhysicalDevice physicalDevice, uint32_t allowedTy
 }
 
 // Duplicate: exists in Mesh.cpp already
-VkResult createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer* buffer, VkDeviceMemory* bufferMemory)
+VkResult createBuffer1(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory)
 {
     VkBufferCreateInfo bufferCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
@@ -636,7 +656,7 @@ VkResult createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDevice
         .usage = bufferUsageFlags,
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
 
-    VK_CHECK(vkCreateBuffer(device, &bufferCreateInfo, nullptr, buffer));
+    VK_CHECK1(vkCreateBuffer(device, &bufferCreateInfo, nullptr, buffer));
 
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(device, *buffer, &memRequirements);
@@ -644,11 +664,11 @@ VkResult createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDevice
     VkMemoryAllocateInfo memoryAllocInfo = {
         .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
         .allocationSize = memRequirements.size,
-        .memoryTypeIndex = findMemoryTypeIndex(physicalDevice, memRequirements.memoryTypeBits, bufferPropertyFlags)};
+        .memoryTypeIndex = findMemoryTypeIndex1(physicalDevice, memRequirements.memoryTypeBits, bufferPropertyFlags)};
 
-    VK_CHECK(vkAllocateMemory(device, &memoryAllocInfo, nullptr, bufferMemory));
+    VK_CHECK1(vkAllocateMemory(device, &memoryAllocInfo, nullptr, bufferMemory));
 
-    VK_CHECK(vkBindBufferMemory(device, *buffer, *bufferMemory, 0));
+    VK_CHECK1(vkBindBufferMemory(device, *buffer, *bufferMemory, 0));
 
     return VK_SUCCESS;
 }
@@ -660,9 +680,9 @@ void VulkanManager::createUniformBuffers()
     uniformBuffer.resize(swapChainImages.size());
     uniformBufferMemory.resize(swapChainImages.size());
 
-    for(size_t i = 0; i < swapChainImages.size(); i++)
+    for (size_t i = 0; i < swapChainImages.size(); i++)
     {
-        vkCheck(createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &uniformBuffer[i], &uniformBufferMemory[i]), {'V', 218});
+        vkCheck(createBuffer1(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &uniformBuffer[i], &uniformBufferMemory[i]), {'V', 218});
     }
 }
 
@@ -670,17 +690,49 @@ void VulkanManager::createDescriptorPool()
 {
     VkDescriptorPoolSize poolSize = {
         .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-        .descriptorCount = static_cast<uint32_t>(uniformBuffer.size())
-    };
+        .descriptorCount = static_cast<uint32_t>(uniformBuffer.size())};
 
     VkDescriptorPoolCreateInfo poolCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
         .maxSets = static_cast<uint32_t>(uniformBuffer.size()),
         .poolSizeCount = 1,
-        .pPoolSizes = &poolSize
-    };
+        .pPoolSizes = &poolSize};
 
     vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &descriptorPool), {'V', 219});
+}
+
+void VulkanManager::createDescriptorSets()
+{
+    descriptorSets.resize(uniformBuffer.size());
+
+    std::vector<VkDescriptorSetLayout> setLayouts(uniformBuffer.size(), descriptorSetLayout);
+
+    VkDescriptorSetAllocateInfo setAllocInfo = {
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+        .descriptorPool = descriptorPool,
+        .descriptorSetCount = static_cast<uint32_t>(uniformBuffer.size()),
+        .pSetLayouts = setLayouts.data()};
+
+    vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, descriptorSets.data()), {'V', 220});
+
+    for (size_t i = 0; i < uniformBuffer.size(); i++)
+    {
+        VkDescriptorBufferInfo mvpBufferInfo = {
+            .buffer = uniformBuffer[i],
+            .offset = 0,
+            .range = sizeof(MVP)};
+
+        VkWriteDescriptorSet mvpSetWrite = {
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .dstSet = descriptorSets[i],
+            .dstBinding = 0,
+            .dstArrayElement = 0,
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+            .pBufferInfo = &mvpBufferInfo};
+
+        vkUpdateDescriptorSets(device, 1, &mvpSetWrite, 0, nullptr);
+    }
 }
 
 void VulkanManager::drawFrame()
@@ -690,6 +742,8 @@ void VulkanManager::drawFrame()
 
     uint32_t imageIndex;
     vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex), {'V', 230});
+
+    updateUniformBuffer(imageIndex);
 
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
@@ -715,52 +769,54 @@ void VulkanManager::drawFrame()
 
     vkCheck(vkQueuePresentKHR(presentQueue, &presentInfo), {'V', 234});
 
-    currentFrame = (currentFrame) % MAX_FRAME_DRAWS;
+    currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
 }
 
 void VulkanManager::vkCheck(VkResult res, ErrorCode errorCode)
 {
-    switch(res){
-        case VK_SUCCESS:
-            return;
-        case VK_NOT_READY:
-            log->add('V', 100);
-            break;
-        case VK_TIMEOUT:
-            log->add('V', 101);
-            break;
-        case VK_SUBOPTIMAL_KHR:
-            log->add('V', 102);
-            break;
-        case VK_EVENT_SET:
-            log->add('V', 103);
-            break;
-        case VK_EVENT_RESET:
-            log->add('V', 104);
-            break;
-        default:
-            log->add(errorCode.letter, errorCode.number);
+    switch (res)
+    {
+    case VK_SUCCESS:
+        return;
+    case VK_NOT_READY:
+        log->add('V', 100);
+        break;
+    case VK_TIMEOUT:
+        log->add('V', 101);
+        break;
+    case VK_SUBOPTIMAL_KHR:
+        log->add('V', 102);
+        break;
+    case VK_EVENT_SET:
+        log->add('V', 103);
+        break;
+    case VK_EVENT_RESET:
+        log->add('V', 104);
+        break;
+    default:
+        log->add(errorCode.letter, errorCode.number);
     }
 }
 
 VulkanManager::~VulkanManager()
 {
-    if(device != VK_NULL_HANDLE)
+    if (device != VK_NULL_HANDLE)
         vkCheck(vkDeviceWaitIdle(device), {'V', 235});
 
-    if(descriptorPool)
+    if (descriptorPool)
         vkDestroyDescriptorPool(device, descriptorPool, nullptr);
-    if(descriptorSetLayout)
+    if (descriptorSetLayout)
         vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 
-    for(size_t i = 0; i < uniformBuffer.size(); i++){
-        if(uniformBuffer[i])
+    for (size_t i = 0; i < uniformBuffer.size(); i++)
+    {
+        if (uniformBuffer[i])
             vkDestroyBuffer(device, uniformBuffer[i], nullptr);
-        if(uniformBufferMemory[i])
+        if (uniformBufferMemory[i])
             vkFreeMemory(device, uniformBufferMemory[i], nullptr);
     }
-    
-    for (auto& mesh : meshes)
+
+    for (auto &mesh : meshes)
         mesh.destroyBuffers();
 
     for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
@@ -777,7 +833,8 @@ VulkanManager::~VulkanManager()
         vkDestroyCommandPool(device, graphicsCommandPool, nullptr);
 
     for (auto fb : swapChainFramebuffers)
-        if (fb) vkDestroyFramebuffer(device, fb, nullptr);
+        if (fb)
+            vkDestroyFramebuffer(device, fb, nullptr);
     swapChainFramebuffers.clear();
 
     if (graphicsPipeline)
@@ -790,7 +847,8 @@ VulkanManager::~VulkanManager()
         vkDestroyRenderPass(device, renderPass, nullptr);
 
     for (auto iv : swapChainImageViews)
-        if (iv) vkDestroyImageView(device, iv, nullptr);
+        if (iv)
+            vkDestroyImageView(device, iv, nullptr);
     swapChainImageViews.clear();
 
     if (swapChain)

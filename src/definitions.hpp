@@ -10,32 +10,35 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-struct Size2 { 
-    uint32_t w;
-    uint32_t h; 
+struct Size2 {
+    uint32_t w, h;
+
+    constexpr Size2(uint32_t width = 0, uint32_t height = 0) : w(width), h(height) {}
 };
 
-struct Size3 { 
-    uint32_t w;
-    uint32_t h;
-    uint32_t d; 
+struct Size3 {
+    uint32_t w, h, d;
+
+    constexpr Size3(uint32_t width = 0, uint32_t height = 0, uint32_t depth = 0) : w(width), h(height), d(depth) {}
 };
 
-struct Position2 { 
-    double x;
-    double y;
+struct Position2 {
+    double x, y;
+
+    constexpr Position2(double x_val = 0.0, double y_val = 0.0) : x(x_val), y(y_val) {}
 };
 
-struct Position3 { 
-    double x;
-    double y;
-    double z;
+struct Position3 {
+    double x, y, z;
+
+    constexpr Position3(double x_val = 0.0, double y_val = 0.0, double z_val = 0.0) : x(x_val), y(y_val), z(z_val) {}
 };
 
-struct Vertex
-{
+struct Vertex {
     glm::vec3 pos;
     glm::vec3 col;
+
+    Vertex(const glm::vec3& position = glm::vec3(0.0f), const glm::vec3& color = glm::vec3(1.0f)) : pos(position), col(color) {}
 };
 
 static std::vector<char> readFile(const std::string &fileName){

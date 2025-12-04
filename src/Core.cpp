@@ -34,11 +34,26 @@ private:
     VulkanManager vulkan;
     FpsManager fps;
 
+    float angle = 0.0f;
+    float deltaTime = 0.0f;
+    float lastTime = 0.0f;
+
     void tick()
     {
         Input::refresh();
 
         log.printNewMessages();
+
+        float now = glfwGetTime();
+        deltaTime = now - lastTime;
+        lastTime = now;
+
+        angle += 200.0f * deltaTime;
+        if(angle > 360.0f){
+            angle -= 360.0f;
+        }
+
+        vulkan.updateModel(glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f)));
 
         vulkan.drawFrame();
 
@@ -48,11 +63,14 @@ private:
 
 int main()
 {
-    try{
+    try
+    {
         VergeEngine VE;
 
         VE.run();
-    }catch (const EngineCrash&) {
+    }
+    catch (const EngineCrash &)
+    {
         return EXIT_FAILURE;
     }
 

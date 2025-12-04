@@ -22,6 +22,8 @@ class VulkanManager
 public:
     VulkanManager(GLFWwindow* window, Size2 windowSize, LogManager* logRef);
 
+    void updateModel(glm::mat4 newModel);
+
     void drawFrame();
 
     void vkCheck(VkResult res, ErrorCode errorCode);

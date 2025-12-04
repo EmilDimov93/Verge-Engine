@@ -28,7 +28,7 @@ VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize, LogManager *l
     createCommandPool();
 
     mvp.projection = glm::perspective(glm::radians(45.0f), (float)swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
-    mvp.view = glm::lookAt(glm::vec3(3.0f, 1.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    mvp.view = glm::lookAt(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     mvp.model = glm::mat4(1.0f);
 
     mvp.projection[1][1] *= -1;
@@ -65,6 +65,11 @@ VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize, LogManager *l
     createSemaphores();
 
     log->add('V', 000);
+}
+
+void VulkanManager::updateModel(glm::mat4 newModel)
+{
+    mvp.model = newModel;
 }
 
 void VulkanManager::createInstance()

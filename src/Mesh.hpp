@@ -8,6 +8,11 @@
 
 #include "definitions.hpp"
 
+struct UboModel
+{
+    glm::mat4 model;
+};
+
 class Mesh
 {
 public:
@@ -18,6 +23,9 @@ public:
          std::vector<Vertex>* vertices,
          std::vector<uint32_t>* indeces);
 
+    void setModel(glm::mat4 newModel);
+    UboModel getModel();
+
     uint64_t getVertexCount();
     VkBuffer getVertexBuffer();
 
@@ -27,6 +35,8 @@ public:
     void destroyBuffers();
 
 private:
+    UboModel uboModel;
+
     uint64_t vertexCount;
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;

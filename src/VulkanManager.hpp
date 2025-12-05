@@ -22,7 +22,7 @@ class VulkanManager
 public:
     VulkanManager(GLFWwindow* window, Size2 windowSize, LogManager* logRef);
 
-    void updateModel(glm::mat4 newModel);
+    void updateModel(int modelId, glm::mat4 newModel);
 
     void drawFrame();
 
@@ -58,8 +58,16 @@ private:
     VkDescriptorPool descriptorPool;
     std::vector<VkDescriptorSet> descriptorSets;
 
-    std::vector<VkBuffer> uniformBuffer;
-    std::vector<VkDeviceMemory> uniformBufferMemory;
+    std::vector<VkBuffer> vpUniformBuffer;
+    std::vector<VkDeviceMemory> vpUniformBufferMemory;
+
+    std::vector<VkBuffer> modelDUniformBuffer;
+    std::vector<VkDeviceMemory> modelDUniformBufferMemory;
+
+    VkDeviceSize minUniformBufferOffset;
+    size_t modelUniformAlignment;
+
+    UboModel* modelTransferSpace;
 
     VkPipeline graphicsPipeline;
     VkPipelineLayout pipelineLayout;
@@ -76,12 +84,11 @@ private:
 
     std::vector<Mesh> meshes;
 
-    struct MVP
+    struct UboViewProjection
     {
         glm::mat4 projection;
         glm::mat4 view;
-        glm::mat4 model;
-    }mvp;
+    }uboViewProjection;
 
     void createInstance();
     void createSurface(GLFWwindow* window);
@@ -100,9 +107,11 @@ private:
     void createDescriptorPool();
     void createDescriptorSets();
 
+    void allocateDynamicBufferTransferSpace();
+
     void recordCommands();
 
-    void updateUniformBuffer(uint32_t imageIndex);
+    void updateUniformBuffers(uint32_t imageIndex);
 
     VkShaderModule createShaderModule(const std::vector<char> &code);
     int rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);

@@ -132,8 +132,8 @@ int VulkanManager::rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface)
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
-    uint32_t graphicsFamily = -1;
-    uint32_t presentationFamily = -1;
+    int32_t graphicsFamily = -1;
+    int32_t presentationFamily = -1;
     int i = 0;
     for (const auto &queueFamily : queueFamilies)
     {

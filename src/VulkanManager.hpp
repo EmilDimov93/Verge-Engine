@@ -42,7 +42,7 @@ private:
     VkQueue graphicsQueue;
     VkQueue presentQueue;
 
-    uint32_t graphicsQueueFamilyIndex;
+    int32_t graphicsQueueFamilyIndex;
 
     VkSwapchainKHR swapChain;
     VkFormat swapChainImageFormat;

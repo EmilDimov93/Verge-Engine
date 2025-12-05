@@ -14,19 +14,19 @@ VkResult Mesh::init(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, VkQu
     VK_CHECK(createVertexBuffer(transferQueue, transferCommandPool, vertices));
     VK_CHECK(createIndexBuffer(transferQueue, transferCommandPool, indeces));
 
-    uboModel.model = glm::mat4(1.0f);
+    model.model = glm::mat4(1.0f);
 
     return VK_SUCCESS;
 }
 
 void Mesh::setModel(glm::mat4 newModel)
 {
-    uboModel.model = newModel;
+    model.model = newModel;
 }
 
-UboModel Mesh::getModel()
+Model Mesh::getModel()
 {
-    return uboModel;
+    return model;
 }
 
 uint32_t findMemoryTypeIndex(VkPhysicalDevice physicalDevice, uint32_t allowedTypes, VkMemoryPropertyFlags properties)

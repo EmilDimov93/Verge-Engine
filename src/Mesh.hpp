@@ -8,7 +8,7 @@
 
 #include "definitions.hpp"
 
-struct UboModel
+struct Model
 {
     glm::mat4 model;
 };
@@ -24,7 +24,7 @@ public:
          std::vector<uint32_t>* indeces);
 
     void setModel(glm::mat4 newModel);
-    UboModel getModel();
+    Model getModel();
 
     uint64_t getVertexCount();
     VkBuffer getVertexBuffer();
@@ -35,7 +35,7 @@ public:
     void destroyBuffers();
 
 private:
-    UboModel uboModel;
+    Model model;
 
     uint64_t vertexCount;
     VkBuffer vertexBuffer;

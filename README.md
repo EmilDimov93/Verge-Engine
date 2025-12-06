@@ -2,4 +2,4 @@
 
 Verge Engine is a Vulkan-based game engine built with GLFW
 
-⚠️ Currently in active development - not ready for use
+**Warning:** Currently in active development - not ready for use

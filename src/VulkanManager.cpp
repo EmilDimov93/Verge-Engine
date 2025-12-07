@@ -223,7 +223,7 @@ void VulkanManager::createLogicalDevice()
     float queuePriority = 1.0f;
     VkDeviceQueueCreateInfo queueCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-        .queueFamilyIndex = graphicsQueueFamilyIndex,
+        .queueFamilyIndex = static_cast<uint32_t>(graphicsQueueFamilyIndex),
         .queueCount = 1,
         .pQueuePriorities = &queuePriority};
 
@@ -557,7 +557,7 @@ void VulkanManager::createCommandPool()
     VkCommandPoolCreateInfo graphicsCommandPoolCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
         .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-        .queueFamilyIndex = graphicsQueueFamilyIndex};
+        .queueFamilyIndex = static_cast<uint32_t>(graphicsQueueFamilyIndex)};
 
     vkCheck(vkCreateCommandPool(device, &graphicsCommandPoolCreateInfo, nullptr, &graphicsCommandPool), {'V', 208});
 }

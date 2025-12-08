@@ -13,7 +13,7 @@
 class VergeEngine
 {
 public:
-    VergeEngine() : vulkan(window.getWindowReference(), window.getWindowSize()), fps(VE_DEFAULT_FPS)
+    VergeEngine() : vulkan(window.getWindowReference(), window.getWindowSize())
     {
         Input::init(window.getWindowReference());
         LogManager::add('C', 000);

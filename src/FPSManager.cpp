@@ -5,8 +5,8 @@
 
 #include <thread>
 
-FpsManager::FpsManager(uint16_t targetFps){
-    setTarget(targetFps);
+FpsManager::FpsManager(){
+    setTarget(VE_DEFAULT_FPS);
 }
 
 void FpsManager::sync()

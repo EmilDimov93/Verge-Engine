@@ -10,7 +10,7 @@
 class FpsManager
 {
 public:
-    FpsManager(uint16_t targetFps);
+    FpsManager();
     void sync();
     void setTarget(uint16_t targetFps);
     uint16_t getFps();

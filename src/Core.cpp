@@ -13,13 +13,10 @@
 class VergeEngine
 {
 public:
-    VergeEngine() : log(),
-                    window(&log),
-                    vulkan(window.getWindowReference(), window.getWindowSize(), &log),
-                    fps(VE_DEFAULT_FPS)
+    VergeEngine() : vulkan(window.getWindowReference(), window.getWindowSize()), fps(VE_DEFAULT_FPS)
     {
-        Input::init(window.getWindowReference(), &log);
-        log.add('C', 000);
+        Input::init(window.getWindowReference());
+        LogManager::add('C', 000);
     }
 
     void run()
@@ -29,7 +26,6 @@ public:
     }
 
 private:
-    LogManager log;
     WindowManager window;
     VulkanManager vulkan;
     FpsManager fps;
@@ -38,7 +34,7 @@ private:
     {
         Input::refresh();
 
-        log.printNewMessages();
+        LogManager::printNewMessages();
 
         static float angle = 0.0f;
         static float deltaTime = 0.0f;

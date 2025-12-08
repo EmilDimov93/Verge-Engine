@@ -13,6 +13,11 @@
 
 #define IS_ENTRY_ERROR(num) (((num) / 100) % 10 == 2)
 
+std::vector<ErrorCode> LogManager::entries;
+size_t LogManager::newMessageCount = 0;
+bool LogManager::hasNewMessagesFlag = false;
+size_t LogManager::clearedEntriesCount = 0;
+
 const std::map<std::pair<char, uint16_t>, std::string> ErrorCode::messages = LOG_MESSAGES;
 
 std::string ErrorCode::getMessage()
@@ -105,8 +110,9 @@ void LogManager::induceCrash()
     throw EngineCrash{};
 }
 
-LogManager::~LogManager(){
-    if(entries.back() != ErrorCode{'C', 200})
+LogManager::~LogManager()
+{
+    if (entries.back() != ErrorCode{'C', 200})
         add('C', 001);
     writeToLogFile();
 }

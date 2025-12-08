@@ -7,12 +7,10 @@
 
 #include "LogManager.hpp"
 
-WindowManager::WindowManager(LogManager* logRef)
+WindowManager::WindowManager()
 {
-    log = logRef;
-
     if (!glfwInit())
-        log->add('G', 200);
+        LogManager::add('G', 200);
     isGlfwInitialized = true;
 
     const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -25,10 +23,10 @@ WindowManager::WindowManager(LogManager* logRef)
     window = glfwCreateWindow(windowSize.w, windowSize.h, "Verge Engine", nullptr, nullptr);
     if (!window)
     {
-        log->add('G', 201);
+        LogManager::add('G', 201);
     }
 
-    log->add('G', 000);
+    LogManager::add('G', 000);
 }
 
 GLFWwindow* WindowManager::getWindowReference()

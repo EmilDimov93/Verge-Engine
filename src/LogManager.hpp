@@ -40,20 +40,19 @@ struct EngineCrash : public std::exception {};
 class LogManager
 {
 public:
-    LogManager(){}
-    void add(char letter, uint16_t number);
-    std::vector<std::string> getNewMessages();
-    bool hasNewMessages();
-    void printNewMessages();
+    static void add(char letter, uint16_t number);
+    static std::vector<std::string> getNewMessages();
+    static bool hasNewMessages();
+    static void printNewMessages();
     ~LogManager();
 
 private:
-    std::vector<ErrorCode> entries;
-    size_t newMessageCount = 0;
-    bool hasNewMessagesFlag = false;
-    size_t clearedEntriesCount = 0;
+    static std::vector<ErrorCode> entries;
+    static size_t newMessageCount;// = 0;
+    static bool hasNewMessagesFlag;// = false;
+    static size_t clearedEntriesCount;// = 0;
 
-    void writeToLogFile();
-    void freeLogSpace();
-    void induceCrash();
+    static void writeToLogFile();
+    static void freeLogSpace();
+    static void induceCrash();
 };

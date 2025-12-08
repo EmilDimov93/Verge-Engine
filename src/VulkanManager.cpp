@@ -12,10 +12,8 @@
 const int MAX_FRAME_DRAWS = 2;
 const int MAX_OBJECTS = 3;
 
-VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize, LogManager *logRef)
+VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize)
 {
-    log = logRef;
-
     createInstance();
     createSurface(window);
     pickPhysicalDevice();
@@ -68,7 +66,7 @@ VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize, LogManager *l
     createDescriptorSets();
     createSemaphores();
 
-    log->add('V', 000);
+    LogManager::add('V', 000);
 }
 
 void VulkanManager::updateModel(int modelId, glm::mat4 newModel)
@@ -178,7 +176,7 @@ void VulkanManager::pickPhysicalDevice()
     vkCheck(vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr), {'V', 202});
     if (deviceCount == 0)
     {
-        log->add('V', 202);
+        LogManager::add('V', 202);
     }
 
     std::vector<VkPhysicalDevice> devices(deviceCount);
@@ -197,7 +195,7 @@ void VulkanManager::pickPhysicalDevice()
 
     if (bestScore == 0)
     {
-        log->add('V', 202);
+        LogManager::add('V', 202);
     }
 }
 
@@ -321,7 +319,7 @@ void VulkanManager::createGraphicsPipeline()
 
     if (vertexShaderCode.empty() || fragmentShaderCode.empty())
     {
-        log->add('V', 209);
+        LogManager::add('V', 209);
     }
 
     VkShaderModule vertexShaderModule = createShaderModule(vertexShaderCode);
@@ -808,22 +806,22 @@ void VulkanManager::vkCheck(VkResult res, ErrorCode errorCode)
     case VK_SUCCESS:
         return;
     case VK_NOT_READY:
-        log->add('V', 100);
+        LogManager::add('V', 100);
         break;
     case VK_TIMEOUT:
-        log->add('V', 101);
+        LogManager::add('V', 101);
         break;
     case VK_SUBOPTIMAL_KHR:
-        log->add('V', 102);
+        LogManager::add('V', 102);
         break;
     case VK_EVENT_SET:
-        log->add('V', 103);
+        LogManager::add('V', 103);
         break;
     case VK_EVENT_RESET:
-        log->add('V', 104);
+        LogManager::add('V', 104);
         break;
     default:
-        log->add(errorCode.letter, errorCode.number);
+        LogManager::add(errorCode.letter, errorCode.number);
     }
 }
 

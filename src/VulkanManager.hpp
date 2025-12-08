@@ -20,7 +20,7 @@ class ErrorCode;
 class VulkanManager
 {
 public:
-    VulkanManager(GLFWwindow* window, Size2 windowSize, LogManager* logRef);
+    VulkanManager(GLFWwindow* window, Size2 windowSize);
 
     void updateModel(int modelId, glm::mat4 newModel);
 
@@ -75,8 +75,6 @@ private:
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> drawFences;
-
-    LogManager* log;
 
     std::vector<Mesh> meshes;
 

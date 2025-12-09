@@ -37,14 +37,14 @@ inline bool operator!=(const ErrorCode& lhs, const ErrorCode& rhs) {
 
 struct EngineCrash : public std::exception {};
 
-class LogManager
+class Log
 {
 public:
     static void add(char letter, uint16_t number);
     static std::vector<std::string> getNewMessages();
     static bool hasNewMessages();
     static void printNewMessages();
-    ~LogManager();
+    ~Log();
 
 private:
     static std::vector<ErrorCode> entries;

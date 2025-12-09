@@ -14,7 +14,7 @@
 
 struct GLFWwindow;
 
-class LogManager;
+class Log;
 class ErrorCode;
 
 class VulkanManager

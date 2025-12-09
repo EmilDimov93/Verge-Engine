@@ -7,8 +7,6 @@
 
 #include "definitions.hpp"
 
-class LogManager;
-
 typedef enum
 {
     KEY_STATE_DOWN,

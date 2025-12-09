@@ -4,7 +4,7 @@
 #include "VulkanManager.hpp"
 #include "WindowManager.hpp"
 #include "Input.hpp"
-#include "LogManager.hpp"
+#include "Log.hpp"
 #include "FPSManager.hpp"
 #include "version.hpp"
 #include "definitions.hpp"
@@ -16,7 +16,7 @@ public:
     VergeEngine() : vulkan(window.getWindowReference(), window.getWindowSize())
     {
         Input::init(window.getWindowReference());
-        LogManager::add('C', 000);
+        Log::add('C', 000);
     }
 
     void run()
@@ -34,7 +34,7 @@ private:
     {
         Input::refresh();
 
-        LogManager::printNewMessages();
+        Log::printNewMessages();
 
         static float angle = 0.0f;
         static float deltaTime = 0.0f;

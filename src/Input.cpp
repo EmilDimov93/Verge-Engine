@@ -3,7 +3,7 @@
 
 #include "Input.hpp"
 
-#include "LogManager.hpp"
+#include "Log.hpp"
 
 KeyState Input::mouseBtnStates[VE_MOUSE_BTN_COUNT] = {};
 KeyState Input::keyStates[VE_KEY_COUNT] = {};
@@ -73,7 +73,7 @@ void Input::refresh()
 bool Input::isDown(VEMouseBtn btn)
 {
     if(btn > VE_MOUSE_BTN_COUNT){
-        LogManager::add('C', 100);
+        Log::add('C', 100);
         return false;
     }
     return mouseBtnStates[btn] == KEY_STATE_DOWN || mouseBtnStates[btn] == KEY_STATE_PRESSED;
@@ -82,7 +82,7 @@ bool Input::isDown(VEMouseBtn btn)
 bool Input::isUp(VEMouseBtn btn)
 {
     if(btn > VE_MOUSE_BTN_COUNT){
-        LogManager::add('C', 100);
+        Log::add('C', 100);
         return false;
     }
     return mouseBtnStates[btn] == KEY_STATE_UP || mouseBtnStates[btn] == KEY_STATE_RELEASED;
@@ -91,7 +91,7 @@ bool Input::isUp(VEMouseBtn btn)
 bool Input::isPressed(VEMouseBtn btn)
 {
     if(btn > VE_MOUSE_BTN_COUNT){
-        LogManager::add('C', 100);
+        Log::add('C', 100);
         return false;
     }
     return mouseBtnStates[btn] == KEY_STATE_PRESSED;
@@ -100,7 +100,7 @@ bool Input::isPressed(VEMouseBtn btn)
 bool Input::isReleased(VEMouseBtn btn)
 {
     if(btn > VE_MOUSE_BTN_COUNT){
-        LogManager::add('C', 100);
+        Log::add('C', 100);
         return false;
     }
     return mouseBtnStates[btn] == KEY_STATE_RELEASED;
@@ -109,7 +109,7 @@ bool Input::isReleased(VEMouseBtn btn)
 bool Input::isDown(VEKey key)
 {
     if(key > VE_KEY_COUNT){
-        LogManager::add('C', 100);
+        Log::add('C', 100);
         return false;
     }
     return keyStates[key] == KEY_STATE_DOWN || keyStates[key] == KEY_STATE_PRESSED;
@@ -118,7 +118,7 @@ bool Input::isDown(VEKey key)
 bool Input::isUp(VEKey key)
 {
     if(key > VE_KEY_COUNT){
-        LogManager::add('C', 100);
+        Log::add('C', 100);
         return false;
     }
     return keyStates[key] == KEY_STATE_UP || keyStates[key] == KEY_STATE_RELEASED;
@@ -127,7 +127,7 @@ bool Input::isUp(VEKey key)
 bool Input::isPressed(VEKey key)
 {
     if(key > VE_KEY_COUNT){
-        LogManager::add('C', 100);
+        Log::add('C', 100);
         return false;
     }
     return keyStates[key] == KEY_STATE_PRESSED;
@@ -136,7 +136,7 @@ bool Input::isPressed(VEKey key)
 bool Input::isReleased(VEKey key)
 {
     if(key > VE_KEY_COUNT){
-        LogManager::add('C', 100);
+        Log::add('C', 100);
         return false;
     }
     return keyStates[key] == KEY_STATE_RELEASED;

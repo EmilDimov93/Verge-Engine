@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <array>
 
-#include "LogManager.hpp"
+#include "Log.hpp"
 #include "version.hpp"
 
 const int MAX_FRAME_DRAWS = 2;
@@ -66,7 +66,7 @@ VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize)
     createDescriptorSets();
     createSemaphores();
 
-    LogManager::add('V', 000);
+    Log::add('V', 000);
 }
 
 void VulkanManager::updateModel(int modelId, glm::mat4 newModel)
@@ -176,7 +176,7 @@ void VulkanManager::pickPhysicalDevice()
     vkCheck(vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr), {'V', 202});
     if (deviceCount == 0)
     {
-        LogManager::add('V', 202);
+        Log::add('V', 202);
     }
 
     std::vector<VkPhysicalDevice> devices(deviceCount);
@@ -195,7 +195,7 @@ void VulkanManager::pickPhysicalDevice()
 
     if (bestScore == 0)
     {
-        LogManager::add('V', 202);
+        Log::add('V', 202);
     }
 }
 
@@ -319,7 +319,7 @@ void VulkanManager::createGraphicsPipeline()
 
     if (vertexShaderCode.empty() || fragmentShaderCode.empty())
     {
-        LogManager::add('V', 209);
+        Log::add('V', 209);
     }
 
     VkShaderModule vertexShaderModule = createShaderModule(vertexShaderCode);
@@ -806,22 +806,22 @@ void VulkanManager::vkCheck(VkResult res, ErrorCode errorCode)
     case VK_SUCCESS:
         return;
     case VK_NOT_READY:
-        LogManager::add('V', 100);
+        Log::add('V', 100);
         break;
     case VK_TIMEOUT:
-        LogManager::add('V', 101);
+        Log::add('V', 101);
         break;
     case VK_SUBOPTIMAL_KHR:
-        LogManager::add('V', 102);
+        Log::add('V', 102);
         break;
     case VK_EVENT_SET:
-        LogManager::add('V', 103);
+        Log::add('V', 103);
         break;
     case VK_EVENT_RESET:
-        LogManager::add('V', 104);
+        Log::add('V', 104);
         break;
     default:
-        LogManager::add(errorCode.letter, errorCode.number);
+        Log::add(errorCode.letter, errorCode.number);
     }
 }
 

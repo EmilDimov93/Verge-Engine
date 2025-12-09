@@ -12,7 +12,7 @@ add_executable(VergeEngine
     src/Mesh.cpp
     src/Input.cpp
     src/FpsManager.cpp
-    src/LogManager.cpp
+    src/Log.cpp
 )
 
 target_include_directories(VergeEngine PRIVATE

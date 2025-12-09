@@ -1,7 +1,7 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#include "LogManager.hpp"
+#include "Log.hpp"
 #include "LogCodes.hpp"
 
 #include <fstream>
@@ -13,10 +13,10 @@
 
 #define IS_ENTRY_ERROR(num) (((num) / 100) % 10 == 2)
 
-std::vector<ErrorCode> LogManager::entries;
-size_t LogManager::newMessageCount = 0;
-bool LogManager::hasNewMessagesFlag = false;
-size_t LogManager::clearedEntriesCount = 0;
+std::vector<ErrorCode> Log::entries;
+size_t Log::newMessageCount = 0;
+bool Log::hasNewMessagesFlag = false;
+size_t Log::clearedEntriesCount = 0;
 
 const std::map<std::pair<char, uint16_t>, std::string> ErrorCode::messages = LOG_MESSAGES;
 
@@ -30,7 +30,7 @@ std::string ErrorCode::getMessage()
     return "Invalid error code";
 }
 
-void LogManager::freeLogSpace()
+void Log::freeLogSpace()
 {
     // Remove non-error messages from the oldest quarter
     for (size_t i = entries.size() / 4; i >= 0; i--)
@@ -43,7 +43,7 @@ void LogManager::freeLogSpace()
     }
 }
 
-void LogManager::add(char letter, uint16_t number)
+void Log::add(char letter, uint16_t number)
 {
     entries.push_back(ErrorCode{letter, number});
     hasNewMessagesFlag = true;
@@ -60,7 +60,7 @@ void LogManager::add(char letter, uint16_t number)
     }
 }
 
-std::vector<std::string> LogManager::getNewMessages()
+std::vector<std::string> Log::getNewMessages()
 {
     std::vector<std::string> newMessages;
     for (size_t i = entries.size() - newMessageCount; i < entries.size(); i++)
@@ -72,12 +72,12 @@ std::vector<std::string> LogManager::getNewMessages()
     return newMessages;
 }
 
-bool LogManager::hasNewMessages()
+bool Log::hasNewMessages()
 {
     return hasNewMessagesFlag;
 }
 
-void LogManager::writeToLogFile()
+void Log::writeToLogFile()
 {
     std::ofstream file("log.txt");
 
@@ -90,7 +90,7 @@ void LogManager::writeToLogFile()
     }
 }
 
-void LogManager::printNewMessages()
+void Log::printNewMessages()
 {
     if (hasNewMessages())
     {
@@ -103,14 +103,14 @@ void LogManager::printNewMessages()
     }
 }
 
-void LogManager::induceCrash()
+void Log::induceCrash()
 {
     entries.push_back(ErrorCode{'C', 200});
     writeToLogFile();
     throw EngineCrash{};
 }
 
-LogManager::~LogManager()
+Log::~Log()
 {
     if (entries.back() != ErrorCode{'C', 200})
         add('C', 001);

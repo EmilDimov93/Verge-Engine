@@ -5,7 +5,7 @@
 
 #include "definitions.hpp"
 
-class LogManager;
+class Log;
 
 struct GLFWwindow;
 

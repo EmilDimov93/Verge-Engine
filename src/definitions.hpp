@@ -34,6 +34,12 @@ struct Position3 {
     constexpr Position3(double x_val = 0.0, double y_val = 0.0, double z_val = 0.0) : x(x_val), y(y_val), z(z_val) {}
 };
 
+struct Rotation3 {
+    double pitch, yaw, roll;
+
+    constexpr Rotation3(double pitch_val = 0.0, double yaw_val = 0.0, double roll_val = 0.0) : pitch(pitch_val), yaw(yaw_val), roll(roll_val) {}
+};
+
 struct Vertex {
     glm::vec3 pos;
     glm::vec3 col;

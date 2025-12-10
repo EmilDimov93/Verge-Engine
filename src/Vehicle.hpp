@@ -13,8 +13,15 @@ public:
 private:
     Mesh body;
     Mesh tire;
+    float weight;
+    float brakingForce;
+    uint32_t gearCount;
+    uint32_t horsePower;
 
+    Position3 position;
+    Rotation3 rotation;
     float tireRotation;
     float speed;
-    float weight;
+    float gear;
+    float rpm;
 };

@@ -13,4 +13,8 @@ public:
 private:
     Mesh body;
     Mesh tire;
+
+    float tireRotation;
+    float speed;
+    float weight;
 };

@@ -314,8 +314,8 @@ VkShaderModule VulkanManager::createShaderModule(const std::vector<char> &code)
 
 void VulkanManager::createGraphicsPipeline()
 {
-    auto vertexShaderCode = readFile("build/Release/shaders/vert.spv");
-    auto fragmentShaderCode = readFile("build/Release/shaders/frag.spv");
+    std::vector<char> vertexShaderCode = readFile("build/Release/shaders/vert.spv");
+    std::vector<char> fragmentShaderCode = readFile("build/Release/shaders/frag.spv");
 
     if (vertexShaderCode.empty() || fragmentShaderCode.empty())
     {
@@ -371,14 +371,14 @@ void VulkanManager::createGraphicsPipeline()
     VkViewport viewport = {
         .x = 0.0f,
         .y = 0.0f,
-        .width = (float)swapChainExtent.width * 4 / 4,   // make 3/4 to make space for viewport
-        .height = (float)swapChainExtent.height * 4 / 4, // make 3/4 to make space for viewport
+        .width = (float)swapChainExtent.width,
+        .height = (float)swapChainExtent.height,
         .minDepth = 0.0f,
         .maxDepth = 1.0f};
 
     VkRect2D scissor = {
         .offset = {0, 0},
-        .extent = VkExtent2D(swapChainExtent.width * 4 / 4, swapChainExtent.height * 4 / 4)}; // make 3/4 to make space for viewport
+        .extent = VkExtent2D(swapChainExtent.width, swapChainExtent.height)};
 
     VkPipelineViewportStateCreateInfo viewportStateCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,

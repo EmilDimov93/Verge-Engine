@@ -10,11 +10,17 @@
 #include "definitions.hpp"
 #include "local.hpp"
 
+#include "Vehicle.hpp"
+
 class VergeEngine
 {
 public:
     VergeEngine() : vulkan(window.getWindowReference(), window.getWindowSize())
     {
+        car.horsePower = 190;
+        car.weight = 1540;
+        car.maxRpm = 8000;
+        car.gear = 1;
         Input::init(window.getWindowReference());
         Log::add('C', 000);
     }
@@ -30,11 +36,21 @@ private:
     VulkanManager vulkan;
     FpsManager fps;
 
+    Vehicle car;
+
     void tick()
     {
         Input::refresh();
 
         Log::printNewMessages();
+
+        if(Input::isDown(VE_KEY_W)){
+            car.isGasDown = true;
+        }
+        else{
+            car.isGasDown = false;
+        }
+        car.updateRmp();
 
         static float angle = 0.0f;
         static float deltaTime = 0.0f;

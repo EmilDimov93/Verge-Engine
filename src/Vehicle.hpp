@@ -26,7 +26,7 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
 
     float *pGearRatios = nullptr;
     float finalDriveRatio = 3.42f;
-    float driveTrainEfficiency = 0.85f;
+    float drivetrainEfficiency = 0.85f;
     float wheelRadius = 0.3f;
     float dragAccel = 0.5f;
     float dragCoeff = 0.31f;
@@ -64,14 +64,14 @@ private:
     VEKey turnLeftKey;
     VEKey turnRightKey;
 
-    std::vector<float> gearRatios; // = {5.519f, 3.184f, 2.050f, 1.492f, 1.235f, 1.000f, 0.801f, 0.673f};
-    float finalDriveRatio; // = 3.2f;
-    float drivetrainEfficiency; // = 0.9f;
-    float wheelRadius; // = 0.31f;
-    float idleRpm; // = 800.0f;
-    float dragAccel; //= 0.5f;
-    float dragCoeff; //= 0.31f;
-    float frontalArea; //= 2.3f;
+    std::vector<float> gearRatios;
+    float finalDriveRatio;
+    float drivetrainEfficiency;
+    float wheelRadius;
+    float idleRpm;
+    float dragAccel;
+    float dragCoeff;
+    float frontalArea;
 
     // Runtime
     Position3 position;

@@ -46,7 +46,7 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     }
 
     finalDriveRatio = info.finalDriveRatio;
-    drivetrainEfficiency = info.driveTrainEfficiency;
+    drivetrainEfficiency = info.drivetrainEfficiency;
     wheelRadius = info.wheelRadius;
     idleRpm = info.idleRpm;
     dragAccel = info.dragAccel;

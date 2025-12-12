@@ -24,6 +24,17 @@ public:
         sCar.gearCount = 8;
         sCar.isAutomatic = true;
         sCar.accelerateKey = VE_KEY_W;
+
+        float ratios[8] = {5.519f, 3.184f, 2.050f, 1.492f, 1.235f, 1.000f, 0.801f, 0.673f};
+        sCar.pGearRatios = ratios;
+
+        sCar.finalDriveRatio = 3.2f;
+        sCar.drivetrainEfficiency = 0.9f;
+        sCar.wheelRadius = 0.31f;
+        sCar.idleRpm = 800.0f;
+        sCar.dragAccel = 0.5f;
+        sCar.dragCoeff = 0.31f;
+        sCar.frontalArea = 2.3f;
         car.init(sCar);
 
         Input::init(window.getWindowReference());

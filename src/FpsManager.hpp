@@ -14,9 +14,12 @@ public:
     void sync();
     void setTarget(uint16_t targetFps);
     uint16_t getFps();
+    double getFrameTime();
 
 private:
     std::chrono::steady_clock::time_point timeAtStartOfFrame;
     double targetFrameTime = 0;
+    
+    double lastFrameTime = 0;
     uint16_t currentFps = 0;
 };

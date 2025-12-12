@@ -11,7 +11,6 @@
 #include "local.hpp"
 
 #include "Vehicle.hpp"
-#include <chrono>
 
 class VergeEngine
 {
@@ -23,13 +22,14 @@ public:
         car.maxRpm = 7000;
         car.gear = 1;
         car.gearCount = 8;
+        car.isAutomatic = true;
+        car.accelerateKey = VE_KEY_W;
         Input::init(window.getWindowReference());
         Log::add('C', 000);
     }
 
     void run()
     {
-        start = std::chrono::high_resolution_clock::now();
         while (window.isOpen())
             tick();
     }
@@ -40,7 +40,6 @@ private:
     FpsManager fps;
 
     Vehicle car;
-    std::chrono::steady_clock::time_point start;
 
     void tick()
     {
@@ -48,34 +47,11 @@ private:
 
         Log::printNewMessages();
 
-        if (Input::isDown(VE_KEY_W))
-        {
-            car.isGasDown = true;
-        }
-        else
-        {
-            car.isGasDown = false;
-        }
-        car.updateRmp();
-        if (car.speed * 3.6f >= 100.0f)
-        {
-            auto elapsed = std::chrono::high_resolution_clock::now() - start;
-            //std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() << " ms\n";
-        }
-        else
-        {
-            //std::cout << car.speed * 3.6f << std::endl;
-        }
+        car.update(fps.getFrameTime());
 
         static float angle = 0.0f;
-        static float deltaTime = 0.0f;
-        static float lastTime = 0.0f;
 
-        float now = glfwGetTime();
-        deltaTime = now - lastTime;
-        lastTime = now;
-
-        angle += 10.0f * deltaTime;
+        angle += 10.0f * fps.getFrameTime();
         if (angle > 360.0f)
         {
             angle -= 360.0f;

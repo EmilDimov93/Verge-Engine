@@ -3,54 +3,57 @@
 
 #include "Vehicle.hpp"
 
-#include <chrono>
-
 #define PI 3.1415926f
 #define AIR_DENSITY 1.225f
 
-const float gearRatios[8] = {5.519f, 3.184f, 2.050f, 1.492f, 1.235f, 1.000f, 0.801f, 0.673f};
-const float finalDriveRatio = 3.2f;
-const float drivetrainEfficiency = 0.9f;
-const float wheelRadius = 0.31f;
-const float idleRpm = 800.0f;
-const float dragAccel = 0.5f;
-
-void Vehicle::updateRmp()
+void Vehicle::accelerate(double deltaTime)
 {
-    static auto lastTime = std::chrono::high_resolution_clock::now();
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<float> elapsed = currentTime - lastTime;
-    float deltaTime = elapsed.count();
-    lastTime = currentTime;
-
-    if (isGasDown)
+    if (rpm >= maxRpm)
     {
-        if (rpm < 1.0f)
-            rpm = idleRpm;
-        float torqueCurveFactor = 0.85f + 0.15f * (1.0f - rpm / maxRpm);
-        float torque = horsePower * 5252 / rpm * torqueCurveFactor;
+        if (isAutomatic && gear < gearCount)
+        {
+            float wheelRpm = rpm / (gearRatios[gear - 1] * finalDriveRatio);
+            gear++;
+            rpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
+        }
+        else
+        {
+            rpm = maxRpm;
+        }
+    }
+    else if (rpm < idleRpm)
+        rpm = idleRpm;
 
-        float wheelTorque = torque * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
-        float wheelForce = wheelTorque / wheelRadius;
+    float torqueCurveFactor = 0.85f + 0.15f * (1.0f - rpm / maxRpm);
+    float torque = horsePower * 5252 / rpm * torqueCurveFactor;
 
-        float dragCoeff = 0.31f;
-        float frontalArea = 2.3f;
+    float wheelTorque = torque * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
+    float wheelForce = wheelTorque / wheelRadius;
 
-        float dragForce = 0.5f * AIR_DENSITY * dragCoeff * frontalArea * speed * speed;
-        //std::cout << wheelForce << " " << dragForce << " " << speed * 3.6f << std::endl;
-        float acceleration = (wheelForce - dragForce) / weight;
+    float dragForce = 0.5f * AIR_DENSITY * dragCoeff * frontalArea * speed * speed;
+    float acceleration = (wheelForce - dragForce) / weight;
 
-        speed += acceleration * deltaTime;
+    speed += acceleration * deltaTime;
 
-        float wheelRpm = (speed / wheelRadius) * (60.0f / (2.0f * PI));
-        rpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
+    float wheelRpm = (speed / wheelRadius) * (60.0f / (2.0f * PI));
+    rpm = rpm < maxRpm ? wheelRpm * gearRatios[gear - 1] * finalDriveRatio : maxRpm;
 
-        if (rpm < idleRpm)
-            rpm = idleRpm;
+    if (rpm < idleRpm)
+        rpm = idleRpm;
+}
+
+void Vehicle::update(double deltaTime)
+{
+    if(Input::isDown(accelerateKey)){
+        accelerate(deltaTime);
     }
     else
     {
-        float rpmDropRate = 200.0f;
+        float rollingResistance = 0.015f * weight * 9.81f;
+        float dragForce = 0.5f * AIR_DENSITY * dragCoeff * frontalArea * speed * speed;
+        float netDecel = (dragForce + rollingResistance) / weight;
+        float wheelAngularDecel = netDecel / wheelRadius;
+        float rpmDropRate = wheelAngularDecel * (60.0f / (2.0f * PI)) * gearRatios[gear - 1] * finalDriveRatio;
         rpm -= rpmDropRate * deltaTime;
         if (rpm < idleRpm)
             rpm = idleRpm;
@@ -58,13 +61,6 @@ void Vehicle::updateRmp()
         speed -= dragAccel * deltaTime;
         if (speed < 0.0f)
             speed = 0.0f;
-    }
-
-    if (rpm >= maxRpm && gear < gearCount)
-    {
-        float wheelRpm = rpm / (gearRatios[gear - 1] * finalDriveRatio);
-        gear++;
-        rpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
     }
 
     std::cout << "Speed: " << speed * 3.6f << " km/h, RPM: " << rpm << " , Gear: " << gear << std::endl;

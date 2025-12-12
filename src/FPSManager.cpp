@@ -5,7 +5,8 @@
 
 #include <thread>
 
-FpsManager::FpsManager(){
+FpsManager::FpsManager()
+{
     setTarget(VE_DEFAULT_FPS);
 }
 
@@ -13,7 +14,7 @@ void FpsManager::sync()
 {
     using namespace std::chrono;
     using std::this_thread::sleep_for;
-    
+
     auto now = steady_clock::now();
     auto elapsed = now - timeAtStartOfFrame;
     auto target = duration<double>(targetFrameTime);
@@ -34,6 +35,7 @@ void FpsManager::sync()
 
     now = steady_clock::now();
     currentFps = static_cast<uint16_t>(1.0 / duration<double>(now - timeAtStartOfFrame).count());
+    lastFrameTime = std::chrono::duration<double>(now - timeAtStartOfFrame).count();
     timeAtStartOfFrame = now;
 }
 
@@ -48,4 +50,9 @@ void FpsManager::setTarget(uint16_t targetFps)
 uint16_t FpsManager::getFps()
 {
     return currentFps;
+}
+
+double FpsManager::getFrameTime()
+{
+    return lastFrameTime;
 }

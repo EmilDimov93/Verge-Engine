@@ -18,7 +18,8 @@ public:
     VergeEngine() : vulkan(window.getWindowReference(), window.getWindowSize())
     {
         VE_STRUCT_VEHICLE_CREATE_INFO sCar = {};
-        sCar.horsePower = 190;
+        sCar.power = 190;
+        sCar.powerUnit = VE_POWER_UNIT_HORSEPOWER;
         sCar.weight = 1540;
         sCar.maxRpm = 7000;
         sCar.gearCount = 8;
@@ -66,9 +67,7 @@ private:
 
         angle += 10.0f * fps.getFrameTime();
         if (angle > 360.0f)
-        {
             angle -= 360.0f;
-        }
 
         glm::mat4 firstModel(1.0f);
         glm::mat4 secondModel(1.0f);

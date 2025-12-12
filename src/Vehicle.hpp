@@ -7,12 +7,20 @@
 #include "Input.hpp"
 #include "definitions.hpp"
 
+enum VEPowerUnit
+{
+    VE_POWER_UNIT_KILOWATTS,
+    VE_POWER_UNIT_HORSEPOWER
+};
+
 struct VE_STRUCT_VEHICLE_CREATE_INFO
 {
     Mesh *pBody = nullptr;
     Mesh *pTire = nullptr;
 
-    uint32_t horsePower = 100;
+    uint32_t power = 100;
+    VEPowerUnit powerUnit = VE_POWER_UNIT_KILOWATTS;
+
     float weight = 1200.f;
     uint32_t gearCount = 6;
     uint32_t maxRpm = 6000;
@@ -52,7 +60,7 @@ private:
     Mesh body;
     Mesh tire;
 
-    uint32_t horsePower;
+    uint32_t powerKw;
     float weight;
     uint32_t gearCount;
     uint32_t maxRpm;

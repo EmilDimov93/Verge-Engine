@@ -4,21 +4,43 @@
 #include "Vehicle.hpp"
 
 #define PI 3.1415926f
+
+#define TORQUE_CONVERSION_CONSTANT 5252
+
 #define AIR_DENSITY 1.225f
 
 void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
 {
-    //body = *(info.pBody);
-    //tire = *(info.pTire);
-
-    if(!info.pBody){
+    if (info.pBody)
+    {
+        body = *(info.pBody);
+    }
+    else
+    {
         // warning
     }
-    if(!info.pTire){
+    if (info.pTire)
+    {
+        tire = *(info.pTire);
+    }
+    else
+    {
         // warning
     }
 
-    horsePower = info.horsePower;
+    if (info.powerUnit == VE_POWER_UNIT_KILOWATTS)
+    {
+        powerKw = info.power;
+    }
+    else if (info.powerUnit == VE_POWER_UNIT_HORSEPOWER)
+    {
+        powerKw = 0.7457f * info.power;
+    }
+    else
+    {
+        // warning
+        powerKw = info.power;
+    }
     weight = info.weight;
     gearCount = info.gearCount;
     maxRpm = info.maxRpm;
@@ -80,7 +102,7 @@ void Vehicle::accelerate(ve_time deltaTime)
         rpm = idleRpm;
 
     float torqueCurveFactor = 0.85f + 0.15f * (1.0f - rpm / maxRpm);
-    float torque = horsePower * 5252 / rpm * torqueCurveFactor;
+    float torque = (powerKw * 1000) / (rpm * 2.0f * PI / 60.0f) * torqueCurveFactor;
 
     float wheelTorque = torque * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
     float wheelForce = wheelTorque / wheelRadius;
@@ -102,15 +124,16 @@ void Vehicle::idle(ve_time deltaTime)
     float rollingResistance = 0.015f * weight * 9.81f;
     float dragForce = 0.5f * AIR_DENSITY * dragCoeff * frontalArea * speed * speed;
     float netDecel = (dragForce + rollingResistance) / weight;
+
+    speed -= netDecel * deltaTime;
+    if (speed < 0.0f)
+        speed = 0.0f;
+
     float wheelAngularDecel = netDecel / wheelRadius;
     float rpmDropRate = wheelAngularDecel * (60.0f / (2.0f * PI)) * gearRatios[gear - 1] * finalDriveRatio;
     rpm -= rpmDropRate * deltaTime;
     if (rpm < idleRpm)
         rpm = idleRpm;
-
-    speed -= dragAccel * deltaTime;
-    if (speed < 0.0f)
-        speed = 0.0f;
 }
 
 void Vehicle::brake(ve_time deltaTime)

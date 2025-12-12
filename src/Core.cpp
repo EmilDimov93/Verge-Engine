@@ -17,13 +17,15 @@ class VergeEngine
 public:
     VergeEngine() : vulkan(window.getWindowReference(), window.getWindowSize())
     {
-        car.horsePower = 190;
-        car.weight = 1540;
-        car.maxRpm = 7000;
-        car.gear = 1;
-        car.gearCount = 8;
-        car.isAutomatic = true;
-        car.accelerateKey = VE_KEY_W;
+        VE_STRUCT_VEHICLE_CREATE_INFO sCar = {};
+        sCar.horsePower = 190;
+        sCar.weight = 1540;
+        sCar.maxRpm = 7000;
+        sCar.gearCount = 8;
+        sCar.isAutomatic = true;
+        sCar.accelerateKey = VE_KEY_W;
+        car.init(sCar);
+
         Input::init(window.getWindowReference());
         Log::add('C', 000);
     }

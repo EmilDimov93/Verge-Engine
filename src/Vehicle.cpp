@@ -6,6 +6,61 @@
 #define PI 3.1415926f
 #define AIR_DENSITY 1.225f
 
+void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
+{
+    //body = *(info.pBody);
+    //tire = *(info.pTire);
+
+    if(!info.pBody){
+        // warning
+    }
+    if(!info.pTire){
+        // warning
+    }
+
+    horsePower = info.horsePower;
+    weight = info.weight;
+    gearCount = info.gearCount;
+    maxRpm = info.maxRpm;
+    isAutomatic = info.isAutomatic;
+    brakingForce = info.brakingForce;
+
+    accelerateKey = info.accelerateKey;
+    brakeKey = info.brakeKey;
+    turnLeftKey = info.turnLeftKey;
+    turnRightKey = info.turnRightKey;
+
+    if (info.pGearRatios)
+    {
+        gearRatios.assign(info.pGearRatios, info.pGearRatios + gearCount);
+    }
+    else
+    {
+        const float defaultTopRatio = 1.0f;
+        const float defaultFirstRatio = 5.0f;
+        gearRatios.resize(gearCount);
+        for (size_t i = 0; i < gearCount; ++i)
+        {
+            gearRatios[i] = defaultTopRatio * std::pow(defaultFirstRatio / defaultTopRatio, float(gearCount - 1 - i) / float(gearCount - 1));
+        }
+    }
+
+    finalDriveRatio = info.finalDriveRatio;
+    drivetrainEfficiency = info.driveTrainEfficiency;
+    wheelRadius = info.wheelRadius;
+    idleRpm = info.idleRpm;
+    dragAccel = info.dragAccel;
+    dragCoeff = info.dragCoeff;
+    frontalArea = info.frontalArea;
+
+    ////////////////
+
+    tireRotation = 0;
+    speed = 0;
+    gear = 1;
+    rpm = 0;
+}
+
 void Vehicle::accelerate(ve_time deltaTime)
 {
     if (rpm >= maxRpm)
@@ -62,15 +117,36 @@ void Vehicle::brake(ve_time deltaTime)
 {
 }
 
+void Vehicle::turnLeft()
+{
+}
+
+void Vehicle::turnRight()
+{
+}
+
 void Vehicle::update(ve_time deltaTime)
 {
     if (Input::isDown(accelerateKey))
     {
         accelerate(deltaTime);
     }
+    else if (Input::isDown(brakeKey))
+    {
+        brake(deltaTime);
+    }
     else
     {
         idle(deltaTime);
+    }
+
+    if (Input::isDown(turnLeftKey))
+    {
+        turnLeft();
+    }
+    if (Input::isDown(turnRightKey))
+    {
+        turnRight();
     }
 
     std::cout << "Speed: " << speed * 3.6f << " km/h, RPM: " << rpm << " , Gear: " << gear << std::endl;

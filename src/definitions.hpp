@@ -10,6 +10,8 @@
 #include <glm/glm.hpp>
 #include <vector>
 
+using ve_time = double;
+
 struct Size2 {
     uint32_t w, h;
 

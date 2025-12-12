@@ -6,7 +6,7 @@
 #define PI 3.1415926f
 #define AIR_DENSITY 1.225f
 
-void Vehicle::accelerate(double deltaTime)
+void Vehicle::accelerate(ve_time deltaTime)
 {
     if (rpm >= maxRpm)
     {
@@ -42,25 +42,35 @@ void Vehicle::accelerate(double deltaTime)
         rpm = idleRpm;
 }
 
-void Vehicle::update(double deltaTime)
+void Vehicle::idle(ve_time deltaTime)
 {
-    if(Input::isDown(accelerateKey)){
+    float rollingResistance = 0.015f * weight * 9.81f;
+    float dragForce = 0.5f * AIR_DENSITY * dragCoeff * frontalArea * speed * speed;
+    float netDecel = (dragForce + rollingResistance) / weight;
+    float wheelAngularDecel = netDecel / wheelRadius;
+    float rpmDropRate = wheelAngularDecel * (60.0f / (2.0f * PI)) * gearRatios[gear - 1] * finalDriveRatio;
+    rpm -= rpmDropRate * deltaTime;
+    if (rpm < idleRpm)
+        rpm = idleRpm;
+
+    speed -= dragAccel * deltaTime;
+    if (speed < 0.0f)
+        speed = 0.0f;
+}
+
+void Vehicle::brake(ve_time deltaTime)
+{
+}
+
+void Vehicle::update(ve_time deltaTime)
+{
+    if (Input::isDown(accelerateKey))
+    {
         accelerate(deltaTime);
     }
     else
     {
-        float rollingResistance = 0.015f * weight * 9.81f;
-        float dragForce = 0.5f * AIR_DENSITY * dragCoeff * frontalArea * speed * speed;
-        float netDecel = (dragForce + rollingResistance) / weight;
-        float wheelAngularDecel = netDecel / wheelRadius;
-        float rpmDropRate = wheelAngularDecel * (60.0f / (2.0f * PI)) * gearRatios[gear - 1] * finalDriveRatio;
-        rpm -= rpmDropRate * deltaTime;
-        if (rpm < idleRpm)
-            rpm = idleRpm;
-
-        speed -= dragAccel * deltaTime;
-        if (speed < 0.0f)
-            speed = 0.0f;
+        idle(deltaTime);
     }
 
     std::cout << "Speed: " << speed * 3.6f << " km/h, RPM: " << rpm << " , Gear: " << gear << std::endl;

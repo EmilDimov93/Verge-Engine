@@ -4,6 +4,7 @@
 #pragma once
 
 #include <chrono>
+#include "definitions.hpp"
 
 #define VE_DEFAULT_FPS 140
 
@@ -18,8 +19,8 @@ public:
 
 private:
     std::chrono::steady_clock::time_point timeAtStartOfFrame;
-    double targetFrameTime = 0;
+    ve_time targetFrameTime = 0;
     
-    double lastFrameTime = 0;
+    ve_time lastFrameTime = 0;
     uint16_t currentFps = 0;
 };

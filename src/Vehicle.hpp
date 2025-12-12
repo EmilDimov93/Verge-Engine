@@ -5,6 +5,7 @@
 
 #include "Mesh.hpp"
 #include "Input.hpp"
+#include "definitions.hpp"
 
 class Vehicle
 {
@@ -39,7 +40,9 @@ public:
     const float dragCoeff = 0.31f;
     const float frontalArea = 2.3f;
 
-    void update(double deltaTime);
+    void update(ve_time deltaTime);
 private:
-    void accelerate(double deltaTime);
+    void accelerate(ve_time deltaTime);
+    void idle(ve_time deltaTime);
+    void brake(ve_time deltaTime);
 };

@@ -142,10 +142,12 @@ void Vehicle::brake(ve_time deltaTime)
 
 void Vehicle::turnLeft()
 {
+    steeringAngleRad = -maxSteeringAngleRad;
 }
 
 void Vehicle::turnRight()
 {
+    steeringAngleRad = maxSteeringAngleRad;
 }
 
 void Vehicle::update(ve_time deltaTime)
@@ -163,14 +165,14 @@ void Vehicle::update(ve_time deltaTime)
         idle(deltaTime);
     }
 
-    if (Input::isDown(turnLeftKey))
-    {
+    steeringAngleRad = 0;
+    if(Input::isDown(turnLeftKey) && Input::isUp(turnRightKey)){
         turnLeft();
     }
-    if (Input::isDown(turnRightKey))
-    {
+    else if(Input::isDown(turnRightKey) && Input::isUp(turnLeftKey)){
         turnRight();
     }
 
-    std::cout << "Speed: " << speedMps * 3.6f << " km/h, RPM: " << rpm << " , Gear: " << gear << std::endl;
+    //std::cout << "Speed: " << speedMps * 3.6f << " km/h, RPM: " << rpm << " , Gear: " << gear << std::endl;
+    std::cout << steeringAngleRad << std::endl;
 }

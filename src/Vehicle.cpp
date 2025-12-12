@@ -5,6 +5,9 @@
 
 #include <chrono>
 
+#define PI 3.1415926f
+#define AIR_DENSITY 1.225f
+
 const float gearRatios[8] = {5.519f, 3.184f, 2.050f, 1.492f, 1.235f, 1.000f, 0.801f, 0.673f};
 const float finalDriveRatio = 3.2f;
 const float drivetrainEfficiency = 0.9f;
@@ -25,16 +28,21 @@ void Vehicle::updateRmp()
         if (rpm < 1.0f)
             rpm = idleRpm;
         float torqueCurveFactor = 0.85f + 0.15f * (1.0f - rpm / maxRpm);
-        float torque = horsePower * 7127 / rpm * torqueCurveFactor;
+        float torque = horsePower * 5252 / rpm * torqueCurveFactor;
 
         float wheelTorque = torque * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
         float wheelForce = wheelTorque / wheelRadius;
 
-        float acceleration = wheelForce / weight;
+        float dragCoeff = 0.31f;
+        float frontalArea = 2.3f;
+
+        float dragForce = 0.5f * AIR_DENSITY * dragCoeff * frontalArea * speed * speed;
+        //std::cout << wheelForce << " " << dragForce << " " << speed * 3.6f << std::endl;
+        float acceleration = (wheelForce - dragForce) / weight;
 
         speed += acceleration * deltaTime;
 
-        float wheelRpm = (speed / wheelRadius) * (60.0f / (2.0f * 3.1415926f));
+        float wheelRpm = (speed / wheelRadius) * (60.0f / (2.0f * PI));
         rpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
 
         if (rpm < idleRpm)

@@ -11,6 +11,7 @@
 #include "local.hpp"
 
 #include "Vehicle.hpp"
+#include <chrono>
 
 class VergeEngine
 {
@@ -19,14 +20,16 @@ public:
     {
         car.horsePower = 190;
         car.weight = 1540;
-        car.maxRpm = 8000;
+        car.maxRpm = 7000;
         car.gear = 1;
+        car.gearCount = 8;
         Input::init(window.getWindowReference());
         Log::add('C', 000);
     }
 
     void run()
     {
+        start = std::chrono::high_resolution_clock::now();
         while (window.isOpen())
             tick();
     }
@@ -37,6 +40,7 @@ private:
     FpsManager fps;
 
     Vehicle car;
+    std::chrono::steady_clock::time_point start;
 
     void tick()
     {
@@ -44,13 +48,24 @@ private:
 
         Log::printNewMessages();
 
-        if(Input::isDown(VE_KEY_W)){
+        if (Input::isDown(VE_KEY_W))
+        {
             car.isGasDown = true;
         }
-        else{
+        else
+        {
             car.isGasDown = false;
         }
         car.updateRmp();
+        if (car.speed * 3.6f >= 100.0f)
+        {
+            auto elapsed = std::chrono::high_resolution_clock::now() - start;
+            //std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() << " ms\n";
+        }
+        else
+        {
+            //std::cout << car.speed * 3.6f << std::endl;
+        }
 
         static float angle = 0.0f;
         static float deltaTime = 0.0f;

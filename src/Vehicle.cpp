@@ -41,7 +41,7 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
         // warning
         powerKw = info.power;
     }
-    weight = info.weight;
+    weightKg = info.weightKg;
     gearCount = info.gearCount;
     maxRpm = info.maxRpm;
     isAutomatic = info.isAutomatic;
@@ -69,16 +69,16 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
 
     finalDriveRatio = info.finalDriveRatio;
     drivetrainEfficiency = info.drivetrainEfficiency;
-    wheelRadius = info.wheelRadius;
+    wheelRadiusM = info.wheelRadiusM;
     idleRpm = info.idleRpm;
-    dragAccel = info.dragAccel;
     dragCoeff = info.dragCoeff;
-    frontalArea = info.frontalArea;
+    frontalAreaM2 = info.frontalAreaM2;
+    maxSteeringAngleRad = info.maxSteeringAngleRad;
 
     ////////////////
 
-    tireRotation = 0;
-    speed = 0;
+    steeringAngleRad = 0;
+    speedMps = 0;
     gear = 1;
     rpm = 0;
 }
@@ -105,14 +105,14 @@ void Vehicle::accelerate(ve_time deltaTime)
     float torque = (powerKw * 1000) / (rpm * 2.0f * PI / 60.0f) * torqueCurveFactor;
 
     float wheelTorque = torque * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
-    float wheelForce = wheelTorque / wheelRadius;
+    float wheelForce = wheelTorque / wheelRadiusM;
 
-    float dragForce = 0.5f * AIR_DENSITY * dragCoeff * frontalArea * speed * speed;
-    float acceleration = (wheelForce - dragForce) / weight;
+    float dragForce = 0.5f * AIR_DENSITY * dragCoeff * frontalAreaM2 * speedMps * speedMps;
+    float acceleration = (wheelForce - dragForce) / weightKg;
 
-    speed += acceleration * deltaTime;
+    speedMps += acceleration * deltaTime;
 
-    float wheelRpm = (speed / wheelRadius) * (60.0f / (2.0f * PI));
+    float wheelRpm = (speedMps / wheelRadiusM) * (60.0f / (2.0f * PI));
     rpm = rpm < maxRpm ? wheelRpm * gearRatios[gear - 1] * finalDriveRatio : maxRpm;
 
     if (rpm < idleRpm)
@@ -121,15 +121,15 @@ void Vehicle::accelerate(ve_time deltaTime)
 
 void Vehicle::idle(ve_time deltaTime)
 {
-    float rollingResistance = 0.015f * weight * 9.81f;
-    float dragForce = 0.5f * AIR_DENSITY * dragCoeff * frontalArea * speed * speed;
-    float netDecel = (dragForce + rollingResistance) / weight;
+    float rollingResistance = 0.015f * weightKg * 9.81f;
+    float dragForce = 0.5f * AIR_DENSITY * dragCoeff * frontalAreaM2 * speedMps * speedMps;
+    float netDecel = (dragForce + rollingResistance) / weightKg;
 
-    speed -= netDecel * deltaTime;
-    if (speed < 0.0f)
-        speed = 0.0f;
+    speedMps -= netDecel * deltaTime;
+    if (speedMps < 0.0f)
+        speedMps = 0.0f;
 
-    float wheelAngularDecel = netDecel / wheelRadius;
+    float wheelAngularDecel = netDecel / wheelRadiusM;
     float rpmDropRate = wheelAngularDecel * (60.0f / (2.0f * PI)) * gearRatios[gear - 1] * finalDriveRatio;
     rpm -= rpmDropRate * deltaTime;
     if (rpm < idleRpm)
@@ -172,5 +172,5 @@ void Vehicle::update(ve_time deltaTime)
         turnRight();
     }
 
-    std::cout << "Speed: " << speed * 3.6f << " km/h, RPM: " << rpm << " , Gear: " << gear << std::endl;
+    std::cout << "Speed: " << speedMps * 3.6f << " km/h, RPM: " << rpm << " , Gear: " << gear << std::endl;
 }

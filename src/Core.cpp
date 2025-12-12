@@ -20,7 +20,7 @@ public:
         VE_STRUCT_VEHICLE_CREATE_INFO sCar = {};
         sCar.power = 190;
         sCar.powerUnit = VE_POWER_UNIT_HORSEPOWER;
-        sCar.weight = 1540;
+        sCar.weightKg = 1540;
         sCar.maxRpm = 7000;
         sCar.gearCount = 8;
         sCar.isAutomatic = true;
@@ -31,11 +31,10 @@ public:
 
         sCar.finalDriveRatio = 3.2f;
         sCar.drivetrainEfficiency = 0.9f;
-        sCar.wheelRadius = 0.31f;
+        sCar.wheelRadiusM = 0.31f;
         sCar.idleRpm = 800.0f;
-        sCar.dragAccel = 0.5f;
         sCar.dragCoeff = 0.31f;
-        sCar.frontalArea = 2.3f;
+        sCar.frontalAreaM2 = 2.3f;
         car.init(sCar);
 
         Input::init(window.getWindowReference());

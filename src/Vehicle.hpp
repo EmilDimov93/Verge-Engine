@@ -21,7 +21,7 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     uint32_t power = 100;
     VEPowerUnit powerUnit = VE_POWER_UNIT_KILOWATTS;
 
-    float weight = 1200.f;
+    float weightKg = 1200.f;
     uint32_t gearCount = 6;
     uint32_t maxRpm = 6000;
     float brakingForce = 1.0f;
@@ -35,11 +35,10 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     float *pGearRatios = nullptr;
     float finalDriveRatio = 3.42f;
     float drivetrainEfficiency = 0.85f;
-    float wheelRadius = 0.3f;
-    float dragAccel = 0.5f;
+    float wheelRadiusM = 0.3f;
     float dragCoeff = 0.31f;
-    float frontalArea = 2.3f;
-
+    float frontalAreaM2 = 2.3f;
+    float maxSteeringAngleRad = 0.55f;
     float idleRpm = 800.f;
 };
 
@@ -61,7 +60,7 @@ private:
     Mesh tire;
 
     uint32_t powerKw;
-    float weight;
+    float weightKg;
     uint32_t gearCount;
     uint32_t maxRpm;
     bool isAutomatic;
@@ -75,17 +74,17 @@ private:
     std::vector<float> gearRatios;
     float finalDriveRatio;
     float drivetrainEfficiency;
-    float wheelRadius;
+    float wheelRadiusM;
     float idleRpm;
-    float dragAccel;
     float dragCoeff;
-    float frontalArea;
+    float frontalAreaM2;
+    float maxSteeringAngleRad;
 
     // Runtime
     Position3 position;
     Rotation3 rotation;
-    float tireRotation;
-    float speed;
+    float steeringAngleRad;
+    float speedMps;
     uint32_t gear;
     float rpm;
 };

@@ -17,6 +17,12 @@ class VergeEngine
 public:
     VergeEngine() : vulkan(window.getWindowReference(), window.getWindowSize())
     {
+        Input::init(window.getWindowReference());
+        Log::add('C', 000);
+    }
+
+    void run()
+    {
         VE_STRUCT_VEHICLE_CREATE_INFO sCar = {};
         sCar.power = 190;
         sCar.powerUnit = VE_POWER_UNIT_HORSEPOWER;
@@ -39,12 +45,6 @@ public:
         sCar.frontalAreaM2 = 2.3f;
         car.init(sCar);
 
-        Input::init(window.getWindowReference());
-        Log::add('C', 000);
-    }
-
-    void run()
-    {
         while (window.isOpen())
             tick();
     }

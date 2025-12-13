@@ -22,7 +22,7 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     VEPowerUnit powerUnit = VE_POWER_UNIT_KILOWATTS;
 
     float weightKg = 1200.f;
-    uint32_t gearCount = 6;
+    uint32_t gearCount = 5;
     uint32_t maxRpm = 6000;
     float brakingForce = 1.0f;
     bool isAutomatic = true;
@@ -37,7 +37,7 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     float drivetrainEfficiency = 0.85f;
     float wheelRadiusM = 0.3f;
     float dragCoeff = 0.31f;
-    float frontalAreaM2 = 2.3f;
+    float frontalAreaM2 = -1;
     float maxSteeringAngleRad = 0.55f;
     float idleRpm = 800.f;
 };

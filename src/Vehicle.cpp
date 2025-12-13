@@ -41,8 +41,15 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
         // warning
         powerKw = info.power;
     }
+
     weightKg = info.weightKg;
     gearCount = info.gearCount;
+
+    if (gearCount < 1){
+        // warning
+        gearCount = 1;
+    }
+    
     maxRpm = info.maxRpm;
     isAutomatic = info.isAutomatic;
     brakingForce = info.brakingForce;
@@ -58,12 +65,19 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     }
     else
     {
-        const float defaultTopRatio = 1.0f;
-        const float defaultFirstRatio = 5.0f;
-        gearRatios.resize(gearCount);
-        for (size_t i = 0; i < gearCount; ++i)
+        if (gearCount == 1)
         {
-            gearRatios[i] = defaultTopRatio * std::pow(defaultFirstRatio / defaultTopRatio, float(gearCount - 1 - i) / float(gearCount - 1));
+            gearRatios[0] = 1.0f;
+        }
+        else
+        {
+            const float defaultTopRatio = 1.0f;
+            const float defaultFirstRatio = 5.0f;
+            gearRatios.resize(gearCount);
+            for (size_t i = 0; i < gearCount; ++i)
+            {
+                gearRatios[i] = defaultTopRatio * std::pow(defaultFirstRatio / defaultTopRatio, float(gearCount - 1 - i) / float(gearCount - 1));
+            }
         }
     }
 
@@ -72,7 +86,12 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     wheelRadiusM = info.wheelRadiusM;
     idleRpm = info.idleRpm;
     dragCoeff = info.dragCoeff;
-    frontalAreaM2 = info.frontalAreaM2;
+
+    if (info.frontalAreaM2 == -1)
+        frontalAreaM2 = 0.0009f * info.weightKg + 0.5f;
+    else
+        frontalAreaM2 = info.frontalAreaM2;
+
     maxSteeringAngleRad = info.maxSteeringAngleRad;
 
     ////////////////
@@ -166,13 +185,14 @@ void Vehicle::update(ve_time deltaTime)
     }
 
     steeringAngleRad = 0;
-    if(Input::isDown(turnLeftKey) && Input::isUp(turnRightKey)){
+    if (Input::isDown(turnLeftKey) && Input::isUp(turnRightKey))
+    {
         turnLeft();
     }
-    else if(Input::isDown(turnRightKey) && Input::isUp(turnLeftKey)){
+    else if (Input::isDown(turnRightKey) && Input::isUp(turnLeftKey))
+    {
         turnRight();
     }
 
-    //std::cout << "Speed: " << speedMps * 3.6f << " km/h, RPM: " << rpm << " , Gear: " << gear << std::endl;
-    std::cout << steeringAngleRad << std::endl;
+    std::cout << "Speed: " << speedMps * 3.6f << " km/h, RPM: " << rpm << " , Gear: " << gear << std::endl;
 }

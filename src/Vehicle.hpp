@@ -40,6 +40,7 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     float frontalAreaM2 = -1;
     float maxSteeringAngleRad = 0.55f;
     float idleRpm = 800.f;
+    float camber = 0;
 };
 
 class Vehicle
@@ -80,6 +81,8 @@ private:
     float frontalAreaM2;
     float maxSteeringAngleRad;
 
+    float camber;
+
     // Runtime
     Position3 position;
     Rotation3 rotation;
@@ -87,4 +90,6 @@ private:
     float speedMps;
     uint32_t gear;
     float rpm;
+    float tireGrip;
+    float clutchLevel;
 };

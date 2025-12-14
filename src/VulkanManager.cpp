@@ -314,12 +314,12 @@ VkShaderModule VulkanManager::createShaderModule(const std::vector<char> &code)
 
 void VulkanManager::createGraphicsPipeline()
 {
-    std::vector<char> vertexShaderCode = readFile("build/Release/shaders/vert.spv");
-    std::vector<char> fragmentShaderCode = readFile("build/Release/shaders/frag.spv");
+    std::vector<char> vertexShaderCode = readFile("shaders/vert.spv");
+    std::vector<char> fragmentShaderCode = readFile("shaders/frag.spv");
 
     if (vertexShaderCode.empty() || fragmentShaderCode.empty())
     {
-        Log::add('V', 209);
+        Log::add('V', 221);
     }
 
     VkShaderModule vertexShaderModule = createShaderModule(vertexShaderCode);

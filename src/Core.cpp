@@ -46,7 +46,12 @@ public:
         car.init(sCar);
 
         while (window.isOpen())
+        {
+            fps.sync();
+            Input::refresh();
+            Log::printNewMessages();
             tick();
+        }
     }
 
 private:
@@ -58,10 +63,6 @@ private:
 
     void tick()
     {
-        Input::refresh();
-
-        Log::printNewMessages();
-
         car.update(fps.getFrameTime());
 
         glm::mat4 firstModel(1.0f);
@@ -81,8 +82,6 @@ private:
         vulkan.updateModel(1, secondModel);
 
         vulkan.drawFrame();
-
-        fps.sync();
     }
 };
 

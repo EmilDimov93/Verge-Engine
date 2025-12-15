@@ -31,6 +31,8 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     VEKey brakeKey = VE_KEY_UNKNOWN;
     VEKey turnLeftKey = VE_KEY_UNKNOWN;
     VEKey turnRightKey = VE_KEY_UNKNOWN;
+    VEKey shiftUpKey = VE_KEY_UNKNOWN;
+    VEKey shiftDownKey = VE_KEY_UNKNOWN;
 
     float *pGearRatios = nullptr;
     float finalDriveRatio = 3.42f;
@@ -60,6 +62,7 @@ private:
     void brake(ve_time deltaTime);
     void turnLeft();
     void turnRight();
+    void updateTransmission();
 
     Mesh body;
     Mesh tire;
@@ -75,6 +78,8 @@ private:
     VEKey brakeKey;
     VEKey turnLeftKey;
     VEKey turnRightKey;
+    VEKey shiftUpKey;
+    VEKey shiftDownKey;
 
     std::vector<float> gearRatios;
     float finalDriveRatio;

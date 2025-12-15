@@ -110,6 +110,8 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     brakeKey = info.brakeKey;
     turnLeftKey = info.turnLeftKey;
     turnRightKey = info.turnRightKey;
+    shiftUpKey = info.shiftUpKey;
+    shiftDownKey = info.shiftDownKey;
 
     if (info.pGearRatios)
     {
@@ -216,6 +218,11 @@ void Vehicle::accelerate(ve_time deltaTime)
     float torque = (powerKw * 1000) / (rpm * 2.0f * PI / 60.0f) * torqueCurveFactor;
 
     float wheelTorque = torque * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
+
+    if(rpm >= maxRpm){
+        wheelTorque = 0;
+    }
+
     float wheelForce = wheelTorque / wheelRadiusM;
 
     float dragForce = (AIR_DENSITY * dragCoeff * frontalAreaM2 * speedMps * speedMps) / 2;
@@ -236,10 +243,6 @@ void Vehicle::accelerate(ve_time deltaTime)
         float wheelRpm = rpm / (gearRatios[gear - 1] * finalDriveRatio);
         gear++;
         rpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
-    }
-    else
-    {
-        //rpm = maxRpm;
     }
 }
 
@@ -274,8 +277,23 @@ void Vehicle::turnRight()
     steeringAngleRad = -maxSteeringAngleRad;
 }
 
+void Vehicle::updateTransmission()
+{
+}
+
 void Vehicle::update(ve_time deltaTime)
 {
+    if(Input::isPressed(shiftUpKey)){
+        if(gear < gearCount){
+            gear++;
+        }
+    }
+    if(Input::isPressed(shiftDownKey)){
+        if(gear > 1){
+            gear--;
+        }
+    }
+
     if (Input::isDown(accelerateKey))
     {
         accelerate(deltaTime);

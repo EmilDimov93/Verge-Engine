@@ -29,10 +29,12 @@ public:
         sCar.weightKg = 1540;
         sCar.maxRpm = 7000;
         sCar.gearCount = 8;
-        sCar.isAutomatic = true;
+        sCar.isAutomatic = false;
         sCar.accelerateKey = VE_KEY_W;
         sCar.turnLeftKey = VE_KEY_A;
         sCar.turnRightKey = VE_KEY_D;
+        sCar.shiftUpKey = VE_KEY_M;
+        sCar.shiftDownKey = VE_KEY_N;
 
         float ratios[8] = {5.519f, 3.184f, 2.050f, 1.492f, 1.235f, 1.000f, 0.801f, 0.673f};
         sCar.pGearRatios = ratios;

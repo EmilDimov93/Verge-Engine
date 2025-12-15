@@ -62,6 +62,8 @@ private:
     void brake(ve_time deltaTime);
     void turnLeft();
     void turnRight();
+    void shiftUp();
+    void shiftDown();
     void updateTransmission();
 
     Mesh body;

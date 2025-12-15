@@ -11,7 +11,7 @@
 
 #define AIR_DENSITY 1.225f
 
-#define BASELINE_TORQUE_FACTOR  0.9f
+#define BASELINE_TORQUE_FACTOR 0.9f
 #define SURFACE_ROLLING_COEFFICIENT 0.015f
 
 void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
@@ -219,7 +219,8 @@ void Vehicle::accelerate(ve_time deltaTime)
 
     float wheelTorque = torque * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
 
-    if(rpm >= maxRpm){
+    if (rpm >= maxRpm)
+    {
         wheelTorque = 0;
     }
 
@@ -237,13 +238,6 @@ void Vehicle::accelerate(ve_time deltaTime)
         rpm = maxRpm;
     else if (rpm < idleRpm)
         rpm = idleRpm;
-
-    if (isAutomatic && gear < gearCount && rpm >= maxRpm)
-    {
-        float wheelRpm = rpm / (gearRatios[gear - 1] * finalDriveRatio);
-        gear++;
-        rpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
-    }
 }
 
 void Vehicle::idle(ve_time deltaTime)
@@ -277,23 +271,52 @@ void Vehicle::turnRight()
     steeringAngleRad = -maxSteeringAngleRad;
 }
 
+void Vehicle::shiftUp()
+{
+    if (gear < gearCount)
+    {
+        rpm = rpm * gearRatios[gear] / gearRatios[gear - 1];
+        gear++;
+    }
+}
+
+void Vehicle::shiftDown()
+{
+    if (gear > 1)
+    {
+        rpm = rpm * gearRatios[gear - 2] / gearRatios[gear - 1];
+        gear--;
+    }
+}
+
 void Vehicle::updateTransmission()
 {
+    if (isAutomatic)
+    {
+        if (rpm >= maxRpm)
+        {
+            shiftUp();
+        }
+        else if (rpm <= maxRpm / 2)
+        {
+            shiftDown();
+        }
+    }
+    else
+    {
+        if (Input::isPressed(shiftUpKey))
+        {
+            shiftUp();
+        }
+        if (Input::isPressed(shiftDownKey))
+        {
+            shiftDown();
+        }
+    }
 }
 
 void Vehicle::update(ve_time deltaTime)
 {
-    if(Input::isPressed(shiftUpKey)){
-        if(gear < gearCount){
-            gear++;
-        }
-    }
-    if(Input::isPressed(shiftDownKey)){
-        if(gear > 1){
-            gear--;
-        }
-    }
-
     if (Input::isDown(accelerateKey))
     {
         accelerate(deltaTime);
@@ -306,6 +329,8 @@ void Vehicle::update(ve_time deltaTime)
     {
         idle(deltaTime);
     }
+
+    updateTransmission();
 
     steeringAngleRad = 0;
     if (Input::isDown(turnLeftKey) && Input::isUp(turnRightKey))

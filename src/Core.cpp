@@ -29,7 +29,7 @@ public:
         sCar.weightKg = 1540;
         sCar.maxRpm = 7000;
         sCar.gearCount = 8;
-        sCar.isAutomatic = false;
+        sCar.isAutomatic = true;
         sCar.accelerateKey = VE_KEY_W;
         sCar.turnLeftKey = VE_KEY_A;
         sCar.turnRightKey = VE_KEY_D;

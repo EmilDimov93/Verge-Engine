@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0
 
 #include "Vehicle.hpp"
+#include "Log.hpp"
 
 #define PI 3.1415926f
 
@@ -9,6 +10,9 @@
 #define GRAVITY_CONSTANT 9.81f
 
 #define AIR_DENSITY 1.225f
+
+#define BASELINE_TORQUE_FACTOR  0.9f
+#define SURFACE_ROLLING_COEFFICIENT 0.015f
 
 void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
 {
@@ -18,7 +22,7 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     }
     else
     {
-        // warning
+        Log::add('A', 100);
     }
     if (info.pTire)
     {
@@ -26,7 +30,7 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     }
     else
     {
-        // warning
+        Log::add('A', 101);
     }
 
     if (info.power > 0)
@@ -38,15 +42,16 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
             break;
         case VE_POWER_UNIT_HORSEPOWER:
             powerKw = 0.7457f * info.power;
+            break;
         default:
-            // warning
+            Log::add('A', 102);
             powerKw = info.power;
             break;
         }
     }
     else
     {
-        // warning
+        Log::add('A', 103);
         powerKw = 100;
     }
 
@@ -56,27 +61,27 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     }
     else
     {
-        // warning
+        Log::add('A', 104);
         weightKg = 1200.f;
     }
 
-    if (gearCount > 0)
+    if (info.gearCount > 0)
     {
         gearCount = info.gearCount;
     }
     else
     {
-        // warning
+        Log::add('A', 105);
         gearCount = 5;
     }
 
-    if (idleRpm > 0)
+    if (info.idleRpm > 0)
     {
         idleRpm = info.idleRpm;
     }
     else
     {
-        // warning
+        Log::add('A', 106);
         idleRpm = 800;
     }
 
@@ -86,7 +91,7 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     }
     else
     {
-        // warning
+        Log::add('A', 107);
         maxRpm = 6000;
     }
 
@@ -108,6 +113,7 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
 
     if (info.pGearRatios)
     {
+        // error if pGearRatios size is lower than gearCount
         gearRatios.assign(info.pGearRatios, info.pGearRatios + gearCount);
     }
     else
@@ -136,6 +142,7 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     }
     else
     {
+        Log::add('A', 108);
         drivetrainEfficiency = 1.0f;
     }
 
@@ -145,7 +152,7 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     }
     else
     {
-        // warning
+        Log::add('A', 109);
         wheelRadiusM = 0.3f;
     }
 
@@ -155,7 +162,7 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     }
     else
     {
-        // warning
+        Log::add('A', 110);
         dragCoeff = 0.31f;
     }
 
@@ -165,7 +172,7 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     }
     else
     {
-        // warning
+        Log::add('A', 111);
         frontalAreaM2 = 0.0009f * info.weightKg + 0.5f;
     }
 
@@ -173,24 +180,24 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     { // Hardcoded limit
         maxSteeringAngleRad = info.maxSteeringAngleRad;
     }
-    else if (info.maxSteeringAngleRad <= 0.9f)
+    else if (info.maxSteeringAngleRad >= -0.9f && info.maxSteeringAngleRad <= 0.9f)
     {
-        // warning
+        Log::add('A', 112);
         maxSteeringAngleRad = -info.maxSteeringAngleRad;
     }
     else
     {
-        // warning
+        Log::add('A', 113);
         maxSteeringAngleRad = 0.55f;
     }
 
-    if (camber > -(PI / 2) && camber < PI / 2)
+    if (info.camber > -(PI / 2) && info.camber < PI / 2)
     {
         camber = info.camber;
     }
     else
     {
-        // warning
+        Log::add('A', 114);
         camber = 0;
     }
 
@@ -205,23 +212,6 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
 
 void Vehicle::accelerate(ve_time deltaTime)
 {
-    if (rpm >= maxRpm)
-    {
-        if (isAutomatic && gear < gearCount)
-        {
-            float wheelRpm = rpm / (gearRatios[gear - 1] * finalDriveRatio);
-            gear++;
-            rpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
-        }
-        else
-        {
-            rpm = maxRpm;
-        }
-    }
-    else if (rpm < idleRpm)
-        rpm = idleRpm;
-
-    constexpr float BASELINE_TORQUE_FACTOR = 0.9f;
     float torqueCurveFactor = BASELINE_TORQUE_FACTOR + (1.0f - BASELINE_TORQUE_FACTOR) * (1.0f - rpm / maxRpm);
     float torque = (powerKw * 1000) / (rpm * 2.0f * PI / 60.0f) * torqueCurveFactor;
 
@@ -234,16 +224,29 @@ void Vehicle::accelerate(ve_time deltaTime)
     speedMps += acceleration * deltaTime;
 
     float wheelRpm = (speedMps / wheelRadiusM) * (60.0f / (2.0f * PI));
-    rpm = rpm < maxRpm ? wheelRpm * gearRatios[gear - 1] * finalDriveRatio : maxRpm;
+    rpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
 
-    if (rpm < idleRpm)
+    if (rpm >= maxRpm)
+        rpm = maxRpm;
+    else if (rpm < idleRpm)
         rpm = idleRpm;
+
+    if (isAutomatic && gear < gearCount && rpm >= maxRpm)
+    {
+        float wheelRpm = rpm / (gearRatios[gear - 1] * finalDriveRatio);
+        gear++;
+        rpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
+    }
+    else
+    {
+        //rpm = maxRpm;
+    }
 }
 
 void Vehicle::idle(ve_time deltaTime)
 {
-    float rollingResistance = 0.015f * weightKg * GRAVITY_CONSTANT;
-    float dragForce = (AIR_DENSITY * dragCoeff * frontalAreaM2 * speedMps * speedMps) / 2;
+    float rollingResistance = SURFACE_ROLLING_COEFFICIENT * weightKg * GRAVITY_CONSTANT;
+    float dragForce = 0.5f * AIR_DENSITY * dragCoeff * frontalAreaM2 * speedMps * speedMps;
     float netDecel = (dragForce + rollingResistance) / weightKg;
 
     speedMps -= netDecel * deltaTime;
@@ -263,12 +266,12 @@ void Vehicle::brake(ve_time deltaTime)
 
 void Vehicle::turnLeft()
 {
-    steeringAngleRad = -maxSteeringAngleRad;
+    steeringAngleRad = maxSteeringAngleRad;
 }
 
 void Vehicle::turnRight()
 {
-    steeringAngleRad = maxSteeringAngleRad;
+    steeringAngleRad = -maxSteeringAngleRad;
 }
 
 void Vehicle::update(ve_time deltaTime)
@@ -296,5 +299,5 @@ void Vehicle::update(ve_time deltaTime)
         turnRight();
     }
 
-    std::cout << "Speed: " << speedMps * 3.6f << " km/h, RPM: " << rpm << " , Gear: " << gear << std::endl;
+    std::cout << "Speed: " << speedMps * 3.6f << " km/h, RPM: " << std::round(rpm) << " , Gear: " << gear << std::endl;
 }

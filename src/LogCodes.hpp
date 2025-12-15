@@ -62,4 +62,24 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'G', 201}, "GLFW window creation failed"},
 
     // Other
-    {{'O', 100}, "Invalid error code"}};
+    {{'O', 100}, "Invalid error code"},
+
+// Layer 2
+
+    // Vehicle
+    {{'A', 100}, "Vehicle: missing mesh for body"},
+    {{'A', 101}, "Vehicle: missing mesh for tire"},
+    {{'A', 102}, "Vehicle: invalid power unit. Using default KILOWATTS"},
+    {{'A', 103}, "Vehicle: invalid power. Using default value"},
+    {{'A', 104}, "Vehicle: invalid weight. Using default value"},
+    {{'A', 105}, "Vehicle: invalid gear count. Using default value"},
+    {{'A', 106}, "Vehicle: invalid idle RPM. Using default value"},
+    {{'A', 107}, "Vehicle: invalid max RPM. Using default value"},
+    {{'A', 108}, "Vehicle: invalid drivetrain efficiency. Using default value"},
+    {{'A', 109}, "Vehicle: invalid wheel radius. Using default value"},
+    {{'A', 110}, "Vehicle: invalid drag coefficient. Using default value"},
+    {{'A', 111}, "Vehicle: invalid frontal area. Using default value"},
+    {{'A', 112}, "Vehicle: invalid max steering angle. Using absolute value"},
+    {{'A', 113}, "Vehicle: invalid max steering angle. Using default value"},
+    {{'A', 114}, "Vehicle: invalid camber. Using default value"}
+};

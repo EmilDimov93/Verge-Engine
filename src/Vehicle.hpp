@@ -49,6 +49,10 @@ public:
     void init(const VE_STRUCT_VEHICLE_CREATE_INFO &info);
 
     void update(ve_time deltaTime);
+    
+    // Temporarily public
+    float speedMps;
+    float steeringAngleRad;
 
 private:
     void accelerate(ve_time deltaTime);
@@ -86,8 +90,8 @@ private:
     // Runtime
     Position3 position;
     Rotation3 rotation;
-    float steeringAngleRad;
-    float speedMps;
+    
+    
     uint32_t gear;
     float rpm;
     float tireGrip;

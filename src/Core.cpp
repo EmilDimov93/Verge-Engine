@@ -71,19 +71,28 @@ private:
 
         glm::mat4 firstModel(1.0f);
         glm::mat4 secondModel(1.0f);
+        glm::mat4 thirdModel(1.0f);
 
-        firstModel = glm::translate(firstModel, glm::vec3(0.0f, 0.0f, -4.0f));
+        firstModel = glm::translate(firstModel, glm::vec3(2.0f, 0.0f, -4.0f));
         firstModel = glm::rotate(firstModel, car.steeringAngleRad, glm::vec3(0.0, 0.0f, 1.0f));
 
         static float rotation = 0.0f;
 
         rotation += car.speedMps * fps.getFrameTime() / 10.0f * 500.0f;
 
-        secondModel = glm::translate(secondModel, glm::vec3(0.0f, 0.0f, -5.0f));
+        secondModel = glm::translate(secondModel, glm::vec3(-2.0f, 0.0f, -5.0f));
         secondModel = glm::rotate(secondModel, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        static float x = 50.0f;
+
+        x -= car.speedMps * fps.getFrameTime();
+
+        thirdModel = glm::translate(thirdModel, glm::vec3(x, 0.0f, -99.0f));
+        thirdModel = glm::rotate(thirdModel, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
         vulkan.updateModel(0, firstModel);
         vulkan.updateModel(1, secondModel);
+        vulkan.updateModel(2, thirdModel);
 
         vulkan.drawFrame();
     }

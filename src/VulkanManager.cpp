@@ -14,6 +14,73 @@
 const int MAX_FRAME_DRAWS = 2;
 const int MAX_OBJECTS = 3;
 
+#include <sstream>
+void VulkanManager::loadFile(std::string filename)
+{
+    std::vector<Vertex> meshVertices;
+    std::vector<uint32_t> meshIndeces;
+
+    {
+        std::ifstream file(filename);
+        if (!file.is_open())
+            throw std::runtime_error("Cannot open OBJ file.");
+
+        std::vector<glm::vec3> positions;
+        std::string line;
+
+        while (std::getline(file, line))
+        {
+            if (line.rfind("v ", 0) == 0)
+            {
+                glm::vec3 p;
+                std::stringstream ss(line.substr(2));
+                ss >> p.x >> p.y >> p.z;
+                positions.push_back(p);
+            }
+            else if (line.rfind("f ", 0) == 0)
+            {
+                std::stringstream ss(line.substr(2));
+                std::string a, b, c;
+                ss >> a >> b >> c;
+
+                auto parseIndex = [&](const std::string &s)
+                {
+                    return std::stoi(s.substr(0, s.find('/'))) - 1;
+                };
+
+                uint32_t i1 = parseIndex(a);
+                uint32_t i2 = parseIndex(b);
+                uint32_t i3 = parseIndex(c);
+
+                auto addVert = [&](uint32_t idx)
+                {
+                    Vertex v;
+                    v.pos = positions[idx];
+                    v.col = {0, 0, 0};
+                    meshIndeces.push_back(meshVertices.size());
+                    meshVertices.push_back(v);
+                };
+
+                addVert(i1);
+                addVert(i2);
+                addVert(i3);
+            }
+        }
+    }
+
+    Mesh objMesh;
+    vkCheck(objMesh.init(
+                physicalDevice,
+                device,
+                graphicsQueue,
+                graphicsCommandPool,
+                &meshVertices,
+                &meshIndeces),
+            {'V', 217});
+
+    meshes.push_back(objMesh);
+}
+
 VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize)
 {
     createInstance();
@@ -63,6 +130,8 @@ VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize)
     meshes.push_back(firstMesh);
     meshes.push_back(secondMesh);
 
+    loadFile("models/car.obj");
+    
     createCommandBuffers();
     createUniformBuffers();
     createDescriptorPool();
@@ -435,8 +504,7 @@ void VulkanManager::createGraphicsPipeline()
         .depthWriteEnable = VK_TRUE,
         .depthCompareOp = VK_COMPARE_OP_LESS,
         .depthBoundsTestEnable = VK_FALSE,
-        .stencilTestEnable = VK_FALSE
-    };
+        .stencilTestEnable = VK_FALSE};
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -583,8 +651,7 @@ void VulkanManager::createRenderPass()
         .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
         .colorAttachmentCount = 1,
         .pColorAttachments = &colorAttachmentRef,
-        .pDepthStencilAttachment = &depthAttachmentRef
-    };
+        .pDepthStencilAttachment = &depthAttachmentRef};
 
     std::vector<VkSubpassDependency> subpassDependencies(2);
 

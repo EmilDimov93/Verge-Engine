@@ -14,6 +14,7 @@ add_executable(VergeEngine
     src/FpsManager.cpp
     src/Log.cpp
     src/Vehicle.cpp
+    src/Camera.cpp
 )
 
 target_include_directories(VergeEngine PRIVATE

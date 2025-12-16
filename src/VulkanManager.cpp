@@ -1,6 +1,8 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE // test
+
 #include "VulkanManager.hpp"
 
 #include <GLFW/glfw3.h>
@@ -28,6 +30,7 @@ VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize)
     createDescriptorSetLayout();
     createPushConstantRange();
     createGraphicsPipeline();
+    createDepthBufferImage();
     createFramebuffers();
     createCommandPool();
 
@@ -450,6 +453,95 @@ void VulkanManager::createGraphicsPipeline()
     vkDestroyShaderModule(device, fragmentShaderModule, nullptr);
 }
 
+// Duplicate: exists in Mesh.cpp already
+uint32_t findMemoryTypeIndex1(VkPhysicalDevice physicalDevice, uint32_t allowedTypes, VkMemoryPropertyFlags properties)
+{
+    VkPhysicalDeviceMemoryProperties memoryProperties;
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
+
+    for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++)
+    {
+        if ((allowedTypes & (1 << i)) && ((memoryProperties.memoryTypes[i].propertyFlags & properties) == properties))
+        {
+            return i;
+        }
+    }
+
+    std::cout << "No suitable memory type index";
+    return -1;
+}
+
+void VulkanManager::createDepthBufferImage()
+{
+    VkFormat format = VK_FORMAT_UNDEFINED;
+
+    std::vector<VkFormat> formats = {VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D32_SFLOAT, VK_FORMAT_D24_UNORM_S8_UINT};
+
+    for (VkFormat f : formats)
+    {
+        VkFormatProperties props;
+        vkGetPhysicalDeviceFormatProperties(physicalDevice, f, &props);
+
+        if (props.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+        {
+            format = f;
+            break;
+        }
+    }
+
+    if (format == VK_FORMAT_UNDEFINED)
+    {
+        Log::add('V', 223);
+    }
+
+    VkImageCreateInfo imageCreateInfo = {};
+    imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+    imageCreateInfo.extent.width = swapChainExtent.width;
+    imageCreateInfo.extent.height = swapChainExtent.height;
+    imageCreateInfo.extent.depth = 1;
+    imageCreateInfo.mipLevels = 1;
+    imageCreateInfo.arrayLayers = 1;
+    imageCreateInfo.format = format;
+    imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    imageCreateInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VkImage depthBufferImage;
+
+    vkCheck(vkCreateImage(device, &imageCreateInfo, nullptr, &depthBufferImage), {'V', 222});
+
+    VkMemoryRequirements memoryRequirements;
+    vkGetImageMemoryRequirements(device, depthBufferImage, &memoryRequirements);
+
+    VkMemoryAllocateInfo memoryAllocInfo = {
+        .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+        .allocationSize = memoryRequirements.size,
+        .memoryTypeIndex = findMemoryTypeIndex1(physicalDevice, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)};
+
+    vkCheck(vkAllocateMemory(device, &memoryAllocInfo, nullptr, &depthBufferImageMemory), {'V', 222});
+
+    vkBindImageMemory(device, depthBufferImage, depthBufferImageMemory, 0);
+
+    VkImageViewCreateInfo imageViewCreateInfo{};
+    imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    imageViewCreateInfo.image = depthBufferImage;
+    imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    imageViewCreateInfo.format = swapChainImageFormat;
+    imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+    imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+    imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+    imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+    imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+    imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+    imageViewCreateInfo.subresourceRange.levelCount = 1;
+    imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+    imageViewCreateInfo.subresourceRange.layerCount = 1;
+    vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &depthBufferImageView), {'V', 205});
+}
+
 void VulkanManager::createRenderPass()
 {
     VkAttachmentDescription colorAttachment{
@@ -652,24 +744,6 @@ void VulkanManager::createSemaphores()
     } while (0)
 
 // Duplicate: exists in Mesh.cpp already
-uint32_t findMemoryTypeIndex1(VkPhysicalDevice physicalDevice, uint32_t allowedTypes, VkMemoryPropertyFlags properties)
-{
-    VkPhysicalDeviceMemoryProperties memoryProperties;
-    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
-
-    for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++)
-    {
-        if ((allowedTypes & (1 << i)) && ((memoryProperties.memoryTypes[i].propertyFlags & properties) == properties))
-        {
-            return i;
-        }
-    }
-
-    std::cout << "No suitable memory type index";
-    return -1;
-}
-
-// Duplicate: exists in Mesh.cpp already
 VkResult createBuffer1(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory)
 {
     VkBufferCreateInfo bufferCreateInfo = {
@@ -829,6 +903,15 @@ VulkanManager::~VulkanManager()
 {
     if (device != VK_NULL_HANDLE)
         vkCheck(vkDeviceWaitIdle(device), {'V', 235});
+
+    if(depthBufferImageView)
+        vkDestroyImageView(device, depthBufferImageView, nullptr);
+
+    if(depthBufferImage)
+        vkDestroyImage(device, depthBufferImage, nullptr);
+
+    if(depthBufferImageMemory)
+        vkFreeMemory(device, depthBufferImageMemory, nullptr);
 
     if (descriptorPool)
         vkDestroyDescriptorPool(device, descriptorPool, nullptr);

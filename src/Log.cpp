@@ -110,7 +110,7 @@ void Log::induceCrash()
     throw EngineCrash{};
 }
 
-Log::~Log()
+void Log::end()
 {
     if (entries.back() != ErrorCode{'C', 200})
         add('C', 001);

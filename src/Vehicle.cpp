@@ -343,5 +343,5 @@ void Vehicle::update(ve_time deltaTime)
         turnRight();
     }
 
-    std::cout << "Speed: " << speedMps * 3.6f << " km/h, RPM: " << std::round(rpm) << " , Gear: " << gear << std::endl;
+    //std::cout << "Speed: " << speedMps * 3.6f << " km/h, RPM: " << std::round(rpm) << " , Gear: " << gear << std::endl;
 }

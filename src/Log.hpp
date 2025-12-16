@@ -44,13 +44,13 @@ public:
     static std::vector<std::string> getNewMessages();
     static bool hasNewMessages();
     static void printNewMessages();
-    ~Log();
+    static void end();
 
 private:
     static std::vector<ErrorCode> entries;
-    static size_t newMessageCount;// = 0;
-    static bool hasNewMessagesFlag;// = false;
-    static size_t clearedEntriesCount;// = 0;
+    static size_t newMessageCount;
+    static bool hasNewMessagesFlag;
+    static size_t clearedEntriesCount;
 
     static void writeToLogFile();
     static void freeLogSpace();

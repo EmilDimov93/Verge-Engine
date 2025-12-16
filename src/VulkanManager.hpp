@@ -53,6 +53,10 @@ private:
     std::vector<VkFramebuffer> swapChainFramebuffers;
     std::vector<VkCommandBuffer> commandBuffers;
 
+    VkImage depthBufferImage;
+    VkDeviceMemory depthBufferImageMemory;
+    VkImageView depthBufferImageView;
+
     VkDescriptorSetLayout descriptorSetLayout;
     VkPushConstantRange pushConstantRange;
 
@@ -94,6 +98,7 @@ private:
     void createDescriptorSetLayout();
     void createPushConstantRange();
     void createGraphicsPipeline();
+    void createDepthBufferImage();
     void createFramebuffers();
     void createCommandPool();
     void createCommandBuffers();

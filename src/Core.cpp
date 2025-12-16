@@ -54,6 +54,8 @@ public:
             Log::printNewMessages();
             tick();
         }
+
+        Log::end();
     }
 
 private:
@@ -70,14 +72,14 @@ private:
         glm::mat4 firstModel(1.0f);
         glm::mat4 secondModel(1.0f);
 
-        firstModel = glm::translate(firstModel, glm::vec3(-2.0f, 0.0f, -5.0f));
+        firstModel = glm::translate(firstModel, glm::vec3(0.0f, 0.0f, -4.0f));
         firstModel = glm::rotate(firstModel, car.steeringAngleRad, glm::vec3(0.0, 0.0f, 1.0f));
 
         static float rotation = 0.0f;
 
         rotation += car.speedMps * fps.getFrameTime() / 10.0f * 500.0f;
 
-        secondModel = glm::translate(secondModel, glm::vec3(2.0f, 0.0f, -5.0f));
+        secondModel = glm::translate(secondModel, glm::vec3(0.0f, 0.0f, -5.0f));
         secondModel = glm::rotate(secondModel, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
 
         vulkan.updateModel(0, firstModel);

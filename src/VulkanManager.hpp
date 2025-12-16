@@ -56,6 +56,7 @@ private:
     VkImage depthBufferImage;
     VkDeviceMemory depthBufferImageMemory;
     VkImageView depthBufferImageView;
+    VkFormat depthFormat;
 
     VkDescriptorSetLayout descriptorSetLayout;
     VkPushConstantRange pushConstantRange;

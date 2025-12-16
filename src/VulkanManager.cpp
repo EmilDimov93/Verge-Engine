@@ -15,7 +15,7 @@ const int MAX_FRAME_DRAWS = 2;
 const int MAX_OBJECTS = 3;
 
 #include <sstream>
-void VulkanManager::loadFile(std::string filename)
+void VulkanManager::loadFile(std::string filename, glm::vec3 color)
 {
     std::vector<Vertex> meshVertices;
     std::vector<uint32_t> meshIndeces;
@@ -56,7 +56,7 @@ void VulkanManager::loadFile(std::string filename)
                 {
                     Vertex v;
                     v.pos = positions[idx];
-                    v.col = {0, 0, 0};
+                    v.col = color;
                     meshIndeces.push_back(meshVertices.size());
                     meshVertices.push_back(v);
                 };
@@ -130,7 +130,12 @@ VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize)
     meshes.push_back(firstMesh);
     meshes.push_back(secondMesh);
 
-    loadFile("models/car.obj");
+    loadFile("models/car.obj", {0, 0, 0});
+
+    loadFile("models/wheel.obj", {0, 0, 1.0f});
+    loadFile("models/wheel.obj", {0, 0, 1.0f});
+    loadFile("models/wheel.obj", {0, 0, 1.0f});
+    loadFile("models/wheel.obj", {0, 0, 1.0f});
     
     createCommandBuffers();
     createUniformBuffers();

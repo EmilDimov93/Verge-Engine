@@ -71,7 +71,6 @@ private:
 
         glm::mat4 firstModel(1.0f);
         glm::mat4 secondModel(1.0f);
-        glm::mat4 thirdModel(1.0f);
 
         firstModel = glm::translate(firstModel, glm::vec3(2.0f, 0.0f, -4.0f));
         firstModel = glm::rotate(firstModel, car.steeringAngleRad, glm::vec3(0.0, 0.0f, 1.0f));
@@ -83,16 +82,45 @@ private:
         secondModel = glm::translate(secondModel, glm::vec3(-2.0f, 0.0f, -5.0f));
         secondModel = glm::rotate(secondModel, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
 
+        glm::mat4 carModel(1.0f);
+
         static float x = 50.0f;
 
         x -= car.speedMps * fps.getFrameTime();
 
-        thirdModel = glm::translate(thirdModel, glm::vec3(x, 0.0f, -99.0f));
-        thirdModel = glm::rotate(thirdModel, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        carModel = glm::translate(carModel, glm::vec3(x, 0.0f, -99.0f));
+        carModel = glm::rotate(carModel, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+        glm::mat4 tireFL(1.0f);
+        glm::mat4 tireFR(1.0f);
+        glm::mat4 tireBL(1.0f);
+        glm::mat4 tireBR(1.0f);
+
+        Position2 tireOffset = {3.0f, 1.0f};
+
+        tireFL = glm::translate(tireFL, glm::vec3(x + tireOffset.x / 2, 0.0f, -99.0f + tireOffset.y));
+        tireFR = glm::translate(tireFR, glm::vec3(x + tireOffset.x / 2, 0.0f, -99.0f - tireOffset.y));
+        tireBL = glm::translate(tireBL, glm::vec3(x - tireOffset.x / 2, 0.0f, -99.0f + tireOffset.y));
+        tireBR = glm::translate(tireBR, glm::vec3(x - tireOffset.x / 2, 0.0f, -99.0f - tireOffset.y));
+
+        static float rot = 0;
+        rot += car.speedMps * fps.getFrameTime() / 10.0f * 500.0f;
+
+        tireFL = glm::rotate(tireFL, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        tireFR = glm::rotate(tireFR, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        tireBL = glm::rotate(tireBL, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        tireBR = glm::rotate(tireBR, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+        tireFL = glm::rotate(tireFL, glm::radians(rot), glm::vec3(-1.0f, 0.0f, 0.0f));
 
         vulkan.updateModel(0, firstModel);
         vulkan.updateModel(1, secondModel);
-        vulkan.updateModel(2, thirdModel);
+        vulkan.updateModel(2, carModel);
+
+        vulkan.updateModel(3, tireFL);
+        vulkan.updateModel(4, tireFR);
+        vulkan.updateModel(5, tireBL);
+        vulkan.updateModel(6, tireBR);
 
         vulkan.drawFrame();
     }

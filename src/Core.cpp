@@ -11,6 +11,7 @@
 #include "local.hpp"
 
 #include "Vehicle.hpp"
+#include "Camera.hpp"
 
 class VergeEngine
 {
@@ -68,6 +69,15 @@ private:
     void tick()
     {
         car.update(fps.getFrameTime());
+
+        if(Input::isPressed(VE_KEY_Y)){
+            Camera::moveDelta({0, 0, -1.0f});
+        }
+
+        if(Input::isPressed(VE_KEY_H)){
+            Camera::moveDelta({0, -1.0f, 0});
+            car.speedMps = 0;
+        }
 
         glm::mat4 firstModel(1.0f);
         glm::mat4 secondModel(1.0f);

@@ -11,6 +11,8 @@
 #include "Log.hpp"
 #include "version.hpp"
 
+#include "Camera.hpp"
+
 const int MAX_FRAME_DRAWS = 2;
 const int MAX_OBJECTS = 3;
 
@@ -793,6 +795,10 @@ void VulkanManager::recordCommands(uint32_t currentImage)
     vkCmdBeginRenderPass(commandBuffers[currentImage], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
     vkCmdBindPipeline(commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
+    uboViewProjection.view = glm::lookAt(glm::vec3(Camera::position.x, Camera::position.y, Camera::position.z), glm::vec3(Camera::position.x + Camera::forward.x, Camera::position.y + Camera::forward.y, Camera::position.z + Camera::forward.z), glm::vec3(0.0f, 1.0f, 0.0f));
+
+    std::cout << Camera::position.x << Camera::position.y << Camera::position.z << std::endl;
 
     for (size_t j = 0; j < meshes.size(); j++)
     {

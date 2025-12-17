@@ -79,8 +79,8 @@ private:
             car.speedMps = 0;
         }
 
-        if(Input::isPressed(VE_KEY_I)){
-            Camera::rotateDelta({0, 10.0f, 0});
+        if(Input::isDown(VE_KEY_I)){
+            Camera::rotateDelta({fps.getFrameTime() * 5, 0, 0});
         }
 
         glm::mat4 firstModel(1.0f);

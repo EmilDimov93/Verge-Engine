@@ -6,6 +6,9 @@
 class Camera
 {
 public:
+    static glm::mat4 getViewMatrix();
+    static glm::mat4 getProjectionMatrix();
+
     static void move(Position3 newPosition);
     static void moveDelta(Position3 delta);
 
@@ -20,6 +23,10 @@ public:
 
     static glm::vec3 forward;
 
+    static float fov;
+    static float aspectRatio;
+
+    static void init(float fov, float aspectRatio, float zFar, float zNear);
+
 private:
-    
 };

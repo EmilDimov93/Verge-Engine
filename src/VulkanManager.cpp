@@ -103,8 +103,8 @@ VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize)
     createFramebuffers();
     createCommandPool();
 
-    uboViewProjection.projection = glm::perspective(glm::radians(45.0f), (float)swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
-    uboViewProjection.view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    uboViewProjection.projection = glm::perspective(glm::radians(45.0f), (float)windowSize.w / (float)windowSize.h, 0.1f, 1000.0f);
+    //uboViewProjection.view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
     uboViewProjection.projection[1][1] *= -1;
 
@@ -796,9 +796,7 @@ void VulkanManager::recordCommands(uint32_t currentImage)
 
     vkCmdBindPipeline(commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-    uboViewProjection.view = glm::lookAt(glm::vec3(Camera::position.x, Camera::position.y, Camera::position.z), glm::vec3(Camera::position.x + Camera::forward.x, Camera::position.y + Camera::forward.y, Camera::position.z + Camera::forward.z), glm::vec3(0.0f, 1.0f, 0.0f));
-
-    std::cout << Camera::position.x << Camera::position.y << Camera::position.z << std::endl;
+    uboViewProjection.view = Camera::getViewMatrix();
 
     for (size_t j = 0; j < meshes.size(); j++)
     {

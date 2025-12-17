@@ -14,7 +14,7 @@ float Camera::aspectRatio = -1.0f;
 float Camera::zNear = -1.0f;
 float Camera::zFar = -1.0f;
 
-bool isInitialized = false;
+bool Camera::isInitialized = false;
 
 glm::mat4 Camera::getViewMatrix(){
     return glm::lookAt(glm::vec3(position.x, position.y, position.z), glm::vec3(position.x + forward.x, position.y + forward.y, position.z + forward.z), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -22,7 +22,7 @@ glm::mat4 Camera::getViewMatrix(){
 
 glm::mat4 Camera::getProjectionMatrix(){
     if(!isInitialized){
-        // Error
+        Log::add('K', 200);
     }
 
     glm::mat4 projectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, zNear, zFar);
@@ -63,7 +63,23 @@ void Camera::update() {
 
 void Camera::init(float newFov, float newAspectRatio, float newZNear, float newZFar)
 {
-    // add bounds check
+    if(isInitialized){
+        Log::add('K', 100);
+        return;
+    }
+
+    if(newFov <= 0 || newFov >= 180){
+        Log::add('K', 201);
+    }
+    if(newAspectRatio <= 0){
+        Log::add('K', 202);
+    }
+    if(newZNear <= 0){
+        Log::add('K', 203);
+    }
+    if(newZFar <= newZNear){
+        Log::add('K', 204);
+    }
 
     fov = newFov;
     aspectRatio = newAspectRatio;

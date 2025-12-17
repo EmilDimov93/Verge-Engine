@@ -18,6 +18,9 @@ public:
     static void update();
 
     // Temporarily public
+    static void init(float newFov, float newAspectRatio, float newZNear, float newZFar);
+
+private:
     static Position3 position;
     static Rotation3 rotation;
 
@@ -28,7 +31,5 @@ public:
     static float zNear;
     static float zFar;
 
-    static void init(float newFov, float newAspectRatio, float newZNear, float newZFar);
-
-private:
+    static bool isInitialized;
 };

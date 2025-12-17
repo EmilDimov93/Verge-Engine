@@ -11,7 +11,7 @@ WindowManager::WindowManager()
 {
     if (!glfwInit())
         Log::add('G', 200);
-    isGlfwInitialized = true;
+    isInitialized = true;
 
     const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     windowSize.w = mode->width / 2;
@@ -43,13 +43,25 @@ bool WindowManager::isOpen(){
     return !glfwWindowShouldClose(window);
 }
 
+float WindowManager::getAspectRatio()
+{
+    if(!isInitialized){
+        Log::add('G', 100);
+        return 1.0f;
+    }
+    if(windowSize.h == 0)
+        return 1.0f;
+
+    return (float)windowSize.w / (float)windowSize.h;
+}
+
 WindowManager::~WindowManager(){
     if (window){
         glfwDestroyWindow(window);
         window = nullptr;
     }
 
-    if(isGlfwInitialized)
+    if(isInitialized)
         glfwTerminate();
-    isGlfwInitialized = false;
+    isInitialized = false;
 }

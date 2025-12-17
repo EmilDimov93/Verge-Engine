@@ -203,8 +203,6 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
         camber = 0;
     }
 
-    ////////////////
-
     steeringAngleRad = 0;
     speedMps = 0;
     gear = 1;

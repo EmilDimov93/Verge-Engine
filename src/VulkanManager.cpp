@@ -1,8 +1,6 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE // test
-
 #include "VulkanManager.hpp"
 
 #include <GLFW/glfw3.h>

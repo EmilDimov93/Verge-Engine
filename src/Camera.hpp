@@ -17,7 +17,6 @@ public:
 
     static void update();
 
-    // Temporarily public
     static void init(float newFov, float newAspectRatio, float newZNear, float newZFar);
 
 private:

@@ -60,13 +60,15 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     // Camera
     {{'K', 100}, "Camera already initialized. Operation cancelled"},
     {{'K', 200}, "Camera not initialized"},
-    {{'K', 201}, "Camera: invalid Field Of View value"},
-    {{'K', 202}, "Camera: invalid Aspect Ratio value"},
-    {{'K', 203}, "Camera: invalid Z Near value"},
-    {{'K', 204}, "Camera: invalid Z Far value"},
+    {{'K', 201}, "Camera: invalid Field Of View value"}, // TODO: Change to error?
+    {{'K', 202}, "Camera: invalid Aspect Ratio value"}, // TODO: Change to error?
+    {{'K', 203}, "Camera: invalid Z Near value"}, // TODO: Change to error?
+    {{'K', 204}, "Camera: invalid Z Far value"}, // TODO: Change to error?
 
     // GLFW
     {{'G', 000}, "GLFW loaded successfully"},
+
+    {{'G', 100}, "Window not initialized. getAspectRatio returns 1.0f"},
 
     {{'G', 200}, "GLFW initialization failed"},
     {{'G', 201}, "GLFW window creation failed"},

@@ -21,11 +21,13 @@ public:
 
     bool isOpen();
 
+    float getAspectRatio();
+
     ~WindowManager();
 
 private:
     GLFWwindow* window;
     Size2 windowSize = {0, 0};
 
-    bool isGlfwInitialized = false;
+    bool isInitialized = false;
 };

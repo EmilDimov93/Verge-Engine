@@ -69,6 +69,8 @@ private:
     Mesh body;
     Mesh tire;
 
+    // Position2 tireOffset;
+
     uint32_t powerKw;
     float weightKg;
     uint32_t gearCount;

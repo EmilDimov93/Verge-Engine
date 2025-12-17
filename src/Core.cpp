@@ -20,7 +20,7 @@ public:
     {
         Input::init(window.getWindowReference());
         Log::add('C', 000);
-        Camera::init(45.0f, window.getAspectRatio(), 0.1f, 1000.0f);
+        Camera::init(60.0f, window.getAspectRatio(), 0.1f, 1000.0f);
     }
 
     void run()
@@ -69,7 +69,9 @@ private:
 
     void tick()
     {
-        car.update(fps.getFrameTime());
+        float dt = fps.getFrameTime();
+
+        car.update(dt);
 
         if(Input::isPressed(VE_KEY_Y)){
             Camera::moveDelta({0, 0, -1.0f});
@@ -81,7 +83,7 @@ private:
         }
 
         if(Input::isDown(VE_KEY_I)){
-            Camera::rotateDelta({fps.getFrameTime() * 5, 0, 0});
+            Camera::rotateDelta({dt * 5, 0, 0});
         }
 
         glm::mat4 firstModel(1.0f);
@@ -92,7 +94,7 @@ private:
 
         static float rotation = 0.0f;
 
-        rotation += car.speedMps * fps.getFrameTime() / 10.0f * 500.0f;
+        rotation += car.speedMps * dt / 10.0f * 500.0f;
 
         secondModel = glm::translate(secondModel, glm::vec3(-2.0f, 0.0f, -5.0f));
         secondModel = glm::rotate(secondModel, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -101,7 +103,7 @@ private:
 
         static float x = 50.0f;
 
-        x -= car.speedMps * fps.getFrameTime();
+        x -= car.speedMps * dt;
 
         carModel = glm::translate(carModel, glm::vec3(x, 0.0f, -99.0f));
         carModel = glm::rotate(carModel, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -119,7 +121,7 @@ private:
         tireBR = glm::translate(tireBR, glm::vec3(x - tireOffset.x / 2, 0.0f, -99.0f - tireOffset.y));
 
         static float rot = 0;
-        rot += car.speedMps * fps.getFrameTime() / 10.0f * 500.0f;
+        rot += car.speedMps * dt / 10.0f * 500.0f;
 
         tireFL = glm::rotate(tireFL, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         tireFR = glm::rotate(tireFR, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));

@@ -20,6 +20,7 @@ public:
     {
         Input::init(window.getWindowReference());
         Log::add('C', 000);
+        Camera::init(45.0f, (float)window.getWindowSize().w / (float)window.getWindowSize().h, 0.1f, 1000.0f);
     }
 
     void run()

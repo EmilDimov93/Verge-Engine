@@ -25,8 +25,10 @@ public:
 
     static float fov;
     static float aspectRatio;
+    static float zNear;
+    static float zFar;
 
-    static void init(float fov, float aspectRatio, float zFar, float zNear);
+    static void init(float newFov, float newAspectRatio, float newZNear, float newZFar);
 
 private:
 };

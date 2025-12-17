@@ -3,19 +3,31 @@
 
 #include "Camera.hpp"
 
+#include "Log.hpp"
+
 Position3 Camera::position = {0, 0, 0};
 Rotation3 Camera::rotation = {0, -90.0f, 0};
 glm::vec3 Camera::forward = glm::vec3(0.0f, 0.0f, -1.0f);
 
-float Camera::fov = 45.0f;
-float Camera::aspectRatio = 0;
+float Camera::fov = -1.0f;
+float Camera::aspectRatio = -1.0f;
+float Camera::zNear = -1.0f;
+float Camera::zFar = -1.0f;
+
+bool isInitialized = false;
 
 glm::mat4 Camera::getViewMatrix(){
     return glm::lookAt(glm::vec3(position.x, position.y, position.z), glm::vec3(position.x + forward.x, position.y + forward.y, position.z + forward.z), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 glm::mat4 Camera::getProjectionMatrix(){
-    return glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 1000.0f);
+    if(!isInitialized){
+        // Error
+    }
+
+    glm::mat4 projectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, zNear, zFar);
+    projectionMatrix[1][1] *= -1;
+    return projectionMatrix;
 }
 
 void Camera::move(Position3 newPosition)
@@ -49,6 +61,14 @@ void Camera::update() {
     forward = glm::normalize(forward);
 }
 
-void Camera::init(float fov, float aspectRatio, float zFar, float zNear)
+void Camera::init(float newFov, float newAspectRatio, float newZNear, float newZFar)
 {
+    // add bounds check
+
+    fov = newFov;
+    aspectRatio = newAspectRatio;
+    zNear = newZNear;
+    zFar = newZFar;
+
+    isInitialized = true;
 }

@@ -55,6 +55,7 @@ public:
     // Temporarily public
     float speedMps;
     float steeringAngleRad;
+    float wheelRadiusM;
 
 private:
     void accelerate(ve_time deltaTime);
@@ -88,7 +89,7 @@ private:
     std::vector<float> gearRatios;
     float finalDriveRatio;
     float drivetrainEfficiency;
-    float wheelRadiusM;
+    
     float idleRpm;
     float dragCoeff;
     float frontalAreaM2;

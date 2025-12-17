@@ -9,7 +9,10 @@ public:
     static void move(Position3 newPosition);
     static void moveDelta(Position3 delta);
 
-    void updateForward();
+    static void rotate(Rotation3 newRotation);
+    static void rotateDelta(Rotation3 delta);
+
+    static void update();
 
     // Temporarily public
     static Position3 position;

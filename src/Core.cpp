@@ -79,6 +79,10 @@ private:
             car.speedMps = 0;
         }
 
+        if(Input::isPressed(VE_KEY_I)){
+            Camera::rotateDelta({0, 10.0f, 0});
+        }
+
         glm::mat4 firstModel(1.0f);
         glm::mat4 secondModel(1.0f);
 
@@ -131,6 +135,8 @@ private:
         vulkan.updateModel(4, tireFR);
         vulkan.updateModel(5, tireBL);
         vulkan.updateModel(6, tireBR);
+
+        Camera::update();
 
         vulkan.drawFrame();
     }

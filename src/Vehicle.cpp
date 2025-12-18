@@ -95,7 +95,7 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
         maxRpm = 6000;
     }
 
-    isAutomatic = info.isAutomatic;
+    transmissionType = info.transmissionType;
 
     if (info.brakingForce >= 0 && info.brakingForce <= 1.0f)
     {
@@ -289,7 +289,7 @@ void Vehicle::shiftDown()
 
 void Vehicle::updateTransmission()
 {
-    if (isAutomatic)
+    if (transmissionType == VE_TRANSMISSION_TYPE_AUTOMATIC)
     {
         if (rpm >= maxRpm)
         {

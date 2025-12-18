@@ -13,6 +13,12 @@ enum VEPowerUnit
     VE_POWER_UNIT_HORSEPOWER
 };
 
+enum VETransmissionType
+{
+    VE_TRANSMISSION_TYPE_MANUAL,
+    VE_TRANSMISSION_TYPE_AUTOMATIC
+};
+
 struct VE_STRUCT_VEHICLE_CREATE_INFO
 {
     Mesh *pBody = nullptr;
@@ -25,7 +31,7 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     uint32_t gearCount = 5;
     uint32_t maxRpm = 6000;
     float brakingForce = 1.0f;
-    bool isAutomatic = true;
+    VETransmissionType transmissionType = VE_TRANSMISSION_TYPE_AUTOMATIC;
 
     VEKey accelerateKey = VE_KEY_UNKNOWN;
     VEKey brakeKey = VE_KEY_UNKNOWN;
@@ -51,11 +57,82 @@ public:
     void init(const VE_STRUCT_VEHICLE_CREATE_INFO &info);
 
     void update(ve_time deltaTime);
-    
-    // Temporarily public
-    float speedMps;
-    float steeringAngleRad;
-    float wheelRadiusM;
+
+    uint32_t getPowerKw() const { return powerKw; }
+    uint32_t getPowerHp() const{ return static_cast<uint32_t>(powerKw * 1.341022f); }
+
+    float getWeightKg() const { return weightKg; }
+    uint32_t getGearCount() const { return gearCount; }
+    uint32_t getMaxRpm() const { return maxRpm; }
+    VETransmissionType getTransmissionType() const { return transmissionType; }
+    float getBrakingForce() const { return brakingForce; }
+
+    float getGearRatio(uint32_t gearIndex) const
+    {
+        return gearIndex < gearRatios.size() ? gearRatios[gearIndex] : 0.0f;
+    }
+
+    float getFinalDriveRatio() const { return finalDriveRatio; }
+    float getDrivetrainEfficiency() const { return drivetrainEfficiency; }
+    float getWheelRadius() const { return wheelRadiusM; }
+    float getIdleRpm() const { return idleRpm; }
+    float getDragCoeff() const { return dragCoeff; }
+    float getFrontalArea() const { return frontalAreaM2; }
+    float getMaxSteeringAngleRad() const { return maxSteeringAngleRad; }
+
+    float getMaxSteeringAngleDeg() const{ return maxSteeringAngleRad * 57.2957795f; }
+
+    const Position3 &getPosition() const { return position; }
+    const Rotation3 &getRotation() const { return rotation; }
+
+    float getSpeedMps() const { return speedMps; }
+    float getSpeedKmph() const { return speedMps * 3.6f; }
+
+    float getSteeringAngleRad() const { return steeringAngleRad; }
+    float getSteeringAngleDeg() const { return steeringAngleRad * 57.2957795f; }
+
+    uint32_t getGear() const { return gear; }
+    float getRpm() const { return rpm; }
+    float getTireGrip() const { return tireGrip; }
+    float getClutchLevel() const { return clutchLevel; }
+
+    void setPowerKw(uint32_t value) { powerKw = value; }
+    void setPowerHp(uint32_t value){ powerKw = static_cast<uint32_t>(value / 1.341022f); }
+
+    void setWeightKg(float value) { weightKg = value; }
+    void setGearCount(uint32_t value) { gearCount = value; }
+    void setMaxRpm(uint32_t value) { maxRpm = value; }
+    void setTransmissionType( VETransmissionType value ) { transmissionType = value; }
+    void setBrakingForce(float value) { brakingForce = value; }
+
+    void setGearRatio(uint32_t gearIndex, float value)
+    {
+        if (gearIndex < gearRatios.size() && gearIndex >= 0)
+            gearRatios[gearIndex] = value;
+    }
+
+    void setFinalDriveRatio(float value) { finalDriveRatio = value; }
+    void setDrivetrainEfficiency(float value) { drivetrainEfficiency = value; }
+    void setWheelRadius(float value) { wheelRadiusM = value; }
+    void setIdleRpm(float value) { idleRpm = value; }
+    void setDragCoeff(float value) { dragCoeff = value; }
+    void setFrontalArea(float value) { frontalAreaM2 = value; }
+
+    void setMaxSteeringAngleRad(float value) { maxSteeringAngleRad = value; }
+    void setMaxSteeringAngleDeg(float deg){ maxSteeringAngleRad = deg * 0.0174532925f; }
+
+    void setPosition(const Position3 &value) { position = value; }
+    void setRotation(const Rotation3 &value) { rotation = value; }
+
+    void setSpeedMps(float value) { speedMps = value; }
+
+    void setSteeringAngleRad(float value) { steeringAngleRad = value; }
+    void setSteeringAngleDeg(float value) { steeringAngleRad = value * 0.0174532925f; }
+
+    void setGear(uint32_t value) { gear = value; }
+    void setRpm(float value) { rpm = value; }
+    void setTireGrip(float value) { tireGrip = value; }
+    void setClutchLevel(float value) { clutchLevel = value; }
 
 private:
     void accelerate(ve_time deltaTime);
@@ -76,7 +153,7 @@ private:
     float weightKg;
     uint32_t gearCount;
     uint32_t maxRpm;
-    bool isAutomatic;
+    VETransmissionType transmissionType;
     float brakingForce;
 
     VEKey accelerateKey;
@@ -89,7 +166,7 @@ private:
     std::vector<float> gearRatios;
     float finalDriveRatio;
     float drivetrainEfficiency;
-    
+    float wheelRadiusM;
     float idleRpm;
     float dragCoeff;
     float frontalAreaM2;
@@ -100,8 +177,8 @@ private:
     // Runtime
     Position3 position;
     Rotation3 rotation;
-    
-    
+    float speedMps;
+    float steeringAngleRad;
     uint32_t gear;
     float rpm;
     float tireGrip;

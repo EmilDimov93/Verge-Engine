@@ -100,38 +100,6 @@ VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize)
     createDepthBufferImage();
     createFramebuffers();
     createCommandPool();
-
-    std::vector<Vertex> meshVertices1 = {
-        {{-0.4, 0.4, 0.0}, {0.0f, 1.0f, 0.0f}},
-        {{-0.4, -0.4, 0.0}, {0.0f, 1.0f, 0.0f}},
-        {{0.4, -0.4, 0.0}, {0.0f, 1.0f, 0.0f}},
-        {{0.4, 0.4, 0.0}, {0.0f, 1.0f, 0.0f}}};
-
-    std::vector<Vertex> meshVertices2 = {
-        {{-0.25, 0.6, 0.0}, {1.0f, 1.0f, 0.0f}},
-        {{-0.25, -0.6, 0.0}, {1.0f, 0.0f, 1.0f}},
-        {{0.25, -0.6, 0.0}, {1.0f, 1.0f, 0.0f}},
-        {{0.25, 0.6, 0.0}, {0.0f, 0.0f, 1.0f}}};
-
-    std::vector<uint32_t> meshIndices = {
-        0, 1, 2, 2, 3, 0};
-
-    Mesh firstMesh;
-    Mesh secondMesh;
-
-    vkCheck(firstMesh.init(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices1, &meshIndices), {'V', 229});
-    vkCheck(secondMesh.init(physicalDevice, device, graphicsQueue, graphicsCommandPool, &meshVertices2, &meshIndices), {'V', 229});
-
-    meshes.push_back(firstMesh);
-    meshes.push_back(secondMesh);
-
-    loadFile("models/car.obj", {0, 0, 0});
-
-    loadFile("models/wheel.obj", {0, 0, 1.0f});
-    loadFile("models/wheel.obj", {0, 0, 1.0f});
-    loadFile("models/wheel.obj", {0, 0, 1.0f});
-    loadFile("models/wheel.obj", {0, 0, 1.0f});
-    
     createCommandBuffers();
     createUniformBuffers();
     createDescriptorPool();

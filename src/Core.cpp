@@ -49,6 +49,16 @@ public:
         sCar.frontalAreaM2 = 2.3f;
         car.init(sCar);
 
+        vulkan.loadFile("models/car.obj", {0, 0, 0});
+
+        vulkan.loadFile("models/wheel.obj", {0, 0, 1.0f});
+        vulkan.loadFile("models/wheel.obj", {0, 0, 1.0f});
+        vulkan.loadFile("models/wheel.obj", {0, 0, 1.0f});
+        vulkan.loadFile("models/wheel.obj", {0, 0, 1.0f});
+
+        vulkan.loadFile("models/flag.obj", {0, 1.0f, 0});
+        vulkan.loadFile("models/flag.obj", {0, 1.0f, 0});
+
         while (window.isOpen())
         {
             fps.sync();
@@ -73,18 +83,9 @@ private:
 
         car.update(dt);
 
-        glm::mat4 firstModel(1.0f);
-        glm::mat4 secondModel(1.0f);
-
-        firstModel = glm::translate(firstModel, glm::vec3(2.0f, 0.0f, -4.0f));
-        firstModel = glm::rotate(firstModel, car.getSteeringAngleRad(), glm::vec3(0.0, 0.0f, 1.0f));
-
-        static float rotation = 0.0f;
+        static float rotation = 0;
 
         rotation += car.getSpeedMps() / car.getWheelRadius() * dt;
-
-        secondModel = glm::translate(secondModel, glm::vec3(-2.0f, 0.0f, -5.0f));
-        secondModel = glm::rotate(secondModel, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
 
         glm::mat4 carModel(1.0f);
 
@@ -107,10 +108,8 @@ private:
         float distance = 8.0f;
         float height = 3.0f;
 
-        float rad = glm::radians(cameraRot);
-
-        float camX = 0 + sin(rad) * distance;
-        float camZ = z + cos(rad) * distance;
+        float camX = 0 + sin(glm::radians(cameraRot)) * distance;
+        float camZ = z + cos(glm::radians(cameraRot)) * distance;
         float camY = 0 + height;
 
         Camera::move({camX, camY, camZ});
@@ -118,36 +117,38 @@ private:
         glm::vec3 dir = glm::normalize(glm::vec3(0, 0, z) - glm::vec3(camX, camY, camZ));
         float pitch = glm::degrees(asin(dir.y));
         float yaw = glm::degrees(atan2(dir.z, dir.x));
-        Camera::rotate({pitch, yaw, 0.0f});
+        Camera::rotate({pitch, yaw, 0});
 
-        glm::mat4 tireFL(1.0f);
-        glm::mat4 tireFR(1.0f);
-        glm::mat4 tireBL(1.0f);
-        glm::mat4 tireBR(1.0f);
+        glm::mat4 tireFL(1.0f), tireFR(1.0f), tireBL(1.0f), tireBR(1.0f);
 
         Position2 tireOffset = {2.5f, 2.0f};
 
-        tireFL = glm::translate(tireFL, glm::vec3(tireOffset.x / 2, 0.0f, z - tireOffset.y));
-        tireFR = glm::translate(tireFR, glm::vec3(-tireOffset.x / 2, 0.0f, z - tireOffset.y));
-        tireBL = glm::translate(tireBL, glm::vec3(tireOffset.x / 2, 0.0f, z + tireOffset.y));
-        tireBR = glm::translate(tireBR, glm::vec3(-tireOffset.x / 2, 0.0f, z + tireOffset.y));
+        tireFL = glm::translate(tireFL, glm::vec3(tireOffset.x / 2, 0, z - tireOffset.y));
+        tireFR = glm::translate(tireFR, glm::vec3(-tireOffset.x / 2, 0, z - tireOffset.y));
+        tireBL = glm::translate(tireBL, glm::vec3(tireOffset.x / 2, 0, z + tireOffset.y));
+        tireBR = glm::translate(tireBR, glm::vec3(-tireOffset.x / 2, 0, z + tireOffset.y));
 
-        tireFL = glm::rotate(tireFL, car.getSteeringAngleRad(), glm::vec3(0.0f, 1.0f, 0.0f));
-        tireFR = glm::rotate(tireFR, car.getSteeringAngleRad(), glm::vec3(0.0f, 1.0f, 0.0f));
+        tireFL = glm::rotate(tireFL, car.getSteeringAngleRad(), glm::vec3(0, 1.0f, 0));
+        tireFR = glm::rotate(tireFR, car.getSteeringAngleRad(), glm::vec3(0, 1.0f, 0));
 
-        tireFL = glm::rotate(tireFL, rotation, glm::vec3(-1.0f, 0.0f, 0.0f));
-        tireFR = glm::rotate(tireFR, rotation, glm::vec3(-1.0f, 0.0f, 0.0f));
-        tireBL = glm::rotate(tireBL, rotation, glm::vec3(-1.0f, 0.0f, 0.0f));
-        tireBR = glm::rotate(tireBR, rotation, glm::vec3(-1.0f, 0.0f, 0.0f));
+        tireFL = glm::rotate(tireFL, rotation, glm::vec3(-1.0f, 0, 0));
+        tireFR = glm::rotate(tireFR, rotation, glm::vec3(-1.0f, 0, 0));
+        tireBL = glm::rotate(tireBL, rotation, glm::vec3(-1.0f, 0, 0));
+        tireBR = glm::rotate(tireBR, rotation, glm::vec3(-1.0f, 0, 0));
 
-        vulkan.updateModel(0, firstModel);
-        vulkan.updateModel(1, secondModel);
+        vulkan.updateModel(0, carModel);
+        vulkan.updateModel(1, tireFL);
+        vulkan.updateModel(2, tireFR);
+        vulkan.updateModel(3, tireBL);
+        vulkan.updateModel(4, tireBR);
 
-        vulkan.updateModel(2, carModel);
-        vulkan.updateModel(3, tireFL);
-        vulkan.updateModel(4, tireFR);
-        vulkan.updateModel(5, tireBL);
-        vulkan.updateModel(6, tireBR);
+        glm::mat4 flag1Model(1.0f), flag2Model(1.0f);
+
+        flag1Model = glm::translate(flag1Model, glm::vec3(2.0f, 0, 20.0f));
+        flag2Model = glm::translate(flag2Model, glm::vec3(-2.0f, 0, 20.0f));
+
+        vulkan.updateModel(5, flag1Model);
+        vulkan.updateModel(6, flag2Model);
 
         Camera::update();
 

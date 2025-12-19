@@ -25,6 +25,8 @@ public:
 
     void vkCheck(VkResult res, ErrorCode errorCode);
 
+    void loadFile(std::string filename, glm::vec3 color);
+
     ~VulkanManager();
 
 private:
@@ -111,6 +113,4 @@ private:
 
     VkShaderModule createShaderModule(const std::vector<char> &code);
     int rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
-
-    void loadFile(std::string filename, glm::vec3 color);
 };

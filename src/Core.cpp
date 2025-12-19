@@ -27,6 +27,11 @@ public:
     void run()
     {
         VE_STRUCT_VEHICLE_CREATE_INFO sCar = {};
+        sCar.bodyMeshIndex = 0;
+        sCar.tireFLMeshIndex = 1;
+        sCar.tireFRMeshIndex = 2;
+        sCar.tireBLMeshIndex = 3;
+        sCar.tireBRMeshIndex = 4;
         sCar.power = 190;
         sCar.powerUnit = VE_POWER_UNIT_HORSEPOWER;
         sCar.weightKg = 1540;

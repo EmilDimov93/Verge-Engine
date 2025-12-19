@@ -21,8 +21,11 @@ enum VETransmissionType
 
 struct VE_STRUCT_VEHICLE_CREATE_INFO
 {
-    Mesh *pBody = nullptr;
-    Mesh *pTire = nullptr;
+    int32_t bodyMeshIndex = -1;
+    int32_t tireFLMeshIndex = -1;
+    int32_t tireFRMeshIndex = -1;
+    int32_t tireBLMeshIndex = -1;
+    int32_t tireBRMeshIndex = -1;
 
     uint32_t power = 100;
     VEPowerUnit powerUnit = VE_POWER_UNIT_KILOWATTS;
@@ -54,6 +57,13 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
 class Vehicle
 {
 public:
+    // Temporarily public
+    uint32_t bodyMeshIndex;
+    int32_t tireFLMeshIndex;
+    int32_t tireFRMeshIndex;
+    int32_t tireBLMeshIndex;
+    int32_t tireBRMeshIndex;
+
     void init(const VE_STRUCT_VEHICLE_CREATE_INFO &info);
 
     void update(ve_time deltaTime);
@@ -143,9 +153,6 @@ private:
     void shiftUp();
     void shiftDown();
     void updateTransmission();
-
-    Mesh body;
-    Mesh tire;
 
     // Position2 tireOffset;
 

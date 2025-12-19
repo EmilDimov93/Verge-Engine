@@ -16,17 +16,20 @@
 
 void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
 {
-    if (info.pBody)
+    if (info.bodyMeshIndex != -1)
     {
-        body = *(info.pBody);
+        bodyMeshIndex = info.bodyMeshIndex;
     }
     else
     {
         Log::add('A', 100);
     }
-    if (info.pTire)
+    if (info.tireFLMeshIndex != -1 && info.tireFRMeshIndex != -1 && info.tireBLMeshIndex != -1 && info.tireBRMeshIndex != -1)
     {
-        tire = *(info.pTire);
+        tireFLMeshIndex = info.tireFLMeshIndex;
+        tireFRMeshIndex = info.tireFRMeshIndex;
+        tireBLMeshIndex = info.tireBLMeshIndex;
+        tireBRMeshIndex = info.tireBRMeshIndex;
     }
     else
     {

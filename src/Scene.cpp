@@ -6,11 +6,13 @@
 #include <sstream>
 #include <vector>
 
-Scene::Scene(VulkanContext newVulkanContext)
+Scene::Scene(VulkanContext newVulkanContext, float newFov, float newAspectRatio, float newZNear, float newZFar)
 {
     vulkanContext = newVulkanContext;
 
     isCameraFollowingVehicle = false;
+
+    Camera::init(newFov, newAspectRatio, newZNear, newZFar);
 }
 
 uint32_t Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
@@ -106,9 +108,10 @@ void Scene::tick(ve_time dt)
         vehicle.update(dt);
     }
 
-    if(isCameraFollowingVehicle){
+    if(isCameraFollowingVehicle)
         cameraFollowVehicle(dt);
-    }
+
+    Camera::update();
 }
 
 void Scene::setCameraFollowVehicle(uint32_t vehicleIndex)

@@ -13,7 +13,7 @@ public:
     std::vector<Mesh> meshes;
     std::vector<Vehicle> vehicles;
 
-    Scene(VulkanContext newVulkanContext);
+    Scene(VulkanContext newVulkanContext, float newFov, float newAspectRatio, float newZNear, float newZFar);
 
     uint32_t addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info);
 

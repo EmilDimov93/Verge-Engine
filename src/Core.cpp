@@ -17,11 +17,10 @@
 class VergeEngine
 {
 public:
-    VergeEngine() : vulkan(window.getWindowReference(), window.getWindowSize()), scene(vulkan.getContext())
+    VergeEngine() : vulkan(window.getWindowReference(), window.getWindowSize()), scene(vulkan.getContext(), 60.0f, window.getAspectRatio(), 0.1f, 1000.0f)
     {
         Input::init(window.getWindowReference());
         Log::add('C', 000);
-        Camera::init(60.0f, window.getAspectRatio(), 0.1f, 1000.0f);
     }
 
     void run()
@@ -87,8 +86,6 @@ private:
 
     void tick()
     {
-        ve_time dt = fps.getFrameTime();
-
         glm::mat4 flag1Model(1.0f), flag2Model(1.0f);
 
         flag1Model = glm::translate(flag1Model, glm::vec3(2.0f, 0, 20.0f));
@@ -97,9 +94,7 @@ private:
         scene.updateModel(5, flag1Model);
         scene.updateModel(6, flag2Model);
 
-        scene.tick(dt);
-
-        Camera::update();
+        scene.tick(fps.getFrameTime());
 
         vulkan.drawFrame(scene.meshes);
     }

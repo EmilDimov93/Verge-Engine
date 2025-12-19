@@ -334,9 +334,9 @@ void Vehicle::resetMatrices()
 
 void Vehicle::move()
 {
-    static float z = 100.0f;
+    static float z = -100.0f;
 
-    z -= speedMps * dt;
+    z += speedMps * dt;
 
     position = {0, 0, z};
 
@@ -346,12 +346,15 @@ void Vehicle::move()
 void Vehicle::offsetWheels()
 {
     // Temporary
-    Position2 wheelOffset = {2.5f, 2.0f};
+    Position3 wheelOffset = {2.0f, 0.4f, 1.8f};
 
-    wheelFLMat = glm::translate(wheelFLMat, glm::vec3(wheelOffset.x / 2, 0, bodyMat[3][2] - wheelOffset.y));
-    wheelFRMat = glm::translate(wheelFRMat, glm::vec3(-wheelOffset.x / 2, 0, bodyMat[3][2] - wheelOffset.y));
-    wheelBLMat = glm::translate(wheelBLMat, glm::vec3(wheelOffset.x / 2, 0, bodyMat[3][2] + wheelOffset.y));
-    wheelBRMat = glm::translate(wheelBRMat, glm::vec3(-wheelOffset.x / 2, 0, bodyMat[3][2] + wheelOffset.y));
+    wheelFLMat = glm::translate(wheelFLMat, glm::vec3(wheelOffset.x / 2, bodyMat[3][1] + wheelOffset.y, bodyMat[3][2] + wheelOffset.z));
+    wheelFRMat = glm::translate(wheelFRMat, glm::vec3(-wheelOffset.x / 2, bodyMat[3][1] + wheelOffset.y, bodyMat[3][2] + wheelOffset.z));
+    wheelBLMat = glm::translate(wheelBLMat, glm::vec3(wheelOffset.x / 2, bodyMat[3][1] + wheelOffset.y, bodyMat[3][2] - wheelOffset.z));
+    wheelBRMat = glm::translate(wheelBRMat, glm::vec3(-wheelOffset.x / 2, bodyMat[3][1] + wheelOffset.y, bodyMat[3][2] - wheelOffset.z));
+
+    wheelFRMat = glm::rotate(wheelFRMat, glm::radians(180.0f), glm::vec3(0, 1.0f, 0));
+    wheelBRMat = glm::rotate(wheelBRMat, glm::radians(180.0f), glm::vec3(0, 1.0f, 0));
 }
 
 void Vehicle::steerWheels()
@@ -366,10 +369,10 @@ void Vehicle::spinWheels()
 
     wheelSpin += speedMps / wheelRadiusM * dt;
 
-    wheelFLMat = glm::rotate(wheelFLMat, wheelSpin, glm::vec3(-1.0f, 0, 0));
-    wheelFRMat = glm::rotate(wheelFRMat, wheelSpin, glm::vec3(-1.0f, 0, 0));
-    wheelBLMat = glm::rotate(wheelBLMat, wheelSpin, glm::vec3(-1.0f, 0, 0));
-    wheelBRMat = glm::rotate(wheelBRMat, wheelSpin, glm::vec3(-1.0f, 0, 0));
+    wheelFLMat = glm::rotate(wheelFLMat, wheelSpin, glm::vec3(1.0f, 0, 0));
+    wheelFRMat = glm::rotate(wheelFRMat, wheelSpin, glm::vec3(1.0f, 0, 0));
+    wheelBLMat = glm::rotate(wheelBLMat, wheelSpin, glm::vec3(1.0f, 0, 0));
+    wheelBRMat = glm::rotate(wheelBRMat, wheelSpin, glm::vec3(1.0f, 0, 0));
 }
 
 void Vehicle::update(ve_time deltaTime)

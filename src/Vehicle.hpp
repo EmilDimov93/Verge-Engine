@@ -163,7 +163,7 @@ private:
     void steerWheels();
     void spinWheels();
 
-    // Position2 wheelOffset;
+    // Position3 wheelOffset;
 
     uint32_t powerKw;
     float weightKg;

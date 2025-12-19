@@ -127,7 +127,7 @@ void Scene::unsetCameraFollowVehicle(uint32_t vehicleIndex)
 
 void Scene::cameraFollowVehicle(ve_time dt)
 {
-    static float cameraRot = 0;
+    static float cameraRot = -180.0f;
     if (Input::isDown(VE_KEY_LEFT))
     {
         cameraRot += dt * 90;

@@ -6,7 +6,7 @@
 #include "Log.hpp"
 
 Position3 Camera::position = {0, 0, 0};
-Rotation3 Camera::rotation = {0, -90.0f, 0};
+Rotation3 Camera::rotation = {0, 90.0f, 0};
 glm::vec3 Camera::forward = glm::vec3(0.0f, 0.0f, -1.0f);
 
 float Camera::fov = -1.0f;

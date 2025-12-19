@@ -65,6 +65,8 @@ public:
         scene.loadFile("models/flag.obj", {0, 1.0f, 0});
         scene.loadFile("models/flag.obj", {0, 1.0f, 0});
 
+        scene.setCameraFollowVehicle(0);
+
         while (window.isOpen())
         {
             fps.sync();
@@ -96,32 +98,6 @@ private:
         scene.updateModel(6, flag2Model);
 
         scene.tick(dt);
-
-        static float cameraRot = 0;
-        if (Input::isDown(VE_KEY_LEFT))
-        {
-            cameraRot += dt * 90;
-        }
-        if (Input::isDown(VE_KEY_RIGHT))
-        {
-            cameraRot -= dt * 90;
-        }
-
-        float distance = 8.0f;
-        float height = 3.0f;
-
-        float z = 100.0f; // -= speedMps * dt
-
-        float camX = 0 + sin(glm::radians(cameraRot)) * distance;
-        float camZ = z + cos(glm::radians(cameraRot)) * distance;
-        float camY = 0 + height;
-
-        Camera::move({camX, camY, camZ});
-
-        glm::vec3 dir = glm::normalize(glm::vec3(0, 0, z) - glm::vec3(camX, camY, camZ));
-        float pitch = glm::degrees(asin(dir.y));
-        float yaw = glm::degrees(atan2(dir.z, dir.x));
-        Camera::rotate({pitch, yaw, 0});
 
         Camera::update();
 

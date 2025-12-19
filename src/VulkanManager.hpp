@@ -78,12 +78,6 @@ private:
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> drawFences;
 
-    struct UboViewProjection
-    {
-        glm::mat4 projection;
-        glm::mat4 view;
-    }uboViewProjection;
-
     void createInstance();
     void createSurface(GLFWwindow* window);
     void pickPhysicalDevice();

@@ -1,8 +1,11 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
+#pragma once
+
 #include "Vehicle.hpp"
 #include "Mesh.hpp"
+#include "Camera.hpp"
 
 class Scene
 {
@@ -12,7 +15,7 @@ public:
 
     Scene(VulkanContext newVulkanContext);
 
-    void addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info);
+    uint32_t addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info);
 
     void loadFile(std::string filename, glm::vec3 color);
 
@@ -22,6 +25,14 @@ public:
 
     void tick(ve_time dt);
 
+    void setCameraFollowVehicle(uint32_t vehicleIndex);
+    void unsetCameraFollowVehicle(uint32_t vehicleIndex);
+
     ~Scene();
+
 private:
+    bool isCameraFollowingVehicle;
+    uint32_t cameraFollowedVehicleIndex;
+
+    void cameraFollowVehicle(ve_time dt);
 };

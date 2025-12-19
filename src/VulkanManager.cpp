@@ -649,6 +649,15 @@ void VulkanManager::createCommandBuffers()
 
 void VulkanManager::updateUniformBuffers(uint32_t imageIndex)
 {
+    struct UboViewProjection
+    {
+        glm::mat4 projection;
+        glm::mat4 view;
+    }uboViewProjection;
+
+    uboViewProjection.projection = Camera::getProjectionMatrix();
+    uboViewProjection.view = Camera::getViewMatrix();
+
     void *data;
     vkCheck(vkMapMemory(device, vpUniformBufferMemory[imageIndex], 0, sizeof(UboViewProjection), 0, &data), {'V', 236});
     memcpy(data, &uboViewProjection, sizeof(UboViewProjection));
@@ -678,9 +687,6 @@ void VulkanManager::recordCommands(uint32_t currentImage, const std::vector<Mesh
     vkCmdBeginRenderPass(commandBuffers[currentImage], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
     vkCmdBindPipeline(commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-
-    uboViewProjection.view = Camera::getViewMatrix();
-    uboViewProjection.projection = Camera::getProjectionMatrix();
 
     for (size_t j = 0; j < meshes.size(); j++)
     {
@@ -758,7 +764,7 @@ VkResult createBuffer1(VkPhysicalDevice physicalDevice, VkDevice device, VkDevic
 
 void VulkanManager::createUniformBuffers()
 {
-    VkDeviceSize vpBufferSize = sizeof(UboViewProjection);
+    VkDeviceSize vpBufferSize = sizeof(glm::mat4) * 2;
 
     vpUniformBuffer.resize(swapChainImages.size());
     vpUniformBufferMemory.resize(swapChainImages.size());
@@ -805,7 +811,7 @@ void VulkanManager::createDescriptorSets()
         VkDescriptorBufferInfo vpBufferInfo = {
             .buffer = vpUniformBuffer[i],
             .offset = 0,
-            .range = sizeof(UboViewProjection)};
+            .range = sizeof(glm::mat4) * 2};
 
         VkWriteDescriptorSet vpSetWrite = {
             .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,

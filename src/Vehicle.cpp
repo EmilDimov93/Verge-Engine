@@ -338,6 +338,8 @@ void Vehicle::move()
 
     z -= speedMps * dt;
 
+    position = {0, 0, z};
+
     bodyMat = glm::translate(bodyMat, glm::vec3(0, 0, z));
 }
 

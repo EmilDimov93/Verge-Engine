@@ -9,13 +9,17 @@
 Scene::Scene(VulkanContext newVulkanContext)
 {
     vulkanContext = newVulkanContext;
+
+    isCameraFollowingVehicle = false;
 }
 
-void Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
+uint32_t Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
 {
     Vehicle newVehicle;
     newVehicle.init(info);
     vehicles.push_back(newVehicle);
+
+    return vehicles.size() - 1;
 }
 
 void Scene::loadFile(std::string filename, glm::vec3 color)
@@ -91,7 +95,8 @@ void Scene::updateModel(int modelId, glm::mat4 newModel)
 
 void Scene::tick(ve_time dt)
 {
-    for(Vehicle &vehicle : vehicles){
+    for (Vehicle &vehicle : vehicles)
+    {
         updateModel(vehicle.bodyMeshIndex, vehicle.bodyMat);
         updateModel(vehicle.wheelFLMeshIndex, vehicle.wheelFLMat);
         updateModel(vehicle.wheelFRMeshIndex, vehicle.wheelFRMat);
@@ -100,6 +105,48 @@ void Scene::tick(ve_time dt)
 
         vehicle.update(dt);
     }
+
+    if(isCameraFollowingVehicle){
+        cameraFollowVehicle(dt);
+    }
+}
+
+void Scene::setCameraFollowVehicle(uint32_t vehicleIndex)
+{
+    isCameraFollowingVehicle = true;
+    cameraFollowedVehicleIndex = vehicleIndex;
+}
+
+void Scene::unsetCameraFollowVehicle(uint32_t vehicleIndex)
+{
+    isCameraFollowingVehicle = false;
+}
+
+void Scene::cameraFollowVehicle(ve_time dt)
+{
+    static float cameraRot = 0;
+    if (Input::isDown(VE_KEY_LEFT))
+    {
+        cameraRot += dt * 90;
+    }
+    if (Input::isDown(VE_KEY_RIGHT))
+    {
+        cameraRot -= dt * 90;
+    }
+
+    float distance = 8.0f;
+    float height = 3.0f;
+
+    float camX = vehicles[cameraFollowedVehicleIndex].getPosition().x + sin(glm::radians(cameraRot)) * distance;
+    float camZ = vehicles[cameraFollowedVehicleIndex].getPosition().z + cos(glm::radians(cameraRot)) * distance;
+    float camY = vehicles[cameraFollowedVehicleIndex].getPosition().y + height;
+
+    Camera::move({camX, camY, camZ});
+
+    glm::vec3 dir = glm::normalize(glm::vec3(vehicles[cameraFollowedVehicleIndex].getPosition().x, vehicles[cameraFollowedVehicleIndex].getPosition().y, vehicles[cameraFollowedVehicleIndex].getPosition().z) - glm::vec3(camX, camY, camZ));
+    float pitch = glm::degrees(asin(dir.y));
+    float yaw = glm::degrees(atan2(dir.z, dir.x));
+    Camera::rotate({pitch, yaw, 0});
 }
 
 Scene::~Scene()

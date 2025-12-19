@@ -93,10 +93,10 @@ void Scene::tick(ve_time dt)
 {
     for(Vehicle &vehicle : vehicles){
         updateModel(vehicle.bodyMeshIndex, vehicle.bodyMat);
-        updateModel(vehicle.tireFLMeshIndex, vehicle.tireFLMat);
-        updateModel(vehicle.tireFRMeshIndex, vehicle.tireFRMat);
-        updateModel(vehicle.tireBLMeshIndex, vehicle.tireBLMat);
-        updateModel(vehicle.tireBRMeshIndex, vehicle.tireBRMat);
+        updateModel(vehicle.wheelFLMeshIndex, vehicle.wheelFLMat);
+        updateModel(vehicle.wheelFRMeshIndex, vehicle.wheelFRMat);
+        updateModel(vehicle.wheelBLMeshIndex, vehicle.wheelBLMat);
+        updateModel(vehicle.wheelBRMeshIndex, vehicle.wheelBRMat);
 
         vehicle.update(dt);
     }

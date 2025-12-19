@@ -22,10 +22,10 @@ enum VETransmissionType
 struct VE_STRUCT_VEHICLE_CREATE_INFO
 {
     int32_t bodyMeshIndex = -1;
-    int32_t tireFLMeshIndex = -1;
-    int32_t tireFRMeshIndex = -1;
-    int32_t tireBLMeshIndex = -1;
-    int32_t tireBRMeshIndex = -1;
+    int32_t wheelFLMeshIndex = -1;
+    int32_t wheelFRMeshIndex = -1;
+    int32_t wheelBLMeshIndex = -1;
+    int32_t wheelBRMeshIndex = -1;
 
     uint32_t power = 100;
     VEPowerUnit powerUnit = VE_POWER_UNIT_KILOWATTS;
@@ -59,13 +59,13 @@ class Vehicle
 public:
     // Temporarily public
     uint32_t bodyMeshIndex;
-    int32_t tireFLMeshIndex;
-    int32_t tireFRMeshIndex;
-    int32_t tireBLMeshIndex;
-    int32_t tireBRMeshIndex;
+    int32_t wheelFLMeshIndex;
+    int32_t wheelFRMeshIndex;
+    int32_t wheelBLMeshIndex;
+    int32_t wheelBRMeshIndex;
 
     glm::mat4 bodyMat;
-    glm::mat4 tireFLMat, tireFRMat, tireBLMat, tireBRMat;
+    glm::mat4 wheelFLMat, wheelFRMat, wheelBLMat, wheelBRMat;
 
     void init(const VE_STRUCT_VEHICLE_CREATE_INFO &info);
 
@@ -157,7 +157,13 @@ private:
     void shiftDown();
     void updateTransmission();
 
-    // Position2 tireOffset;
+    void resetMatrices();
+    void move();
+    void offsetWheels();
+    void steerWheels();
+    void spinWheels();
+
+    // Position2 wheelOffset;
 
     uint32_t powerKw;
     float weightKg;
@@ -193,4 +199,5 @@ private:
     float rpm;
     float tireGrip;
     float clutchLevel;
+    ve_time dt;
 };

@@ -24,12 +24,12 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     {
         Log::add('A', 100);
     }
-    if (info.tireFLMeshIndex != -1 && info.tireFRMeshIndex != -1 && info.tireBLMeshIndex != -1 && info.tireBRMeshIndex != -1)
+    if (info.wheelFLMeshIndex != -1 && info.wheelFRMeshIndex != -1 && info.wheelBLMeshIndex != -1 && info.wheelBRMeshIndex != -1)
     {
-        tireFLMeshIndex = info.tireFLMeshIndex;
-        tireFRMeshIndex = info.tireFRMeshIndex;
-        tireBLMeshIndex = info.tireBLMeshIndex;
-        tireBRMeshIndex = info.tireBRMeshIndex;
+        wheelFLMeshIndex = info.wheelFLMeshIndex;
+        wheelFRMeshIndex = info.wheelFRMeshIndex;
+        wheelBLMeshIndex = info.wheelBLMeshIndex;
+        wheelBRMeshIndex = info.wheelBRMeshIndex;
     }
     else
     {
@@ -37,10 +37,10 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     }
 
     bodyMat = glm::mat4(1.0f);
-    tireFLMat = glm::mat4(1.0f);
-    tireFRMat = glm::mat4(1.0f);
-    tireBLMat = glm::mat4(1.0f);
-    tireBRMat = glm::mat4(1.0f);
+    wheelFLMat = glm::mat4(1.0f);
+    wheelFRMat = glm::mat4(1.0f);
+    wheelBLMat = glm::mat4(1.0f);
+    wheelBRMat = glm::mat4(1.0f);
 
     if (info.power > 0)
     {
@@ -323,8 +323,57 @@ void Vehicle::updateTransmission()
     }
 }
 
+void Vehicle::resetMatrices()
+{
+    bodyMat = glm::mat4(1.0f);
+    wheelFLMat = glm::mat4(1.0f);
+    wheelFRMat = glm::mat4(1.0f);
+    wheelBLMat = glm::mat4(1.0f);
+    wheelBRMat = glm::mat4(1.0f);
+}
+
+void Vehicle::move()
+{
+    static float z = 100.0f;
+
+    z -= speedMps * dt;
+
+    bodyMat = glm::translate(bodyMat, glm::vec3(0, 0, z));
+}
+
+void Vehicle::offsetWheels()
+{
+    // Temporary
+    Position2 wheelOffset = {2.5f, 2.0f};
+
+    wheelFLMat = glm::translate(wheelFLMat, glm::vec3(wheelOffset.x / 2, 0, bodyMat[3][2] - wheelOffset.y));
+    wheelFRMat = glm::translate(wheelFRMat, glm::vec3(-wheelOffset.x / 2, 0, bodyMat[3][2] - wheelOffset.y));
+    wheelBLMat = glm::translate(wheelBLMat, glm::vec3(wheelOffset.x / 2, 0, bodyMat[3][2] + wheelOffset.y));
+    wheelBRMat = glm::translate(wheelBRMat, glm::vec3(-wheelOffset.x / 2, 0, bodyMat[3][2] + wheelOffset.y));
+}
+
+void Vehicle::steerWheels()
+{
+    wheelFLMat = glm::rotate(wheelFLMat, steeringAngleRad, glm::vec3(0, 1.0f, 0));
+    wheelFRMat = glm::rotate(wheelFRMat, steeringAngleRad, glm::vec3(0, 1.0f, 0));
+}
+
+void Vehicle::spinWheels()
+{
+    static float wheelSpin = 0;
+
+    wheelSpin += speedMps / wheelRadiusM * dt;
+
+    wheelFLMat = glm::rotate(wheelFLMat, wheelSpin, glm::vec3(-1.0f, 0, 0));
+    wheelFRMat = glm::rotate(wheelFRMat, wheelSpin, glm::vec3(-1.0f, 0, 0));
+    wheelBLMat = glm::rotate(wheelBLMat, wheelSpin, glm::vec3(-1.0f, 0, 0));
+    wheelBRMat = glm::rotate(wheelBRMat, wheelSpin, glm::vec3(-1.0f, 0, 0));
+}
+
 void Vehicle::update(ve_time deltaTime)
 {
+    dt = deltaTime;
+
     if (Input::isDown(accelerateKey))
     {
         accelerate(deltaTime);
@@ -350,5 +399,11 @@ void Vehicle::update(ve_time deltaTime)
         turnRight();
     }
 
-    //std::cout << "Speed: " << speedMps * 3.6f << " km/h, RPM: " << std::round(rpm) << " , Gear: " << gear << std::endl;
+    resetMatrices();
+    move();
+    offsetWheels();
+    steerWheels();
+    spinWheels();
+
+    // std::cout << "Speed: " << speedMps * 3.6f << " km/h, RPM: " << std::round(rpm) << " , Gear: " << gear << std::endl;
 }

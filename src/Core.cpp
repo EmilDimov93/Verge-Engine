@@ -28,10 +28,10 @@ public:
     {
         VE_STRUCT_VEHICLE_CREATE_INFO sCar = {};
         sCar.bodyMeshIndex = 0;
-        sCar.tireFLMeshIndex = 1;
-        sCar.tireFRMeshIndex = 2;
-        sCar.tireBLMeshIndex = 3;
-        sCar.tireBRMeshIndex = 4;
+        sCar.wheelFLMeshIndex = 1;
+        sCar.wheelFRMeshIndex = 2;
+        sCar.wheelBLMeshIndex = 3;
+        sCar.wheelBRMeshIndex = 4;
         sCar.power = 190;
         sCar.powerUnit = VE_POWER_UNIT_HORSEPOWER;
         sCar.weightKg = 1540;
@@ -87,17 +87,15 @@ private:
     {
         ve_time dt = fps.getFrameTime();
 
-        static float rotation = 0;
+        glm::mat4 flag1Model(1.0f), flag2Model(1.0f);
 
-        rotation += scene.vehicles[0].getSpeedMps() / scene.vehicles[0].getWheelRadius() * dt;
+        flag1Model = glm::translate(flag1Model, glm::vec3(2.0f, 0, 20.0f));
+        flag2Model = glm::translate(flag2Model, glm::vec3(-2.0f, 0, 20.0f));
 
-        glm::mat4 carModel(1.0f);
+        scene.updateModel(5, flag1Model);
+        scene.updateModel(6, flag2Model);
 
-        static float z = 100.0f;
-
-        z -= scene.vehicles[0].getSpeedMps() * dt;
-
-        carModel = glm::translate(carModel, glm::vec3(0, 0, z));
+        scene.tick(dt);
 
         static float cameraRot = 0;
         if (Input::isDown(VE_KEY_LEFT))
@@ -112,6 +110,8 @@ private:
         float distance = 8.0f;
         float height = 3.0f;
 
+        float z = 100.0f; // -= speedMps * dt
+
         float camX = 0 + sin(glm::radians(cameraRot)) * distance;
         float camZ = z + cos(glm::radians(cameraRot)) * distance;
         float camY = 0 + height;
@@ -122,39 +122,6 @@ private:
         float pitch = glm::degrees(asin(dir.y));
         float yaw = glm::degrees(atan2(dir.z, dir.x));
         Camera::rotate({pitch, yaw, 0});
-
-        glm::mat4 tireFL(1.0f), tireFR(1.0f), tireBL(1.0f), tireBR(1.0f);
-
-        Position2 tireOffset = {2.5f, 2.0f};
-
-        tireFL = glm::translate(tireFL, glm::vec3(tireOffset.x / 2, 0, z - tireOffset.y));
-        tireFR = glm::translate(tireFR, glm::vec3(-tireOffset.x / 2, 0, z - tireOffset.y));
-        tireBL = glm::translate(tireBL, glm::vec3(tireOffset.x / 2, 0, z + tireOffset.y));
-        tireBR = glm::translate(tireBR, glm::vec3(-tireOffset.x / 2, 0, z + tireOffset.y));
-
-        tireFL = glm::rotate(tireFL, scene.vehicles[0].getSteeringAngleRad(), glm::vec3(0, 1.0f, 0));
-        tireFR = glm::rotate(tireFR, scene.vehicles[0].getSteeringAngleRad(), glm::vec3(0, 1.0f, 0));
-
-        tireFL = glm::rotate(tireFL, rotation, glm::vec3(-1.0f, 0, 0));
-        tireFR = glm::rotate(tireFR, rotation, glm::vec3(-1.0f, 0, 0));
-        tireBL = glm::rotate(tireBL, rotation, glm::vec3(-1.0f, 0, 0));
-        tireBR = glm::rotate(tireBR, rotation, glm::vec3(-1.0f, 0, 0));
-
-        scene.vehicles[0].bodyMat = carModel;
-        scene.vehicles[0].tireFLMat = tireFL;
-        scene.vehicles[0].tireFRMat = tireFR;
-        scene.vehicles[0].tireBLMat = tireBL;
-        scene.vehicles[0].tireBRMat = tireBR;
-
-        glm::mat4 flag1Model(1.0f), flag2Model(1.0f);
-
-        flag1Model = glm::translate(flag1Model, glm::vec3(2.0f, 0, 20.0f));
-        flag2Model = glm::translate(flag2Model, glm::vec3(-2.0f, 0, 20.0f));
-
-        scene.updateModel(5, flag1Model);
-        scene.updateModel(6, flag2Model);
-
-        scene.tick(dt);
 
         Camera::update();
 

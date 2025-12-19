@@ -64,6 +64,9 @@ public:
     int32_t tireBLMeshIndex;
     int32_t tireBRMeshIndex;
 
+    glm::mat4 bodyMat;
+    glm::mat4 tireFLMat, tireFRMat, tireBLMat, tireBRMat;
+
     void init(const VE_STRUCT_VEHICLE_CREATE_INFO &info);
 
     void update(ve_time deltaTime);

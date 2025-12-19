@@ -36,6 +36,12 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
         Log::add('A', 101);
     }
 
+    bodyMat = glm::mat4(1.0f);
+    tireFLMat = glm::mat4(1.0f);
+    tireFRMat = glm::mat4(1.0f);
+    tireBLMat = glm::mat4(1.0f);
+    tireBRMat = glm::mat4(1.0f);
+
     if (info.power > 0)
     {
         switch (info.powerUnit)

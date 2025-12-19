@@ -11,6 +11,13 @@ Scene::Scene(VulkanContext newVulkanContext)
     vulkanContext = newVulkanContext;
 }
 
+void Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
+{
+    Vehicle newVehicle;
+    newVehicle.init(info);
+    vehicles.push_back(newVehicle);
+}
+
 void Scene::loadFile(std::string filename, glm::vec3 color)
 {
     std::vector<Vertex> meshVertices;
@@ -71,6 +78,7 @@ void Scene::loadFile(std::string filename, glm::vec3 color)
     meshes.push_back(objMesh);
 }
 
+// Should be in Mesh.cpp
 void Scene::updateModel(int modelId, glm::mat4 newModel)
 {
     if (modelId >= meshes.size())
@@ -79,6 +87,19 @@ void Scene::updateModel(int modelId, glm::mat4 newModel)
     }
 
     meshes[modelId].setModel(newModel);
+}
+
+void Scene::tick(ve_time dt)
+{
+    for(Vehicle &vehicle : vehicles){
+        updateModel(vehicle.bodyMeshIndex, vehicle.bodyMat);
+        updateModel(vehicle.tireFLMeshIndex, vehicle.tireFLMat);
+        updateModel(vehicle.tireFRMeshIndex, vehicle.tireFRMat);
+        updateModel(vehicle.tireBLMeshIndex, vehicle.tireBLMat);
+        updateModel(vehicle.tireBRMeshIndex, vehicle.tireBRMat);
+
+        vehicle.update(dt);
+    }
 }
 
 Scene::~Scene()

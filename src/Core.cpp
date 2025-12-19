@@ -53,7 +53,7 @@ public:
         sCar.idleRpm = 800.0f;
         sCar.dragCoeff = 0.31f;
         sCar.frontalAreaM2 = 2.3f;
-        car.init(sCar);
+        scene.addVehicle(sCar);
 
         scene.loadFile("models/car.obj", {0, 0, 0});
 
@@ -81,24 +81,21 @@ private:
     VulkanManager vulkan;
     FpsManager fps;
 
-    Vehicle car;
     Scene scene;
 
     void tick()
     {
-        float dt = fps.getFrameTime();
-
-        car.update(dt);
+        ve_time dt = fps.getFrameTime();
 
         static float rotation = 0;
 
-        rotation += car.getSpeedMps() / car.getWheelRadius() * dt;
+        rotation += scene.vehicles[0].getSpeedMps() / scene.vehicles[0].getWheelRadius() * dt;
 
         glm::mat4 carModel(1.0f);
 
         static float z = 100.0f;
 
-        z -= car.getSpeedMps() * dt;
+        z -= scene.vehicles[0].getSpeedMps() * dt;
 
         carModel = glm::translate(carModel, glm::vec3(0, 0, z));
 
@@ -135,19 +132,19 @@ private:
         tireBL = glm::translate(tireBL, glm::vec3(tireOffset.x / 2, 0, z + tireOffset.y));
         tireBR = glm::translate(tireBR, glm::vec3(-tireOffset.x / 2, 0, z + tireOffset.y));
 
-        tireFL = glm::rotate(tireFL, car.getSteeringAngleRad(), glm::vec3(0, 1.0f, 0));
-        tireFR = glm::rotate(tireFR, car.getSteeringAngleRad(), glm::vec3(0, 1.0f, 0));
+        tireFL = glm::rotate(tireFL, scene.vehicles[0].getSteeringAngleRad(), glm::vec3(0, 1.0f, 0));
+        tireFR = glm::rotate(tireFR, scene.vehicles[0].getSteeringAngleRad(), glm::vec3(0, 1.0f, 0));
 
         tireFL = glm::rotate(tireFL, rotation, glm::vec3(-1.0f, 0, 0));
         tireFR = glm::rotate(tireFR, rotation, glm::vec3(-1.0f, 0, 0));
         tireBL = glm::rotate(tireBL, rotation, glm::vec3(-1.0f, 0, 0));
         tireBR = glm::rotate(tireBR, rotation, glm::vec3(-1.0f, 0, 0));
 
-        scene.updateModel(0, carModel);
-        scene.updateModel(1, tireFL);
-        scene.updateModel(2, tireFR);
-        scene.updateModel(3, tireBL);
-        scene.updateModel(4, tireBR);
+        scene.vehicles[0].bodyMat = carModel;
+        scene.vehicles[0].tireFLMat = tireFL;
+        scene.vehicles[0].tireFRMat = tireFR;
+        scene.vehicles[0].tireBLMat = tireBL;
+        scene.vehicles[0].tireBRMat = tireBR;
 
         glm::mat4 flag1Model(1.0f), flag2Model(1.0f);
 
@@ -156,6 +153,8 @@ private:
 
         scene.updateModel(5, flag1Model);
         scene.updateModel(6, flag2Model);
+
+        scene.tick(dt);
 
         Camera::update();
 

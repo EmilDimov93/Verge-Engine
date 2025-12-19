@@ -19,13 +19,11 @@ class VulkanManager
 public:
     VulkanManager(GLFWwindow* window, Size2 windowSize);
 
-    void updateModel(int modelId, glm::mat4 newModel);
-
-    void drawFrame();
+    void drawFrame(const std::vector<Mesh>& meshes);
 
     void vkCheck(VkResult res, ErrorCode errorCode);
 
-    void loadFile(std::string filename, glm::vec3 color);
+    VulkanContext getContext();
 
     ~VulkanManager();
 
@@ -80,8 +78,6 @@ private:
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> drawFences;
 
-    std::vector<Mesh> meshes;
-
     struct UboViewProjection
     {
         glm::mat4 projection;
@@ -107,7 +103,7 @@ private:
     void createDescriptorPool();
     void createDescriptorSets();
 
-    void recordCommands(uint32_t currentImage);
+    void recordCommands(uint32_t currentImage, const std::vector<Mesh>& meshes);
 
     void updateUniformBuffers(uint32_t imageIndex);
 

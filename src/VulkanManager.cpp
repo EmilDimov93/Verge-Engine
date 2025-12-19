@@ -12,74 +12,6 @@
 #include "Camera.hpp"
 
 const int MAX_FRAME_DRAWS = 2;
-const int MAX_OBJECTS = 3;
-
-#include <sstream>
-void VulkanManager::loadFile(std::string filename, glm::vec3 color)
-{
-    std::vector<Vertex> meshVertices;
-    std::vector<uint32_t> meshIndeces;
-
-    {
-        std::ifstream file(filename);
-        if (!file.is_open())
-            throw std::runtime_error("Cannot open OBJ file.");
-
-        std::vector<glm::vec3> positions;
-        std::string line;
-
-        while (std::getline(file, line))
-        {
-            if (line.rfind("v ", 0) == 0)
-            {
-                glm::vec3 p;
-                std::stringstream ss(line.substr(2));
-                ss >> p.x >> p.y >> p.z;
-                positions.push_back(p);
-            }
-            else if (line.rfind("f ", 0) == 0)
-            {
-                std::stringstream ss(line.substr(2));
-                std::string a, b, c;
-                ss >> a >> b >> c;
-
-                auto parseIndex = [&](const std::string &s)
-                {
-                    return std::stoi(s.substr(0, s.find('/'))) - 1;
-                };
-
-                uint32_t i1 = parseIndex(a);
-                uint32_t i2 = parseIndex(b);
-                uint32_t i3 = parseIndex(c);
-
-                auto addVert = [&](uint32_t idx)
-                {
-                    Vertex v;
-                    v.pos = positions[idx];
-                    v.col = color;
-                    meshIndeces.push_back(meshVertices.size());
-                    meshVertices.push_back(v);
-                };
-
-                addVert(i1);
-                addVert(i2);
-                addVert(i3);
-            }
-        }
-    }
-
-    Mesh objMesh;
-    vkCheck(objMesh.init(
-                physicalDevice,
-                device,
-                graphicsQueue,
-                graphicsCommandPool,
-                &meshVertices,
-                &meshIndeces),
-            {'V', 217});
-
-    meshes.push_back(objMesh);
-}
 
 VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize)
 {
@@ -107,16 +39,6 @@ VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize)
     createSemaphores();
 
     Log::add('V', 000);
-}
-
-void VulkanManager::updateModel(int modelId, glm::mat4 newModel)
-{
-    if (modelId >= meshes.size())
-    {
-        return;
-    }
-
-    meshes[modelId].setModel(newModel);
 }
 
 void VulkanManager::createInstance()
@@ -733,7 +655,7 @@ void VulkanManager::updateUniformBuffers(uint32_t imageIndex)
     vkUnmapMemory(device, vpUniformBufferMemory[imageIndex]);
 }
 
-void VulkanManager::recordCommands(uint32_t currentImage)
+void VulkanManager::recordCommands(uint32_t currentImage, const std::vector<Mesh>& meshes)
 {
     VkCommandBufferBeginInfo commandBufferBeginInfo = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
@@ -900,7 +822,7 @@ void VulkanManager::createDescriptorSets()
     }
 }
 
-void VulkanManager::drawFrame()
+void VulkanManager::drawFrame(const std::vector<Mesh>& meshes)
 {
     vkCheck(vkWaitForFences(device, 1, &drawFences[currentFrame], VK_TRUE, UINT64_MAX), {'V', 231});
     vkCheck(vkResetFences(device, 1, &drawFences[currentFrame]), {'V', 232});
@@ -908,7 +830,7 @@ void VulkanManager::drawFrame()
     uint32_t imageIndex;
     vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex), {'V', 230});
 
-    recordCommands(imageIndex);
+    recordCommands(imageIndex, meshes);
     updateUniformBuffers(imageIndex);
 
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
@@ -964,6 +886,18 @@ void VulkanManager::vkCheck(VkResult res, ErrorCode errorCode)
     }
 }
 
+VulkanContext VulkanManager::getContext()
+{
+    VulkanContext ctx = {
+        .physicalDevice = physicalDevice,
+        .device = device,
+        .graphicsQueue = graphicsQueue,
+        .graphicsCommandPool = graphicsCommandPool
+    };
+
+    return ctx;
+}
+
 VulkanManager::~VulkanManager()
 {
     if (device != VK_NULL_HANDLE)
@@ -990,9 +924,6 @@ VulkanManager::~VulkanManager()
         if (vpUniformBufferMemory[i])
             vkFreeMemory(device, vpUniformBufferMemory[i], nullptr);
     }
-
-    for (auto &mesh : meshes)
-        mesh.destroyBuffers();
 
     for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
     {

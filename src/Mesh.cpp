@@ -5,14 +5,12 @@
 
 #define VK_CHECK(res) do { if (res != VK_SUCCESS) return res; } while(0)
 
-VkResult Mesh::init(VkPhysicalDevice newPhysicalDevice, VkDevice newDevice, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex>* vertices, std::vector<uint32_t>* indeces)
+VkResult Mesh::init(VulkanContext vulkanContext, std::vector<Vertex>* vertices, std::vector<uint32_t>* indeces)
 {
     vertexCount = vertices->size();
     indexCount = indeces->size();
-    physicalDevice = newPhysicalDevice;
-    device = newDevice;
-    VK_CHECK(createVertexBuffer(transferQueue, transferCommandPool, vertices));
-    VK_CHECK(createIndexBuffer(transferQueue, transferCommandPool, indeces));
+    VK_CHECK(createVertexBuffer(vulkanContext.physicalDevice, vulkanContext.device, vulkanContext.graphicsQueue, vulkanContext.graphicsCommandPool, vertices));
+    VK_CHECK(createIndexBuffer(vulkanContext.physicalDevice, vulkanContext.device, vulkanContext.graphicsQueue, vulkanContext.graphicsCommandPool, indeces));
 
     model.model = glm::mat4(1.0f);
 
@@ -24,7 +22,7 @@ void Mesh::setModel(glm::mat4 newModel)
     model.model = newModel;
 }
 
-Model Mesh::getModel()
+Model Mesh::getModel() const
 {
     return model;
 }
@@ -71,22 +69,22 @@ VkResult createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDevice
     return VK_SUCCESS;
 }
 
-uint64_t Mesh::getVertexCount()
+uint64_t Mesh::getVertexCount() const
 {
     return vertexCount;
 }
 
-VkBuffer Mesh::getVertexBuffer()
+VkBuffer Mesh::getVertexBuffer() const
 {
     return vertexBuffer;
 }
 
-uint64_t Mesh::getIndexCount()
+uint64_t Mesh::getIndexCount() const
 {
     return indexCount;
 }
 
-VkBuffer Mesh::getIndexBuffer()
+VkBuffer Mesh::getIndexBuffer() const
 {
     return indexBuffer;
 }
@@ -133,7 +131,7 @@ VkResult copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transf
     return VK_SUCCESS;
 }
 
-VkResult Mesh::createVertexBuffer(VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex>* vertices)
+VkResult Mesh::createVertexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex>* vertices)
 {
     VkDeviceSize bufferSize = sizeof(Vertex) * vertices->size();
 
@@ -157,7 +155,7 @@ VkResult Mesh::createVertexBuffer(VkQueue transferQueue, VkCommandPool transferC
     return VK_SUCCESS;
 }
 
-VkResult Mesh::createIndexBuffer(VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t>* indeces)
+VkResult Mesh::createIndexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t>* indeces)
 {
     VkDeviceSize bufferSize = sizeof(uint32_t) * indeces->size();
 
@@ -180,7 +178,7 @@ VkResult Mesh::createIndexBuffer(VkQueue transferQueue, VkCommandPool transferCo
     return VK_SUCCESS;
 }
 
-void Mesh::destroyBuffers()
+void Mesh::destroyBuffers(VkDevice device)
 {
     if (vertexBuffer)
         vkDestroyBuffer(device, vertexBuffer, nullptr);

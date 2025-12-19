@@ -15,6 +15,7 @@ add_executable(VergeEngine
     src/Log.cpp
     src/Vehicle.cpp
     src/Camera.cpp
+    src/Scene.cpp
 )
 
 target_include_directories(VergeEngine PRIVATE

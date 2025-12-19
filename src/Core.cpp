@@ -12,11 +12,12 @@
 
 #include "Vehicle.hpp"
 #include "Camera.hpp"
+#include "Scene.hpp"
 
 class VergeEngine
 {
 public:
-    VergeEngine() : vulkan(window.getWindowReference(), window.getWindowSize())
+    VergeEngine() : vulkan(window.getWindowReference(), window.getWindowSize()), scene(vulkan.getContext())
     {
         Input::init(window.getWindowReference());
         Log::add('C', 000);
@@ -49,15 +50,15 @@ public:
         sCar.frontalAreaM2 = 2.3f;
         car.init(sCar);
 
-        vulkan.loadFile("models/car.obj", {0, 0, 0});
+        scene.loadFile("models/car.obj", {0, 0, 0});
 
-        vulkan.loadFile("models/wheel.obj", {0, 0, 1.0f});
-        vulkan.loadFile("models/wheel.obj", {0, 0, 1.0f});
-        vulkan.loadFile("models/wheel.obj", {0, 0, 1.0f});
-        vulkan.loadFile("models/wheel.obj", {0, 0, 1.0f});
+        scene.loadFile("models/wheel.obj", {0, 0, 1.0f});
+        scene.loadFile("models/wheel.obj", {0, 0, 1.0f});
+        scene.loadFile("models/wheel.obj", {0, 0, 1.0f});
+        scene.loadFile("models/wheel.obj", {0, 0, 1.0f});
 
-        vulkan.loadFile("models/flag.obj", {0, 1.0f, 0});
-        vulkan.loadFile("models/flag.obj", {0, 1.0f, 0});
+        scene.loadFile("models/flag.obj", {0, 1.0f, 0});
+        scene.loadFile("models/flag.obj", {0, 1.0f, 0});
 
         while (window.isOpen())
         {
@@ -76,6 +77,7 @@ private:
     FpsManager fps;
 
     Vehicle car;
+    Scene scene;
 
     void tick()
     {
@@ -136,23 +138,23 @@ private:
         tireBL = glm::rotate(tireBL, rotation, glm::vec3(-1.0f, 0, 0));
         tireBR = glm::rotate(tireBR, rotation, glm::vec3(-1.0f, 0, 0));
 
-        vulkan.updateModel(0, carModel);
-        vulkan.updateModel(1, tireFL);
-        vulkan.updateModel(2, tireFR);
-        vulkan.updateModel(3, tireBL);
-        vulkan.updateModel(4, tireBR);
+        scene.updateModel(0, carModel);
+        scene.updateModel(1, tireFL);
+        scene.updateModel(2, tireFR);
+        scene.updateModel(3, tireBL);
+        scene.updateModel(4, tireBR);
 
         glm::mat4 flag1Model(1.0f), flag2Model(1.0f);
 
         flag1Model = glm::translate(flag1Model, glm::vec3(2.0f, 0, 20.0f));
         flag2Model = glm::translate(flag2Model, glm::vec3(-2.0f, 0, 20.0f));
 
-        vulkan.updateModel(5, flag1Model);
-        vulkan.updateModel(6, flag2Model);
+        scene.updateModel(5, flag1Model);
+        scene.updateModel(6, flag2Model);
 
         Camera::update();
 
-        vulkan.drawFrame();
+        vulkan.drawFrame(scene.meshes);
     }
 };
 

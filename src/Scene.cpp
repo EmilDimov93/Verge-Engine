@@ -105,7 +105,7 @@ void Scene::tick(ve_time dt)
         updateModel(vehicle.wheelBLMeshIndex, vehicle.wheelBLMat);
         updateModel(vehicle.wheelBRMeshIndex, vehicle.wheelBRMat);
 
-        vehicle.update(dt);
+        vehicle.tick(dt);
     }
 
     if (isCameraFollowingVehicle)

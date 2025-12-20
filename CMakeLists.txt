@@ -9,12 +9,16 @@ add_executable(VergeEngine
     src/Core.cpp
     src/VulkanManager.cpp
     src/WindowManager.cpp
-    src/Mesh.cpp
     src/Input.cpp
     src/FpsManager.cpp
     src/Log.cpp
-    src/Vehicle.cpp
     src/Camera.cpp
+    src/Mesh.cpp
+
+    src/VehicleCore.cpp
+    src/VehicleGraphics.cpp
+    src/VehiclePhysics.cpp
+
     src/Scene.cpp
 )
 

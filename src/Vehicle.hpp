@@ -69,7 +69,10 @@ public:
 
     void init(const VE_STRUCT_VEHICLE_CREATE_INFO &info);
 
-    void update(ve_time deltaTime);
+    void tick(ve_time deltaTime);
+
+    void calculatePhysics();
+    void updateGraphics();
 
     uint32_t getPowerKw() const { return powerKw; }
     uint32_t getPowerHp() const{ return static_cast<uint32_t>(powerKw * 1.341022f); }

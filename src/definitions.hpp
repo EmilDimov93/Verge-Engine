@@ -11,6 +11,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 
+#define PI 3.1415926f
+
 using ve_time = double;
 
 struct Size2 {

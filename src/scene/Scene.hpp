@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include "Vehicle.hpp"
-#include "Mesh.hpp"
-#include "Camera.hpp"
+#include "../vehicle/Vehicle.hpp"
+#include "../rendering/Mesh.hpp"
+#include "../rendering/Camera.hpp"
 
 class Scene
 {

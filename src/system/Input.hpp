@@ -5,7 +5,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "definitions.hpp"
+#include "../definitions.hpp"
 
 typedef enum
 {

@@ -3,7 +3,7 @@
 
 #include "Camera.hpp"
 
-#include "Log.hpp"
+#include "../Log.hpp"
 
 Position3 Camera::position = {0, 0, 0};
 Rotation3 Camera::rotation = {0, 90.0f, 0};

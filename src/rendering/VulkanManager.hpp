@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "Mesh.hpp"
-#include "definitions.hpp"
+#include "../definitions.hpp"
 
 struct GLFWwindow;
 

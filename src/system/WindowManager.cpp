@@ -5,7 +5,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "Log.hpp"
+#include "../Log.hpp"
 
 WindowManager::WindowManager()
 {

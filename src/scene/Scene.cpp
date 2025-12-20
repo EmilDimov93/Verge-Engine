@@ -3,6 +3,7 @@
 
 #include "Scene.hpp"
 
+#include <fstream>
 #include <sstream>
 #include <vector>
 
@@ -29,51 +30,49 @@ void Scene::loadFile(std::string filename, glm::vec3 color)
     std::vector<Vertex> meshVertices;
     std::vector<uint32_t> meshIndeces;
 
+    std::ifstream file(filename);
+    if (!file.is_open())
+        throw std::runtime_error("Cannot open OBJ file.");
+
+    std::vector<glm::vec3> positions;
+    std::string line;
+
+    while (std::getline(file, line))
     {
-        std::ifstream file(filename);
-        if (!file.is_open())
-            throw std::runtime_error("Cannot open OBJ file.");
-
-        std::vector<glm::vec3> positions;
-        std::string line;
-
-        while (std::getline(file, line))
+        if (line.rfind("v ", 0) == 0)
         {
-            if (line.rfind("v ", 0) == 0)
+            glm::vec3 p;
+            std::stringstream ss(line.substr(2));
+            ss >> p.x >> p.y >> p.z;
+            positions.push_back(p);
+        }
+        else if (line.rfind("f ", 0) == 0)
+        {
+            std::stringstream ss(line.substr(2));
+            std::string a, b, c;
+            ss >> a >> b >> c;
+
+            auto parseIndex = [&](const std::string &s)
             {
-                glm::vec3 p;
-                std::stringstream ss(line.substr(2));
-                ss >> p.x >> p.y >> p.z;
-                positions.push_back(p);
-            }
-            else if (line.rfind("f ", 0) == 0)
+                return std::stoi(s.substr(0, s.find('/'))) - 1;
+            };
+
+            uint32_t i1 = parseIndex(a);
+            uint32_t i2 = parseIndex(b);
+            uint32_t i3 = parseIndex(c);
+
+            auto addVert = [&](uint32_t idx)
             {
-                std::stringstream ss(line.substr(2));
-                std::string a, b, c;
-                ss >> a >> b >> c;
+                Vertex v;
+                v.pos = positions[idx];
+                v.col = color;
+                meshIndeces.push_back(meshVertices.size());
+                meshVertices.push_back(v);
+            };
 
-                auto parseIndex = [&](const std::string &s)
-                {
-                    return std::stoi(s.substr(0, s.find('/'))) - 1;
-                };
-
-                uint32_t i1 = parseIndex(a);
-                uint32_t i2 = parseIndex(b);
-                uint32_t i3 = parseIndex(c);
-
-                auto addVert = [&](uint32_t idx)
-                {
-                    Vertex v;
-                    v.pos = positions[idx];
-                    v.col = color;
-                    meshIndeces.push_back(meshVertices.size());
-                    meshVertices.push_back(v);
-                };
-
-                addVert(i1);
-                addVert(i2);
-                addVert(i3);
-            }
+            addVert(i1);
+            addVert(i2);
+            addVert(i3);
         }
     }
 

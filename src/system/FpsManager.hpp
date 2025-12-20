@@ -4,7 +4,7 @@
 #pragma once
 
 #include <chrono>
-#include "definitions.hpp"
+#include "../definitions.hpp"
 
 #define VE_DEFAULT_FPS 140
 

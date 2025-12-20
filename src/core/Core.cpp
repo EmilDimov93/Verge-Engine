@@ -1,18 +1,21 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#include "VulkanManager.hpp"
-#include "WindowManager.hpp"
-#include "Input.hpp"
-#include "Log.hpp"
-#include "FPSManager.hpp"
-#include "version.hpp"
-#include "definitions.hpp"
-#include "local.hpp"
+#include "../Log.hpp"
+#include "../version.hpp"
+#include "../definitions.hpp"
+#include "../local.hpp"
 
-#include "Vehicle.hpp"
-#include "Camera.hpp"
-#include "Scene.hpp"
+#include "../system/WindowManager.hpp"
+#include "../system/Input.hpp"
+#include "../system/FPSManager.hpp"
+
+#include "../rendering/VulkanManager.hpp"
+#include "../rendering/Camera.hpp"
+
+#include "../vehicle/Vehicle.hpp"
+
+#include "../scene/Scene.hpp"
 
 class VergeEngine
 {

@@ -2,7 +2,8 @@
 // Licensed under the Apache License, Version 2.0
 
 #include "Vehicle.hpp"
-#include "Log.hpp"
+
+#include "../Log.hpp"
 
 void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
 {

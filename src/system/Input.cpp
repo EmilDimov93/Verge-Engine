@@ -3,7 +3,7 @@
 
 #include "Input.hpp"
 
-#include "Log.hpp"
+#include "../Log.hpp"
 
 KeyState Input::mouseBtnStates[VE_MOUSE_BTN_COUNT] = {};
 KeyState Input::keyStates[VE_KEY_COUNT] = {};

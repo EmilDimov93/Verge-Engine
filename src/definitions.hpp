@@ -4,12 +4,9 @@
 #pragma once
 
 #include <iostream> // temporary
-#include <fstream>
 
-#include <cstdint>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <vector>
 
 #define PI 3.1415926f
 
@@ -51,23 +48,3 @@ struct Vertex {
 
     Vertex(const glm::vec3& position = glm::vec3(0.0f), const glm::vec3& color = glm::vec3(1.0f)) : pos(position), col(color) {}
 };
-
-static std::vector<char> readFile(const std::string &fileName){
-    std::ifstream file(fileName, std::ios::binary | std::ios::ate);
-
-    if(!file.is_open()){
-        return {};
-    }
-
-    size_t fileSize = (size_t)file.tellg();
-
-    std::vector<char> fileBuffer(fileSize);
-
-    file.seekg(0);
-
-    file.read(fileBuffer.data(), fileSize);
-
-    file.close();
-
-    return fileBuffer;
-}

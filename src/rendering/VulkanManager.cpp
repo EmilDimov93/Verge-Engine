@@ -3,13 +3,15 @@
 
 #include "VulkanManager.hpp"
 
-#include <GLFW/glfw3.h>
-#include <array>
-
-#include "Log.hpp"
-#include "version.hpp"
+#include "../Log.hpp"
+#include "../version.hpp"
 
 #include "Camera.hpp"
+
+#include <GLFW/glfw3.h>
+#include <array>
+#include <fstream>
+#include <vector>
 
 const int MAX_FRAME_DRAWS = 2;
 
@@ -272,6 +274,26 @@ VkShaderModule VulkanManager::createShaderModule(const std::vector<char> &code)
     vkCheck(vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr, &shaderModule), {'V', 209});
 
     return shaderModule;
+}
+
+static std::vector<char> readFile(const std::string &fileName){
+    std::ifstream file(fileName, std::ios::binary | std::ios::ate);
+
+    if(!file.is_open()){
+        return {};
+    }
+
+    size_t fileSize = (size_t)file.tellg();
+
+    std::vector<char> fileBuffer(fileSize);
+
+    file.seekg(0);
+
+    file.read(fileBuffer.data(), fileSize);
+
+    file.close();
+
+    return fileBuffer;
 }
 
 void VulkanManager::createGraphicsPipeline()

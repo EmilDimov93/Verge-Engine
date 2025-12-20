@@ -6,7 +6,7 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 
-#include "definitions.hpp"
+#include "../definitions.hpp"
 
 struct VulkanContext{
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;

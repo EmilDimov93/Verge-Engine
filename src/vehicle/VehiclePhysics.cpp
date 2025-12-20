@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0
 
 #include "Vehicle.hpp"
-#include "Log.hpp"
 
 #define TORQUE_CONVERSION_CONSTANT 5252
 #define GRAVITY_CONSTANT 9.81f

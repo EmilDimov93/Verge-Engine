@@ -3,9 +3,9 @@
 
 #include "WindowManager.hpp"
 
-#include <GLFW/glfw3.h>
-
 #include "../Log.hpp"
+
+#include <GLFW/glfw3.h>
 
 WindowManager::WindowManager()
 {
@@ -29,12 +29,12 @@ WindowManager::WindowManager()
     Log::add('G', 000);
 }
 
-GLFWwindow* WindowManager::getWindowReference()
+GLFWwindow* WindowManager::getReference()
 {
     return window;
 }
 
-Size2 WindowManager::getWindowSize()
+Size2 WindowManager::getSize()
 {
     return windowSize;
 }

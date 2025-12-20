@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0
 
 #include "../Log.hpp"
+
 #include "LogCodes.hpp"
+#include "../version.hpp"
 
 #include <fstream>
 #include <chrono>
-
-#include "../version.hpp"
 
 #define LOG_MESSAGE_LIMIT pow(10, 5)
 

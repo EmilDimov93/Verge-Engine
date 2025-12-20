@@ -3,11 +3,11 @@
 
 #pragma once
 
+#include "definitions.hpp"
+
 #include <map>
 #include <string>
 #include <vector>
-
-#include "definitions.hpp"
 
 class ErrorCode
 {

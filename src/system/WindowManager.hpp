@@ -15,9 +15,9 @@ public:
 
     WindowManager();
 
-    GLFWwindow* getWindowReference();
+    GLFWwindow* getReference();
 
-    Size2 getWindowSize();
+    Size2 getSize();
 
     bool isOpen();
 

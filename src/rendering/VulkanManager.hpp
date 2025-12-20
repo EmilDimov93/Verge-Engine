@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <vulkan/vulkan.h>
-#include <vector>
-
 #include "Mesh.hpp"
 #include "../definitions.hpp"
+
+#include <vulkan/vulkan.h>
+#include <vector>
 
 struct GLFWwindow;
 

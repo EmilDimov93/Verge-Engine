@@ -5,15 +5,13 @@
 
 #include "../Log.hpp"
 #include "../version.hpp"
-
 #include "Camera.hpp"
 
 #include <GLFW/glfw3.h>
 #include <array>
 #include <fstream>
-#include <vector>
 
-const int MAX_FRAME_DRAWS = 2;
+const uint8_t MAX_FRAME_DRAWS = 2;
 
 VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize)
 {

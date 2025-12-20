@@ -148,9 +148,9 @@ public:
     void setClutchLevel(float value) { clutchLevel = value; }
 
 private:
-    void accelerate(ve_time deltaTime);
-    void idle(ve_time deltaTime);
-    void brake(ve_time deltaTime);
+    void accelerate();
+    void idle();
+    void brake();
     void turnLeft();
     void turnRight();
     void shiftUp();
@@ -191,7 +191,7 @@ private:
     float camber;
 
     // Runtime
-    Position3 position;
+    Position3 position = {0, 0, -100.0f}; // Temporary default
     Rotation3 rotation;
     float speedMps;
     float steeringAngleRad;

@@ -54,6 +54,16 @@ void Camera::rotateDelta(Rotation3 delta)
     rotation.roll += delta.roll;
 }
 
+Position3 Camera::getPosition()
+{
+    return position;
+}
+
+Rotation3 Camera::getRotation()
+{
+    return rotation;
+}
+
 void Camera::update() {
     forward.x = cos(glm::radians(rotation.yaw)) * cos(glm::radians(rotation.pitch));
     forward.y = sin(glm::radians(rotation.pitch));

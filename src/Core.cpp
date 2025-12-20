@@ -38,6 +38,7 @@ public:
         sCar.gearCount = 8;
         sCar.transmissionType = VE_TRANSMISSION_TYPE_AUTOMATIC;
         sCar.accelerateKey = VE_KEY_W;
+        sCar.brakeKey = VE_KEY_S;
         sCar.turnLeftKey = VE_KEY_A;
         sCar.turnRightKey = VE_KEY_D;
         sCar.shiftUpKey = VE_KEY_M;

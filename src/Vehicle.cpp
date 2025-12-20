@@ -219,7 +219,7 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     clutchLevel = 0.0f;
 }
 
-void Vehicle::accelerate(ve_time deltaTime)
+void Vehicle::accelerate()
 {
     float torqueCurveFactor = BASELINE_TORQUE_FACTOR + (1.0f - BASELINE_TORQUE_FACTOR) * (1.0f - rpm / maxRpm);
     float torque = (powerKw * 1000) / (rpm * 2.0f * PI / 60.0f) * torqueCurveFactor;
@@ -236,7 +236,7 @@ void Vehicle::accelerate(ve_time deltaTime)
     float dragForce = (AIR_DENSITY * dragCoeff * frontalAreaM2 * speedMps * speedMps) / 2;
     float acceleration = (wheelForce - dragForce) / weightKg;
 
-    speedMps += acceleration * deltaTime;
+    speedMps += acceleration * dt;
 
     float wheelRpm = (speedMps / wheelRadiusM) * (60.0f / (2.0f * PI));
     rpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
@@ -247,25 +247,26 @@ void Vehicle::accelerate(ve_time deltaTime)
         rpm = idleRpm;
 }
 
-void Vehicle::idle(ve_time deltaTime)
+void Vehicle::idle()
 {
     float rollingResistance = SURFACE_ROLLING_COEFFICIENT * weightKg * GRAVITY_CONSTANT;
     float dragForce = 0.5f * AIR_DENSITY * dragCoeff * frontalAreaM2 * speedMps * speedMps;
     float netDecel = (dragForce + rollingResistance) / weightKg;
 
-    speedMps -= netDecel * deltaTime;
+    speedMps -= netDecel * dt;
     if (speedMps < 0.0f)
         speedMps = 0.0f;
 
     float wheelAngularDecel = netDecel / wheelRadiusM;
     float rpmDropRate = wheelAngularDecel * (60.0f / (2.0f * PI)) * gearRatios[gear - 1] * finalDriveRatio;
-    rpm -= rpmDropRate * deltaTime;
+    rpm -= rpmDropRate * dt;
     if (rpm < idleRpm)
         rpm = idleRpm;
 }
 
-void Vehicle::brake(ve_time deltaTime)
+void Vehicle::brake()
 {
+    speedMps = 0;
 }
 
 void Vehicle::turnLeft()
@@ -334,13 +335,9 @@ void Vehicle::resetMatrices()
 
 void Vehicle::move()
 {
-    static float z = -100.0f;
+    position.z += speedMps * dt;
 
-    z += speedMps * dt;
-
-    position = {0, 0, z};
-
-    bodyMat = glm::translate(bodyMat, glm::vec3(0, 0, z));
+    bodyMat = glm::translate(bodyMat, glm::vec3(position.x, position.y, position.z));
 }
 
 void Vehicle::offsetWheels()
@@ -381,15 +378,15 @@ void Vehicle::update(ve_time deltaTime)
 
     if (Input::isDown(accelerateKey))
     {
-        accelerate(deltaTime);
+        accelerate();
     }
     else if (Input::isDown(brakeKey))
     {
-        brake(deltaTime);
+        brake();
     }
     else
     {
-        idle(deltaTime);
+        idle();
     }
 
     updateTransmission();

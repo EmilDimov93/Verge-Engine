@@ -22,6 +22,9 @@ public:
     static void rotate(Rotation3 newRotation);
     static void rotateDelta(Rotation3 delta);
 
+    static Position3 getPosition();
+    static Rotation3 getRotation();
+
     static void update();
 
     static void init(float newFov, float newAspectRatio, float newZNear, float newZFar);

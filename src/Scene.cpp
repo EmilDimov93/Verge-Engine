@@ -108,7 +108,7 @@ void Scene::tick(ve_time dt)
         vehicle.update(dt);
     }
 
-    if(isCameraFollowingVehicle)
+    if (isCameraFollowingVehicle)
         cameraFollowVehicle(dt);
 
     Camera::update();
@@ -144,7 +144,10 @@ void Scene::cameraFollowVehicle(ve_time dt)
     float camZ = vehicles[cameraFollowedVehicleIndex].getPosition().z + cos(glm::radians(cameraRot)) * distance;
     float camY = vehicles[cameraFollowedVehicleIndex].getPosition().y + height;
 
-    Camera::move({camX, camY, camZ});
+    static glm::vec3 camPos = {Camera::getPosition().x, Camera::getPosition().y, Camera::getPosition().z};
+    glm::vec3 targetPos = {camX, camY, camZ};
+    camPos = glm::mix(camPos, targetPos, std::exp(-dt * 10.0f));
+    Camera::move({camPos.x, camPos.y, camPos.z});
 
     glm::vec3 dir = glm::normalize(glm::vec3(vehicles[cameraFollowedVehicleIndex].getPosition().x, vehicles[cameraFollowedVehicleIndex].getPosition().y, vehicles[cameraFollowedVehicleIndex].getPosition().z) - glm::vec3(camX, camY, camZ));
     float pitch = glm::degrees(asin(dir.y));

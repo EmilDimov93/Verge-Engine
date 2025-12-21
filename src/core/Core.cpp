@@ -58,12 +58,12 @@ public:
         sCar.frontalAreaM2 = 2.3f;
         scene.addVehicle(sCar);
 
-        scene.loadFile("models/car3.obj", {0, 0, 0});
+        scene.loadFile("models/car.obj", {0, 0, 0});
 
-        scene.loadFile("models/wheel2.obj", {0, 0, 1.0f});
-        scene.loadFile("models/wheel2.obj", {0, 0, 1.0f});
-        scene.loadFile("models/wheel2.obj", {0, 0, 1.0f});
-        scene.loadFile("models/wheel2.obj", {0, 0, 1.0f});
+        scene.loadFile("models/wheel.obj", {0, 0, 1.0f});
+        scene.loadFile("models/wheel.obj", {0, 0, 1.0f});
+        scene.loadFile("models/wheel.obj", {0, 0, 1.0f});
+        scene.loadFile("models/wheel.obj", {0, 0, 1.0f});
 
         scene.loadFile("models/flag.obj", {0, 1.0f, 0});
         scene.loadFile("models/flag.obj", {0, 1.0f, 0});

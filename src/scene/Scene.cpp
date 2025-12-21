@@ -6,6 +6,8 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <unordered_map>
+#include <filesystem>
 
 Scene::Scene(VulkanContext newVulkanContext, float newFov, float newAspectRatio, float newZNear, float newZFar)
 {
@@ -25,7 +27,7 @@ uint32_t Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     return vehicles.size() - 1;
 }
 
-void Scene::loadFile(std::string filename, glm::vec3 color)
+void Scene::loadFile(const std::string& filename, glm::vec3 color)
 {
     std::vector<Vertex> meshVertices;
     std::vector<uint32_t> meshIndeces;
@@ -35,11 +37,63 @@ void Scene::loadFile(std::string filename, glm::vec3 color)
         throw std::runtime_error("Cannot open OBJ file.");
 
     std::vector<glm::vec3> positions;
-    std::string line;
+    std::unordered_map<std::string, glm::vec3> materials;
 
+    glm::vec3 currentColor(1.0f);
+
+    auto trim = [](std::string& s)
+    {
+        s.erase(s.find_last_not_of(" \t\r\n") + 1);
+        s.erase(0, s.find_first_not_of(" \t\r\n"));
+    };
+
+    auto loadMTL = [&](const std::string& mtlPath)
+    {
+        std::ifstream mtl(mtlPath);
+        if (!mtl.is_open())
+            return;
+
+        std::string line;
+        std::string currentMat;
+
+        while (std::getline(mtl, line))
+        {
+            if (line.rfind("newmtl ", 0) == 0)
+            {
+                currentMat = line.substr(7);
+                trim(currentMat);
+            }
+            else if (line.rfind("Kd ", 0) == 0 && !currentMat.empty())
+            {
+                std::stringstream ss(line.substr(3));
+                glm::vec3 kd;
+                ss >> kd.r >> kd.g >> kd.b;
+                materials[currentMat] = kd;
+            }
+        }
+    };
+
+    std::filesystem::path objPath(filename);
+
+    std::string line;
     while (std::getline(file, line))
     {
-        if (line.rfind("v ", 0) == 0)
+        if (line.rfind("mtllib ", 0) == 0)
+        {
+            std::string mtlFile = line.substr(7);
+            trim(mtlFile);
+            loadMTL((objPath.parent_path() / mtlFile).string());
+        }
+        else if (line.rfind("usemtl ", 0) == 0)
+        {
+            std::string mat = line.substr(7);
+            trim(mat);
+
+            auto it = materials.find(mat);
+            if (it != materials.end())
+                currentColor = it->second;
+        }
+        else if (line.rfind("v ", 0) == 0)
         {
             glm::vec3 p;
             std::stringstream ss(line.substr(2));
@@ -52,34 +106,36 @@ void Scene::loadFile(std::string filename, glm::vec3 color)
             std::string a, b, c;
             ss >> a >> b >> c;
 
-            auto parseIndex = [&](const std::string &s)
+            auto parseIndex = [](const std::string& s)
             {
-                return std::stoi(s.substr(0, s.find('/'))) - 1;
+                return static_cast<uint32_t>(
+                    std::stoi(s.substr(0, s.find('/'))) - 1
+                );
             };
 
-            uint32_t i1 = parseIndex(a);
-            uint32_t i2 = parseIndex(b);
-            uint32_t i3 = parseIndex(c);
+            uint32_t ids[3] = {
+                parseIndex(a),
+                parseIndex(b),
+                parseIndex(c)
+            };
 
-            auto addVert = [&](uint32_t idx)
+            for (uint32_t idx : ids)
             {
                 Vertex v;
                 v.pos = positions[idx];
-                v.col = color;
-                meshIndeces.push_back(meshVertices.size());
-                meshVertices.push_back(v);
-            };
+                v.col = currentColor;
 
-            addVert(i1);
-            addVert(i2);
-            addVert(i3);
+                meshIndeces.push_back(
+                    static_cast<uint32_t>(meshVertices.size())
+                );
+                meshVertices.push_back(v);
+            }
         }
     }
 
     Mesh objMesh;
     // should vkcheck
     objMesh.init(vulkanContext, &meshVertices, &meshIndeces);
-
     meshes.push_back(objMesh);
 }
 

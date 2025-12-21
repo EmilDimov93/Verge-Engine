@@ -386,6 +386,7 @@ void VulkanManager::createGraphicsPipeline()
 
     VkPipelineMultisampleStateCreateInfo multiSamplingCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+        .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT,
         .sampleShadingEnable = VK_FALSE};
 
     VkPipelineColorBlendAttachmentState colorState = {

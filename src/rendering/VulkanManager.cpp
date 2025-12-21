@@ -18,10 +18,6 @@ VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize)
     createInstance();
     createSurface(window);
     pickPhysicalDevice();
-
-    VkPhysicalDeviceProperties deviceProperties;
-    vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties); // test
-
     createLogicalDevice();
     createSwapChain(windowSize);
     createImageViews();
@@ -50,13 +46,22 @@ void VulkanManager::createInstance()
         .apiVersion = VK_API_VERSION_1_3};
 
     uint32_t glfwExtensionCount = 0;
-    const char **glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+    std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+
+    const char* validationLayers[] = { "VK_LAYER_KHRONOS_validation" };
 
     VkInstanceCreateInfo instanceCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
         .pApplicationInfo = &appInfo,
-        .enabledExtensionCount = glfwExtensionCount,
-        .ppEnabledExtensionNames = glfwExtensions};
+        .enabledLayerCount = 1, 
+        .ppEnabledLayerNames = validationLayers,
+        .enabledExtensionCount = static_cast<uint32_t>(extensions.size()),
+        .ppEnabledExtensionNames = extensions.data()
+    };
 
     vkCheck(vkCreateInstance(&instanceCreateInfo, nullptr, &instance), {'V', 200});
 }

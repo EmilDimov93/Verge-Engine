@@ -14,23 +14,58 @@ void Vehicle::resetMatrices()
 
 void Vehicle::move()
 {
-    position.z += speedMps * dt;
+    // Temporary
+    moveDirection = rotation;
 
-    bodyMat = glm::translate(bodyMat, glm::vec3(position.x, position.y, position.z));
+    double cosPitch = cos(moveDirection.pitch);
+    double sinPitch = sin(moveDirection.pitch);
+    double cosYaw = cos(moveDirection.yaw);
+    double sinYaw = sin(moveDirection.yaw);
+
+    double fx = cosPitch * sinYaw;
+    double fy = -sinPitch;
+    double fz = cosPitch * cosYaw;
+
+    position.x += fx * speedMps * dt;
+    position.y += fy * speedMps * dt;
+    position.z += fz * speedMps * dt;
+
+    glm::mat4 T = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, position.z));
+
+    glm::mat4 R =
+        glm::rotate(glm::mat4(1.0f), (float)rotation.yaw, glm::vec3(0, 1, 0)) *
+        glm::rotate(glm::mat4(1.0f), (float)rotation.pitch, glm::vec3(1, 0, 0)) *
+        glm::rotate(glm::mat4(1.0f), (float)rotation.roll, glm::vec3(0, 0, 1));
+
+    bodyMat = T * R;
 }
 
 void Vehicle::offsetWheels()
 {
     // Temporary
-    Position3 wheelOffset = {2.0f, 0.4f, 1.8f};
+    Position3 wheelOffset = { 2.0f, 0.4f, 1.8f };
 
-    wheelFLMat = glm::translate(wheelFLMat, glm::vec3(wheelOffset.x / 2, bodyMat[3][1] + wheelOffset.y, bodyMat[3][2] + wheelOffset.z));
-    wheelFRMat = glm::translate(wheelFRMat, glm::vec3(-wheelOffset.x / 2, bodyMat[3][1] + wheelOffset.y, bodyMat[3][2] + wheelOffset.z));
-    wheelBLMat = glm::translate(wheelBLMat, glm::vec3(wheelOffset.x / 2, bodyMat[3][1] + wheelOffset.y, bodyMat[3][2] - wheelOffset.z));
-    wheelBRMat = glm::translate(wheelBRMat, glm::vec3(-wheelOffset.x / 2, bodyMat[3][1] + wheelOffset.y, bodyMat[3][2] - wheelOffset.z));
+    glm::mat4 flLocal = glm::translate(glm::mat4(1.0f),
+        glm::vec3( wheelOffset.x * 0.5f, wheelOffset.y,  wheelOffset.z));
 
-    wheelFRMat = glm::rotate(wheelFRMat, glm::radians(180.0f), glm::vec3(0, 1.0f, 0));
-    wheelBRMat = glm::rotate(wheelBRMat, glm::radians(180.0f), glm::vec3(0, 1.0f, 0));
+    glm::mat4 frLocal = glm::translate(glm::mat4(1.0f),
+        glm::vec3(-wheelOffset.x * 0.5f, wheelOffset.y,  wheelOffset.z));
+
+    glm::mat4 blLocal = glm::translate(glm::mat4(1.0f),
+        glm::vec3( wheelOffset.x * 0.5f, wheelOffset.y, -wheelOffset.z));
+
+    glm::mat4 brLocal = glm::translate(glm::mat4(1.0f),
+        glm::vec3(-wheelOffset.x * 0.5f, wheelOffset.y, -wheelOffset.z));
+
+    glm::mat4 flip =
+        glm::rotate(glm::mat4(1.0f),
+            glm::radians(180.0f),
+            glm::vec3(0, 1, 0));
+
+    wheelFLMat = bodyMat * flLocal;
+    wheelFRMat = bodyMat * frLocal * flip;
+    wheelBLMat = bodyMat * blLocal;
+    wheelBRMat = bodyMat * brLocal * flip;
 }
 
 void Vehicle::steerWheels()

@@ -63,12 +63,18 @@ void Vehicle::brake()
 
 void Vehicle::turnLeft()
 {
+    const float wheelBase = 2.6f;
     steeringAngleRad = maxSteeringAngleRad;
+    double turnRate = speedMps * tan(steeringAngleRad) / wheelBase;
+    rotation.yaw += turnRate * dt / 5.0f;
 }
 
 void Vehicle::turnRight()
 {
+    const float wheelBase = 2.6f;
     steeringAngleRad = -maxSteeringAngleRad;
+    double turnRate = speedMps * tan(steeringAngleRad) / wheelBase;
+    rotation.yaw += turnRate * dt / 5.0f;
 }
 
 void Vehicle::shiftUp()

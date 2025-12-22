@@ -196,6 +196,7 @@ private:
     // Runtime
     Position3 position = {0, 0, -100.0f}; // Temporary default
     Rotation3 rotation;
+    Rotation3 moveDirection;
     float speedMps;
     float steeringAngleRad;
     uint32_t gear;

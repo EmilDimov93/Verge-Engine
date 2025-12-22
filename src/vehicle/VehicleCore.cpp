@@ -218,5 +218,5 @@ void Vehicle::tick(ve_time deltaTime)
 
     updateGraphics();
 
-    //std::cout << "Speed: " << speedMps * 3.6f << " km/h, RPM: " << std::round(rpm) << " , Gear: " << gear << std::endl;
+    std::cout << std::round(speedMps * 3.6f) << " km/h, " << std::round(rpm) << " rpm, " << gear << " gear" << std::endl;
 }

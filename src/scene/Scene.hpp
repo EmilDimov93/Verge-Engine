@@ -17,7 +17,7 @@ public:
 
     uint32_t addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info);
 
-    void loadFile(const std::string& filename, glm::vec3 color);
+    void loadFile(const std::string& filename);
 
     VulkanContext vulkanContext;
 

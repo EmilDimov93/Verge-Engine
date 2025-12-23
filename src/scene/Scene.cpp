@@ -27,7 +27,7 @@ uint32_t Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     return vehicles.size() - 1;
 }
 
-void Scene::loadFile(const std::string& filename, glm::vec3 color)
+void Scene::loadFile(const std::string& filename)
 {
     std::vector<Vertex> meshVertices;
     std::vector<uint32_t> meshIndeces;

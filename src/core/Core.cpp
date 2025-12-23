@@ -56,17 +56,20 @@ public:
         sCar.idleRpm = 800.0f;
         sCar.dragCoeff = 0.31f;
         sCar.frontalAreaM2 = 2.3f;
+        sCar.brakingForce = 14700;
         scene.addVehicle(sCar);
 
-        scene.loadFile("models/car.obj", {0, 0, 0});
+        scene.loadFile("models/car.obj");
 
-        scene.loadFile("models/wheel.obj", {0, 0, 1.0f});
-        scene.loadFile("models/wheel.obj", {0, 0, 1.0f});
-        scene.loadFile("models/wheel.obj", {0, 0, 1.0f});
-        scene.loadFile("models/wheel.obj", {0, 0, 1.0f});
+        scene.loadFile("models/wheel.obj");
+        scene.loadFile("models/wheel.obj");
+        scene.loadFile("models/wheel.obj");
+        scene.loadFile("models/wheel.obj");
 
-        scene.loadFile("models/flag.obj", {0, 1.0f, 0});
-        scene.loadFile("models/flag.obj", {0, 1.0f, 0});
+        scene.loadFile("models/flag.obj");
+        scene.loadFile("models/flag.obj");
+
+        scene.loadFile("models/floorBig.obj");
 
         scene.setCameraFollowVehicle(0);
 

@@ -673,7 +673,7 @@ void VulkanManager::createCommandBuffers()
     vkCheck(vkAllocateCommandBuffers(device, &commandBufferAllocInfo, commandBuffers.data()), {'V', 212});
 }
 
-void VulkanManager::updateUniformBuffers(uint32_t imageIndex)
+void VulkanManager::updateUniformBuffers(uint32_t currentFrame)
 {
     struct UboViewProjection
     {
@@ -685,54 +685,54 @@ void VulkanManager::updateUniformBuffers(uint32_t imageIndex)
     uboViewProjection.view = Camera::getViewMatrix();
 
     void *data;
-    vkCheck(vkMapMemory(device, vpUniformBufferMemory[imageIndex], 0, sizeof(UboViewProjection), 0, &data), {'V', 236});
+    vkCheck(vkMapMemory(device, vpUniformBufferMemory[currentFrame], 0, sizeof(UboViewProjection), 0, &data), {'V', 236});
     memcpy(data, &uboViewProjection, sizeof(UboViewProjection));
-    vkUnmapMemory(device, vpUniformBufferMemory[imageIndex]);
+    vkUnmapMemory(device, vpUniformBufferMemory[currentFrame]);
 }
 
-void VulkanManager::recordCommands(uint32_t currentImage, const std::vector<Mesh>& meshes)
+void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh>& meshes)
 {
     VkCommandBufferBeginInfo commandBufferBeginInfo = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
 
-    vkCheck(vkBeginCommandBuffer(commandBuffers[currentImage], &commandBufferBeginInfo), {'V', 213});
+    vkCheck(vkBeginCommandBuffer(commandBuffers[currentFrame], &commandBufferBeginInfo), {'V', 213});
 
     VkRenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassBeginInfo.renderPass = renderPass;
-    renderPassBeginInfo.framebuffer = swapChainFramebuffers[currentImage];
+    renderPassBeginInfo.framebuffer = swapChainFramebuffers[currentFrame];
     renderPassBeginInfo.renderArea.offset = {0, 0};
     renderPassBeginInfo.renderArea.extent = swapChainExtent;
 
     std::array<VkClearValue, 2> clearValues = {};
-    clearValues[0].color = {0.878f, 0.0f, 0.0f, 1.0f};
+    clearValues[0].color = {0.733f, 0.957f, 0.988f, 1.0f};//{0.878f, 0.0f, 0.0f, 1.0f};
     clearValues[1].depthStencil.depth = 1.0f;
     renderPassBeginInfo.pClearValues = clearValues.data();
     renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 
-    vkCmdBeginRenderPass(commandBuffers[currentImage], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(commandBuffers[currentFrame], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    vkCmdBindPipeline(commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+    vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
     for (size_t j = 0; j < meshes.size(); j++)
     {
         VkBuffer vertexBuffers[] = {meshes[j].getVertexBuffer()};
         VkDeviceSize offsets[] = {0};
-        vkCmdBindVertexBuffers(commandBuffers[currentImage], 0, 1, vertexBuffers, offsets);
+        vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
 
-        vkCmdBindIndexBuffer(commandBuffers[currentImage], meshes[j].getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindIndexBuffer(commandBuffers[currentFrame], meshes[j].getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
         Model m = meshes[j].getModel();
-        vkCmdPushConstants(commandBuffers[currentImage], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(Model), &m);
+        vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(Model), &m);
 
-        vkCmdBindDescriptorSets(commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentImage], 0, nullptr);
+        vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
-        vkCmdDrawIndexed(commandBuffers[currentImage], meshes[j].getIndexCount(), 1, 0, 0, 0);
+        vkCmdDrawIndexed(commandBuffers[currentFrame], meshes[j].getIndexCount(), 1, 0, 0, 0);
     }
 
-    vkCmdEndRenderPass(commandBuffers[currentImage]);
+    vkCmdEndRenderPass(commandBuffers[currentFrame]);
 
-    vkCheck(vkEndCommandBuffer(commandBuffers[currentImage]), {'V', 213});
+    vkCheck(vkEndCommandBuffer(commandBuffers[currentFrame]), {'V', 213});
 }
 
 void VulkanManager::createSemaphores()
@@ -862,8 +862,8 @@ void VulkanManager::drawFrame(const std::vector<Mesh>& meshes)
     uint32_t imageIndex;
     vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex), {'V', 230});
 
-    recordCommands(imageIndex, meshes);
-    updateUniformBuffers(imageIndex);
+    recordCommands(currentFrame, meshes);
+    updateUniformBuffers(currentFrame);
 
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
@@ -873,7 +873,7 @@ void VulkanManager::drawFrame(const std::vector<Mesh>& meshes)
         .pWaitSemaphores = &imageAvailableSemaphores[currentFrame],
         .pWaitDstStageMask = waitStages,
         .commandBufferCount = 1,
-        .pCommandBuffers = &commandBuffers[imageIndex],
+        .pCommandBuffers = &commandBuffers[currentFrame],
         .signalSemaphoreCount = 1,
         .pSignalSemaphores = &renderFinishedSemaphores[currentFrame]};
 

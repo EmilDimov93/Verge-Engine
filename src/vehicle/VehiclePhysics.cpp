@@ -11,24 +11,37 @@
 #define BASELINE_TORQUE_FACTOR 0.9f
 #define SURFACE_ROLLING_COEFFICIENT 0.015f
 
-void Vehicle::accelerate()
+void Vehicle::calcSpeed()
 {
-    float torqueCurveFactor = BASELINE_TORQUE_FACTOR + (1.0f - BASELINE_TORQUE_FACTOR) * (1.0f - rpm / maxRpm);
-    float torque = (powerKw * 1000) / (rpm * 2.0f * PI / 60.0f) * torqueCurveFactor;
+    float engineAngularSpeed = (2 * PI * rpm) / 60;
 
-    float wheelTorque = torque * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
+    float wheelAngularSpeed = engineAngularSpeed / (gearRatios[gear - 1] * finalDriveRatio);
 
-    if (rpm >= maxRpm)
-    {
-        wheelTorque = 0;
-    }
+    float powerW = powerKw * 1000;
+    // Temporary constant
+    float powerAtCurrRPM = powerW * throttleState;
 
-    float wheelForce = wheelTorque / wheelRadiusM;
+    // float torqueCurveFactor = BASELINE_TORQUE_FACTOR + (1.0f - BASELINE_TORQUE_FACTOR) * (1.0f - rpm / maxRpm);
+    float engineTorqueFromPower = powerAtCurrRPM /* * torqueCurveFactor*/ / std::max(engineAngularSpeed, 0.01f);
 
-    float dragForce = (AIR_DENSITY * dragCoeff * frontalAreaM2 * speedMps * speedMps) / 2;
-    float acceleration = (wheelForce - dragForce) / weightKg;
+    float wheelTorque = engineTorqueFromPower * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
 
-    speedMps += acceleration * dt;
+    float FDrive = wheelTorque / wheelRadiusM;
+
+    float FDrag = 0.5f * AIR_DENSITY * dragCoeff * frontalAreaM2 * speedMps * speedMps;
+
+    float FRoll = SURFACE_ROLLING_COEFFICIENT * weightKg * GRAVITY_CONSTANT * (speedMps == 0 ? 0 : 1);
+
+    // Temporary constant
+    const float slope = glm::radians(0.0f);
+
+    float FSlope = weightKg * GRAVITY_CONSTANT * sin(slope);
+
+    float FBrake = brakeState * brakingForce;
+
+    float a = (FDrive - FDrag - FRoll - FSlope - FBrake) / weightKg;
+
+    speedMps += a * dt;
 
     float wheelRpm = (speedMps / wheelRadiusM) * (60.0f / (2.0f * PI));
     rpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
@@ -37,28 +50,6 @@ void Vehicle::accelerate()
         rpm = maxRpm;
     else if (rpm < idleRpm)
         rpm = idleRpm;
-}
-
-void Vehicle::idle()
-{
-    float rollingResistance = SURFACE_ROLLING_COEFFICIENT * weightKg * GRAVITY_CONSTANT;
-    float dragForce = 0.5f * AIR_DENSITY * dragCoeff * frontalAreaM2 * speedMps * speedMps;
-    float netDecel = (dragForce + rollingResistance) / weightKg;
-
-    speedMps -= netDecel * dt;
-    if (speedMps < 0.0f)
-        speedMps = 0.0f;
-
-    float wheelAngularDecel = netDecel / wheelRadiusM;
-    float rpmDropRate = wheelAngularDecel * (60.0f / (2.0f * PI)) * gearRatios[gear - 1] * finalDriveRatio;
-    rpm -= rpmDropRate * dt;
-    if (rpm < idleRpm)
-        rpm = idleRpm;
-}
-
-void Vehicle::brake()
-{
-    speedMps = 0;
 }
 
 void Vehicle::turnLeft()
@@ -125,17 +116,16 @@ void Vehicle::updateTransmission()
 void Vehicle::calculatePhysics()
 {
     if (Input::isDown(accelerateKey))
-    {
-        accelerate();
-    }
-    else if (Input::isDown(brakeKey))
-    {
-        brake();
-    }
+        throttleState = 1.0f;
     else
-    {
-        idle();
-    }
+        throttleState = 0.0f;
+
+    if (Input::isDown(brakeKey))
+        brakeState = 1.0f;
+    else
+        brakeState = 0.0f;
+
+    calcSpeed();
 
     updateTransmission();
 

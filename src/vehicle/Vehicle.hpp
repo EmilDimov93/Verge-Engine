@@ -110,7 +110,7 @@ public:
     uint32_t getGear() const { return gear; }
     float getRpm() const { return rpm; }
     float getTireGrip() const { return tireGrip; }
-    float getClutchLevel() const { return clutchLevel; }
+    float getClutchState() const { return clutchState; }
 
     void setPowerKw(uint32_t value) { powerKw = value; }
     void setPowerHp(uint32_t value){ powerKw = static_cast<uint32_t>(value / 1.341022f); }
@@ -148,12 +148,11 @@ public:
     void setGear(uint32_t value) { gear = value; }
     void setRpm(float value) { rpm = value; }
     void setTireGrip(float value) { tireGrip = value; }
-    void setClutchLevel(float value) { clutchLevel = value; }
+    void setClutchState(float value) { clutchState = value; }
 
 private:
-    void accelerate();
-    void idle();
-    void brake();
+    void calcSpeed();
+
     void turnLeft();
     void turnRight();
     void shiftUp();
@@ -202,6 +201,8 @@ private:
     uint32_t gear;
     float rpm;
     float tireGrip;
-    float clutchLevel;
+    float clutchState;
+    float throttleState;
+    float brakeState;
     ve_time dt;
 };

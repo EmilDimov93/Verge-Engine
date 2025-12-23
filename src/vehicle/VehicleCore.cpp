@@ -5,6 +5,8 @@
 
 #include "../Log.hpp"
 
+#define HP_TO_KW_CONVERSION_FACTOR 0.7457f
+
 void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
 {
     if (info.bodyMeshIndex != -1)
@@ -41,7 +43,7 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
             powerKw = info.power;
             break;
         case VE_POWER_UNIT_HORSEPOWER:
-            powerKw = 0.7457f * info.power;
+            powerKw = HP_TO_KW_CONVERSION_FACTOR * info.power;
             break;
         default:
             Log::add('A', 102);
@@ -97,7 +99,7 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
 
     transmissionType = info.transmissionType;
 
-    if (info.brakingForce >= 0 && info.brakingForce <= 1.0f)
+    if (info.brakingForce >= 0)
     {
         brakingForce = info.brakingForce;
     }
@@ -207,7 +209,9 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     speedMps = 0;
     gear = 1;
     rpm = 0;
-    clutchLevel = 0.0f;
+    clutchState = 0.0f;
+    throttleState = 0.0f;
+    brakeState = 0.0f;
 }
 
 void Vehicle::tick(ve_time deltaTime)
@@ -218,5 +222,5 @@ void Vehicle::tick(ve_time deltaTime)
 
     updateGraphics();
 
-    //std::cout << std::round(speedMps * 3.6f) << " km/h, " << std::round(rpm) << " rpm, " << gear << " gear" << std::endl;
+    std::cout << std::round(speedMps * 3.6f) << " km/h, " << std::round(rpm) << " rpm, " << gear << " gear" << std::endl;
 }

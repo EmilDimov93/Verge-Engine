@@ -216,7 +216,7 @@ void VulkanManager::createSwapChain(Size2 windowSize)
     swapChainImageFormat = VK_FORMAT_R8G8B8A8_UNORM;
     swapChainExtent = {windowSize.w, windowSize.h};
 
-    VkSwapchainCreateInfoKHR createInfo = {
+    VkSwapchainCreateInfoKHR swapchainCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
         .surface = surface,
         .minImageCount = capabilities.minImageCount + (capabilities.minImageCount != capabilities.maxImageCount),
@@ -234,7 +234,7 @@ void VulkanManager::createSwapChain(Size2 windowSize)
         .clipped = VK_TRUE,
         .oldSwapchain = VK_NULL_HANDLE};
 
-    vkCheck(vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain), {'V', 204});
+    vkCheck(vkCreateSwapchainKHR(device, &swapchainCreateInfo, nullptr, &swapChain), {'V', 204});
 
     uint32_t swapChainImageCount;
     vkGetSwapchainImagesKHR(device, swapChain, &swapChainImageCount, nullptr);

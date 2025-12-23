@@ -152,7 +152,7 @@ public:
 
 private:
     void calcSpeed();
-
+    void handleInput();
     void turnLeft();
     void turnRight();
     void shiftUp();

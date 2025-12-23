@@ -54,16 +54,28 @@ void Vehicle::calcSpeed()
 
 void Vehicle::turnLeft()
 {
+    float decrease = 0;
+    decrease = speedMps * 3.6f * maxSteeringAngleRad / 200;
+
+    if(decrease > maxSteeringAngleRad / 3)
+        decrease = maxSteeringAngleRad / 2;
+
     const float wheelBase = 2.6f;
-    steeringAngleRad = maxSteeringAngleRad;
+    steeringAngleRad = maxSteeringAngleRad - decrease;
     double turnRate = speedMps * tan(steeringAngleRad) / wheelBase;
     rotation.yaw += turnRate * dt / 5.0f;
 }
 
 void Vehicle::turnRight()
 {
+    float decrease = 0;
+    decrease = speedMps * 3.6f * maxSteeringAngleRad / 200;
+
+    if(decrease > maxSteeringAngleRad / 3)
+        decrease = maxSteeringAngleRad / 2;
+
     const float wheelBase = 2.6f;
-    steeringAngleRad = -maxSteeringAngleRad;
+    steeringAngleRad = -maxSteeringAngleRad + decrease;
     double turnRate = speedMps * tan(steeringAngleRad) / wheelBase;
     rotation.yaw += turnRate * dt / 5.0f;
 }
@@ -138,4 +150,6 @@ void Vehicle::calculatePhysics()
     {
         turnRight();
     }
+
+    std::cout << steeringAngleRad << " " << speedMps << std::endl;
 }

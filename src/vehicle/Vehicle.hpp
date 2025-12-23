@@ -152,6 +152,7 @@ public:
 
 private:
     void calcSpeed();
+    void calcRpm();
     void handleInput();
     void turnLeft();
     void turnRight();

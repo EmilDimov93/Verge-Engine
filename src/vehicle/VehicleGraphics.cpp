@@ -33,8 +33,8 @@ void Vehicle::move()
     glm::mat4 T = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, position.z));
 
     glm::mat4 R =
-        glm::rotate(glm::mat4(1.0f), (float)rotation.yaw, glm::vec3(0, 1, 0)) *
         glm::rotate(glm::mat4(1.0f), (float)rotation.pitch, glm::vec3(1, 0, 0)) *
+        glm::rotate(glm::mat4(1.0f), (float)rotation.yaw, glm::vec3(0, 1, 0)) *
         glm::rotate(glm::mat4(1.0f), (float)rotation.roll, glm::vec3(0, 0, 1));
 
     bodyMat = T * R;

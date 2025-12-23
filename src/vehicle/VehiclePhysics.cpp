@@ -43,6 +43,11 @@ void Vehicle::calcSpeed()
 
     speedMps += a * dt;
 
+    if(speedMps < 0)
+        speedMps = 0;
+}
+
+void Vehicle::calcRpm(){
     float wheelRpm = (speedMps / wheelRadiusM) * (60.0f / (2.0f * PI));
     rpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
 
@@ -125,8 +130,7 @@ void Vehicle::updateTransmission()
     }
 }
 
-void Vehicle::calculatePhysics()
-{
+void Vehicle::handleInput(){
     if (Input::isDown(accelerateKey))
         throttleState = 1.0f;
     else
@@ -137,10 +141,6 @@ void Vehicle::calculatePhysics()
     else
         brakeState = 0.0f;
 
-    calcSpeed();
-
-    updateTransmission();
-
     steeringAngleRad = 0;
     if (Input::isDown(turnLeftKey) && Input::isUp(turnRightKey))
     {
@@ -150,6 +150,15 @@ void Vehicle::calculatePhysics()
     {
         turnRight();
     }
+}
 
-    std::cout << steeringAngleRad << " " << speedMps << std::endl;
+void Vehicle::calculatePhysics()
+{
+    handleInput();
+
+    calcSpeed();
+
+    calcRpm();
+
+    updateTransmission();
 }

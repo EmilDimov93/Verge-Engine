@@ -197,16 +197,15 @@ void Scene::cameraFollowVehicle(ve_time dt)
     float distance = 8.0f;
     float height = 3.0f;
 
-    float camX = vehicles[cameraFollowedVehicleIndex].getPosition().x + sin(cameraRot) * distance;
-    float camZ = vehicles[cameraFollowedVehicleIndex].getPosition().z + cos(cameraRot) * distance;
-    float camY = vehicles[cameraFollowedVehicleIndex].getPosition().y + height;
+    Position3 vehiclePos = vehicles[cameraFollowedVehicleIndex].getPosition();
 
-    static glm::vec3 camPos = {Camera::getPosition().x, Camera::getPosition().y, Camera::getPosition().z};
-    glm::vec3 targetPos = {camX, camY, camZ};
-    camPos = glm::mix(camPos, targetPos, std::exp(-dt * 10.0f));
-    Camera::move({camPos.x, camPos.y, camPos.z});
+    static glm::vec3 prevCamPos = {Camera::getPosition().x, Camera::getPosition().y, Camera::getPosition().z};
+    glm::vec3 targetCamPos = {vehiclePos.x + sin(cameraRot) * distance, vehiclePos.y + height, vehiclePos.z + cos(cameraRot) * distance};
+    glm::vec3 newCamPos = glm::mix(prevCamPos, targetCamPos, std::exp(-dt * 10.0f));
+    Camera::move({newCamPos.x, newCamPos.y, newCamPos.z});
+    prevCamPos = {Camera::getPosition().x, Camera::getPosition().y, Camera::getPosition().z};
 
-    glm::vec3 dir = glm::normalize(glm::vec3(vehicles[cameraFollowedVehicleIndex].getPosition().x, vehicles[cameraFollowedVehicleIndex].getPosition().y, vehicles[cameraFollowedVehicleIndex].getPosition().z) - glm::vec3(camX, camY, camZ));
+    glm::vec3 dir = glm::normalize(glm::vec3(vehiclePos.x, vehiclePos.y, vehiclePos.z) - targetCamPos);
     float pitch = glm::degrees(asin(dir.y));
     float yaw = glm::degrees(atan2(dir.z, dir.x));
     Camera::rotate({pitch, yaw, 0});

@@ -32,8 +32,7 @@ void Vehicle::calcSpeed()
 
     float FRoll = SURFACE_ROLLING_COEFFICIENT * weightKg * GRAVITY_CONSTANT * (speedMps == 0 ? 0 : 1);
 
-    // Temporary constant
-    const float slope = glm::radians(0.0f);
+    const float slope = std::atan(std::sqrt(std::tan(glm::radians(rotation.pitch)) * std::tan(glm::radians(rotation.pitch)) + std::tan(glm::radians(rotation.roll)) * std::tan(glm::radians(rotation.roll))));
 
     float FSlope = weightKg * GRAVITY_CONSTANT * sin(slope);
 
@@ -43,11 +42,12 @@ void Vehicle::calcSpeed()
 
     speedMps += a * dt;
 
-    if(speedMps < 0)
+    if (speedMps < 0)
         speedMps = 0;
 }
 
-void Vehicle::calcRpm(){
+void Vehicle::calcRpm()
+{
     float wheelRpm = (speedMps / wheelRadiusM) * (60.0f / (2.0f * PI));
     rpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
 
@@ -62,7 +62,7 @@ void Vehicle::turnLeft()
     float decrease = 0;
     decrease = speedMps * 3.6f * maxSteeringAngleRad / 200;
 
-    if(decrease > maxSteeringAngleRad / 3)
+    if (decrease > maxSteeringAngleRad / 3)
         decrease = maxSteeringAngleRad / 2;
 
     const float wheelBase = 2.6f;
@@ -76,7 +76,7 @@ void Vehicle::turnRight()
     float decrease = 0;
     decrease = speedMps * 3.6f * maxSteeringAngleRad / 200;
 
-    if(decrease > maxSteeringAngleRad / 3)
+    if (decrease > maxSteeringAngleRad / 3)
         decrease = maxSteeringAngleRad / 2;
 
     const float wheelBase = 2.6f;
@@ -130,7 +130,8 @@ void Vehicle::updateTransmission()
     }
 }
 
-void Vehicle::handleInput(){
+void Vehicle::handleInput()
+{
     if (Input::isDown(accelerateKey))
         throttleState = 1.0f;
     else

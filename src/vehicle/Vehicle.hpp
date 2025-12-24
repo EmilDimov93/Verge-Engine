@@ -27,6 +27,8 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     int32_t wheelBLMeshIndex = -1;
     int32_t wheelBRMeshIndex = -1;
 
+    Position3 wheelOffset = {0, 0, 0};
+
     uint32_t power = 100;
     VEPowerUnit powerUnit = VE_POWER_UNIT_KILOWATTS;
 
@@ -74,20 +76,20 @@ public:
     void calculatePhysics();
     void updateGraphics();
 
+    // Getters
+    
+    Position3 getWheelOffset() const { return wheelOffset; }
     uint32_t getPowerKw() const { return powerKw; }
     uint32_t getPowerHp() const{ return static_cast<uint32_t>(powerKw * 1.341022f); }
-
     float getWeightKg() const { return weightKg; }
     uint32_t getGearCount() const { return gearCount; }
     uint32_t getMaxRpm() const { return maxRpm; }
     VETransmissionType getTransmissionType() const { return transmissionType; }
     float getBrakingForce() const { return brakingForce; }
-
     float getGearRatio(uint32_t gearIndex) const
     {
         return gearIndex < gearRatios.size() ? gearRatios[gearIndex] : 0.0f;
     }
-
     float getFinalDriveRatio() const { return finalDriveRatio; }
     float getDrivetrainEfficiency() const { return drivetrainEfficiency; }
     float getWheelRadius() const { return wheelRadiusM; }
@@ -95,58 +97,48 @@ public:
     float getDragCoeff() const { return dragCoeff; }
     float getFrontalArea() const { return frontalAreaM2; }
     float getMaxSteeringAngleRad() const { return maxSteeringAngleRad; }
-
     float getMaxSteeringAngleDeg() const{ return maxSteeringAngleRad * 57.2957795f; }
-
     const Position3 &getPosition() const { return position; }
     const Rotation3 &getRotation() const { return rotation; }
     const Rotation3 &getMoveDirection() const { return moveDirection; }
-
     float getSpeedMps() const { return speedMps; }
     float getSpeedKmph() const { return speedMps * 3.6f; }
-
     float getSteeringAngleRad() const { return steeringAngleRad; }
     float getSteeringAngleDeg() const { return steeringAngleRad * 57.2957795f; }
-
     uint32_t getGear() const { return gear; }
     float getRpm() const { return rpm; }
     float getTireGrip() const { return tireGrip; }
     float getClutchState() const { return clutchState; }
 
+    // Setters
+
+    void setWheelOffset(Position3 value) { wheelOffset = value; }
     void setPowerKw(uint32_t value) { powerKw = value; }
     void setPowerHp(uint32_t value){ powerKw = static_cast<uint32_t>(value / 1.341022f); }
-
     void setWeightKg(float value) { weightKg = value; }
     void setGearCount(uint32_t value) { gearCount = value; }
     void setMaxRpm(uint32_t value) { maxRpm = value; }
     void setTransmissionType( VETransmissionType value ) { transmissionType = value; }
     void setBrakingForce(float value) { brakingForce = value; }
-
     void setGearRatio(uint32_t gearIndex, float value)
     {
         if (gearIndex < gearRatios.size() && gearIndex >= 0)
             gearRatios[gearIndex] = value;
     }
-
     void setFinalDriveRatio(float value) { finalDriveRatio = value; }
     void setDrivetrainEfficiency(float value) { drivetrainEfficiency = value; }
     void setWheelRadius(float value) { wheelRadiusM = value; }
     void setIdleRpm(float value) { idleRpm = value; }
     void setDragCoeff(float value) { dragCoeff = value; }
     void setFrontalArea(float value) { frontalAreaM2 = value; }
-
     void setMaxSteeringAngleRad(float value) { maxSteeringAngleRad = value; }
     void setMaxSteeringAngleDeg(float deg){ maxSteeringAngleRad = deg * 0.0174532925f; }
-
     void setPosition(const Position3 &value) { position = value; }
     void setRotation(const Rotation3 &value) { rotation = value; }
     void setMoveDirection(const Rotation3 &value) { moveDirection = value; }
-
     void setSpeedMps(float value) { speedMps = value; }
-
     void setSteeringAngleRad(float value) { steeringAngleRad = value; }
     void setSteeringAngleDeg(float value) { steeringAngleRad = value * 0.0174532925f; }
-
     void setGear(uint32_t value) { gear = value; }
     void setRpm(float value) { rpm = value; }
     void setTireGrip(float value) { tireGrip = value; }
@@ -168,7 +160,7 @@ private:
     void steerWheels();
     void spinWheels();
 
-    // Position3 wheelOffset;
+    Position3 wheelOffset;
 
     uint32_t powerKw;
     float weightKg;

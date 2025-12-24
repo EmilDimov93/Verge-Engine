@@ -34,6 +34,7 @@ public:
         sCar.wheelFRMeshIndex = 2;
         sCar.wheelBLMeshIndex = 3;
         sCar.wheelBRMeshIndex = 4;
+        sCar.wheelOffset = { 2.0f, 0.4f, 1.8f };
         sCar.power = 190;
         sCar.powerUnit = VE_POWER_UNIT_HORSEPOWER;
         sCar.weightKg = 1540;

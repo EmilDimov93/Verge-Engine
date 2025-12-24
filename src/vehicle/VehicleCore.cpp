@@ -35,6 +35,8 @@ void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     wheelBLMat = glm::mat4(1.0f);
     wheelBRMat = glm::mat4(1.0f);
 
+    wheelOffset = info.wheelOffset;
+
     if (info.power > 0)
     {
         switch (info.powerUnit)

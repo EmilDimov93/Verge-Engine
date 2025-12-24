@@ -42,9 +42,6 @@ void Vehicle::move()
 
 void Vehicle::offsetWheels()
 {
-    // Temporary
-    Position3 wheelOffset = { 2.0f, 0.4f, 1.8f };
-
     glm::mat4 flLocal = glm::translate(glm::mat4(1.0f),
         glm::vec3( wheelOffset.x * 0.5f, wheelOffset.y,  wheelOffset.z));
 

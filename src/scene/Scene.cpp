@@ -182,7 +182,7 @@ void Scene::unsetCameraFollowVehicle(uint32_t vehicleIndex)
 
 void Scene::cameraFollowVehicle(ve_time dt)
 {
-    static float cameraRot = -180.0f;
+    /*static float cameraRot = -180.0f;
     if (Input::isDown(VE_KEY_LEFT))
     {
         cameraRot += dt * 90;
@@ -190,13 +190,15 @@ void Scene::cameraFollowVehicle(ve_time dt)
     if (Input::isDown(VE_KEY_RIGHT))
     {
         cameraRot -= dt * 90;
-    }
+    }*/
+
+    float cameraRot = vehicles[cameraFollowedVehicleIndex].getMoveDirection().yaw - PI;
 
     float distance = 8.0f;
     float height = 3.0f;
 
-    float camX = vehicles[cameraFollowedVehicleIndex].getPosition().x + sin(glm::radians(cameraRot)) * distance;
-    float camZ = vehicles[cameraFollowedVehicleIndex].getPosition().z + cos(glm::radians(cameraRot)) * distance;
+    float camX = vehicles[cameraFollowedVehicleIndex].getPosition().x + sin(cameraRot) * distance;
+    float camZ = vehicles[cameraFollowedVehicleIndex].getPosition().z + cos(cameraRot) * distance;
     float camY = vehicles[cameraFollowedVehicleIndex].getPosition().y + height;
 
     static glm::vec3 camPos = {Camera::getPosition().x, Camera::getPosition().y, Camera::getPosition().z};

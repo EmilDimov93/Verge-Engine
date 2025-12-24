@@ -100,6 +100,7 @@ public:
 
     const Position3 &getPosition() const { return position; }
     const Rotation3 &getRotation() const { return rotation; }
+    const Rotation3 &getMoveDirection() const { return moveDirection; }
 
     float getSpeedMps() const { return speedMps; }
     float getSpeedKmph() const { return speedMps * 3.6f; }
@@ -139,6 +140,7 @@ public:
 
     void setPosition(const Position3 &value) { position = value; }
     void setRotation(const Rotation3 &value) { rotation = value; }
+    void setMoveDirection(const Rotation3 &value) { moveDirection = value; }
 
     void setSpeedMps(float value) { speedMps = value; }
 

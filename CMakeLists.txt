@@ -21,6 +21,7 @@ add_executable(VergeEngine
     src/vehicle/VehicleGraphics.cpp
     src/vehicle/VehiclePhysics.cpp
 
+    src/scene/Trigger.cpp
     src/scene/Scene.cpp
 )
 

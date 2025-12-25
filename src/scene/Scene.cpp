@@ -16,6 +16,16 @@ Scene::Scene(VulkanContext newVulkanContext, float newFov, float newAspectRatio,
     isCameraFollowingVehicle = false;
 
     Camera::init(newFov, newAspectRatio, newZNear, newZFar);
+
+    // Temporary
+    VE_STRUCT_TRIGGER_TYPE_CREATE_INFO createInfo = {};
+    createInfo.meshIndex = 0;
+    createInfo.id = 0;
+    createInfo.hitboxShape = VE_SHAPE_PRISM;
+    createInfo.hitboxSize = 10.0f;
+
+    Trigger t(createInfo, {2.0f, 0, 20.0f});
+    triggers.push_back(t);
 }
 
 uint32_t Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
@@ -27,7 +37,7 @@ uint32_t Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     return vehicles.size() - 1;
 }
 
-void Scene::loadFile(const std::string& filename)
+void Scene::loadFile(const std::string &filename)
 {
     std::vector<Vertex> meshVertices;
     std::vector<uint32_t> meshIndeces;
@@ -41,13 +51,13 @@ void Scene::loadFile(const std::string& filename)
 
     glm::vec3 currentColor(1.0f);
 
-    auto trim = [](std::string& s)
+    auto trim = [](std::string &s)
     {
         s.erase(s.find_last_not_of(" \t\r\n") + 1);
         s.erase(0, s.find_first_not_of(" \t\r\n"));
     };
 
-    auto loadMTL = [&](const std::string& mtlPath)
+    auto loadMTL = [&](const std::string &mtlPath)
     {
         std::ifstream mtl(mtlPath);
         if (!mtl.is_open())
@@ -106,18 +116,16 @@ void Scene::loadFile(const std::string& filename)
             std::string a, b, c;
             ss >> a >> b >> c;
 
-            auto parseIndex = [](const std::string& s)
+            auto parseIndex = [](const std::string &s)
             {
                 return static_cast<uint32_t>(
-                    std::stoi(s.substr(0, s.find('/'))) - 1
-                );
+                    std::stoi(s.substr(0, s.find('/'))) - 1);
             };
 
             uint32_t ids[3] = {
                 parseIndex(a),
                 parseIndex(b),
-                parseIndex(c)
-            };
+                parseIndex(c)};
 
             for (uint32_t idx : ids)
             {
@@ -126,8 +134,7 @@ void Scene::loadFile(const std::string& filename)
                 v.col = currentColor;
 
                 meshIndeces.push_back(
-                    static_cast<uint32_t>(meshVertices.size())
-                );
+                    static_cast<uint32_t>(meshVertices.size()));
                 meshVertices.push_back(v);
             }
         }
@@ -165,6 +172,18 @@ void Scene::tick(ve_time dt)
 
     if (isCameraFollowingVehicle)
         cameraFollowVehicle(dt);
+
+    for (Trigger &trigger : triggers)
+    {
+        for (Vehicle &vehicle : vehicles)
+        {
+            if (trigger.doesActorTrigger(vehicle.getPosition()))
+            {
+                std::cout << "Triggered" << std::endl;
+                // call callback function
+            }
+        }
+    }
 
     Camera::update();
 }

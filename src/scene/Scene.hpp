@@ -13,6 +13,7 @@ class Scene
 public:
     std::vector<Mesh> meshes;
     std::vector<Vehicle> vehicles;
+    std::vector<Trigger> triggers;
 
     Scene(VulkanContext newVulkanContext, float newFov, float newAspectRatio, float newZNear, float newZFar);
 

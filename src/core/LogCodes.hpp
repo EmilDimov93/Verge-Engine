@@ -75,6 +75,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
 
     // Other
     {{'O', 100}, "Invalid error code"},
+    {{'O', 101}, "Test error code"},
 
 // Layer 2
 

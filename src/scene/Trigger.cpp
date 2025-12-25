@@ -5,10 +5,10 @@
 
 #include "../Log.hpp"
 
-Trigger::Trigger(VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info, Position3 position)
+Trigger::Trigger(uint32_t id, Position3 position, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info)
 {
-    if (info.id != -1)
-        id = info.id;
+    if (id >= 0)
+        this->id = id;
     else
     {
         // should be error
@@ -64,4 +64,9 @@ bool Trigger::doesActorTrigger(Position3 actorPosition)
     }
 
     return false;
+}
+
+uint32_t Trigger::getId()
+{
+    return id;
 }

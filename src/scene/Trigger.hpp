@@ -14,7 +14,6 @@ enum VE_SHAPE{
 
 struct VE_STRUCT_TRIGGER_TYPE_CREATE_INFO
 {
-    int32_t id = -1;
     int32_t meshIndex = -1;
     VE_SHAPE hitboxShape = VE_SHAPE_UNKNOWN;
     float hitboxSize = -1.0f;
@@ -25,15 +24,17 @@ struct VE_STRUCT_TRIGGER_TYPE_CREATE_INFO
 class Trigger
 {
 public:
-    Trigger(VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info, Position3 position);
+    Trigger(uint32_t id, Position3 position, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info);
 
     bool doesActorTrigger(Position3 actorPosition);
 
+    uint32_t getId();
+
 private:
-    int32_t id;
+    uint32_t id;
 
     Position3 position;
-    int32_t meshIndex;
+    uint32_t meshIndex;
 
     VE_SHAPE hitboxShape;
     float hitboxSize;

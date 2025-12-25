@@ -137,9 +137,14 @@ uint32_t Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     return vehicles.size() - 1;
 }
 
-uint32_t Scene::addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Position3 position)
+uint32_t Scene::addTrigger(uint32_t id, Position3 position, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info)
 {
-    Trigger newTrigger(info, position);
+    for(Trigger trigger : triggers){
+        if(id == trigger.getId()){
+            // Error: id exists
+        }
+    }
+    Trigger newTrigger(id, position, info);
     triggers.push_back(newTrigger);
 
     return triggers.size() - 1;
@@ -178,7 +183,7 @@ void Scene::tick(ve_time dt)
         {
             if (trigger.doesActorTrigger(vehicle.getPosition()))
             {
-                std::cout << "Triggered" << std::endl;
+                std::cout << "Triggered: " << trigger.getId() << std::endl;
                 // call callback function
             }
         }

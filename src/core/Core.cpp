@@ -57,10 +57,10 @@ public:
 
         VE_STRUCT_TRIGGER_TYPE_CREATE_INFO sTriggerType = {};
         sTriggerType.meshIndex = scene.loadFile("models/flag.obj");
-        sTriggerType.id = 0;
         sTriggerType.hitboxShape = VE_SHAPE_PRISM;
         sTriggerType.hitboxSize = 10.0f;
-        scene.addTrigger(sTriggerType, {2.0f, 0, 20.0f});
+        scene.addTrigger(0, {2.0f, 0, 20.0f}, sTriggerType);
+        scene.addTrigger(1, {2.0f, 0, 50.0f}, sTriggerType);
 
         scene.loadFile("models/floorBig.obj");
 

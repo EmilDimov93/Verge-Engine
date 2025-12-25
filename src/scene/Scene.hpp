@@ -6,6 +6,7 @@
 #include "../rendering/Mesh.hpp"
 #include "../rendering/Camera.hpp"
 #include "../vehicle/Vehicle.hpp"
+#include "Trigger.hpp"
 
 class Scene
 {

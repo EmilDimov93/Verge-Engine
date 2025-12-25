@@ -17,9 +17,10 @@ public:
 
     Scene(VulkanContext newVulkanContext, float newFov, float newAspectRatio, float newZNear, float newZFar);
 
-    uint32_t addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info);
+    uint32_t loadFile(const std::string& filename);
 
-    void loadFile(const std::string& filename);
+    uint32_t addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info);
+    uint32_t addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Position3 position);
 
     VulkanContext vulkanContext;
 

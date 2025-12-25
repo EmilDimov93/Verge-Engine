@@ -39,4 +39,6 @@ private:
     float hitboxSize;
 
     bool destroyOnTrigger;
+
+    // callback function
 };

@@ -16,28 +16,9 @@ Scene::Scene(VulkanContext newVulkanContext, float newFov, float newAspectRatio,
     isCameraFollowingVehicle = false;
 
     Camera::init(newFov, newAspectRatio, newZNear, newZFar);
-
-    // Temporary
-    VE_STRUCT_TRIGGER_TYPE_CREATE_INFO createInfo = {};
-    createInfo.meshIndex = 0;
-    createInfo.id = 0;
-    createInfo.hitboxShape = VE_SHAPE_PRISM;
-    createInfo.hitboxSize = 10.0f;
-
-    Trigger t(createInfo, {2.0f, 0, 20.0f});
-    triggers.push_back(t);
 }
 
-uint32_t Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
-{
-    Vehicle newVehicle;
-    newVehicle.init(info);
-    vehicles.push_back(newVehicle);
-
-    return vehicles.size() - 1;
-}
-
-void Scene::loadFile(const std::string &filename)
+uint32_t Scene::loadFile(const std::string &filename)
 {
     std::vector<Vertex> meshVertices;
     std::vector<uint32_t> meshIndeces;
@@ -144,6 +125,25 @@ void Scene::loadFile(const std::string &filename)
     // should vkcheck
     objMesh.init(vulkanContext, &meshVertices, &meshIndeces);
     meshes.push_back(objMesh);
+
+    return meshes.size() - 1;
+}
+
+uint32_t Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
+{
+    Vehicle newVehicle;
+    newVehicle.init(info);
+    vehicles.push_back(newVehicle);
+
+    return vehicles.size() - 1;
+}
+
+uint32_t Scene::addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Position3 position)
+{
+    Trigger newTrigger(info, position);
+    triggers.push_back(newTrigger);
+
+    return triggers.size() - 1;
 }
 
 // Should be in Mesh.cpp

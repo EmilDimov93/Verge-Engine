@@ -29,12 +29,12 @@ public:
     void run()
     {
         VE_STRUCT_VEHICLE_CREATE_INFO sCar = {};
-        sCar.bodyMeshIndex = 0;
-        sCar.wheelFLMeshIndex = 1;
-        sCar.wheelFRMeshIndex = 2;
-        sCar.wheelBLMeshIndex = 3;
-        sCar.wheelBRMeshIndex = 4;
-        sCar.wheelOffset = { 2.0f, 0.4f, 1.8f };
+        sCar.bodyMeshIndex = scene.loadFile("models/car.obj");
+        sCar.wheelFLMeshIndex = scene.loadFile("models/wheel.obj");
+        sCar.wheelFRMeshIndex = scene.loadFile("models/wheel.obj");
+        sCar.wheelBLMeshIndex = scene.loadFile("models/wheel.obj");
+        sCar.wheelBRMeshIndex = scene.loadFile("models/wheel.obj");
+        sCar.wheelOffset = {2.0f, 0.4f, 1.8f};
         sCar.power = 190;
         sCar.powerUnit = VE_POWER_UNIT_HORSEPOWER;
         sCar.weightKg = 1540;
@@ -47,10 +47,8 @@ public:
         sCar.turnRightKey = VE_KEY_D;
         sCar.shiftUpKey = VE_KEY_M;
         sCar.shiftDownKey = VE_KEY_N;
-
         float ratios[8] = {5.519f, 3.184f, 2.050f, 1.492f, 1.235f, 1.000f, 0.801f, 0.673f};
         sCar.pGearRatios = ratios;
-
         sCar.finalDriveRatio = 3.2f;
         sCar.drivetrainEfficiency = 0.9f;
         sCar.wheelRadiusM = 0.31f;
@@ -60,15 +58,12 @@ public:
         sCar.brakingForce = 14700;
         scene.addVehicle(sCar);
 
-        scene.loadFile("models/car.obj");
-
-        scene.loadFile("models/wheel.obj");
-        scene.loadFile("models/wheel.obj");
-        scene.loadFile("models/wheel.obj");
-        scene.loadFile("models/wheel.obj");
-
-        scene.loadFile("models/flag.obj");
-        scene.loadFile("models/flag.obj");
+        VE_STRUCT_TRIGGER_TYPE_CREATE_INFO sTriggerType = {};
+        sTriggerType.meshIndex = scene.loadFile("models/flag.obj");
+        sTriggerType.id = 0;
+        sTriggerType.hitboxShape = VE_SHAPE_PRISM;
+        sTriggerType.hitboxSize = 10.0f;
+        scene.addTrigger(sTriggerType, {2.0f, 0, 20.0f});
 
         scene.loadFile("models/floorBig.obj");
 

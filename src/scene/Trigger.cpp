@@ -50,11 +50,10 @@ bool Trigger::doesActorTrigger(Position3 actorPosition)
     {
     case VE_SHAPE_PRISM:
     {
-        bool xCheck = (actorPosition.x > position.x - hitboxSize / 2) && (actorPosition.x < position.x + hitboxSize / 2);
-        bool yCheck = (actorPosition.y > position.y - hitboxSize / 2) && (actorPosition.y < position.y + hitboxSize / 2);
-        bool zCheck = (actorPosition.z > position.z - hitboxSize / 2) && (actorPosition.z < position.z + hitboxSize / 2);
-        if (xCheck && yCheck && zCheck)
-            return true; // Collision yes
+        if ((actorPosition.x > position.x - hitboxSize / 2) && (actorPosition.x < position.x + hitboxSize / 2) &&
+            (actorPosition.y > position.y - hitboxSize / 2) && (actorPosition.y < position.y + hitboxSize / 2) &&
+            (actorPosition.z > position.z - hitboxSize / 2) && (actorPosition.z < position.z + hitboxSize / 2))
+            return true;
         break;
     }
     case VE_SHAPE_SPHERE:

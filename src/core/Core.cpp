@@ -11,9 +11,6 @@
 #include "../system/FPSManager.hpp"
 
 #include "../rendering/VulkanManager.hpp"
-#include "../rendering/Camera.hpp"
-
-#include "../vehicle/Vehicle.hpp"
 
 #include "../scene/Scene.hpp"
 
@@ -89,13 +86,7 @@ private:
 
     void tick()
     {
-        glm::mat4 flag1Model(1.0f), flag2Model(1.0f);
-
-        flag1Model = glm::translate(flag1Model, glm::vec3(2.0f, 0, 20.0f));
-        flag2Model = glm::translate(flag2Model, glm::vec3(-2.0f, 0, 20.0f));
-
-        scene.updateModel(5, flag1Model);
-        scene.updateModel(6, flag2Model);
+        scene.updateModel(5, glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0, 20.0f)));
 
         scene.tick(fps.getFrameTime());
 

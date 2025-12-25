@@ -131,8 +131,7 @@ uint32_t Scene::loadFile(const std::string &filename)
 
 uint32_t Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
 {
-    Vehicle newVehicle;
-    newVehicle.init(info);
+    Vehicle newVehicle(info);
     vehicles.push_back(newVehicle);
 
     return vehicles.size() - 1;

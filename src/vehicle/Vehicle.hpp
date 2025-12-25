@@ -69,7 +69,7 @@ public:
     glm::mat4 bodyMat;
     glm::mat4 wheelFLMat, wheelFRMat, wheelBLMat, wheelBRMat;
 
-    void init(const VE_STRUCT_VEHICLE_CREATE_INFO &info);
+    Vehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info);
 
     void tick(ve_time deltaTime);
 

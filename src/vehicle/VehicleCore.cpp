@@ -7,7 +7,7 @@
 
 #define HP_TO_KW_CONVERSION_FACTOR 0.7457f
 
-void Vehicle::init(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
+Vehicle::Vehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
 {
     if (info.bodyMeshIndex != -1)
     {

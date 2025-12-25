@@ -41,7 +41,7 @@ Trigger::Trigger(uint32_t id, Position3 position, VE_STRUCT_TRIGGER_TYPE_CREATE_
 
     this->position = position;
 
-    destroyOnTrigger = info.destroyOnTrigger;
+    isAutoDestroy = info.isAutoDestroy;
 }
 
 bool Trigger::doesActorTrigger(Position3 actorPosition)
@@ -66,7 +66,22 @@ bool Trigger::doesActorTrigger(Position3 actorPosition)
     return false;
 }
 
-uint32_t Trigger::getId()
+uint32_t Trigger::getId() const
 {
     return id;
+}
+
+bool Trigger::getIsAutoDestroy() const
+{
+    return isAutoDestroy;
+}
+
+void Trigger::markForDestroy()
+{
+    isMarkedForDestroy = true;
+}
+
+bool Trigger::getIsMarkedForDestroy() const
+{
+    return isMarkedForDestroy;
 }

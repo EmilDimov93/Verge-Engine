@@ -185,9 +185,14 @@ void Scene::tick(ve_time dt)
             {
                 std::cout << "Triggered: " << trigger.getId() << std::endl;
                 // call callback function
+                if(trigger.getIsAutoDestroy()){
+                    trigger.markForDestroy();
+                    break;
+                }
             }
         }
     }
+    std::erase_if(triggers, [](const Trigger& t) { return t.getIsMarkedForDestroy(); });
 
     Camera::update();
 }

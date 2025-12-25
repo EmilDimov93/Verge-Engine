@@ -17,7 +17,7 @@ struct VE_STRUCT_TRIGGER_TYPE_CREATE_INFO
     int32_t meshIndex = -1;
     VE_SHAPE hitboxShape = VE_SHAPE_UNKNOWN;
     float hitboxSize = -1.0f;
-    bool destroyOnTrigger = false;
+    bool isAutoDestroy = false;
     // callback function
 };
 
@@ -28,7 +28,11 @@ public:
 
     bool doesActorTrigger(Position3 actorPosition);
 
-    uint32_t getId();
+    uint32_t getId() const;
+    bool getIsAutoDestroy() const;
+
+    void markForDestroy();
+    bool getIsMarkedForDestroy() const;
 
 private:
     uint32_t id;
@@ -39,7 +43,9 @@ private:
     VE_SHAPE hitboxShape;
     float hitboxSize;
 
-    bool destroyOnTrigger;
+    bool isAutoDestroy;
+
+    bool isMarkedForDestroy = false;
 
     // callback function
 };

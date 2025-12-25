@@ -59,6 +59,7 @@ public:
         sTriggerType.meshIndex = scene.loadFile("models/flag.obj");
         sTriggerType.hitboxShape = VE_SHAPE_PRISM;
         sTriggerType.hitboxSize = 10.0f;
+        sTriggerType.isAutoDestroy = true;
         scene.addTrigger(0, {2.0f, 0, 20.0f}, sTriggerType);
         scene.addTrigger(1, {2.0f, 0, 50.0f}, sTriggerType);
 

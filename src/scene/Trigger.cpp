@@ -57,9 +57,20 @@ bool Trigger::doesActorTrigger(Position3 actorPosition)
         break;
     }
     case VE_SHAPE_SPHERE:
-    case VE_SHAPE_LINE:
+    {
+        float dx = actorPosition.x - position.x;
+        float dy = actorPosition.y - position.y;
+        float dz = actorPosition.z - position.z;
+        float radius = hitboxSize / 2;
+
+        if (dx*dx + dy*dy + dz*dz <= radius * radius)
+            return true;
+
+        break;
+    }
     case VE_SHAPE_UNKNOWN:
     default:
+        Log::add('O', 101);
         break;
     }
 

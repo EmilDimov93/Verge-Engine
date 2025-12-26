@@ -57,7 +57,7 @@ public:
 
         VE_STRUCT_TRIGGER_TYPE_CREATE_INFO sTriggerType = {};
         sTriggerType.meshIndex = scene.loadFile("models/flag.obj");
-        sTriggerType.hitboxShape = VE_SHAPE_PRISM;
+        sTriggerType.hitboxShape = VE_SHAPE_SPHERE;
         sTriggerType.hitboxSize = 10.0f;
         sTriggerType.isAutoDestroy = true;
         scene.addTrigger(0, {2.0f, 0, 20.0f}, sTriggerType);
@@ -72,6 +72,7 @@ public:
             fps.sync();
             Input::refresh();
             Log::printNewMessages();
+            
             tick();
         }
 

@@ -3,7 +3,7 @@
 
 #include "Vehicle.hpp"
 
-#include "../Log.hpp"
+#include "../../Log.hpp"
 
 #define HP_TO_KW_CONVERSION_FACTOR 0.7457f
 

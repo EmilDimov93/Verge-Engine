@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "Mesh.hpp"
+#include "../mesh/Mesh.hpp"
 #include "../definitions.hpp"
 
 #include <vulkan/vulkan.h>
@@ -19,7 +19,7 @@ class VulkanManager
 public:
     VulkanManager(GLFWwindow* window, Size2 windowSize);
 
-    void drawFrame(const std::vector<Mesh>& meshes);
+    void drawFrame(const std::vector<Mesh>& meshes, glm::mat4 projectionM, glm::mat4 viewM);
 
     void vkCheck(VkResult res, ErrorCode errorCode);
 
@@ -99,7 +99,7 @@ private:
 
     void recordCommands(uint32_t currentImage, const std::vector<Mesh>& meshes);
 
-    void updateUniformBuffers(uint32_t imageIndex);
+    void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionM, glm::mat4 viewM);
 
     VkShaderModule createShaderModule(const std::vector<char> &code);
     int rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);

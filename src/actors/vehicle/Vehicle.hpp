@@ -3,9 +3,10 @@
 
 #pragma once
 
-#include "../definitions.hpp"
-#include "../system/Input.hpp"
-#include "../rendering/Mesh.hpp"
+#include "../../definitions.hpp"
+#include "../../system/Input.hpp"
+
+#include <vector>
 
 enum VEPowerUnit
 {

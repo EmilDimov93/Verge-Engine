@@ -14,6 +14,8 @@
 
 #include "../scene/Scene.hpp"
 
+#include "../scene/camera/Camera.hpp"
+
 class VergeEngine
 {
 public:
@@ -72,7 +74,7 @@ public:
             fps.sync();
             Input::refresh();
             Log::printNewMessages();
-            
+
             tick();
         }
 
@@ -92,7 +94,7 @@ private:
 
         scene.tick(fps.getFrameTime());
 
-        vulkan.drawFrame(scene.meshes);
+        vulkan.drawFrame(scene.meshes, Camera::getProjectionMatrix(), Camera::getViewMatrix());
     }
 };
 

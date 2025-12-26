@@ -5,7 +5,6 @@
 
 #include "../Log.hpp"
 #include "../version.hpp"
-#include "Camera.hpp"
 
 #include <GLFW/glfw3.h>
 #include <array>
@@ -673,7 +672,7 @@ void VulkanManager::createCommandBuffers()
     vkCheck(vkAllocateCommandBuffers(device, &commandBufferAllocInfo, commandBuffers.data()), {'V', 212});
 }
 
-void VulkanManager::updateUniformBuffers(uint32_t currentFrame)
+void VulkanManager::updateUniformBuffers(uint32_t currentFrame, glm::mat4 projectionM, glm::mat4 viewM)
 {
     struct UboViewProjection
     {
@@ -681,8 +680,8 @@ void VulkanManager::updateUniformBuffers(uint32_t currentFrame)
         glm::mat4 view;
     }uboViewProjection;
 
-    uboViewProjection.projection = Camera::getProjectionMatrix();
-    uboViewProjection.view = Camera::getViewMatrix();
+    uboViewProjection.projection = projectionM;
+    uboViewProjection.view = viewM;
 
     void *data;
     vkCheck(vkMapMemory(device, vpUniformBufferMemory[currentFrame], 0, sizeof(UboViewProjection), 0, &data), {'V', 236});
@@ -854,7 +853,7 @@ void VulkanManager::createDescriptorSets()
     }
 }
 
-void VulkanManager::drawFrame(const std::vector<Mesh>& meshes)
+void VulkanManager::drawFrame(const std::vector<Mesh>& meshes, glm::mat4 projectionM, glm::mat4 viewM)
 {
     vkCheck(vkWaitForFences(device, 1, &drawFences[currentFrame], VK_TRUE, UINT64_MAX), {'V', 231});
     vkCheck(vkResetFences(device, 1, &drawFences[currentFrame]), {'V', 232});
@@ -863,7 +862,7 @@ void VulkanManager::drawFrame(const std::vector<Mesh>& meshes)
     vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex), {'V', 230});
 
     recordCommands(currentFrame, meshes);
-    updateUniformBuffers(currentFrame);
+    updateUniformBuffers(currentFrame, projectionM, viewM);
 
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 

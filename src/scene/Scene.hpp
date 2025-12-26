@@ -3,10 +3,11 @@
 
 #pragma once
 
-#include "../rendering/Mesh.hpp"
-#include "../rendering/Camera.hpp"
-#include "../vehicle/Vehicle.hpp"
-#include "Trigger.hpp"
+#include "../mesh/Mesh.hpp"
+#include "camera/Camera.hpp"
+
+#include "../actors/vehicle/Vehicle.hpp"
+#include "../actors/trigger/Trigger.hpp"
 
 class Scene
 {

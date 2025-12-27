@@ -15,7 +15,7 @@ Trigger::Trigger(uint32_t id, Position3 position, VE_STRUCT_TRIGGER_TYPE_CREATE_
         Log::add('O', 101);
     }
 
-    if (info.meshIndex != -1)
+    if (info.meshIndex >= 0)
         meshIndex = info.meshIndex;
     else
     {

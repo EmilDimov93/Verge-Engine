@@ -3,7 +3,7 @@
 
 #include "Trigger.hpp"
 
-#include "../Log.hpp"
+#include "../../Log.hpp"
 
 Trigger::Trigger(uint32_t id, Position3 position, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info)
 {

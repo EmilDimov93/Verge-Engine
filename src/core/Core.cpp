@@ -57,6 +57,8 @@ public:
         sCar.brakingForce = 14700;
         scene.addVehicle(sCar);
 
+        scene.addProp(scene.loadFile("models/cow.obj"), {0, 3.0f, 30.0f}, {0, 0, 0});
+
         VE_STRUCT_TRIGGER_TYPE_CREATE_INFO sTriggerType = {};
         sTriggerType.meshIndex = scene.loadFile("models/flag.obj");
         sTriggerType.hitboxShape = VE_SHAPE_SPHERE;
@@ -90,7 +92,7 @@ private:
 
     void tick()
     {
-        scene.updateModel(5, glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0, 20.0f)));
+        scene.updateModel(6, glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0, 20.0f)));
 
         scene.tick(fps.getFrameTime());
 

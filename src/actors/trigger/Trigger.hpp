@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../definitions.hpp"
+#include "../../definitions.hpp"
 
 enum VE_SHAPE{
     VE_SHAPE_UNKNOWN,

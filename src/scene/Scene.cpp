@@ -137,6 +137,16 @@ uint32_t Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     return vehicles.size() - 1;
 }
 
+uint32_t Scene::addProp(uint32_t meshIndex, Position3 position, Rotation3 rotation)
+{
+    Prop newProp(meshIndex, position, rotation);
+    props.push_back(newProp);
+
+    updateModel(meshIndex, newProp.getModelMat());
+
+    return props.size() - 1;
+}
+
 uint32_t Scene::addTrigger(uint32_t id, Position3 position, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info)
 {
     for(Trigger trigger : triggers){
@@ -153,7 +163,7 @@ uint32_t Scene::addTrigger(uint32_t id, Position3 position, const VE_STRUCT_TRIG
 // Should be in Mesh.cpp
 void Scene::updateModel(int modelId, glm::mat4 newModel)
 {
-    if (modelId >= meshes.size())
+    if (modelId >= meshes.size() || modelId < 0)
     {
         return;
     }

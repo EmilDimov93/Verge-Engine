@@ -153,6 +153,24 @@ void Vehicle::handleInput()
     }
 }
 
+void Vehicle::updateTransform(){
+    // Temporary
+    moveDirection = rotation;
+
+    double cosPitch = cos(moveDirection.pitch);
+    double sinPitch = sin(moveDirection.pitch);
+    double cosYaw = cos(moveDirection.yaw);
+    double sinYaw = sin(moveDirection.yaw);
+
+    double fx = cosPitch * sinYaw;
+    double fy = -sinPitch;
+    double fz = cosPitch * cosYaw;
+
+    position.x += fx * speedMps * dt;
+    position.y += fy * speedMps * dt;
+    position.z += fz * speedMps * dt;
+}
+
 void Vehicle::calculatePhysics()
 {
     handleInput();
@@ -162,4 +180,6 @@ void Vehicle::calculatePhysics()
     calcRpm();
 
     updateTransmission();
+
+    updateTransform();
 }

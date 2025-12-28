@@ -154,12 +154,11 @@ private:
     void shiftUp();
     void shiftDown();
     void updateTransmission();
+    void updateTransform();
 
     void resetMatrices();
-    void move();
-    void offsetWheels();
-    void steerWheels();
-    void spinWheels();
+    void updateBodyMatrix();
+    void updateWheelMatrices();
 
     Position3 wheelOffset;
 

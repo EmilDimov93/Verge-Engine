@@ -33,7 +33,7 @@ public:
         sCar.wheelFRMeshIndex = scene.loadFile("models/wheel.obj");
         sCar.wheelBLMeshIndex = scene.loadFile("models/wheel.obj");
         sCar.wheelBRMeshIndex = scene.loadFile("models/wheel.obj");
-        sCar.wheelOffset = {2.0f, 0.4f, 1.8f};
+        sCar.wheelOffset = {1.0f, 0.4f, 1.8f};
         sCar.power = 190;
         sCar.powerUnit = VE_POWER_UNIT_HORSEPOWER;
         sCar.weightKg = 1540;
@@ -57,17 +57,20 @@ public:
         sCar.brakingForce = 14700;
         scene.addVehicle(sCar);
 
-        scene.addProp(scene.loadFile("models/cow.obj"), {{0, 3.0f, 30.0f}});
+        scene.addProp(scene.loadFile("models/cow.obj"), {{10.0f, 3.0f, 30.0f}});
 
         VE_STRUCT_TRIGGER_TYPE_CREATE_INFO sTriggerType = {};
-        sTriggerType.meshIndex = scene.loadFile("models/flag.obj");
+        sTriggerType.meshIndex = scene.loadFile("models/checkpoint.obj");
         sTriggerType.hitboxShape = VE_SHAPE_SPHERE;
         sTriggerType.hitboxSize = 10.0f;
         sTriggerType.isAutoDestroy = true;
-        scene.addTrigger(0, {{0.0f, 0, 20.0f}}, sTriggerType);
-        scene.addTrigger(1, {{0.0f, 0, 50.0f}}, sTriggerType);
+        
+        scene.addTrigger(0, {{0.0f, 0, 20.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, sTriggerType);
 
-        scene.loadFile("models/floorBig.obj");
+        sTriggerType.meshIndex = scene.loadFile("models/checkpoint.obj");
+        scene.addTrigger(1, {{0.0f, 0, 50.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, sTriggerType);
+
+        scene.loadFile("models/floor.obj");
 
         scene.setCameraFollowVehicle(0);
 

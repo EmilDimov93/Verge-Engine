@@ -17,6 +17,7 @@ std::vector<ErrorCode> Log::entries;
 size_t Log::newMessageCount = 0;
 bool Log::hasNewMessagesFlag = false;
 size_t Log::clearedEntriesCount = 0;
+LogOutputMode Log::outputMode = LOG_OUTPUT_MODE_NONE;
 
 const std::map<std::pair<char, uint16_t>, std::string> ErrorCode::messages = LOG_MESSAGES;
 
@@ -28,6 +29,13 @@ std::string ErrorCode::getMessage()
         return it->second;
     }
     return "Invalid error code";
+}
+
+void Log::init(LogOutputMode mode)
+{
+    outputMode = mode;
+
+    Log::add('C', 000);
 }
 
 void Log::freeLogSpace()
@@ -48,6 +56,10 @@ void Log::add(char letter, uint16_t number)
     entries.push_back(ErrorCode{letter, number});
     hasNewMessagesFlag = true;
     newMessageCount++;
+
+    if(outputMode == LOG_OUTPUT_MODE_CONSOLE || outputMode == LOG_OUTPUT_MODE_FILE_AND_CONSOLE){
+        std::cout << "LOG: " << entries.back().getMessage() << std::endl;
+    }
 
     if (IS_ENTRY_ERROR(number))
     {
@@ -90,23 +102,15 @@ void Log::writeToLogFile()
     }
 }
 
-void Log::printNewMessages()
-{
-    if (hasNewMessages())
-    {
-        std::vector<std::string> newMessages = getNewMessages();
-
-        for (size_t i = 0; i < newMessages.size(); i++)
-        {
-            std::cout << "LOG: " << newMessages[i] << std::endl;
-        }
-    }
-}
-
 void Log::induceCrash()
 {
     entries.push_back(ErrorCode{'C', 200});
-    writeToLogFile();
+
+    if (outputMode == LOG_OUTPUT_MODE_FILE || outputMode == LOG_OUTPUT_MODE_FILE_AND_CONSOLE)
+    {
+        writeToLogFile();
+    }
+
     throw EngineCrash{};
 }
 
@@ -114,5 +118,9 @@ void Log::end()
 {
     if (entries.back() != ErrorCode{'C', 200})
         add('C', 001);
-    writeToLogFile();
+
+    if (outputMode == LOG_OUTPUT_MODE_FILE || outputMode == LOG_OUTPUT_MODE_FILE_AND_CONSOLE)
+    {
+        writeToLogFile();
+    }
 }

@@ -30,18 +30,18 @@ public:
 private:
     int currentFrame = 0;
 
-    VkInstance instance;
-    VkSurfaceKHR surface;
+    VkInstance instance = VK_NULL_HANDLE;
+    VkSurfaceKHR surface = VK_NULL_HANDLE;
 
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-    VkDevice device;
+    VkDevice device = VK_NULL_HANDLE;
 
-    VkQueue graphicsQueue;
-    VkQueue presentQueue;
+    VkQueue graphicsQueue = VK_NULL_HANDLE;
+    VkQueue presentQueue = VK_NULL_HANDLE;
 
-    int32_t graphicsQueueFamilyIndex;
+    int32_t graphicsQueueFamilyIndex = -1;
 
-    VkSwapchainKHR swapChain;
+    VkSwapchainKHR swapChain = VK_NULL_HANDLE;
     VkFormat swapChainImageFormat;
     VkExtent2D swapChainExtent;
 
@@ -50,15 +50,15 @@ private:
     std::vector<VkFramebuffer> swapChainFramebuffers;
     std::vector<VkCommandBuffer> commandBuffers;
 
-    VkImage depthBufferImage;
-    VkDeviceMemory depthBufferImageMemory;
-    VkImageView depthBufferImageView;
+    VkImage depthBufferImage = VK_NULL_HANDLE;
+    VkDeviceMemory depthBufferImageMemory = VK_NULL_HANDLE;
+    VkImageView depthBufferImageView = VK_NULL_HANDLE;
     VkFormat depthFormat;
 
-    VkDescriptorSetLayout descriptorSetLayout;
+    VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
     VkPushConstantRange pushConstantRange;
 
-    VkDescriptorPool descriptorPool;
+    VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
     std::vector<VkDescriptorSet> descriptorSets;
 
     std::vector<VkBuffer> vpUniformBuffer;
@@ -67,12 +67,12 @@ private:
     std::vector<VkBuffer> modelDUniformBuffer;
     std::vector<VkDeviceMemory> modelDUniformBufferMemory;
 
-    VkPipeline graphicsPipeline;
-    VkPipelineLayout pipelineLayout;
+    VkPipeline graphicsPipeline = VK_NULL_HANDLE;
+    VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 
-    VkRenderPass renderPass;
+    VkRenderPass renderPass = VK_NULL_HANDLE;
 
-    VkCommandPool graphicsCommandPool;
+    VkCommandPool graphicsCommandPool = VK_NULL_HANDLE;
 
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;

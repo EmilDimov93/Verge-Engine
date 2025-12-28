@@ -14,19 +14,38 @@
 
 #include "../scene/Scene.hpp"
 
-#include "../scene/camera/Camera.hpp"
-
 class VergeEngine
 {
 public:
     VergeEngine() : vulkan(window.getReference(), window.getSize()), scene(vulkan.getContext(), 60.0f, window.getAspectRatio(), 0.1f, 1000.0f)
     {
         Input::init(window.getReference());
-        Log::add('C', 000);
+        Log::init(LOG_OUTPUT_MODE_FILE_AND_CONSOLE);
     }
 
     void run()
     {
+        setupScene();
+
+        while (window.isOpen())
+        {
+            fps.sync();
+            Input::refresh();
+
+            tick();
+        }
+
+        Log::end();
+    }
+
+private:
+    WindowManager window;
+    VulkanManager vulkan;
+    FpsManager fps;
+
+    Scene scene;
+
+    void setupScene(){
         VE_STRUCT_VEHICLE_CREATE_INFO sCar = {};
         sCar.bodyMeshIndex = scene.loadFile("models/car.obj");
         sCar.wheelFLMeshIndex = scene.loadFile("models/wheel.obj");
@@ -73,25 +92,7 @@ public:
         scene.loadFile("models/floor.obj");
 
         scene.setCameraFollowVehicle(0);
-
-        while (window.isOpen())
-        {
-            fps.sync();
-            Input::refresh();
-            Log::printNewMessages();
-
-            tick();
-        }
-
-        Log::end();
     }
-
-private:
-    WindowManager window;
-    VulkanManager vulkan;
-    FpsManager fps;
-
-    Scene scene;
 
     void tick()
     {

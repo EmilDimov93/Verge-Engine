@@ -179,9 +179,9 @@ uint32_t Scene::loadGLTF(const std::string &filePath)
     return -1;
 }
 
-uint32_t Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
+uint32_t Scene::addVehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info)
 {
-    Vehicle newVehicle(info);
+    Vehicle newVehicle(transform, info);
     vehicles.push_back(newVehicle);
 
     return vehicles.size() - 1;
@@ -245,7 +245,7 @@ void Scene::tick(ve_time dt)
     {
         for (Vehicle &vehicle : vehicles)
         {
-            if (trigger.doesActorTrigger(vehicle.getPosition()))
+            if (trigger.doesActorTrigger(vehicle.getTransform().position))
             {
                 std::cout << "Triggered: " << trigger.getId() << std::endl;
                 // call callback function
@@ -297,7 +297,7 @@ void Scene::cameraFollowVehicle(ve_time dt)
 
     cameraYaw += (targetYaw - cameraYaw) * cameraFollowYawDelay;
 
-    Position3 vehiclePos = vehicles[cameraFollowedVehicleIndex].getPosition();
+    Position3 vehiclePos = vehicles[cameraFollowedVehicleIndex].getTransform().position;
 
     static glm::vec3 prevCamPos = {Camera::getPosition().x, Camera::getPosition().y, Camera::getPosition().z};
     glm::vec3 targetCamPos = {vehiclePos.x + sin(cameraYaw) * cameraFollowDistance, vehiclePos.y + cameraFollowHeight, vehiclePos.z + cos(cameraYaw) * cameraFollowDistance};

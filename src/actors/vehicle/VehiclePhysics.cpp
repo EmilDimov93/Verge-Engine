@@ -32,7 +32,7 @@ void Vehicle::calcSpeed()
 
     float FRoll = SURFACE_ROLLING_COEFFICIENT * weightKg * GRAVITY_CONSTANT * (speedMps == 0 ? 0 : 1);
 
-    const float slope = std::atan(std::sqrt(std::tan(glm::radians(rotation.pitch)) * std::tan(glm::radians(rotation.pitch)) + std::tan(glm::radians(rotation.roll)) * std::tan(glm::radians(rotation.roll))));
+    const float slope = std::atan(std::sqrt(std::tan(glm::radians(transform.rotation.pitch)) * std::tan(glm::radians(transform.rotation.pitch)) + std::tan(glm::radians(transform.rotation.roll)) * std::tan(glm::radians(transform.rotation.roll))));
 
     float FSlope = weightKg * GRAVITY_CONSTANT * sin(slope);
 
@@ -67,7 +67,7 @@ void Vehicle::turn(float turningInput)
     steeringAngleRad = turningInput * maxSteeringAngleRad * speedFactor;
 
     const float wheelBase = 2.6f;
-    rotation.yaw += speedMps * tan(steeringAngleRad) / wheelBase * dt;
+    transform.rotation.yaw += speedMps * tan(steeringAngleRad) / wheelBase * dt;
 }
 
 void Vehicle::shiftUp()
@@ -141,7 +141,7 @@ void Vehicle::handleInput()
 void Vehicle::updateTransform()
 {
     // Temporary
-    moveDirection = rotation;
+    moveDirection = transform.rotation;
 
     double cosPitch = cos(moveDirection.pitch);
     double sinPitch = sin(moveDirection.pitch);
@@ -152,9 +152,9 @@ void Vehicle::updateTransform()
     double fy = -sinPitch;
     double fz = cosPitch * cosYaw;
 
-    position.x += fx * speedMps * dt;
-    position.y += fy * speedMps * dt;
-    position.z += fz * speedMps * dt;
+    transform.position.x += fx * speedMps * dt;
+    transform.position.y += fy * speedMps * dt;
+    transform.position.z += fz * speedMps * dt;
 }
 
 void Vehicle::calculatePhysics()

@@ -7,7 +7,7 @@
 
 #define HP_TO_KW_CONVERSION_FACTOR 0.7457f
 
-Vehicle::Vehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
+Vehicle::Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info)
 {
     if (info.bodyMeshIndex != -1)
     {
@@ -214,6 +214,8 @@ Vehicle::Vehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     clutchState = 0.0f;
     throttleState = 0.0f;
     brakeState = 0.0f;
+
+    this->transform = transform;
 }
 
 void Vehicle::tick(ve_time deltaTime)

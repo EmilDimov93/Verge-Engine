@@ -70,7 +70,7 @@ public:
     glm::mat4 bodyMat;
     glm::mat4 wheelFLMat, wheelFRMat, wheelBLMat, wheelBRMat;
 
-    Vehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info);
+    Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info);
 
     void tick(ve_time deltaTime);
 
@@ -99,8 +99,7 @@ public:
     float getFrontalArea() const { return frontalAreaM2; }
     float getMaxSteeringAngleRad() const { return maxSteeringAngleRad; }
     float getMaxSteeringAngleDeg() const { return maxSteeringAngleRad * 57.2957795f; }
-    const Position3 &getPosition() const { return position; }
-    const Rotation3 &getRotation() const { return rotation; }
+    const Transform &getTransform() const { return transform; }
     const Rotation3 &getMoveDirection() const { return moveDirection; }
     float getSpeedMps() const { return speedMps; }
     float getSpeedKmph() const { return speedMps * 3.6f; }
@@ -134,8 +133,6 @@ public:
     void setFrontalArea(float value) { frontalAreaM2 = value; }
     void setMaxSteeringAngleRad(float value) { maxSteeringAngleRad = value; }
     void setMaxSteeringAngleDeg(float deg) { maxSteeringAngleRad = deg * 0.0174532925f; }
-    void setPosition(const Position3 &value) { position = value; }
-    void setRotation(const Rotation3 &value) { rotation = value; }
     void setMoveDirection(const Rotation3 &value) { moveDirection = value; }
     void setSpeedMps(float value) { speedMps = value; }
     void setSteeringAngleRad(float value) { steeringAngleRad = value; }
@@ -186,8 +183,7 @@ private:
     float camber;
 
     // Runtime
-    Position3 position = {0, 0, -100.0f}; // Temporary default
-    Rotation3 rotation;
+    Transform transform;
     Rotation3 moveDirection;
     float speedMps;
     float steeringAngleRad;

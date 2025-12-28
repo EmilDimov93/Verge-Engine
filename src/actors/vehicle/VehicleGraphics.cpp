@@ -5,7 +5,7 @@
 
 void Vehicle::updateBodyMatrix()
 {
-    bodyMat = transformToMat({position, rotation, {}});
+    bodyMat = transformToMat(transform);
 }
 
 void Vehicle::updateWheelMatrices()

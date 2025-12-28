@@ -74,7 +74,7 @@ private:
         sCar.dragCoeff = 0.31f;
         sCar.frontalAreaM2 = 2.3f;
         sCar.brakingForce = 14700;
-        scene.addVehicle(sCar);
+        scene.addVehicle({{0, 0, -100.0f}}, sCar);
 
         scene.addProp(scene.loadFile("models/cow.obj"), {{10.0f, 3.0f, 30.0f}});
 
@@ -84,10 +84,10 @@ private:
         sTriggerType.hitboxSize = 10.0f;
         sTriggerType.isAutoDestroy = true;
         
-        scene.addTrigger(0, {{0.0f, 0, 20.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, sTriggerType);
+        scene.addTrigger(0, {{0, 0, 20.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, sTriggerType);
 
         sTriggerType.meshIndex = scene.loadFile("models/checkpoint.obj");
-        scene.addTrigger(1, {{0.0f, 0, 50.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, sTriggerType);
+        scene.addTrigger(1, {{0, 0, 50.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, sTriggerType);
 
         scene.loadFile("models/floor.obj");
 

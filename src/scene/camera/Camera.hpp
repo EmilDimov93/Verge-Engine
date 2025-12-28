@@ -13,6 +13,8 @@ struct VE_STRUCT_CAMERA_INFO
 class Camera
 {
 public:
+    static void init(float newFov, float newAspectRatio, float newZNear, float newZFar);
+    
     static glm::mat4 getViewMatrix();
     static glm::mat4 getProjectionMatrix();
 
@@ -25,9 +27,7 @@ public:
     static Position3 getPosition();
     static Rotation3 getRotation();
 
-    static void update();
-
-    static void init(float newFov, float newAspectRatio, float newZNear, float newZFar);
+    static void tick();
 
 private:
     static Position3 position;

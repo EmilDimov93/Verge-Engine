@@ -142,7 +142,7 @@ uint32_t Scene::addProp(uint32_t meshIndex, Position3 position, Rotation3 rotati
     Prop newProp(meshIndex, position, rotation);
     props.push_back(newProp);
 
-    updateModel(meshIndex, newProp.getModelMat());
+    setMatrix(meshIndex, newProp.getModelMat());
 
     return props.size() - 1;
 }
@@ -163,7 +163,7 @@ uint32_t Scene::addTrigger(uint32_t id, Position3 position, const VE_STRUCT_TRIG
 }
 
 // Should be in Mesh.cpp
-void Scene::updateModel(int modelId, glm::mat4 newModel)
+void Scene::setMatrix(int modelId, glm::mat4 newModel)
 {
     if (modelId >= meshes.size() || modelId < 0)
     {
@@ -177,11 +177,11 @@ void Scene::tick(ve_time dt)
 {
     for (Vehicle &vehicle : vehicles)
     {
-        updateModel(vehicle.bodyMeshIndex, vehicle.bodyMat);
-        updateModel(vehicle.wheelFLMeshIndex, vehicle.wheelFLMat);
-        updateModel(vehicle.wheelFRMeshIndex, vehicle.wheelFRMat);
-        updateModel(vehicle.wheelBLMeshIndex, vehicle.wheelBLMat);
-        updateModel(vehicle.wheelBRMeshIndex, vehicle.wheelBRMat);
+        setMatrix(vehicle.bodyMeshIndex, vehicle.bodyMat);
+        setMatrix(vehicle.wheelFLMeshIndex, vehicle.wheelFLMat);
+        setMatrix(vehicle.wheelFRMeshIndex, vehicle.wheelFRMat);
+        setMatrix(vehicle.wheelBLMeshIndex, vehicle.wheelBLMat);
+        setMatrix(vehicle.wheelBRMeshIndex, vehicle.wheelBRMat);
 
         vehicle.tick(dt);
     }
@@ -208,7 +208,7 @@ void Scene::tick(ve_time dt)
     std::erase_if(triggers, [](const Trigger &t)
                   { return t.getIsMarkedForDestroy(); });
 
-    Camera::update();
+    Camera::tick();
 }
 
 void Scene::setCameraFollowVehicle(uint32_t vehicleIndex)

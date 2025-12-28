@@ -67,7 +67,7 @@ Rotation3 Camera::getRotation()
     return rotation;
 }
 
-void Camera::update()
+void Camera::tick()
 {
     forward.x = cos(glm::radians(rotation.yaw)) * cos(glm::radians(rotation.pitch));
     forward.y = sin(glm::radians(rotation.pitch));

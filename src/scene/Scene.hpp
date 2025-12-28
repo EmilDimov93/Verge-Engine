@@ -29,7 +29,7 @@ public:
 
     VulkanContext vulkanContext;
 
-    void updateModel(int modelId, glm::mat4 newModel);
+    void setMatrix(int modelId, glm::mat4 newModel);
 
     void tick(ve_time dt);
 

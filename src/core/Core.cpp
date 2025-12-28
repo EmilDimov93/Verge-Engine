@@ -92,7 +92,7 @@ private:
 
     void tick()
     {
-        scene.updateModel(6, glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0, 20.0f)));
+        scene.setMatrix(6, glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0, 20.0f)));
 
         scene.tick(fps.getFrameTime());
 

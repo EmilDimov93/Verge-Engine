@@ -57,7 +57,7 @@ public:
         sCar.brakingForce = 14700;
         scene.addVehicle(sCar);
 
-        scene.addProp(scene.loadFile("models/cow.obj"), {0, 3.0f, 30.0f}, {0, 0, 0});
+        scene.addProp(scene.loadFile("models/cow.obj"), {{0, 3.0f, 30.0f}});
 
         VE_STRUCT_TRIGGER_TYPE_CREATE_INFO sTriggerType = {};
         sTriggerType.meshIndex = scene.loadFile("models/flag.obj");

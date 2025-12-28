@@ -24,7 +24,7 @@ public:
     uint32_t loadFile(const std::string &filePath);
 
     uint32_t addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info);
-    uint32_t addProp(uint32_t meshIndex, Position3 position, Rotation3 rotation);
+    uint32_t addProp(uint32_t meshIndex, Transform transform);
     uint32_t addTrigger(uint32_t id, Position3 position, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info);
 
     VulkanContext vulkanContext;

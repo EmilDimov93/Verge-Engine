@@ -62,3 +62,18 @@ struct Transform
 
     constexpr Transform(Position3 p = {}, Rotation3 r = {}, Scale3 s = {}) : position(p), rotation(r), scale(s) {}
 };
+
+inline glm::mat4 transformToMat(const Transform& transform)
+{
+    glm::mat4 mat(1.0f);
+
+    mat = glm::translate(mat, glm::vec3(static_cast<float>(transform.position.x), static_cast<float>(transform.position.y), static_cast<float>(transform.position.z)));
+
+    mat = glm::rotate(mat, glm::radians(static_cast<float>(transform.rotation.pitch)), glm::vec3(1.0f, 0.0f, 0.0f));
+    mat = glm::rotate(mat, glm::radians(static_cast<float>(transform.rotation.yaw)), glm::vec3(0.0f, 1.0f, 0.0f));
+    mat = glm::rotate(mat, glm::radians(static_cast<float>(transform.rotation.roll)), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    mat = glm::scale(mat, glm::vec3(static_cast<float>(transform.scale.x), static_cast<float>(transform.scale.y), static_cast<float>(transform.scale.z)));
+
+    return mat;
+}

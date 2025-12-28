@@ -5,7 +5,7 @@
 
 #include "../../Log.hpp"
 
-Prop::Prop(uint32_t meshIndex, Position3 position, Rotation3 rotation)
+Prop::Prop(uint32_t meshIndex, Transform transform)
 {
     if (meshIndex >= 0)
     {
@@ -17,17 +17,9 @@ Prop::Prop(uint32_t meshIndex, Position3 position, Rotation3 rotation)
         Log::add('A', 160);
     }
 
-    this->position = position;
+    this->transform = transform;
 
-    this->rotation = rotation;
-
-    modelMat = glm::mat4(1.0f);
-
-    modelMat = glm::translate(modelMat, glm::vec3(position.x, position.y, position.z));
-
-    modelMat = glm::rotate(modelMat, (float)rotation.pitch, glm::vec3(1.0f, 0.0f, 0.0f));
-    modelMat = glm::rotate(modelMat, (float)rotation.yaw, glm::vec3(0.0f, 1.0f, 0.0f));
-    modelMat = glm::rotate(modelMat, (float)rotation.roll, glm::vec3(0.0f, 0.0f, 1.0f));
+    modelMat = transformToMat(transform);
 }
 
 glm::mat4 Prop::getModelMat()

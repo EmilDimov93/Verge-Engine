@@ -179,9 +179,9 @@ uint32_t Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
     return vehicles.size() - 1;
 }
 
-uint32_t Scene::addProp(uint32_t meshIndex, Position3 position, Rotation3 rotation)
+uint32_t Scene::addProp(uint32_t meshIndex, Transform transform)
 {
-    Prop newProp(meshIndex, position, rotation);
+    Prop newProp(meshIndex, transform);
     props.push_back(newProp);
 
     setMatrix(meshIndex, newProp.getModelMat());

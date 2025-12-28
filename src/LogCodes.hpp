@@ -56,6 +56,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'V', 234}, "Vulkan failed to present image"},
     {{'V', 235}, "Vulkan failed: vkDeviceWaitIdle"},
     {{'V', 236}, "Vulkan failed to map memory"},
+    {{'V', 237}, "Vulkan failed to find a suitable memory type index"},
 
     // Camera
     {{'K', 100}, "Camera already initialized. Operation cancelled"},
@@ -79,7 +80,9 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
 
     // Scene
     {{'S', 100}, "Unsupported file type"},
-    {{'S', 101}, "Out of bounds access to mesh list"},
+    {{'S', 101}, "File not found"},
+    {{'S', 102}, "Out of bounds access to mesh list"},
+    {{'S', 200}, "Trigger ID already exists"},
 
     // Actors
 

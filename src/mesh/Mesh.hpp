@@ -32,7 +32,7 @@ struct Model
 class Mesh
 {
 public:
-    VkResult init(VulkanContext vulkanContext, std::vector<Vertex> *vertices, std::vector<uint32_t> *indeces);
+    void init(VulkanContext vulkanContext, std::vector<Vertex> *vertices, std::vector<uint32_t> *indeces);
 
     void setModel(glm::mat4 newModel);
     Model getModel() const;
@@ -56,6 +56,6 @@ private:
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;
 
-    VkResult createVertexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex> *vertices);
-    VkResult createIndexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t> *indeces);
+    void createVertexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex> *vertices);
+    void createIndexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t> *indeces);
 };

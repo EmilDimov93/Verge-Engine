@@ -54,8 +54,9 @@ uint32_t Scene::loadOBJ(const std::string &filePath)
     std::vector<uint32_t> meshIndeces;
 
     std::ifstream file(filePath);
-    if (!file.is_open())
-        throw std::runtime_error("Cannot open OBJ file.");
+    if (!file.is_open()){
+        Log::add('S', 101);
+    }
 
     std::vector<glm::vec3> positions;
     std::unordered_map<std::string, glm::vec3> materials;
@@ -152,8 +153,9 @@ uint32_t Scene::loadOBJ(const std::string &filePath)
     }
 
     Mesh objMesh;
-    // should vkcheck
+
     objMesh.init(vulkanContext, &meshVertices, &meshIndeces);
+
     meshes.push_back(objMesh);
 
     return meshes.size() - 1;
@@ -201,7 +203,7 @@ uint32_t Scene::addTrigger(uint32_t id, Transform transform, const VE_STRUCT_TRI
     {
         if (id == trigger.getId())
         {
-            // Error: id exists
+            Log::add('S', 200);
         }
     }
     Trigger newTrigger(id, transform, info);
@@ -216,7 +218,7 @@ void Scene::setMatrix(int modelId, glm::mat4 newModel)
 {
     if (modelId >= meshes.size() || modelId < 0)
     {
-        Log::add('S', 101);
+        Log::add('S', 102);
         return;
     }
 

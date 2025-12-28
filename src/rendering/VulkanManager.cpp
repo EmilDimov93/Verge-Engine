@@ -460,7 +460,7 @@ uint32_t findMemoryTypeIndex1(VkPhysicalDevice physicalDevice, uint32_t allowedT
         }
     }
 
-    std::cout << "No suitable memory type index";
+    Log::add('V', 237);
     return -1;
 }
 
@@ -705,7 +705,7 @@ void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh
     renderPassBeginInfo.renderArea.extent = swapChainExtent;
 
     std::array<VkClearValue, 2> clearValues = {};
-    clearValues[0].color = {0.733f, 0.957f, 0.988f, 1.0f}; //{0.878f, 0.0f, 0.0f, 1.0f};
+    clearValues[0].color = {0.733f, 0.957f, 0.988f, 1.0f};
     clearValues[1].depthStencil.depth = 1.0f;
     renderPassBeginInfo.pClearValues = clearValues.data();
     renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());

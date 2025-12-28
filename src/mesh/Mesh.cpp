@@ -19,15 +19,15 @@ void Mesh::init(VulkanContext vulkanContext, std::vector<Vertex> *vertices, std:
     createVertexBuffer(vulkanContext.physicalDevice, vulkanContext.device, vulkanContext.graphicsQueue, vulkanContext.graphicsCommandPool, vertices);
     createIndexBuffer(vulkanContext.physicalDevice, vulkanContext.device, vulkanContext.graphicsQueue, vulkanContext.graphicsCommandPool, indeces);
 
-    model.model = glm::mat4(1.0f);
+    model = glm::mat4(1.0f);
 }
 
 void Mesh::setModel(glm::mat4 newModel)
 {
-    model.model = newModel;
+    model = newModel;
 }
 
-Model Mesh::getModel() const
+glm::mat4 Mesh::getModel() const
 {
     return model;
 }

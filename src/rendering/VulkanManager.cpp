@@ -628,7 +628,7 @@ void VulkanManager::createPushConstantRange()
 {
     pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
     pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(Model);
+    pushConstantRange.size = sizeof(glm::mat4);
 }
 
 void VulkanManager::createFramebuffers()
@@ -722,8 +722,8 @@ void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh
 
         vkCmdBindIndexBuffer(commandBuffers[currentFrame], meshes[j].getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
-        Model m = meshes[j].getModel();
-        vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(Model), &m);
+        glm::mat4 m = meshes[j].getModel();
+        vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &m);
 
         vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 

@@ -77,6 +77,10 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'O', 100}, "Invalid error code"},
     {{'O', 101}, "Test error code"},
 
+    // Scene
+    {{'S', 100}, "Unsupported file type"},
+    {{'S', 101}, "Out of bounds access to mesh list"},
+
     // Actors
 
     // Vehicle

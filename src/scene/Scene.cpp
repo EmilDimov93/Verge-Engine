@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include <filesystem>
 
+#include "../Log.hpp"
+
 Scene::Scene(VulkanContext newVulkanContext, float newFov, float newAspectRatio, float newZNear, float newZFar)
 {
     vulkanContext = newVulkanContext;
@@ -18,12 +20,34 @@ Scene::Scene(VulkanContext newVulkanContext, float newFov, float newAspectRatio,
     Camera::init(newFov, newAspectRatio, newZNear, newZFar);
 }
 
-uint32_t Scene::loadFile(const std::string &filename)
+uint32_t Scene::loadFile(const std::string &filePath){
+    std::string ext = std::filesystem::path(filePath).extension().string();
+
+    if(ext == ".obj"){
+        return loadOBJ(filePath);
+    }
+    else if(ext == ".fbx"){
+        return loadFBX(filePath);
+    }
+    else if(ext == ".glb"){
+        return loadGLB(filePath);
+    }
+    else if(ext == ".gltf"){
+        return loadGLTF(filePath);
+    }
+    else{
+        Log::add('S', 100);
+    }
+
+    return -1;
+}
+
+uint32_t Scene::loadOBJ(const std::string &filePath)
 {
     std::vector<Vertex> meshVertices;
     std::vector<uint32_t> meshIndeces;
 
-    std::ifstream file(filename);
+    std::ifstream file(filePath);
     if (!file.is_open())
         throw std::runtime_error("Cannot open OBJ file.");
 
@@ -64,7 +88,7 @@ uint32_t Scene::loadFile(const std::string &filename)
         }
     };
 
-    std::filesystem::path objPath(filename);
+    std::filesystem::path objPath(filePath);
 
     std::string line;
     while (std::getline(file, line))
@@ -129,6 +153,24 @@ uint32_t Scene::loadFile(const std::string &filename)
     return meshes.size() - 1;
 }
 
+uint32_t Scene::loadFBX(const std::string &filePath)
+{
+    Log::add('S', 100);
+    return -1;
+}
+
+uint32_t Scene::loadGLB(const std::string &filePath)
+{
+    Log::add('S', 100);
+    return -1;
+}
+
+uint32_t Scene::loadGLTF(const std::string &filePath)
+{
+    Log::add('S', 100);
+    return -1;
+}
+
 uint32_t Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info)
 {
     Vehicle newVehicle(info);
@@ -162,11 +204,11 @@ uint32_t Scene::addTrigger(uint32_t id, Position3 position, const VE_STRUCT_TRIG
     return triggers.size() - 1;
 }
 
-// Should be in Mesh.cpp
 void Scene::setMatrix(int modelId, glm::mat4 newModel)
 {
     if (modelId >= meshes.size() || modelId < 0)
     {
+        Log::add('S', 101);
         return;
     }
 
@@ -217,7 +259,7 @@ void Scene::setCameraFollowVehicle(uint32_t vehicleIndex)
     cameraFollowedVehicleIndex = vehicleIndex;
 }
 
-void Scene::unsetCameraFollowVehicle(uint32_t vehicleIndex)
+void Scene::unsetCameraFollowVehicle()
 {
     isCameraFollowingVehicle = false;
 }

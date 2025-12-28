@@ -21,7 +21,7 @@ public:
 
     Scene(VulkanContext newVulkanContext, float newFov, float newAspectRatio, float newZNear, float newZFar);
 
-    uint32_t loadFile(const std::string &filename);
+    uint32_t loadFile(const std::string &filePath);
 
     uint32_t addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info);
     uint32_t addProp(uint32_t meshIndex, Position3 position, Rotation3 rotation);
@@ -34,13 +34,18 @@ public:
     void tick(ve_time dt);
 
     void setCameraFollowVehicle(uint32_t vehicleIndex);
-    void unsetCameraFollowVehicle(uint32_t vehicleIndex);
+    void unsetCameraFollowVehicle();
 
     ~Scene();
 
 private:
     bool isCameraFollowingVehicle;
     uint32_t cameraFollowedVehicleIndex;
+
+    uint32_t loadOBJ(const std::string &filePath);
+    uint32_t loadFBX(const std::string &filePath);
+    uint32_t loadGLB(const std::string &filePath);
+    uint32_t loadGLTF(const std::string &filePath);
 
     void cameraFollowVehicle(ve_time dt);
 };

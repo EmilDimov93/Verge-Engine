@@ -3,15 +3,6 @@
 
 #include "Vehicle.hpp"
 
-void Vehicle::resetMatrices()
-{
-    bodyMat = glm::mat4(1.0f);
-    wheelFLMat = glm::mat4(1.0f);
-    wheelFRMat = glm::mat4(1.0f);
-    wheelBLMat = glm::mat4(1.0f);
-    wheelBRMat = glm::mat4(1.0f);
-}
-
 void Vehicle::updateBodyMatrix()
 {
     bodyMat = transformToMat({position, rotation, {}});
@@ -42,7 +33,7 @@ void Vehicle::updateWheelMatrices()
     // Spin
     static float wheelSpin = 0;
 
-    wheelSpin += speedMps / wheelRadiusM * dt;
+    wheelSpin += speedMps * dt / wheelRadiusM;
 
     wheelFLMat = glm::rotate(wheelFLMat, wheelSpin, glm::vec3(1.0f, 0, 0));
     wheelFRMat = glm::rotate(wheelFRMat, wheelSpin, glm::vec3(1.0f, 0, 0));
@@ -52,7 +43,6 @@ void Vehicle::updateWheelMatrices()
 
 void Vehicle::updateGraphics()
 {
-    resetMatrices();
     updateBodyMatrix();
     updateWheelMatrices();
 }

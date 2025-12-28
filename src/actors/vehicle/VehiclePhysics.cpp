@@ -57,32 +57,17 @@ void Vehicle::calcRpm()
         rpm = idleRpm;
 }
 
-void Vehicle::turnLeft()
+void Vehicle::turn(float turningInput)
 {
-    float decrease = 0;
-    decrease = speedMps * 3.6f * maxSteeringAngleRad / 200;
+    const float k = 0.005f;
+    float speedFactor = 1.0f / (1.0f + k * speedMps * speedMps);
 
-    if (decrease > maxSteeringAngleRad / 3)
-        decrease = maxSteeringAngleRad / 2;
+    turningInput = clamp(turningInput, -1.0f, 1.0f);
+    speedFactor = clamp(speedFactor, 0.0f, 1.0f);
+    steeringAngleRad = turningInput * maxSteeringAngleRad * speedFactor;
 
     const float wheelBase = 2.6f;
-    steeringAngleRad = maxSteeringAngleRad - decrease;
-    double turnRate = speedMps * tan(steeringAngleRad) / wheelBase;
-    rotation.yaw += turnRate * dt / 5.0f;
-}
-
-void Vehicle::turnRight()
-{
-    float decrease = 0;
-    decrease = speedMps * 3.6f * maxSteeringAngleRad / 200;
-
-    if (decrease > maxSteeringAngleRad / 3)
-        decrease = maxSteeringAngleRad / 2;
-
-    const float wheelBase = 2.6f;
-    steeringAngleRad = -maxSteeringAngleRad + decrease;
-    double turnRate = speedMps * tan(steeringAngleRad) / wheelBase;
-    rotation.yaw += turnRate * dt / 5.0f;
+    rotation.yaw += speedMps * tan(steeringAngleRad) / wheelBase * dt;
 }
 
 void Vehicle::shiftUp()
@@ -145,15 +130,16 @@ void Vehicle::handleInput()
     steeringAngleRad = 0;
     if (Input::isDown(turnLeftKey) && Input::isUp(turnRightKey))
     {
-        turnLeft();
+        turn(1.0f);
     }
     else if (Input::isDown(turnRightKey) && Input::isUp(turnLeftKey))
     {
-        turnRight();
+        turn(-1.0f);
     }
 }
 
-void Vehicle::updateTransform(){
+void Vehicle::updateTransform()
+{
     // Temporary
     moveDirection = rotation;
 

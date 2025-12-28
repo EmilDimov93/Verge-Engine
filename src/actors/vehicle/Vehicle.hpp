@@ -149,14 +149,12 @@ private:
     void calcSpeed();
     void calcRpm();
     void handleInput();
-    void turnLeft();
-    void turnRight();
+    void turn(float turningInput);
     void shiftUp();
     void shiftDown();
     void updateTransmission();
     void updateTransform();
 
-    void resetMatrices();
     void updateBodyMatrix();
     void updateWheelMatrices();
 

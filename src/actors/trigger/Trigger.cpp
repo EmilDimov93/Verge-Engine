@@ -11,16 +11,14 @@ Trigger::Trigger(uint32_t id, Position3 position, VE_STRUCT_TRIGGER_TYPE_CREATE_
         this->id = id;
     else
     {
-        // should be error
-        Log::add('O', 101);
+        Log::add('A', 180);
     }
 
     if (info.meshIndex >= 0)
         meshIndex = info.meshIndex;
     else
     {
-        // should be error
-        Log::add('O', 101);
+        Log::add('A', 181);
     }
 
     if (info.hitboxShape != VE_SHAPE_UNKNOWN)
@@ -28,7 +26,7 @@ Trigger::Trigger(uint32_t id, Position3 position, VE_STRUCT_TRIGGER_TYPE_CREATE_
     else
     {
         hitboxShape = VE_SHAPE_PRISM;
-        Log::add('O', 101);
+        Log::add('A', 182);
     }
 
     if (info.hitboxSize > 0)
@@ -36,7 +34,7 @@ Trigger::Trigger(uint32_t id, Position3 position, VE_STRUCT_TRIGGER_TYPE_CREATE_
     else
     {
         hitboxSize = 1.0f;
-        Log::add('O', 101);
+        Log::add('A', 183);
     }
 
     this->position = position;
@@ -70,7 +68,7 @@ bool Trigger::doesActorTrigger(Position3 actorPosition)
     }
     case VE_SHAPE_UNKNOWN:
     default:
-        Log::add('O', 101);
+        Log::add('A', 182);
         break;
     }
 

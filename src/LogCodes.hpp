@@ -61,9 +61,9 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'K', 100}, "Camera already initialized. Operation cancelled"},
     {{'K', 200}, "Camera not initialized"},
     {{'K', 201}, "Camera: invalid Field Of View value"}, // TODO: Change to error?
-    {{'K', 202}, "Camera: invalid Aspect Ratio value"}, // TODO: Change to error?
-    {{'K', 203}, "Camera: invalid Z Near value"}, // TODO: Change to error?
-    {{'K', 204}, "Camera: invalid Z Far value"}, // TODO: Change to error?
+    {{'K', 202}, "Camera: invalid Aspect Ratio value"},  // TODO: Change to error?
+    {{'K', 203}, "Camera: invalid Z Near value"},        // TODO: Change to error?
+    {{'K', 204}, "Camera: invalid Z Far value"},         // TODO: Change to error?
 
     // GLFW
     {{'G', 000}, "GLFW loaded successfully"},
@@ -77,7 +77,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'O', 100}, "Invalid error code"},
     {{'O', 101}, "Test error code"},
 
-// Layer 2
+    // Actors
 
     // Vehicle
     {{'A', 100}, "Vehicle: missing mesh for body"},
@@ -94,5 +94,13 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'A', 111}, "Vehicle: invalid frontal area. Using default value"},
     {{'A', 112}, "Vehicle: invalid max steering angle. Using absolute value"},
     {{'A', 113}, "Vehicle: invalid max steering angle. Using default value"},
-    {{'A', 114}, "Vehicle: invalid camber. Using default value"}
-};
+    {{'A', 114}, "Vehicle: invalid camber. Using default value"},
+
+    // Prop
+    {{'A', 160}, "Prop: invalid mesh index"},
+
+    // Trigger
+    {{'A', 180}, "Trigger: invalid ID"},
+    {{'A', 181}, "Trigger: invalid mesh index"},
+    {{'A', 182}, "Trigger: invalid hitbox shape"},
+    {{'A', 183}, "Trigger: invalid hitbox size"}};

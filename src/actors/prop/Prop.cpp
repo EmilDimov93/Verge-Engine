@@ -13,8 +13,8 @@ Prop::Prop(uint32_t meshIndex, Position3 position, Rotation3 rotation)
     }
     else
     {
-        // should be error
-        Log::add('O', 101);
+        this->meshIndex = -1;
+        Log::add('A', 160);
     }
 
     this->position = position;

@@ -45,22 +45,21 @@ void VulkanManager::createInstance()
         .apiVersion = VK_API_VERSION_1_3};
 
     uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    const char **glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-    std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+    std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
     extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
-    const char* validationLayers[] = { "VK_LAYER_KHRONOS_validation" };
+    const char *validationLayers[] = {"VK_LAYER_KHRONOS_validation"};
 
     VkInstanceCreateInfo instanceCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
         .pApplicationInfo = &appInfo,
-        .enabledLayerCount = 1, 
+        .enabledLayerCount = 1,
         .ppEnabledLayerNames = validationLayers,
         .enabledExtensionCount = static_cast<uint32_t>(extensions.size()),
-        .ppEnabledExtensionNames = extensions.data()
-    };
+        .ppEnabledExtensionNames = extensions.data()};
 
     vkCheck(vkCreateInstance(&instanceCreateInfo, nullptr, &instance), {'V', 200});
 }
@@ -278,10 +277,12 @@ VkShaderModule VulkanManager::createShaderModule(const std::vector<char> &code)
     return shaderModule;
 }
 
-static std::vector<char> readFile(const std::string &fileName){
+static std::vector<char> readFile(const std::string &fileName)
+{
     std::ifstream file(fileName, std::ios::binary | std::ios::ate);
 
-    if(!file.is_open()){
+    if (!file.is_open())
+    {
         return {};
     }
 
@@ -678,7 +679,7 @@ void VulkanManager::updateUniformBuffers(uint32_t currentFrame, glm::mat4 projec
     {
         glm::mat4 projection;
         glm::mat4 view;
-    }uboViewProjection;
+    } uboViewProjection;
 
     uboViewProjection.projection = projectionM;
     uboViewProjection.view = viewM;
@@ -689,7 +690,7 @@ void VulkanManager::updateUniformBuffers(uint32_t currentFrame, glm::mat4 projec
     vkUnmapMemory(device, vpUniformBufferMemory[currentFrame]);
 }
 
-void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh>& meshes)
+void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh> &meshes)
 {
     VkCommandBufferBeginInfo commandBufferBeginInfo = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
@@ -704,7 +705,7 @@ void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh
     renderPassBeginInfo.renderArea.extent = swapChainExtent;
 
     std::array<VkClearValue, 2> clearValues = {};
-    clearValues[0].color = {0.733f, 0.957f, 0.988f, 1.0f};//{0.878f, 0.0f, 0.0f, 1.0f};
+    clearValues[0].color = {0.733f, 0.957f, 0.988f, 1.0f}; //{0.878f, 0.0f, 0.0f, 1.0f};
     clearValues[1].depthStencil.depth = 1.0f;
     renderPassBeginInfo.pClearValues = clearValues.data();
     renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -853,7 +854,7 @@ void VulkanManager::createDescriptorSets()
     }
 }
 
-void VulkanManager::drawFrame(const std::vector<Mesh>& meshes, glm::mat4 projectionM, glm::mat4 viewM)
+void VulkanManager::drawFrame(const std::vector<Mesh> &meshes, glm::mat4 projectionM, glm::mat4 viewM)
 {
     vkCheck(vkWaitForFences(device, 1, &drawFences[currentFrame], VK_TRUE, UINT64_MAX), {'V', 231});
     vkCheck(vkResetFences(device, 1, &drawFences[currentFrame]), {'V', 232});
@@ -923,8 +924,7 @@ VulkanContext VulkanManager::getContext()
         .physicalDevice = physicalDevice,
         .device = device,
         .graphicsQueue = graphicsQueue,
-        .graphicsCommandPool = graphicsCommandPool
-    };
+        .graphicsCommandPool = graphicsCommandPool};
 
     return ctx;
 }

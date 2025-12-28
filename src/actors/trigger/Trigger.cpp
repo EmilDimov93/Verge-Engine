@@ -61,7 +61,7 @@ bool Trigger::doesActorTrigger(Position3 actorPosition)
         float dz = actorPosition.z - position.z;
         float radius = hitboxSize / 2;
 
-        if (dx*dx + dy*dy + dz*dz <= radius * radius)
+        if (dx * dx + dy * dy + dz * dz <= radius * radius)
             return true;
 
         break;

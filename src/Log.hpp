@@ -17,8 +17,10 @@ public:
 
     std::string getMessage();
 
-    ErrorCode(char newLetter, uint16_t newNumber){
-        if(messages.find({newLetter, newNumber}) == messages.end()){
+    ErrorCode(char newLetter, uint16_t newNumber)
+    {
+        if (messages.find({newLetter, newNumber}) == messages.end())
+        {
             letter = 'O';
             number = 100;
             return;
@@ -31,11 +33,14 @@ private:
     static const std::map<std::pair<char, uint16_t>, std::string> messages;
 };
 
-inline bool operator!=(const ErrorCode& lhs, const ErrorCode& rhs) {
+inline bool operator!=(const ErrorCode &lhs, const ErrorCode &rhs)
+{
     return lhs.letter != rhs.letter || lhs.number != rhs.number;
 }
 
-struct EngineCrash : public std::exception {};
+struct EngineCrash : public std::exception
+{
+};
 
 class Log
 {

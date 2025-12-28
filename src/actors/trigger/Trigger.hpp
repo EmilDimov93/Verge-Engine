@@ -5,7 +5,8 @@
 
 #include "../../definitions.hpp"
 
-enum VE_SHAPE{
+enum VE_SHAPE
+{
     VE_SHAPE_UNKNOWN,
     VE_SHAPE_PRISM,
     VE_SHAPE_SPHERE

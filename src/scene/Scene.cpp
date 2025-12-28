@@ -149,8 +149,10 @@ uint32_t Scene::addProp(uint32_t meshIndex, Position3 position, Rotation3 rotati
 
 uint32_t Scene::addTrigger(uint32_t id, Position3 position, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info)
 {
-    for(Trigger trigger : triggers){
-        if(id == trigger.getId()){
+    for (Trigger trigger : triggers)
+    {
+        if (id == trigger.getId())
+        {
             // Error: id exists
         }
     }
@@ -195,14 +197,16 @@ void Scene::tick(ve_time dt)
             {
                 std::cout << "Triggered: " << trigger.getId() << std::endl;
                 // call callback function
-                if(trigger.getIsAutoDestroy()){
+                if (trigger.getIsAutoDestroy())
+                {
                     trigger.markForDestroy();
                     break;
                 }
             }
         }
     }
-    std::erase_if(triggers, [](const Trigger& t) { return t.getIsMarkedForDestroy(); });
+    std::erase_if(triggers, [](const Trigger &t)
+                  { return t.getIsMarkedForDestroy(); });
 
     Camera::update();
 }

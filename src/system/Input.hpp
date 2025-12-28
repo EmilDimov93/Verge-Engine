@@ -110,7 +110,7 @@ typedef enum
 class Input
 {
 public:
-    static void init(GLFWwindow* windowRef);
+    static void init(GLFWwindow *windowRef);
 
     static void refresh();
 
@@ -132,5 +132,5 @@ private:
 
     static Position2 mousePosition;
 
-    static GLFWwindow* window;
+    static GLFWwindow *window;
 };

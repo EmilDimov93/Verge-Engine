@@ -78,10 +78,10 @@ public:
     void updateGraphics();
 
     // Getters
-    
+
     Position3 getWheelOffset() const { return wheelOffset; }
     uint32_t getPowerKw() const { return powerKw; }
-    uint32_t getPowerHp() const{ return static_cast<uint32_t>(powerKw * 1.341022f); }
+    uint32_t getPowerHp() const { return static_cast<uint32_t>(powerKw * 1.341022f); }
     float getWeightKg() const { return weightKg; }
     uint32_t getGearCount() const { return gearCount; }
     uint32_t getMaxRpm() const { return maxRpm; }
@@ -98,7 +98,7 @@ public:
     float getDragCoeff() const { return dragCoeff; }
     float getFrontalArea() const { return frontalAreaM2; }
     float getMaxSteeringAngleRad() const { return maxSteeringAngleRad; }
-    float getMaxSteeringAngleDeg() const{ return maxSteeringAngleRad * 57.2957795f; }
+    float getMaxSteeringAngleDeg() const { return maxSteeringAngleRad * 57.2957795f; }
     const Position3 &getPosition() const { return position; }
     const Rotation3 &getRotation() const { return rotation; }
     const Rotation3 &getMoveDirection() const { return moveDirection; }
@@ -115,11 +115,11 @@ public:
 
     void setWheelOffset(Position3 value) { wheelOffset = value; }
     void setPowerKw(uint32_t value) { powerKw = value; }
-    void setPowerHp(uint32_t value){ powerKw = static_cast<uint32_t>(value / 1.341022f); }
+    void setPowerHp(uint32_t value) { powerKw = static_cast<uint32_t>(value / 1.341022f); }
     void setWeightKg(float value) { weightKg = value; }
     void setGearCount(uint32_t value) { gearCount = value; }
     void setMaxRpm(uint32_t value) { maxRpm = value; }
-    void setTransmissionType( VETransmissionType value ) { transmissionType = value; }
+    void setTransmissionType(VETransmissionType value) { transmissionType = value; }
     void setBrakingForce(float value) { brakingForce = value; }
     void setGearRatio(uint32_t gearIndex, float value)
     {
@@ -133,7 +133,7 @@ public:
     void setDragCoeff(float value) { dragCoeff = value; }
     void setFrontalArea(float value) { frontalAreaM2 = value; }
     void setMaxSteeringAngleRad(float value) { maxSteeringAngleRad = value; }
-    void setMaxSteeringAngleDeg(float deg){ maxSteeringAngleRad = deg * 0.0174532925f; }
+    void setMaxSteeringAngleDeg(float deg) { maxSteeringAngleRad = deg * 0.0174532925f; }
     void setPosition(const Position3 &value) { position = value; }
     void setRotation(const Rotation3 &value) { rotation = value; }
     void setMoveDirection(const Rotation3 &value) { moveDirection = value; }

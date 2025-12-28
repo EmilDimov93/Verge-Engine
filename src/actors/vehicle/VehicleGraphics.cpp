@@ -43,21 +43,21 @@ void Vehicle::move()
 void Vehicle::offsetWheels()
 {
     glm::mat4 flLocal = glm::translate(glm::mat4(1.0f),
-        glm::vec3( wheelOffset.x * 0.5f, wheelOffset.y,  wheelOffset.z));
+                                       glm::vec3(wheelOffset.x * 0.5f, wheelOffset.y, wheelOffset.z));
 
     glm::mat4 frLocal = glm::translate(glm::mat4(1.0f),
-        glm::vec3(-wheelOffset.x * 0.5f, wheelOffset.y,  wheelOffset.z));
+                                       glm::vec3(-wheelOffset.x * 0.5f, wheelOffset.y, wheelOffset.z));
 
     glm::mat4 blLocal = glm::translate(glm::mat4(1.0f),
-        glm::vec3( wheelOffset.x * 0.5f, wheelOffset.y, -wheelOffset.z));
+                                       glm::vec3(wheelOffset.x * 0.5f, wheelOffset.y, -wheelOffset.z));
 
     glm::mat4 brLocal = glm::translate(glm::mat4(1.0f),
-        glm::vec3(-wheelOffset.x * 0.5f, wheelOffset.y, -wheelOffset.z));
+                                       glm::vec3(-wheelOffset.x * 0.5f, wheelOffset.y, -wheelOffset.z));
 
     glm::mat4 flip =
         glm::rotate(glm::mat4(1.0f),
-            glm::radians(180.0f),
-            glm::vec3(0, 1, 0));
+                    glm::radians(180.0f),
+                    glm::vec3(0, 1, 0));
 
     wheelFLMat = bodyMat * flLocal;
     wheelFRMat = bodyMat * frLocal * flip;

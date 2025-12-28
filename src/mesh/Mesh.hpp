@@ -8,7 +8,8 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 
-struct VulkanContext{
+struct VulkanContext
+{
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     VkDevice device = VK_NULL_HANDLE;
     VkQueue graphicsQueue = VK_NULL_HANDLE;
@@ -23,7 +24,7 @@ struct Model
 class Mesh
 {
 public:
-    VkResult init(VulkanContext vulkanContext, std::vector<Vertex>* vertices, std::vector<uint32_t>* indeces);
+    VkResult init(VulkanContext vulkanContext, std::vector<Vertex> *vertices, std::vector<uint32_t> *indeces);
 
     void setModel(glm::mat4 newModel);
     Model getModel() const;
@@ -47,6 +48,6 @@ private:
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;
 
-    VkResult createVertexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex>* vertices);
-    VkResult createIndexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t>* indeces);
+    VkResult createVertexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex> *vertices);
+    VkResult createIndexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t> *indeces);
 };

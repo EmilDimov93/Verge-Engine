@@ -21,7 +21,7 @@ public:
 
     Scene(VulkanContext newVulkanContext, float newFov, float newAspectRatio, float newZNear, float newZFar);
 
-    uint32_t loadFile(const std::string& filename);
+    uint32_t loadFile(const std::string &filename);
 
     uint32_t addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info);
     uint32_t addProp(uint32_t meshIndex, Position3 position, Rotation3 rotation);

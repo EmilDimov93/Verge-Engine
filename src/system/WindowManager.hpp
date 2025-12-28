@@ -12,10 +12,9 @@ struct GLFWwindow;
 class WindowManager
 {
 public:
-
     WindowManager();
 
-    GLFWwindow* getReference();
+    GLFWwindow *getReference();
 
     Size2 getSize();
 
@@ -26,7 +25,7 @@ public:
     ~WindowManager();
 
 private:
-    GLFWwindow* window;
+    GLFWwindow *window;
     Size2 windowSize = {0, 0};
 
     bool isInitialized = false;

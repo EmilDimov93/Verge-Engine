@@ -16,12 +16,15 @@ float Camera::zFar = -1.0f;
 
 bool Camera::isInitialized = false;
 
-glm::mat4 Camera::getViewMatrix(){
+glm::mat4 Camera::getViewMatrix()
+{
     return glm::lookAt(glm::vec3(position.x, position.y, position.z), glm::vec3(position.x + forward.x, position.y + forward.y, position.z + forward.z), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
-glm::mat4 Camera::getProjectionMatrix(){
-    if(!isInitialized){
+glm::mat4 Camera::getProjectionMatrix()
+{
+    if (!isInitialized)
+    {
         Log::add('K', 200);
     }
 
@@ -64,7 +67,8 @@ Rotation3 Camera::getRotation()
     return rotation;
 }
 
-void Camera::update() {
+void Camera::update()
+{
     forward.x = cos(glm::radians(rotation.yaw)) * cos(glm::radians(rotation.pitch));
     forward.y = sin(glm::radians(rotation.pitch));
     forward.z = sin(glm::radians(rotation.yaw)) * cos(glm::radians(rotation.pitch));
@@ -73,21 +77,26 @@ void Camera::update() {
 
 void Camera::init(float newFov, float newAspectRatio, float newZNear, float newZFar)
 {
-    if(isInitialized){
+    if (isInitialized)
+    {
         Log::add('K', 100);
         return;
     }
 
-    if(newFov <= 0 || newFov >= 180){
+    if (newFov <= 0 || newFov >= 180)
+    {
         Log::add('K', 201);
     }
-    if(newAspectRatio <= 0){
+    if (newAspectRatio <= 0)
+    {
         Log::add('K', 202);
     }
-    if(newZNear <= 0){
+    if (newZNear <= 0)
+    {
         Log::add('K', 203);
     }
-    if(newZFar <= newZNear){
+    if (newZFar <= newZNear)
+    {
         Log::add('K', 204);
     }
 

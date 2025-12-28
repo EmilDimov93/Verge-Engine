@@ -21,7 +21,7 @@ public:
 private:
     std::chrono::steady_clock::time_point timeAtStartOfFrame;
     ve_time targetFrameTime = 0;
-    
+
     ve_time lastFrameTime = 0;
     uint16_t currentFps = 0;
 };

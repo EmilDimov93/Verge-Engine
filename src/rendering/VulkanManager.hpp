@@ -17,9 +17,9 @@ class ErrorCode;
 class VulkanManager
 {
 public:
-    VulkanManager(GLFWwindow* window, Size2 windowSize);
+    VulkanManager(GLFWwindow *window, Size2 windowSize);
 
-    void drawFrame(const std::vector<Mesh>& meshes, glm::mat4 projectionM, glm::mat4 viewM);
+    void drawFrame(const std::vector<Mesh> &meshes, glm::mat4 projectionM, glm::mat4 viewM);
 
     void vkCheck(VkResult res, ErrorCode errorCode);
 
@@ -79,7 +79,7 @@ private:
     std::vector<VkFence> drawFences;
 
     void createInstance();
-    void createSurface(GLFWwindow* window);
+    void createSurface(GLFWwindow *window);
     void pickPhysicalDevice();
     void createLogicalDevice();
     void createSwapChain(Size2 windowSize);
@@ -97,7 +97,7 @@ private:
     void createDescriptorPool();
     void createDescriptorSets();
 
-    void recordCommands(uint32_t currentImage, const std::vector<Mesh>& meshes);
+    void recordCommands(uint32_t currentImage, const std::vector<Mesh> &meshes);
 
     void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionM, glm::mat4 viewM);
 

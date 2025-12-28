@@ -41,6 +41,9 @@ public:
 private:
     bool isCameraFollowingVehicle;
     uint32_t cameraFollowedVehicleIndex;
+    float cameraFollowDistance = 10.0f;
+    float cameraFollowHeight = 3.0f;
+    float cameraFollowDelay = 0.01f;
 
     uint32_t loadOBJ(const std::string &filePath);
     uint32_t loadFBX(const std::string &filePath);

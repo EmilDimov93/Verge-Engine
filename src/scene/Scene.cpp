@@ -20,22 +20,28 @@ Scene::Scene(VulkanContext newVulkanContext, float newFov, float newAspectRatio,
     Camera::init(newFov, newAspectRatio, newZNear, newZFar);
 }
 
-uint32_t Scene::loadFile(const std::string &filePath){
+uint32_t Scene::loadFile(const std::string &filePath)
+{
     std::string ext = std::filesystem::path(filePath).extension().string();
 
-    if(ext == ".obj"){
+    if (ext == ".obj")
+    {
         return loadOBJ(filePath);
     }
-    else if(ext == ".fbx"){
+    else if (ext == ".fbx")
+    {
         return loadFBX(filePath);
     }
-    else if(ext == ".glb"){
+    else if (ext == ".glb")
+    {
         return loadGLB(filePath);
     }
-    else if(ext == ".gltf"){
+    else if (ext == ".gltf")
+    {
         return loadGLTF(filePath);
     }
-    else{
+    else
+    {
         Log::add('S', 100);
     }
 
@@ -268,25 +274,16 @@ void Scene::unsetCameraFollowVehicle()
 
 void Scene::cameraFollowVehicle(ve_time dt)
 {
-    /*static float cameraRot = -180.0f;
-    if (Input::isDown(VE_KEY_LEFT))
-    {
-        cameraRot += dt * 90;
-    }
-    if (Input::isDown(VE_KEY_RIGHT))
-    {
-        cameraRot -= dt * 90;
-    }*/
+    static float cameraYaw = vehicles[cameraFollowedVehicleIndex].getMoveDirection().yaw - PI;
 
-    float cameraRot = vehicles[cameraFollowedVehicleIndex].getMoveDirection().yaw - PI;
+    float targetYaw = vehicles[cameraFollowedVehicleIndex].getMoveDirection().yaw - PI;
 
-    float distance = 8.0f;
-    float height = 3.0f;
+    cameraYaw += (targetYaw - cameraYaw) * cameraFollowDelay;
 
     Position3 vehiclePos = vehicles[cameraFollowedVehicleIndex].getPosition();
 
     static glm::vec3 prevCamPos = {Camera::getPosition().x, Camera::getPosition().y, Camera::getPosition().z};
-    glm::vec3 targetCamPos = {vehiclePos.x + sin(cameraRot) * distance, vehiclePos.y + height, vehiclePos.z + cos(cameraRot) * distance};
+    glm::vec3 targetCamPos = {vehiclePos.x + sin(cameraYaw) * cameraFollowDistance, vehiclePos.y + cameraFollowHeight, vehiclePos.z + cos(cameraYaw) * cameraFollowDistance};
     glm::vec3 newCamPos = glm::mix(prevCamPos, targetCamPos, std::exp(-dt * 10.0f));
     Camera::move({newCamPos.x, newCamPos.y, newCamPos.z});
     prevCamPos = {Camera::getPosition().x, Camera::getPosition().y, Camera::getPosition().z};

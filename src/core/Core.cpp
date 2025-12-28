@@ -17,7 +17,7 @@
 class VergeEngine
 {
 public:
-    VergeEngine() : vulkan(window.getReference(), window.getSize()), scene(vulkan.getContext(), 60.0f, window.getAspectRatio(), 0.1f, 1000.0f)
+    VergeEngine() : window(50.0f), vulkan(window.getReference(), window.getSize()), scene(vulkan.getContext(), 60.0f, window.getAspectRatio(), 0.1f, 1000.0f)
     {
         Input::init(window.getReference());
         Log::init(LOG_OUTPUT_MODE_FILE_AND_CONSOLE);

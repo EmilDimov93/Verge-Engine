@@ -7,15 +7,15 @@
 
 #include <GLFW/glfw3.h>
 
-WindowManager::WindowManager()
+WindowManager::WindowManager(float percentageOfMonitor)
 {
     if (!glfwInit())
         Log::add('G', 200);
     isInitialized = true;
 
     const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-    windowSize.w = mode->width / 2;
-    windowSize.h = mode->height / 2;
+    windowSize.w = mode->width * percentageOfMonitor / 100.0f;
+    windowSize.h = mode->height * percentageOfMonitor / 100.0f;
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);

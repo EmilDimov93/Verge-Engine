@@ -12,7 +12,7 @@ struct GLFWwindow;
 class WindowManager
 {
 public:
-    WindowManager();
+    WindowManager(float percentageOfMonitor);
 
     GLFWwindow *getReference();
 

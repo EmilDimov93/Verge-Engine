@@ -47,10 +47,18 @@ struct Rotation3
     constexpr Rotation3(double pitch_val = 0.0, double yaw_val = 0.0, double roll_val = 0.0) : pitch(pitch_val), yaw(yaw_val), roll(roll_val) {}
 };
 
-struct Vertex
+struct Scale3
 {
-    glm::vec3 pos;
-    glm::vec3 col;
+    double x, y, z;
 
-    Vertex(const glm::vec3 &position = glm::vec3(0.0f), const glm::vec3 &color = glm::vec3(1.0f)) : pos(position), col(color) {}
+    constexpr Scale3(double x_val = 1.0, double y_val = 1.0, double z_val = 1.0) : x(x_val), y(y_val), z(z_val) {}
+};
+
+struct Transform
+{
+    Position3 position{};
+    Rotation3 rotation{};
+    Scale3 scale{};
+
+    constexpr Transform(Position3 p = {}, Rotation3 r = {}, Scale3 s = {}) : position(p), rotation(r), scale(s) {}
 };

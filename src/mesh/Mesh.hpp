@@ -8,6 +8,14 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 
+struct Vertex
+{
+    glm::vec3 pos;
+    glm::vec3 col;
+
+    Vertex(const glm::vec3 &position = glm::vec3(0.0f), const glm::vec3 &color = glm::vec3(1.0f)) : pos(position), col(color) {}
+};
+
 struct VulkanContext
 {
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;

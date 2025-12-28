@@ -272,13 +272,28 @@ void Scene::unsetCameraFollowVehicle()
     isCameraFollowingVehicle = false;
 }
 
+void Scene::setCameraFollowDistance(float distance)
+{
+    cameraFollowDistance = distance;
+}
+
+void Scene::setCameraFollowHeight(float height)
+{
+    cameraFollowHeight = height;
+}
+
+void Scene::setCameraFollowYawDelay(float yawDelay)
+{
+    cameraFollowYawDelay = yawDelay;
+}
+
 void Scene::cameraFollowVehicle(ve_time dt)
 {
     static float cameraYaw = vehicles[cameraFollowedVehicleIndex].getMoveDirection().yaw - PI;
 
     float targetYaw = vehicles[cameraFollowedVehicleIndex].getMoveDirection().yaw - PI;
 
-    cameraYaw += (targetYaw - cameraYaw) * cameraFollowDelay;
+    cameraYaw += (targetYaw - cameraYaw) * cameraFollowYawDelay;
 
     Position3 vehiclePos = vehicles[cameraFollowedVehicleIndex].getPosition();
 

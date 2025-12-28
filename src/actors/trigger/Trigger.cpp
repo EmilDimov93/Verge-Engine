@@ -40,6 +40,14 @@ Trigger::Trigger(uint32_t id, Position3 position, VE_STRUCT_TRIGGER_TYPE_CREATE_
     this->position = position;
 
     isAutoDestroy = info.isAutoDestroy;
+
+    modelMat = glm::mat4(1.0f);
+
+    modelMat = glm::translate(modelMat, glm::vec3(position.x, position.y, position.z));
+
+    modelMat = glm::rotate(modelMat, (float)rotation.pitch, glm::vec3(1.0f, 0.0f, 0.0f));
+    modelMat = glm::rotate(modelMat, (float)rotation.yaw, glm::vec3(0.0f, 1.0f, 0.0f));
+    modelMat = glm::rotate(modelMat, (float)rotation.roll, glm::vec3(0.0f, 0.0f, 1.0f));
 }
 
 bool Trigger::doesActorTrigger(Position3 actorPosition)
@@ -93,4 +101,9 @@ void Trigger::markForDestroy()
 bool Trigger::getIsMarkedForDestroy() const
 {
     return isMarkedForDestroy;
+}
+
+glm::mat4 Trigger::getModelMat()
+{
+    return modelMat;
 }

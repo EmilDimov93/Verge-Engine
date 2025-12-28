@@ -201,6 +201,8 @@ uint32_t Scene::addTrigger(uint32_t id, Position3 position, const VE_STRUCT_TRIG
     Trigger newTrigger(id, position, info);
     triggers.push_back(newTrigger);
 
+    setMatrix(info.meshIndex, newTrigger.getModelMat());
+
     return triggers.size() - 1;
 }
 

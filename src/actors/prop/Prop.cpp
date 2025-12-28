@@ -25,8 +25,8 @@ Prop::Prop(uint32_t meshIndex, Position3 position, Rotation3 rotation)
 
     modelMat = glm::translate(modelMat, glm::vec3(position.x, position.y, position.z));
 
-    modelMat = glm::rotate(modelMat, (float)rotation.yaw, glm::vec3(0.0f, 1.0f, 0.0f));
     modelMat = glm::rotate(modelMat, (float)rotation.pitch, glm::vec3(1.0f, 0.0f, 0.0f));
+    modelMat = glm::rotate(modelMat, (float)rotation.yaw, glm::vec3(0.0f, 1.0f, 0.0f));
     modelMat = glm::rotate(modelMat, (float)rotation.roll, glm::vec3(0.0f, 0.0f, 1.0f));
 }
 

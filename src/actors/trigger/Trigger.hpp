@@ -34,10 +34,13 @@ public:
     void markForDestroy();
     bool getIsMarkedForDestroy() const;
 
+    glm::mat4 getModelMat();
+
 private:
     uint32_t id;
 
     Position3 position;
+    Rotation3 rotation; // not implemented
     uint32_t meshIndex;
 
     VE_SHAPE hitboxShape;
@@ -46,6 +49,8 @@ private:
     bool isAutoDestroy;
 
     bool isMarkedForDestroy = false;
+
+    glm::mat4 modelMat;
 
     // callback function
 };

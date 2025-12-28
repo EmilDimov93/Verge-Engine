@@ -64,8 +64,8 @@ public:
         sTriggerType.hitboxShape = VE_SHAPE_SPHERE;
         sTriggerType.hitboxSize = 10.0f;
         sTriggerType.isAutoDestroy = true;
-        scene.addTrigger(0, {0.0f, 0, 20.0f}, sTriggerType);
-        scene.addTrigger(1, {0.0f, 0, 50.0f}, sTriggerType);
+        scene.addTrigger(0, {{0.0f, 0, 20.0f}}, sTriggerType);
+        scene.addTrigger(1, {{0.0f, 0, 50.0f}}, sTriggerType);
 
         scene.loadFile("models/floorBig.obj");
 

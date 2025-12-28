@@ -189,7 +189,7 @@ uint32_t Scene::addProp(uint32_t meshIndex, Transform transform)
     return props.size() - 1;
 }
 
-uint32_t Scene::addTrigger(uint32_t id, Position3 position, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info)
+uint32_t Scene::addTrigger(uint32_t id, Transform transform, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info)
 {
     for (Trigger trigger : triggers)
     {
@@ -198,7 +198,7 @@ uint32_t Scene::addTrigger(uint32_t id, Position3 position, const VE_STRUCT_TRIG
             // Error: id exists
         }
     }
-    Trigger newTrigger(id, position, info);
+    Trigger newTrigger(id, transform, info);
     triggers.push_back(newTrigger);
 
     setMatrix(info.meshIndex, newTrigger.getModelMat());

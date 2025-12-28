@@ -24,9 +24,9 @@ struct VE_STRUCT_TRIGGER_TYPE_CREATE_INFO
 class Trigger
 {
 public:
-    Trigger(uint32_t id, Position3 position, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info);
+    Trigger(uint32_t id, Transform transform, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info);
 
-    bool doesActorTrigger(Position3 actorPosition);
+    bool doesActorTrigger(Position3 actorPos);
 
     uint32_t getId() const;
     bool getIsAutoDestroy() const;
@@ -39,8 +39,8 @@ public:
 private:
     uint32_t id;
 
-    Position3 position;
-    Rotation3 rotation; // not implemented
+    Transform transform;
+
     uint32_t meshIndex;
 
     VE_SHAPE hitboxShape;

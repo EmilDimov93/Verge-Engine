@@ -5,7 +5,7 @@
 
 #include "../../Log.hpp"
 
-Trigger::Trigger(uint32_t id, Position3 position, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info)
+Trigger::Trigger(uint32_t id, Transform transform, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info)
 {
     if (id >= 0)
         this->id = id;
@@ -37,36 +37,32 @@ Trigger::Trigger(uint32_t id, Position3 position, VE_STRUCT_TRIGGER_TYPE_CREATE_
         Log::add('A', 183);
     }
 
-    this->position = position;
+    this->transform = transform;
 
     isAutoDestroy = info.isAutoDestroy;
 
-    modelMat = glm::mat4(1.0f);
-
-    modelMat = glm::translate(modelMat, glm::vec3(position.x, position.y, position.z));
-
-    modelMat = glm::rotate(modelMat, (float)rotation.pitch, glm::vec3(1.0f, 0.0f, 0.0f));
-    modelMat = glm::rotate(modelMat, (float)rotation.yaw, glm::vec3(0.0f, 1.0f, 0.0f));
-    modelMat = glm::rotate(modelMat, (float)rotation.roll, glm::vec3(0.0f, 0.0f, 1.0f));
+    modelMat = transformToMat(transform);
 }
 
-bool Trigger::doesActorTrigger(Position3 actorPosition)
+bool Trigger::doesActorTrigger(Position3 actorPos)
 {
+    Position3 triggerPos = transform.position;
+
     switch (hitboxShape)
     {
     case VE_SHAPE_PRISM:
     {
-        if ((actorPosition.x > position.x - hitboxSize / 2) && (actorPosition.x < position.x + hitboxSize / 2) &&
-            (actorPosition.y > position.y - hitboxSize / 2) && (actorPosition.y < position.y + hitboxSize / 2) &&
-            (actorPosition.z > position.z - hitboxSize / 2) && (actorPosition.z < position.z + hitboxSize / 2))
+        if ((actorPos.x > triggerPos.x - hitboxSize / 2) && (actorPos.x < triggerPos.x + hitboxSize / 2) &&
+            (actorPos.y > triggerPos.y - hitboxSize / 2) && (actorPos.y < triggerPos.y + hitboxSize / 2) &&
+            (actorPos.z > triggerPos.z - hitboxSize / 2) && (actorPos.z < triggerPos.z + hitboxSize / 2))
             return true;
         break;
     }
     case VE_SHAPE_SPHERE:
     {
-        float dx = actorPosition.x - position.x;
-        float dy = actorPosition.y - position.y;
-        float dz = actorPosition.z - position.z;
+        float dx = actorPos.x - triggerPos.x;
+        float dy = actorPos.y - triggerPos.y;
+        float dz = actorPos.z - triggerPos.z;
         float radius = hitboxSize / 2;
 
         if (dx * dx + dy * dy + dz * dz <= radius * radius)

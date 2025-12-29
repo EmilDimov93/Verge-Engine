@@ -18,18 +18,6 @@ void Mesh::init(VulkanContext vulkanContext, std::vector<Vertex> *vertices, std:
     indexCount = indeces->size();
     createVertexBuffer(vulkanContext.physicalDevice, vulkanContext.device, vulkanContext.graphicsQueue, vulkanContext.graphicsCommandPool, vertices);
     createIndexBuffer(vulkanContext.physicalDevice, vulkanContext.device, vulkanContext.graphicsQueue, vulkanContext.graphicsCommandPool, indeces);
-
-    model = glm::mat4(1.0f);
-}
-
-void Mesh::setModel(glm::mat4 newModel)
-{
-    model = newModel;
-}
-
-glm::mat4 Mesh::getModel() const
-{
-    return model;
 }
 
 uint32_t findMemoryTypeIndex(VkPhysicalDevice physicalDevice, uint32_t allowedTypes, VkMemoryPropertyFlags properties)

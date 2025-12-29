@@ -14,6 +14,7 @@ class Scene
 {
 public:
     std::vector<Mesh> meshes;
+    std::vector<MeshInstance> meshInstances;
 
     std::vector<Vehicle> vehicles;
     std::vector<Prop> props;
@@ -29,7 +30,7 @@ public:
 
     VulkanContext vulkanContext;
 
-    void setMatrix(int modelId, glm::mat4 newModel);
+    void setMatrix(int meshInstanceIndex, glm::mat4 newModel);
 
     void tick(ve_time dt);
 
@@ -52,6 +53,8 @@ private:
     uint32_t loadFBX(const std::string &filePath);
     uint32_t loadGLB(const std::string &filePath);
     uint32_t loadGLTF(const std::string &filePath);
+
+    uint32_t addMeshInstance(uint32_t meshIndex);
 
     void cameraFollowVehicle(ve_time dt);
 };

@@ -5,7 +5,7 @@
 
 #include "../../Log.hpp"
 
-Trigger::Trigger(uint32_t id, Transform transform, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info)
+Trigger::Trigger(uint32_t id, Transform transform, uint32_t meshInstanceIndex, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info)
 {
     if (id >= 0)
         this->id = id;
@@ -14,8 +14,8 @@ Trigger::Trigger(uint32_t id, Transform transform, VE_STRUCT_TRIGGER_TYPE_CREATE
         Log::add('A', 180);
     }
 
-    if (info.meshIndex >= 0)
-        meshIndex = info.meshIndex;
+    if (meshInstanceIndex >= 0)
+        meshInstanceIndex = meshInstanceIndex;
     else
     {
         Log::add('A', 181);

@@ -23,10 +23,7 @@ enum VETransmissionType
 struct VE_STRUCT_VEHICLE_CREATE_INFO
 {
     int32_t bodyMeshIndex = -1;
-    int32_t wheelFLMeshIndex = -1;
-    int32_t wheelFRMeshIndex = -1;
-    int32_t wheelBLMeshIndex = -1;
-    int32_t wheelBRMeshIndex = -1;
+    int32_t wheelMeshIndex = -1;
 
     Position3 wheelOffset = {0, 0, 0};
 
@@ -61,16 +58,16 @@ class Vehicle
 {
 public:
     // Temporarily public
-    uint32_t bodyMeshIndex;
-    int32_t wheelFLMeshIndex;
-    int32_t wheelFRMeshIndex;
-    int32_t wheelBLMeshIndex;
-    int32_t wheelBRMeshIndex;
+    uint32_t bodyMeshInstanceIndex;
+    uint32_t wheelFLMeshInstanceIndex;
+    uint32_t wheelFRMeshInstanceIndex;
+    uint32_t wheelBLMeshInstanceIndex;
+    uint32_t wheelBRMeshInstanceIndex;
 
     glm::mat4 bodyMat;
     glm::mat4 wheelFLMat, wheelFRMat, wheelBLMat, wheelBRMat;
 
-    Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info);
+    Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, uint32_t bodyMeshInstanceIndex, uint32_t wheelFLMeshInstanceIndex, uint32_t wheelFRMeshInstanceIndex, uint32_t wheelBLMeshInstanceIndex, uint32_t wheelBRMeshInstanceIndex);
 
     void tick(ve_time deltaTime);
 

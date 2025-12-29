@@ -690,7 +690,7 @@ void VulkanManager::updateUniformBuffers(uint32_t currentFrame, glm::mat4 projec
     vkUnmapMemory(device, vpUniformBufferMemory[currentFrame]);
 }
 
-void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh> &meshes)
+void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh> &meshes, const std::vector<MeshInstance> &meshInstances)
 {
     VkCommandBufferBeginInfo commandBufferBeginInfo = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
@@ -714,20 +714,21 @@ void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh
 
     vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-    for (size_t j = 0; j < meshes.size(); j++)
+    for(MeshInstance instance : meshInstances)
     {
-        VkBuffer vertexBuffers[] = {meshes[j].getVertexBuffer()};
+        uint32_t index = instance.meshIndex;
+        VkBuffer vertexBuffers[] = {meshes[index].getVertexBuffer()};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
 
-        vkCmdBindIndexBuffer(commandBuffers[currentFrame], meshes[j].getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindIndexBuffer(commandBuffers[currentFrame], meshes[index].getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
-        glm::mat4 m = meshes[j].getModel();
+        glm::mat4 m = instance.model;
         vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &m);
 
         vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
-        vkCmdDrawIndexed(commandBuffers[currentFrame], meshes[j].getIndexCount(), 1, 0, 0, 0);
+        vkCmdDrawIndexed(commandBuffers[currentFrame], meshes[index].getIndexCount(), 1, 0, 0, 0);
     }
 
     vkCmdEndRenderPass(commandBuffers[currentFrame]);
@@ -854,7 +855,7 @@ void VulkanManager::createDescriptorSets()
     }
 }
 
-void VulkanManager::drawFrame(const std::vector<Mesh> &meshes, glm::mat4 projectionM, glm::mat4 viewM)
+void VulkanManager::drawFrame(const std::vector<Mesh> &meshes, const std::vector<MeshInstance> &meshInstances, glm::mat4 projectionM, glm::mat4 viewM)
 {
     vkCheck(vkWaitForFences(device, 1, &drawFences[currentFrame], VK_TRUE, UINT64_MAX), {'V', 231});
     vkCheck(vkResetFences(device, 1, &drawFences[currentFrame]), {'V', 232});
@@ -862,7 +863,7 @@ void VulkanManager::drawFrame(const std::vector<Mesh> &meshes, glm::mat4 project
     uint32_t imageIndex;
     vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex), {'V', 230});
 
-    recordCommands(currentFrame, meshes);
+    recordCommands(currentFrame, meshes, meshInstances);
     updateUniformBuffers(currentFrame, projectionM, viewM);
 
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};

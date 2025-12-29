@@ -24,13 +24,16 @@ struct VulkanContext
     VkCommandPool graphicsCommandPool = VK_NULL_HANDLE;
 };
 
+struct MeshInstance
+{
+    uint32_t meshIndex;
+    glm::mat4 model;
+};
+
 class Mesh
 {
 public:
     void init(VulkanContext vulkanContext, std::vector<Vertex> *vertices, std::vector<uint32_t> *indeces);
-
-    void setModel(glm::mat4 newModel);
-    glm::mat4 getModel() const;
 
     uint64_t getVertexCount() const;
     VkBuffer getVertexBuffer() const;
@@ -41,8 +44,6 @@ public:
     void destroyBuffers(VkDevice device);
 
 private:
-    glm::mat4 model;
-
     uint64_t vertexCount;
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;

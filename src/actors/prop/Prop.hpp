@@ -6,14 +6,14 @@
 class Prop
 {
 public:
-    Prop(uint32_t meshIndex, Transform transform);
+    Prop(uint32_t meshInstanceIndex, Transform transform);
 
     glm::mat4 getModelMat();
 
 private:
     Transform transform;
 
-    uint32_t meshIndex;
+    uint32_t meshInstanceIndex;
 
     glm::mat4 modelMat;
 };

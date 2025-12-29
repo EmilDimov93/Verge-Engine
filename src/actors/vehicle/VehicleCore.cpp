@@ -7,22 +7,22 @@
 
 #define HP_TO_KW_CONVERSION_FACTOR 0.7457f
 
-Vehicle::Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info)
+Vehicle::Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, uint32_t bodyMeshInstanceIndex, uint32_t wheelFLMeshInstanceIndex, uint32_t wheelFRMeshInstanceIndex, uint32_t wheelBLMeshInstanceIndex, uint32_t wheelBRMeshInstanceIndex)
 {
-    if (info.bodyMeshIndex != -1)
+    if (bodyMeshInstanceIndex != -1)
     {
-        bodyMeshIndex = info.bodyMeshIndex;
+        this->bodyMeshInstanceIndex = bodyMeshInstanceIndex;
     }
     else
     {
         Log::add('A', 100);
     }
-    if (info.wheelFLMeshIndex != -1 && info.wheelFRMeshIndex != -1 && info.wheelBLMeshIndex != -1 && info.wheelBRMeshIndex != -1)
+    if (wheelFLMeshInstanceIndex != -1 && wheelFRMeshInstanceIndex != -1 && wheelBLMeshInstanceIndex != -1 && wheelBRMeshInstanceIndex != -1)
     {
-        wheelFLMeshIndex = info.wheelFLMeshIndex;
-        wheelFRMeshIndex = info.wheelFRMeshIndex;
-        wheelBLMeshIndex = info.wheelBLMeshIndex;
-        wheelBRMeshIndex = info.wheelBRMeshIndex;
+        this->wheelFLMeshInstanceIndex = wheelFLMeshInstanceIndex;
+        this->wheelFRMeshInstanceIndex = wheelFRMeshInstanceIndex;
+        this->wheelBLMeshInstanceIndex = wheelBLMeshInstanceIndex;
+        this->wheelBRMeshInstanceIndex = wheelBRMeshInstanceIndex;
     }
     else
     {

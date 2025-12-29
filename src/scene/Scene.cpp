@@ -179,9 +179,19 @@ uint32_t Scene::loadGLTF(const std::string &filePath)
     return -1;
 }
 
+uint32_t Scene::addMeshInstance(uint32_t meshIndex)
+{
+    MeshInstance newMeshInstance;
+    newMeshInstance.meshIndex = meshIndex;
+
+    meshInstances.push_back(newMeshInstance);
+
+    return meshInstances.size() - 1;
+}
+
 uint32_t Scene::addVehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info)
 {
-    Vehicle newVehicle(transform, info);
+    Vehicle newVehicle(transform, info, addMeshInstance(info.bodyMeshIndex), addMeshInstance(info.wheelMeshIndex), addMeshInstance(info.wheelMeshIndex), addMeshInstance(info.wheelMeshIndex), addMeshInstance(info.wheelMeshIndex));
     vehicles.push_back(newVehicle);
 
     return vehicles.size() - 1;
@@ -189,10 +199,12 @@ uint32_t Scene::addVehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_I
 
 uint32_t Scene::addProp(uint32_t meshIndex, Transform transform)
 {
-    Prop newProp(meshIndex, transform);
+    uint32_t meshInstanceIndex = addMeshInstance(meshIndex);
+
+    Prop newProp(meshInstanceIndex, transform);
     props.push_back(newProp);
 
-    setMatrix(meshIndex, newProp.getModelMat());
+    setMatrix(meshInstanceIndex, newProp.getModelMat());
 
     return props.size() - 1;
 }
@@ -206,34 +218,37 @@ uint32_t Scene::addTrigger(uint32_t id, Transform transform, const VE_STRUCT_TRI
             Log::add('S', 200);
         }
     }
-    Trigger newTrigger(id, transform, info);
+
+    uint32_t meshInstanceIndex = addMeshInstance(info.meshIndex);
+
+    Trigger newTrigger(id, transform, meshInstanceIndex, info);
     triggers.push_back(newTrigger);
 
-    setMatrix(info.meshIndex, newTrigger.getModelMat());
+    setMatrix(meshInstanceIndex, newTrigger.getModelMat());
 
     return triggers.size() - 1;
 }
 
-void Scene::setMatrix(int modelId, glm::mat4 newModel)
+void Scene::setMatrix(int meshInstanceIndex, glm::mat4 newModel)
 {
-    if (modelId >= meshes.size() || modelId < 0)
+    if (meshInstanceIndex >= meshInstances.size() || meshInstanceIndex < 0)
     {
         Log::add('S', 102);
         return;
     }
 
-    meshes[modelId].setModel(newModel);
+    meshInstances[meshInstanceIndex].model = newModel;
 }
 
 void Scene::tick(ve_time dt)
 {
     for (Vehicle &vehicle : vehicles)
     {
-        setMatrix(vehicle.bodyMeshIndex, vehicle.bodyMat);
-        setMatrix(vehicle.wheelFLMeshIndex, vehicle.wheelFLMat);
-        setMatrix(vehicle.wheelFRMeshIndex, vehicle.wheelFRMat);
-        setMatrix(vehicle.wheelBLMeshIndex, vehicle.wheelBLMat);
-        setMatrix(vehicle.wheelBRMeshIndex, vehicle.wheelBRMat);
+        setMatrix(vehicle.bodyMeshInstanceIndex, vehicle.bodyMat);
+        setMatrix(vehicle.wheelFLMeshInstanceIndex, vehicle.wheelFLMat);
+        setMatrix(vehicle.wheelFRMeshInstanceIndex, vehicle.wheelFRMat);
+        setMatrix(vehicle.wheelBLMeshInstanceIndex, vehicle.wheelBLMat);
+        setMatrix(vehicle.wheelBRMeshInstanceIndex, vehicle.wheelBRMat);
 
         vehicle.tick(dt);
     }
@@ -265,6 +280,11 @@ void Scene::tick(ve_time dt)
 
 void Scene::setCameraFollowVehicle(uint32_t vehicleIndex)
 {
+    if(vehicleIndex < 0 || vehicleIndex > vehicles.size() + 1){
+        // Warning
+        return;
+    }
+
     isCameraFollowingVehicle = true;
     cameraFollowedVehicleIndex = vehicleIndex;
 }

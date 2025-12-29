@@ -48,10 +48,7 @@ private:
     void setupScene(){
         VE_STRUCT_VEHICLE_CREATE_INFO sCar = {};
         sCar.bodyMeshIndex = scene.loadFile("models/car.obj");
-        sCar.wheelFLMeshIndex = scene.loadFile("models/wheel.obj");
-        sCar.wheelFRMeshIndex = scene.loadFile("models/wheel.obj");
-        sCar.wheelBLMeshIndex = scene.loadFile("models/wheel.obj");
-        sCar.wheelBRMeshIndex = scene.loadFile("models/wheel.obj");
+        sCar.wheelMeshIndex = scene.loadFile("models/wheel.obj");
         sCar.wheelOffset = {1.0f, 0.4f, 1.8f};
         sCar.power = 190;
         sCar.powerUnit = VE_POWER_UNIT_HORSEPOWER;
@@ -85,11 +82,9 @@ private:
         sTriggerType.isAutoDestroy = true;
         
         scene.addTrigger(0, {{0, 0, 20.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, sTriggerType);
-
-        sTriggerType.meshIndex = scene.loadFile("models/checkpoint.obj");
         scene.addTrigger(1, {{0, 0, 50.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, sTriggerType);
 
-        scene.loadFile("models/floor.obj");
+        scene.addProp(scene.loadFile("models/floor.obj"), {{0, 0, 0}});
 
         scene.setCameraFollowVehicle(0);
     }
@@ -98,7 +93,7 @@ private:
     {
         scene.tick(fps.getFrameTime());
 
-        vulkan.drawFrame(scene.meshes, Camera::getProjectionMatrix(), Camera::getViewMatrix());
+        vulkan.drawFrame(scene.meshes, scene.meshInstances, Camera::getProjectionMatrix(), Camera::getViewMatrix());
     }
 };
 

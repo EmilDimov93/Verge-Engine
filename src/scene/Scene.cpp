@@ -285,7 +285,7 @@ void Scene::tick(ve_time dt)
 void Scene::setCameraFollowVehicle(uint32_t vehicleIndex)
 {
     if(vehicleIndex < 0 || vehicleIndex > vehicles.size() + 1){
-        // Warning
+        Log::add('S', 103);
         return;
     }
 

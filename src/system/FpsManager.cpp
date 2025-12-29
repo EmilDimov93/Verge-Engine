@@ -8,6 +8,7 @@
 FpsManager::FpsManager()
 {
     setTarget(VE_DEFAULT_FPS);
+    timeAtStartOfFrame = std::chrono::steady_clock::now();
 }
 
 void FpsManager::sync()

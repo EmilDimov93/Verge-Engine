@@ -13,18 +13,24 @@
 
 void Vehicle::calcSpeed()
 {
+    if (rpm >= maxRpm){
+        throttleState = 0.0f;
+    }
+    else if (rpm < idleRpm){
+        throttleState = 0.0001f / dt;
+    }
+
     float engineAngularSpeed = (2 * PI * rpm) / 60;
 
-    float wheelAngularSpeed = engineAngularSpeed / (gearRatios[gear - 1] * finalDriveRatio);
-
     float powerW = powerKw * 1000;
-    // Temporary constant
+
     float powerAtCurrRPM = powerW * throttleState;
 
-    // float torqueCurveFactor = BASELINE_TORQUE_FACTOR + (1.0f - BASELINE_TORQUE_FACTOR) * (1.0f - rpm / maxRpm);
-    float engineTorqueFromPower = powerAtCurrRPM /* * torqueCurveFactor*/ / std::max(engineAngularSpeed, 0.01f);
+    float torqueCurveFactor = BASELINE_TORQUE_FACTOR + (1.0f - BASELINE_TORQUE_FACTOR) * (1.0f - rpm / maxRpm);
 
-    float wheelTorque = engineTorqueFromPower * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
+    float engineTorque = (powerAtCurrRPM * torqueCurveFactor) / std::max(engineAngularSpeed, 1.0f);
+
+    float wheelTorque = engineTorque * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
 
     float FDrive = wheelTorque / wheelRadiusM;
 
@@ -50,11 +56,6 @@ void Vehicle::calcRpm()
 {
     float wheelRpm = (speedMps / wheelRadiusM) * (60.0f / (2.0f * PI));
     rpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
-
-    if (rpm >= maxRpm)
-        rpm = maxRpm;
-    else if (rpm < idleRpm)
-        rpm = idleRpm;
 }
 
 void Vehicle::turn(float turningInput)

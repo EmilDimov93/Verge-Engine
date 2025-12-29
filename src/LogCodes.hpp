@@ -82,7 +82,8 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'S', 100}, "Unsupported file type"},
     {{'S', 101}, "File not found"},
     {{'S', 102}, "Out of bounds access to mesh list"},
-    {{'S', 200}, "Trigger ID already exists"},
+    {{'S', 200}, "Invalid mesh index"},
+    {{'S', 201}, "Trigger ID already exists"},
 
     // Actors
 

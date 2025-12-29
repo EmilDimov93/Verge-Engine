@@ -48,7 +48,7 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     float drivetrainEfficiency = 0.85f;
     float wheelRadiusM = 0.3f;
     float dragCoeff = 0.31f;
-    float frontalAreaM2 = -1;
+    float frontalAreaM2 = 2.0f;
     float maxSteeringAngleRad = 0.55f;
     float idleRpm = 800.f;
     float camber = 0;

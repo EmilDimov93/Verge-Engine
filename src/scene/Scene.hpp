@@ -25,8 +25,8 @@ public:
     uint32_t loadFile(const std::string &filePath);
 
     uint32_t addVehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info);
-    uint32_t addProp(uint32_t meshIndex, Transform transform);
-    uint32_t addTrigger(uint32_t id, Transform transform, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info);
+    uint32_t addProp(int32_t meshIndex, Transform transform);
+    uint32_t addTrigger(int32_t id, Transform transform, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info);
 
     VulkanContext vulkanContext;
 
@@ -54,7 +54,7 @@ private:
     uint32_t loadGLB(const std::string &filePath);
     uint32_t loadGLTF(const std::string &filePath);
 
-    uint32_t addMeshInstance(uint32_t meshIndex);
+    uint32_t addMeshInstance(int32_t meshIndex);
 
     void cameraFollowVehicle(ve_time dt);
 };

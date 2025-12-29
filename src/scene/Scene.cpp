@@ -179,8 +179,12 @@ uint32_t Scene::loadGLTF(const std::string &filePath)
     return -1;
 }
 
-uint32_t Scene::addMeshInstance(uint32_t meshIndex)
+uint32_t Scene::addMeshInstance(int32_t meshIndex)
 {
+    if(meshIndex < 0 || meshIndex >= meshes.size()){
+        Log::add('S', 200);
+    }
+
     MeshInstance newMeshInstance;
     newMeshInstance.meshIndex = meshIndex;
 
@@ -197,7 +201,7 @@ uint32_t Scene::addVehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_I
     return vehicles.size() - 1;
 }
 
-uint32_t Scene::addProp(uint32_t meshIndex, Transform transform)
+uint32_t Scene::addProp(int32_t meshIndex, Transform transform)
 {
     uint32_t meshInstanceIndex = addMeshInstance(meshIndex);
 
@@ -209,7 +213,7 @@ uint32_t Scene::addProp(uint32_t meshIndex, Transform transform)
     return props.size() - 1;
 }
 
-uint32_t Scene::addTrigger(uint32_t id, Transform transform, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info)
+uint32_t Scene::addTrigger(int32_t id, Transform transform, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info)
 {
     for (Trigger trigger : triggers)
     {

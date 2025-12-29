@@ -17,10 +17,12 @@
 class VergeEngine
 {
 public:
-    VergeEngine() : window(50.0f), vulkan(window.getReference(), window.getSize()), scene(vulkan.getContext(), 60.0f, window.getAspectRatio(), 0.1f, 1000.0f)
+    VergeEngine() : window(50.0f),
+                    vulkan(window.getReference(), window.getSize()),
+                    scene(vulkan.getContext(), 60.0f, window.getAspectRatio(), 0.1f, 1000.0f)
     {
         Input::init(window.getReference());
-        Log::init(LOG_OUTPUT_MODE_FILE_AND_CONSOLE);
+        Log::init(VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE);
     }
 
     void run()
@@ -45,7 +47,8 @@ private:
 
     Scene scene;
 
-    void setupScene(){
+    void setupScene()
+    {
         VE_STRUCT_VEHICLE_CREATE_INFO sCar = {};
         sCar.bodyMeshIndex = scene.loadFile("models/car.obj");
         sCar.wheelMeshIndex = scene.loadFile("models/wheel.obj");
@@ -80,7 +83,7 @@ private:
         sTriggerType.hitboxShape = VE_SHAPE_SPHERE;
         sTriggerType.hitboxSize = 10.0f;
         sTriggerType.isAutoDestroy = true;
-        
+
         scene.addTrigger(0, {{0, 0, 20.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, sTriggerType);
         scene.addTrigger(1, {{0, 0, 50.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, sTriggerType);
 

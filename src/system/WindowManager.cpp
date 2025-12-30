@@ -13,6 +13,11 @@ WindowManager::WindowManager(float percentageOfMonitor)
         Log::add('G', 200);
     isInitialized = true;
 
+    if(percentageOfMonitor < 1.0f || percentageOfMonitor > 100.0f){
+        Log::add('G', 102);
+        percentageOfMonitor = 50.0f;
+    }
+
     const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     windowSize.w = mode->width * percentageOfMonitor / 100.0f;
     windowSize.h = mode->height * percentageOfMonitor / 100.0f;

@@ -74,6 +74,7 @@ private:
         sCar.dragCoeff = 0.31f;
         sCar.frontalAreaM2 = 2.3f;
         sCar.brakingForce = 14700;
+        sCar.tireGrip = 1.1f;
         scene.addVehicle({{0, 0, -100.0f}}, sCar);
 
         scene.addProp(scene.loadFile("models/cow.obj"), {{10.0f, 3.0f, 30.0f}});

@@ -315,9 +315,12 @@ void Scene::setCameraFollowYawDelay(float yawDelay)
 
 void Scene::cameraFollowVehicle(ve_time dt)
 {
-    static float cameraYaw = vehicles[cameraFollowedVehicleIndex].getMoveDirection().yaw - PI;
+    glm::vec3 vehicleVelocityVector = vehicles[cameraFollowedVehicleIndex].getVelocityVector();
+    float vehicleYaw = atan2(vehicleVelocityVector.x, vehicleVelocityVector.z);
 
-    float targetYaw = vehicles[cameraFollowedVehicleIndex].getMoveDirection().yaw - PI;
+    static float cameraYaw = vehicleYaw - PI;
+
+    float targetYaw = vehicleYaw - PI;
 
     cameraYaw += (targetYaw - cameraYaw) * cameraFollowYawDelay;
 

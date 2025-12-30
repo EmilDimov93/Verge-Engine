@@ -50,6 +50,7 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     float dragCoeff = 0.31f;
     float frontalAreaM2 = 2.0f;
     float maxSteeringAngleRad = 0.55f;
+    float tireGrip = 1.0f;
     float idleRpm = 800.f;
     float camber = 0;
 };
@@ -97,7 +98,7 @@ public:
     float getMaxSteeringAngleRad() const { return maxSteeringAngleRad; }
     float getMaxSteeringAngleDeg() const { return maxSteeringAngleRad * 57.2957795f; }
     const Transform &getTransform() const { return transform; }
-    const Rotation3 &getMoveDirection() const { return moveDirection; }
+    const glm::vec3 &getVelocityVector() const { return velocityMps; }
     float getSpeedMps() const { return speedMps; }
     float getSpeedKmph() const { return speedMps * 3.6f; }
     float getSteeringAngleRad() const { return steeringAngleRad; }
@@ -130,7 +131,7 @@ public:
     void setFrontalArea(float value) { frontalAreaM2 = value; }
     void setMaxSteeringAngleRad(float value) { maxSteeringAngleRad = value; }
     void setMaxSteeringAngleDeg(float deg) { maxSteeringAngleRad = deg * 0.0174532925f; }
-    void setMoveDirection(const Rotation3 &value) { moveDirection = value; }
+    void setVelocityVector(const glm::vec3 &value) { velocityMps = value; }
     void setSpeedMps(float value) { speedMps = value; }
     void setSteeringAngleRad(float value) { steeringAngleRad = value; }
     void setSteeringAngleDeg(float value) { steeringAngleRad = value * 0.0174532925f; }
@@ -140,7 +141,7 @@ public:
     void setClutchState(float value) { clutchState = value; }
 
 private:
-    void calcSpeed();
+    void calcForces();
     void calcRpm();
     void handleInput();
     void turn(float turningInput);
@@ -176,17 +177,17 @@ private:
     float dragCoeff;
     float frontalAreaM2;
     float maxSteeringAngleRad;
+    float tireGrip;
 
     float camber;
 
     // Runtime
     Transform transform;
-    Rotation3 moveDirection;
+    glm::vec3 velocityMps;
     float speedMps;
     float steeringAngleRad;
     uint32_t gear;
     float rpm;
-    float tireGrip;
     float clutchState;
     float throttleState;
     float brakeState;

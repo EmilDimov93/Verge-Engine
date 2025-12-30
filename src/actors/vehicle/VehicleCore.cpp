@@ -197,6 +197,16 @@ Vehicle::Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info,
         maxSteeringAngleRad = 0.55f;
     }
 
+    if(info.tireGrip > 0.05f && info.tireGrip < 2.5f)
+    {
+        tireGrip = info.tireGrip;
+    }
+    else
+    {
+        Log::add('A', 115);
+        tireGrip = 1.0f;
+    }
+
     if (info.camber > -(PI / 2) && info.camber < PI / 2)
     {
         camber = info.camber;
@@ -207,6 +217,7 @@ Vehicle::Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info,
         camber = 0;
     }
 
+    velocityMps = glm::vec3(0.0f);
     steeringAngleRad = 0;
     speedMps = 0;
     gear = 1;

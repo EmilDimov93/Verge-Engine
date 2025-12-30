@@ -11,14 +11,30 @@
 #define BASELINE_TORQUE_FACTOR 0.9f
 #define SURFACE_ROLLING_COEFFICIENT 0.015f
 
-void Vehicle::calcSpeed()
+void Vehicle::calcForces()
 {
-    if (rpm >= maxRpm){
+    if (rpm >= maxRpm)
+    {
         throttleState = 0.0f;
     }
-    else if (rpm < idleRpm){
+    else if (rpm < idleRpm && throttleState < 0.0001f / dt)
+    {
         throttleState = 0.0001f / dt;
     }
+
+    glm::vec3 forward;
+    forward.x = sin(transform.rotation.yaw);
+    forward.y = 0.0f;
+    forward.z = cos(transform.rotation.yaw);
+    forward = glm::normalize(forward);
+
+    glm::vec3 right;
+    right.x = cos(transform.rotation.yaw);
+    right.y = 0.0f;
+    right.z = -sin(transform.rotation.yaw);
+    right = glm::normalize(right);
+
+    speedMps = glm::length(glm::vec3(velocityMps.x, 0.0f, velocityMps.z));
 
     float engineAngularSpeed = (2 * PI * rpm) / 60;
 
@@ -32,21 +48,58 @@ void Vehicle::calcSpeed()
 
     float wheelTorque = engineTorque * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
 
-    float FDrive = wheelTorque / wheelRadiusM;
+    float FDriveMag = wheelTorque / wheelRadiusM;
 
-    float FDrag = 0.5f * AIR_DENSITY * dragCoeff * frontalAreaM2 * speedMps * speedMps;
+    glm::vec3 FDrive = forward * FDriveMag;
 
-    float FRoll = SURFACE_ROLLING_COEFFICIENT * weightKg * GRAVITY_CONSTANT * (speedMps == 0 ? 0 : 1);
+    float FDragMag = 0.5f * AIR_DENSITY * dragCoeff * frontalAreaM2 * speedMps * speedMps;
+
+    glm::vec3 FDrag(0.0f);
+    if (speedMps > 0.01f)
+    {
+        FDrag = -(velocityMps / speedMps) * FDragMag;
+    }
+
+    float FRollMag = SURFACE_ROLLING_COEFFICIENT * weightKg * GRAVITY_CONSTANT * (speedMps == 0 ? 0 : 1);
+
+    glm::vec3 FRoll(0.0f);
+    if (speedMps > 0.01f)
+    {
+        FRoll = -(velocityMps / speedMps) * FRollMag;
+    }
+
+    float FBrakeMag = brakeState * brakingForce;
+
+    glm::vec3 FBrake(0.0f);
+    {
+        FBrake = -forward * (glm::sign(glm::dot(velocityMps, forward)) * FBrakeMag);
+    }
 
     const float slope = std::atan(std::sqrt(std::tan(glm::radians(transform.rotation.pitch)) * std::tan(glm::radians(transform.rotation.pitch)) + std::tan(glm::radians(transform.rotation.roll)) * std::tan(glm::radians(transform.rotation.roll))));
+    float FSlopeMag = weightKg * GRAVITY_CONSTANT * sin(slope);
 
-    float FSlope = weightKg * GRAVITY_CONSTANT * sin(slope);
+    glm::vec3 FSlope(0.0f);
+    {
+        FSlope = -forward * FSlopeMag;
+    }
 
-    float FBrake = brakeState * brakingForce;
+    glm::vec3 FLat(0.0f);
+    {
+        float maxLat = tireGrip * weightKg * GRAVITY_CONSTANT;
 
-    float a = (FDrive - FDrag - FRoll - FSlope - FBrake) / weightKg;
+        float FLatMag = -(tireGrip * 1000) * glm::dot(velocityMps, right); // (tireGrip * 1000) is corner stiffness
+        FLatMag = glm::clamp(FLatMag, -maxLat, maxLat);
 
-    speedMps += a * dt;
+        FLat = right * FLatMag;
+    }
+
+    glm::vec3 FTotal = FDrive + FDrag + FRoll + FBrake + FSlope + FLat;
+
+    glm::vec3 accel = FTotal / weightKg;
+    velocityMps += accel * (float)dt;
+    velocityMps.y = 0.0f;
+
+    speedMps = glm::length(glm::vec3(velocityMps.x, 0.0f, velocityMps.z));
 
     if (speedMps < 0)
         speedMps = 0;
@@ -141,28 +194,16 @@ void Vehicle::handleInput()
 
 void Vehicle::updateTransform()
 {
-    // Temporary
-    moveDirection = transform.rotation;
-
-    double cosPitch = cos(moveDirection.pitch);
-    double sinPitch = sin(moveDirection.pitch);
-    double cosYaw = cos(moveDirection.yaw);
-    double sinYaw = sin(moveDirection.yaw);
-
-    double fx = cosPitch * sinYaw;
-    double fy = -sinPitch;
-    double fz = cosPitch * cosYaw;
-
-    transform.position.x += fx * speedMps * dt;
-    transform.position.y += fy * speedMps * dt;
-    transform.position.z += fz * speedMps * dt;
+    transform.position.x += velocityMps.x * dt;
+    transform.position.y += velocityMps.y * dt;
+    transform.position.z += velocityMps.z * dt;
 }
 
 void Vehicle::calculatePhysics()
 {
     handleInput();
 
-    calcSpeed();
+    calcForces();
 
     calcRpm();
 

@@ -52,7 +52,7 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     float maxSteeringAngleRad = 0.55f;
     float tireGrip = 1.0f;
     float idleRpm = 800.f;
-    float camber = 0;
+    float camberRad = 0;
 };
 
 class Vehicle
@@ -97,6 +97,8 @@ public:
     float getFrontalArea() const { return frontalAreaM2; }
     float getMaxSteeringAngleRad() const { return maxSteeringAngleRad; }
     float getMaxSteeringAngleDeg() const { return maxSteeringAngleRad * 57.2957795f; }
+    float getTireGrip() const { return tireGrip; }
+    float getCamber() const { return camberRad; }
     const Transform &getTransform() const { return transform; }
     const glm::vec3 &getVelocityVector() const { return velocityMps; }
     float getSpeedMps() const { return speedMps; }
@@ -105,7 +107,6 @@ public:
     float getSteeringAngleDeg() const { return steeringAngleRad * 57.2957795f; }
     uint32_t getGear() const { return gear; }
     float getRpm() const { return rpm; }
-    float getTireGrip() const { return tireGrip; }
     float getClutchState() const { return clutchState; }
 
     // Setters
@@ -131,20 +132,21 @@ public:
     void setFrontalArea(float value) { frontalAreaM2 = value; }
     void setMaxSteeringAngleRad(float value) { maxSteeringAngleRad = value; }
     void setMaxSteeringAngleDeg(float deg) { maxSteeringAngleRad = deg * 0.0174532925f; }
+    void setTireGrip(float value) { tireGrip = value; }
+    void setCamber(float value) { camberRad = value; }
     void setVelocityVector(const glm::vec3 &value) { velocityMps = value; }
     void setSpeedMps(float value) { speedMps = value; }
     void setSteeringAngleRad(float value) { steeringAngleRad = value; }
     void setSteeringAngleDeg(float value) { steeringAngleRad = value * 0.0174532925f; }
     void setGear(uint32_t value) { gear = value; }
     void setRpm(float value) { rpm = value; }
-    void setTireGrip(float value) { tireGrip = value; }
     void setClutchState(float value) { clutchState = value; }
 
 private:
     void calcForces();
     void calcRpm();
     void handleInput();
-    void turn(float turningInput);
+    void steer(float turningInput);
     void shiftUp();
     void shiftDown();
     void updateTransmission();
@@ -178,8 +180,7 @@ private:
     float frontalAreaM2;
     float maxSteeringAngleRad;
     float tireGrip;
-
-    float camber;
+    float camberRad;
 
     // Runtime
     Transform transform;

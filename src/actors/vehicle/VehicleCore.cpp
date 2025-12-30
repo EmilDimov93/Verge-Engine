@@ -207,14 +207,14 @@ Vehicle::Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info,
         tireGrip = 1.0f;
     }
 
-    if (info.camber > -(PI / 2) && info.camber < PI / 2)
+    if (info.camberRad > -(PI / 2) && info.camberRad < PI / 2)
     {
-        camber = info.camber;
+        camberRad = info.camberRad;
     }
     else
     {
         Log::add('A', 114);
-        camber = 0;
+        camberRad = 0;
     }
 
     velocityMps = glm::vec3(0.0f);

@@ -85,9 +85,11 @@ void Vehicle::calcForces()
 
     glm::vec3 FLat(0.0f);
     {
-        float maxLat = tireGrip * weightKg * GRAVITY_CONSTANT;
+        float currentTireGrip = tireGrip * (1.0f + fabs(camberRad));
 
-        float FLatMag = -(tireGrip * 1000) * glm::dot(velocityMps, right); // (tireGrip * 1000) is corner stiffness
+        float maxLat = currentTireGrip * weightKg * GRAVITY_CONSTANT;
+
+        float FLatMag = -(currentTireGrip * 1000) * glm::dot(velocityMps, right); // (currentTireGrip * 1000) is corner stiffness
         FLatMag = glm::clamp(FLatMag, -maxLat, maxLat);
 
         FLat = right * FLatMag;
@@ -111,7 +113,7 @@ void Vehicle::calcRpm()
     rpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
 }
 
-void Vehicle::turn(float turningInput)
+void Vehicle::steer(float turningInput)
 {
     const float k = 0.005f;
     float speedFactor = 1.0f / (1.0f + k * speedMps * speedMps);
@@ -184,11 +186,11 @@ void Vehicle::handleInput()
     steeringAngleRad = 0;
     if (Input::isDown(turnLeftKey) && Input::isUp(turnRightKey))
     {
-        turn(1.0f);
+        steer(1.0f);
     }
     else if (Input::isDown(turnRightKey) && Input::isUp(turnLeftKey))
     {
-        turn(-1.0f);
+        steer(-1.0f);
     }
 }
 

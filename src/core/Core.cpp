@@ -52,7 +52,7 @@ private:
         VE_STRUCT_VEHICLE_CREATE_INFO sCar = {};
         sCar.bodyMeshIndex = scene.loadFile("models/car.obj");
         sCar.wheelMeshIndex = scene.loadFile("models/wheel.obj");
-        sCar.wheelOffset = {1.0f, 0.4f, 1.8f};
+        sCar.wheelOffset = {1.05f, 0.5f, 1.8f};
         sCar.power = 190;
         sCar.powerUnit = VE_POWER_UNIT_HORSEPOWER;
         sCar.weightKg = 1540;
@@ -75,7 +75,8 @@ private:
         sCar.frontalAreaM2 = 2.3f;
         sCar.brakingForce = 14700;
         sCar.tireGrip = 1.1f;
-        scene.addVehicle({{0, 0, -100.0f}}, sCar);
+        sCar.camberRad = (PI / 18);
+        scene.addVehicle({{0, -0.1f, -100.0f}}, sCar);
 
         scene.addProp(scene.loadFile("models/cow.obj"), {{10.0f, 3.0f, 30.0f}});
 

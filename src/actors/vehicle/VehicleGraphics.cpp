@@ -29,6 +29,12 @@ void Vehicle::updateWheelMatrices()
     // Steer
     wheelFLMat = glm::rotate(wheelFLMat, steeringAngleRad, glm::vec3(0, 1.0f, 0));
     wheelFRMat = glm::rotate(wheelFRMat, steeringAngleRad, glm::vec3(0, 1.0f, 0));
+    
+    // Camber
+    wheelFLMat = glm::rotate(wheelFLMat, camberRad, glm::vec3(0, 0, 1));
+    wheelFRMat = glm::rotate(wheelFRMat, camberRad, glm::vec3(0, 0, 1));
+    wheelBLMat = glm::rotate(wheelBLMat, camberRad,  glm::vec3(0, 0, 1));
+    wheelBRMat = glm::rotate(wheelBRMat, camberRad,  glm::vec3(0, 0, 1));
 
     // Spin
     static float wheelSpin = 0;

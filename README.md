@@ -4,4 +4,4 @@ Verge Engine is a Vulkan-based C++ engine for realistic racing simulations
 
 **Warning:** Currently in active development - not ready for use
 
-<img width="2544" height="1552" alt="image" src="https://github.com/user-attachments/assets/836d3fda-53ee-4e68-b7b3-d5f3f5dcfc86" />
+<img width="1273" height="775" alt="VergeExample" src="https://github.com/user-attachments/assets/695e0074-a229-4f4c-9486-3ff956f58344" />

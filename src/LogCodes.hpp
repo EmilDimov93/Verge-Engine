@@ -7,13 +7,13 @@
 #include <string>
 
 inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGES{
-    // Core
-    {{'C', 000}, "All resources loaded! Welcome!"},
-    {{'C', 001}, "Verge Engine exited successfully"},
+    // Engine
+    {{'E', 000}, "All resources loaded! Welcome!"},
+    {{'E', 001}, "Verge Engine exited successfully"},
 
-    {{'C', 100}, "Invalid key detected"},
+    {{'E', 100}, "Test code"},
 
-    {{'C', 200}, "Verge Engine crashed"},
+    {{'E', 200}, "Verge Engine crashed"},
 
     // Vulkan
     {{'V', 000}, "Vulkan loaded successfully"},
@@ -70,13 +70,10 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'G', 000}, "GLFW loaded successfully"},
 
     {{'G', 100}, "Window not initialized. getAspectRatio returns 1.0f"},
+    {{'G', 101}, "Invalid key detected"},
 
     {{'G', 200}, "GLFW initialization failed"},
     {{'G', 201}, "GLFW window creation failed"},
-
-    // Other
-    {{'O', 100}, "Invalid error code"},
-    {{'O', 101}, "Test error code"},
 
     // Scene
     {{'S', 100}, "Unsupported file type"},

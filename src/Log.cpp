@@ -41,7 +41,7 @@ void Log::init(LogOutputMode mode)
         }
     }
 
-    Log::add('C', 000);
+    Log::add('E', 000);
 }
 
 void Log::freeLogSpace()
@@ -110,7 +110,7 @@ void Log::writeToLogFile()
 
 void Log::induceCrash()
 {
-    entries.push_back(ErrorCode{'C', 200});
+    entries.push_back(ErrorCode{'E', 200});
 
     if (outputMode == VE_LOG_OUTPUT_MODE_FILE || outputMode == VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE)
     {
@@ -122,8 +122,8 @@ void Log::induceCrash()
 
 void Log::end()
 {
-    if (entries.back() != ErrorCode{'C', 200})
-        add('C', 001);
+    if (entries.back() != ErrorCode{'E', 200})
+        add('E', 001);
 
     if (outputMode == VE_LOG_OUTPUT_MODE_FILE || outputMode == VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE)
     {

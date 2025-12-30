@@ -76,7 +76,7 @@ bool Input::isDown(VEMouseBtn btn)
         return false;
     if (btn > VE_MOUSE_BTN_COUNT)
     {
-        Log::add('C', 100);
+        Log::add('G', 101);
         return false;
     }
     return mouseBtnStates[btn] == KEY_STATE_DOWN || mouseBtnStates[btn] == KEY_STATE_PRESSED;
@@ -88,7 +88,7 @@ bool Input::isUp(VEMouseBtn btn)
         return false;
     if (btn > VE_MOUSE_BTN_COUNT)
     {
-        Log::add('C', 100);
+        Log::add('G', 101);
         return false;
     }
     return mouseBtnStates[btn] == KEY_STATE_UP || mouseBtnStates[btn] == KEY_STATE_RELEASED;
@@ -100,7 +100,7 @@ bool Input::isPressed(VEMouseBtn btn)
         return false;
     if (btn > VE_MOUSE_BTN_COUNT)
     {
-        Log::add('C', 100);
+        Log::add('G', 101);
         return false;
     }
     return mouseBtnStates[btn] == KEY_STATE_PRESSED;
@@ -112,7 +112,7 @@ bool Input::isReleased(VEMouseBtn btn)
         return false;
     if (btn > VE_MOUSE_BTN_COUNT)
     {
-        Log::add('C', 100);
+        Log::add('G', 101);
         return false;
     }
     return mouseBtnStates[btn] == KEY_STATE_RELEASED;
@@ -124,7 +124,7 @@ bool Input::isDown(VEKey key)
         return false;
     if (key > VE_KEY_COUNT)
     {
-        Log::add('C', 100);
+        Log::add('G', 101);
         return false;
     }
     return keyStates[key] == KEY_STATE_DOWN || keyStates[key] == KEY_STATE_PRESSED;
@@ -136,7 +136,7 @@ bool Input::isUp(VEKey key)
         return false;
     if (key > VE_KEY_COUNT)
     {
-        Log::add('C', 100);
+        Log::add('G', 101);
         return false;
     }
     return keyStates[key] == KEY_STATE_UP || keyStates[key] == KEY_STATE_RELEASED;
@@ -148,7 +148,7 @@ bool Input::isPressed(VEKey key)
         return false;
     if (key > VE_KEY_COUNT)
     {
-        Log::add('C', 100);
+        Log::add('G', 101);
         return false;
     }
     return keyStates[key] == KEY_STATE_PRESSED;
@@ -160,7 +160,7 @@ bool Input::isReleased(VEKey key)
         return false;
     if (key > VE_KEY_COUNT)
     {
-        Log::add('C', 100);
+        Log::add('G', 101);
         return false;
     }
     return keyStates[key] == KEY_STATE_RELEASED;

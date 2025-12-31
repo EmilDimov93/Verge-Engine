@@ -143,6 +143,7 @@ public:
     void setClutchState(float value) { clutchState = value; }
 
 private:
+    void stallAssist();
     void calcForces();
     void calcRpm();
     void handleInput();

@@ -11,7 +11,7 @@
 #define BASELINE_TORQUE_FACTOR 0.9f
 #define SURFACE_ROLLING_COEFFICIENT 0.015f
 
-void Vehicle::calcForces()
+void Vehicle::stallAssist()
 {
     if (rpm >= maxRpm)
     {
@@ -21,20 +21,18 @@ void Vehicle::calcForces()
     {
         throttleState = 0.0001f / dt;
     }
+}
 
-    glm::vec3 forward;
-    forward.x = sin(transform.rotation.yaw);
-    forward.y = 0.0f;
-    forward.z = cos(transform.rotation.yaw);
-    forward = glm::normalize(forward);
+void Vehicle::calcForces()
+{
+    glm::mat4 R =
+        glm::rotate(glm::mat4(1.0f), (float)transform.rotation.yaw, glm::vec3(0, 1, 0)) *
+        glm::rotate(glm::mat4(1.0f), (float)transform.rotation.pitch, glm::vec3(1, 0, 0)) *
+        glm::rotate(glm::mat4(1.0f), (float)transform.rotation.roll, glm::vec3(0, 0, 1));
 
-    glm::vec3 right;
-    right.x = cos(transform.rotation.yaw);
-    right.y = 0.0f;
-    right.z = -sin(transform.rotation.yaw);
-    right = glm::normalize(right);
-
-    speedMps = glm::length(glm::vec3(velocityMps.x, 0.0f, velocityMps.z));
+    glm::vec3 forward = glm::normalize(glm::vec3(R * glm::vec4(0, 0, 1, 0)));
+    glm::vec3 right = glm::normalize(glm::vec3(R * glm::vec4(1, 0, 0, 0)));
+    glm::vec3 up = glm::normalize(glm::vec3(R * glm::vec4(0, 1, 0, 0)));
 
     float engineAngularSpeed = (2 * PI * rpm) / 60;
 
@@ -55,17 +53,17 @@ void Vehicle::calcForces()
     float FDragMag = 0.5f * AIR_DENSITY * dragCoeff * frontalAreaM2 * speedMps * speedMps;
 
     glm::vec3 FDrag(0.0f);
-    if (speedMps > 0.01f)
+    if (glm::length(velocityMps) > 0.01f)
     {
-        FDrag = -(velocityMps / speedMps) * FDragMag;
+        FDrag = -(velocityMps / glm::length(velocityMps)) * FDragMag;
     }
 
     float FRollMag = SURFACE_ROLLING_COEFFICIENT * weightKg * GRAVITY_CONSTANT * (speedMps == 0 ? 0 : 1);
 
     glm::vec3 FRoll(0.0f);
-    if (speedMps > 0.01f)
+    if (glm::length(velocityMps) > 0.01f)
     {
-        FRoll = -(velocityMps / speedMps) * FRollMag;
+        FRoll = -(velocityMps / glm::length(velocityMps)) * FRollMag;
     }
 
     float FBrakeMag = brakeState * brakingForce;
@@ -73,14 +71,6 @@ void Vehicle::calcForces()
     glm::vec3 FBrake(0.0f);
     {
         FBrake = -forward * (glm::sign(glm::dot(velocityMps, forward)) * FBrakeMag);
-    }
-
-    const float slope = std::atan(std::sqrt(std::tan(glm::radians(transform.rotation.pitch)) * std::tan(glm::radians(transform.rotation.pitch)) + std::tan(glm::radians(transform.rotation.roll)) * std::tan(glm::radians(transform.rotation.roll))));
-    float FSlopeMag = weightKg * GRAVITY_CONSTANT * sin(slope);
-
-    glm::vec3 FSlope(0.0f);
-    {
-        FSlope = -forward * FSlopeMag;
     }
 
     glm::vec3 FLat(0.0f);
@@ -95,16 +85,22 @@ void Vehicle::calcForces()
         FLat = right * FLatMag;
     }
 
-    glm::vec3 FTotal = FDrive + FDrag + FRoll + FBrake + FSlope + FLat;
+    const float slope = std::atan(std::sqrt(std::tan(transform.rotation.pitch) * std::tan(transform.rotation.pitch) + std::tan(transform.rotation.roll) * std::tan(transform.rotation.roll)));
+    float FSlopeMag = weightKg * GRAVITY_CONSTANT * sin(slope);
+
+    glm::vec3 FSlope(0.0f);
+    {
+        FSlope = -forward * FSlopeMag;
+    }
+
+    glm::vec3 FGravity(0.0f, -weightKg * GRAVITY_CONSTANT, 0.0f);
+
+    glm::vec3 FTotal = FDrive + FDrag + FRoll + FBrake + FLat + FSlope; // + FGravity;
 
     glm::vec3 accel = FTotal / weightKg;
     velocityMps += accel * (float)dt;
-    velocityMps.y = 0.0f;
 
-    speedMps = glm::length(glm::vec3(velocityMps.x, 0.0f, velocityMps.z));
-
-    if (speedMps < 0)
-        speedMps = 0;
+    speedMps = glm::length(velocityMps);
 }
 
 void Vehicle::calcRpm()
@@ -117,12 +113,12 @@ void Vehicle::steer(float turningInput)
 {
     const float k = 0.005f;
     float speedFactor = 1.0f / (1.0f + k * speedMps * speedMps);
+    speedFactor = clamp(speedFactor, 0.0f, 1.0f);
 
     turningInput = clamp(turningInput, -1.0f, 1.0f);
-    speedFactor = clamp(speedFactor, 0.0f, 1.0f);
     steeringAngleRad = turningInput * maxSteeringAngleRad * speedFactor;
 
-    const float wheelBase = 2.6f;
+    const float wheelBase = wheelOffset.z;
     transform.rotation.yaw += speedMps * tan(steeringAngleRad) / wheelBase * dt;
 }
 
@@ -204,6 +200,8 @@ void Vehicle::updateTransform()
 void Vehicle::calculatePhysics()
 {
     handleInput();
+
+    stallAssist();
 
     calcForces();
 

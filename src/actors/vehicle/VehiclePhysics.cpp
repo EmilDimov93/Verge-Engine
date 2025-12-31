@@ -6,8 +6,6 @@
 #define TORQUE_CONVERSION_CONSTANT 5252
 #define GRAVITY_CONSTANT 9.81f
 
-#define AIR_DENSITY 1.225f
-
 #define BASELINE_TORQUE_FACTOR 0.9f
 #define SURFACE_ROLLING_COEFFICIENT 0.015f
 
@@ -23,7 +21,7 @@ void Vehicle::stallAssist()
     }
 }
 
-void Vehicle::calcForces()
+void Vehicle::calcForces(Environment environment)
 {
     glm::mat4 R =
         glm::rotate(glm::mat4(1.0f), (float)transform.rotation.yaw, glm::vec3(0, 1, 0)) *
@@ -50,7 +48,7 @@ void Vehicle::calcForces()
 
     glm::vec3 FDrive = forward * FDriveMag;
 
-    float FDragMag = 0.5f * AIR_DENSITY * dragCoeff * frontalAreaM2 * speedMps * speedMps;
+    float FDragMag = 0.5f * environment.airDensity * dragCoeff * frontalAreaM2 * speedMps * speedMps;
 
     glm::vec3 FDrag(0.0f);
     if (glm::length(velocityMps) > 0.01f)
@@ -197,13 +195,13 @@ void Vehicle::updateTransform()
     transform.position.z += velocityMps.z * dt;
 }
 
-void Vehicle::calculatePhysics()
+void Vehicle::calculatePhysics(Environment environment)
 {
     handleInput();
 
     stallAssist();
 
-    calcForces();
+    calcForces(environment);
 
     calcRpm();
 

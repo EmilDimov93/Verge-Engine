@@ -228,12 +228,12 @@ Vehicle::Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info,
 
     this->transform = transform;
 }
-
-void Vehicle::tick(ve_time deltaTime)
+#include "../../scene/environment/Environment.hpp"
+void Vehicle::tick(Environment environment, ve_time deltaTime)
 {
     dt = deltaTime;
 
-    calculatePhysics();
+    calculatePhysics(environment);
 
     updateGraphics();
 

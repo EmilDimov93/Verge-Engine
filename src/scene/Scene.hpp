@@ -5,6 +5,7 @@
 
 #include "../mesh/Mesh.hpp"
 #include "camera/Camera.hpp"
+#include "environment/Environment.hpp"
 
 #include "../actors/vehicle/Vehicle.hpp"
 #include "../actors/prop/Prop.hpp"
@@ -43,6 +44,10 @@ public:
     ~Scene();
 
 private:
+    // Scenary
+    Environment environment;
+
+    // Camera
     bool isCameraFollowingVehicle;
     uint32_t cameraFollowedVehicleIndex;
     float cameraFollowDistance = 10.0f;

@@ -6,6 +6,8 @@
 #include "../../definitions.hpp"
 #include "../../system/Input.hpp"
 
+#include "../../scene/environment/Environment.hpp"
+
 #include <vector>
 
 enum VEPowerUnit
@@ -70,9 +72,9 @@ public:
 
     Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, uint32_t bodyMeshInstanceIndex, uint32_t wheelFLMeshInstanceIndex, uint32_t wheelFRMeshInstanceIndex, uint32_t wheelBLMeshInstanceIndex, uint32_t wheelBRMeshInstanceIndex);
 
-    void tick(ve_time deltaTime);
+    void tick(Environment environment, ve_time deltaTime);
 
-    void calculatePhysics();
+    void calculatePhysics(Environment environment);
     void updateGraphics();
 
     // Getters
@@ -144,7 +146,7 @@ public:
 
 private:
     void stallAssist();
-    void calcForces();
+    void calcForces(Environment environment);
     void calcRpm();
     void handleInput();
     void steer(float turningInput);

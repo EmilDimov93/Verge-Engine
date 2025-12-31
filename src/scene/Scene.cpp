@@ -254,7 +254,7 @@ void Scene::tick(ve_time dt)
         setMatrix(vehicle.wheelBLMeshInstanceIndex, vehicle.wheelBLMat);
         setMatrix(vehicle.wheelBRMeshInstanceIndex, vehicle.wheelBRMat);
 
-        vehicle.tick(dt);
+        vehicle.tick(environment, dt);
     }
 
     if (isCameraFollowingVehicle)

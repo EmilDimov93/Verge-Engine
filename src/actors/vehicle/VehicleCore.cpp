@@ -228,7 +228,7 @@ Vehicle::Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info,
 
     this->transform = transform;
 }
-#include "../../scene/environment/Environment.hpp"
+
 void Vehicle::tick(Environment environment, ve_time deltaTime)
 {
     dt = deltaTime;
@@ -237,5 +237,5 @@ void Vehicle::tick(Environment environment, ve_time deltaTime)
 
     updateGraphics();
 
-    std::cout << std::round(speedMps * 3.6f) << " km/h, " << std::round(rpm) << " rpm, " << gear << " gear" << std::endl;
+    // std::cout << std::round(speedMps * 3.6f) << " km/h, " << std::round(rpm) << " rpm, " << gear << " gear" << std::endl;
 }

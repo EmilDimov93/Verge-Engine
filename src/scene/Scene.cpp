@@ -17,6 +17,10 @@ Scene::Scene(VulkanContext newVulkanContext, float newFov, float newAspectRatio,
 
     isCameraFollowingVehicle = false;
 
+    surfaces.push_back({1.0f, {0.5f, 0.5f, 0.5f}});
+
+    buildGroundMesh({1000, 1000});
+
     Camera::init(newFov, newAspectRatio, newZNear, newZFar);
 }
 
@@ -54,7 +58,8 @@ uint32_t Scene::loadOBJ(const std::string &filePath)
     std::vector<uint32_t> meshIndeces;
 
     std::ifstream file(filePath);
-    if (!file.is_open()){
+    if (!file.is_open())
+    {
         Log::add('S', 101);
     }
 
@@ -181,7 +186,8 @@ uint32_t Scene::loadGLTF(const std::string &filePath)
 
 uint32_t Scene::addMeshInstance(int32_t meshIndex)
 {
-    if(meshIndex < 0 || meshIndex >= meshes.size()){
+    if (meshIndex < 0 || meshIndex >= meshes.size())
+    {
         Log::add('S', 200);
     }
 
@@ -191,6 +197,61 @@ uint32_t Scene::addMeshInstance(int32_t meshIndex)
     meshInstances.push_back(newMeshInstance);
 
     return meshInstances.size() - 1;
+}
+
+void Scene::buildGroundMesh(Size2 size)
+{
+    ground.resize(size.w, size.h);
+
+    std::vector<Vertex> meshVertices;
+    std::vector<uint32_t> meshIndices;
+
+    glm::vec3 col1 = {0.5f, 0.5f, 0.5f};
+    glm::vec3 col2 = {0.2f, 0.2f, 0.2f};
+
+    bool whichColor = false;
+
+    for (size_t i = 0; i < ground.h; i++)
+    {
+        for (size_t j = 0; j < ground.w; j++)
+        {
+            meshVertices.push_back({{(float)j, ground.getHeightAt(j, i), (float)i}, whichColor ? col1 : col2});
+            whichColor = !whichColor;
+        }
+    }
+
+    for (uint32_t z = 0; z < ground.h - 1; z++)
+    {
+        for (uint32_t x = 0; x < ground.w - 1; x++)
+        {
+            uint32_t v0 = z * ground.w + x;
+            uint32_t v1 = v0 + 1;
+            uint32_t v2 = v0 + ground.w;
+            uint32_t v3 = v2 + 1;
+
+            // Triangle 1
+            meshIndices.push_back(v0);
+            meshIndices.push_back(v2);
+            meshIndices.push_back(v1);
+
+            // Triangle 2
+            meshIndices.push_back(v1);
+            meshIndices.push_back(v2);
+            meshIndices.push_back(v3);
+        }
+    }
+
+    Mesh objMesh;
+
+    objMesh.init(vulkanContext, &meshVertices, &meshIndices);
+
+    meshes.push_back(objMesh);
+
+    std::cout << meshVertices[1].pos.x << " " << meshVertices[1].pos.y << " " << meshVertices[1].pos.z << std::endl;
+
+    addMeshInstance(meshes.size() - 1);
+
+    setMatrix(meshInstances.size() - 1, glm::mat4(1.0f));
 }
 
 uint32_t Scene::addVehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info)
@@ -284,7 +345,8 @@ void Scene::tick(ve_time dt)
 
 void Scene::setCameraFollowVehicle(uint32_t vehicleIndex)
 {
-    if(vehicleIndex < 0 || vehicleIndex > vehicles.size() + 1){
+    if (vehicleIndex < 0 || vehicleIndex > vehicles.size() + 1)
+    {
         Log::add('S', 103);
         return;
     }

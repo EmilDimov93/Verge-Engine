@@ -7,6 +7,8 @@
 #include "camera/Camera.hpp"
 #include "environment/Environment.hpp"
 
+#include "../actors/surface/Surface.hpp"
+
 #include "../actors/vehicle/Vehicle.hpp"
 #include "../actors/prop/Prop.hpp"
 #include "../actors/trigger/Trigger.hpp"
@@ -16,10 +18,6 @@ class Scene
 public:
     std::vector<Mesh> meshes;
     std::vector<MeshInstance> meshInstances;
-
-    std::vector<Vehicle> vehicles;
-    std::vector<Prop> props;
-    std::vector<Trigger> triggers;
 
     Scene(VulkanContext newVulkanContext, float newFov, float newAspectRatio, float newZNear, float newZFar);
 
@@ -44,7 +42,14 @@ public:
     ~Scene();
 
 private:
-    // Scenary
+    Ground ground;
+    std::vector<Surface> surfaces;
+
+    std::vector<Vehicle> vehicles;
+    std::vector<Prop> props;
+    std::vector<Trigger> triggers;
+
+    // Scenery
     Environment environment;
 
     // Camera
@@ -58,6 +63,8 @@ private:
     uint32_t loadFBX(const std::string &filePath);
     uint32_t loadGLB(const std::string &filePath);
     uint32_t loadGLTF(const std::string &filePath);
+
+    void buildGroundMesh(Size2 size);
 
     uint32_t addMeshInstance(int32_t meshIndex);
 

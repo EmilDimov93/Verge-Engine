@@ -27,9 +27,9 @@ struct Ground
         this->h = h;
 
         heightMap.resize(w * h);
-        surfaceMap.resize((w - 1) * (h - 1));
+        surfaceMap.resize(w * h);
     }
 
     size_t getHeightAt(uint32_t x, uint32_t y) const { return heightMap[size_t(y) * w + x]; }
-    size_t getSurfaceTypeAt(uint32_t x, uint32_t y) const { return surfaceMap[size_t(y) * (w - 1) + x]; }
+    size_t getSurfaceTypeAt(uint32_t x, uint32_t y) const { return surfaceMap[size_t(y) * w + x]; }
 };

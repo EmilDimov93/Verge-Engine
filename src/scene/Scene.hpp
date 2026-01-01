@@ -64,7 +64,8 @@ private:
     uint32_t loadGLB(const std::string &filePath);
     uint32_t loadGLTF(const std::string &filePath);
 
-    void buildGroundMesh(Size2 size);
+    void makeExampleGround();
+    void buildGroundMesh(Size2 size, Transform transform);
 
     uint32_t addMeshInstance(int32_t meshIndex);
 

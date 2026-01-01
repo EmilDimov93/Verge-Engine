@@ -89,8 +89,6 @@ private:
         scene.addTrigger(0, {{0, 0, 20.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, sTriggerType);
         scene.addTrigger(1, {{0, 0, 50.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, sTriggerType);
 
-        //scene.addProp(scene.loadFile("models/floor.obj"), {{0, 0, 0}});
-
         scene.setCameraFollowVehicle(0);
     }
 

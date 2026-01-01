@@ -17,9 +17,10 @@ Scene::Scene(VulkanContext newVulkanContext, float newFov, float newAspectRatio,
 
     isCameraFollowingVehicle = false;
 
-    surfaces.push_back({1.0f, {0.5f, 0.5f, 0.5f}});
+    // Default surface
+    surfaces.push_back({1.0f, {0.1f, 0.1f, 0.1f}});
 
-    buildGroundMesh({1000, 1000});
+    buildGroundMesh({1000, 1000}, {{-500, 0, -500}});
 
     Camera::init(newFov, newAspectRatio, newZNear, newZFar);
 }
@@ -199,9 +200,37 @@ uint32_t Scene::addMeshInstance(int32_t meshIndex)
     return meshInstances.size() - 1;
 }
 
-void Scene::buildGroundMesh(Size2 size)
+void Scene::makeExampleGround()
+{
+    surfaces.push_back({1.0f, {0, 0.6f, 0}});
+
+    surfaces.push_back({1.0f, {0.2f, 0.2f, 0.2f}});
+
+    for (uint8_t &tile : ground.surfaceMap)
+    {
+        tile = 1;
+    }
+
+    for (size_t i = 0; i < ground.h - 1; i++)
+    {
+        for (size_t j = ground.w / 2 - 10; j < ground.w / 2 + 10; j++)
+        {
+            ground.surfaceMap[ground.w * i + j] = 2;
+        }
+    }
+}
+
+void Scene::buildGroundMesh(Size2 size, Transform transform)
 {
     ground.resize(size.w, size.h);
+
+    for (uint8_t &tile : ground.surfaceMap)
+    {
+        tile = 0;
+    }
+
+    // Temporary
+    makeExampleGround();
 
     std::vector<Vertex> meshVertices;
     std::vector<uint32_t> meshIndices;
@@ -215,7 +244,7 @@ void Scene::buildGroundMesh(Size2 size)
     {
         for (size_t j = 0; j < ground.w; j++)
         {
-            meshVertices.push_back({{(float)j, ground.getHeightAt(j, i), (float)i}, whichColor ? col1 : col2});
+            meshVertices.push_back({{(float)j, ground.getHeightAt(j, i), (float)i}, surfaces[ground.getSurfaceTypeAt(j, i)].color});
             whichColor = !whichColor;
         }
     }
@@ -247,7 +276,7 @@ void Scene::buildGroundMesh(Size2 size)
 
     addMeshInstance(meshes.size() - 1);
 
-    setMatrix(meshInstances.size() - 1, glm::mat4(1.0f));
+    setMatrix(meshInstances.size() - 1, transformToMat(transform));
 }
 
 uint32_t Scene::addVehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info)

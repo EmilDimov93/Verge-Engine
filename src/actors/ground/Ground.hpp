@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "../../definitions.hpp"
+
 #include <vector>
 
 struct Surface

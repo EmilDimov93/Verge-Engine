@@ -229,12 +229,10 @@ void Scene::buildGroundMesh(Size2 size)
             uint32_t v2 = v0 + ground.w;
             uint32_t v3 = v2 + 1;
 
-            // Triangle 1
             meshIndices.push_back(v0);
             meshIndices.push_back(v2);
             meshIndices.push_back(v1);
 
-            // Triangle 2
             meshIndices.push_back(v1);
             meshIndices.push_back(v2);
             meshIndices.push_back(v3);

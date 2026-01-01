@@ -33,7 +33,7 @@ struct MeshInstance
 class Mesh
 {
 public:
-    void init(VulkanContext vulkanContext, std::vector<Vertex> *vertices, std::vector<uint32_t> *indeces);
+    void init(VulkanContext vulkanContext, std::vector<Vertex> *vertices, std::vector<uint32_t> *indices);
 
     uint64_t getVertexCount() const;
     VkBuffer getVertexBuffer() const;
@@ -53,5 +53,5 @@ private:
     VkDeviceMemory indexBufferMemory;
 
     void createVertexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<Vertex> *vertices);
-    void createIndexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t> *indeces);
+    void createIndexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t> *indices);
 };

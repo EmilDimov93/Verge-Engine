@@ -20,8 +20,6 @@ Scene::Scene(VulkanContext newVulkanContext, float newFov, float newAspectRatio,
     // Default surface
     surfaces.push_back({1.0f, {0.1f, 0.1f, 0.1f}});
 
-    buildGroundMesh({1000, 1000}, {{-500, 0, -500}});
-
     Camera::init(newFov, newAspectRatio, newZNear, newZFar);
 }
 
@@ -56,7 +54,7 @@ uint32_t Scene::loadFile(const std::string &filePath)
 uint32_t Scene::loadOBJ(const std::string &filePath)
 {
     std::vector<Vertex> meshVertices;
-    std::vector<uint32_t> meshIndeces;
+    std::vector<uint32_t> meshIndices;
 
     std::ifstream file(filePath);
     if (!file.is_open())
@@ -151,7 +149,7 @@ uint32_t Scene::loadOBJ(const std::string &filePath)
                 v.pos = positions[idx];
                 v.col = currentColor;
 
-                meshIndeces.push_back(
+                meshIndices.push_back(
                     static_cast<uint32_t>(meshVertices.size()));
                 meshVertices.push_back(v);
             }
@@ -160,7 +158,7 @@ uint32_t Scene::loadOBJ(const std::string &filePath)
 
     Mesh objMesh;
 
-    objMesh.init(vulkanContext, &meshVertices, &meshIndeces);
+    objMesh.init(vulkanContext, &meshVertices, &meshIndices);
 
     meshes.push_back(objMesh);
 
@@ -235,17 +233,17 @@ void Scene::buildGroundMesh(Size2 size, Transform transform)
     std::vector<Vertex> meshVertices;
     std::vector<uint32_t> meshIndices;
 
-    glm::vec3 col1 = {0.5f, 0.5f, 0.5f};
-    glm::vec3 col2 = {0.2f, 0.2f, 0.2f};
-
-    bool whichColor = false;
-
     for (size_t i = 0; i < ground.h; i++)
     {
         for (size_t j = 0; j < ground.w; j++)
         {
-            meshVertices.push_back({{(float)j, ground.getHeightAt(j, i), (float)i}, surfaces[ground.getSurfaceTypeAt(j, i)].color});
-            whichColor = !whichColor;
+            uint8_t surfaceIndex = ground.getSurfaceAt(j, i);
+            if(surfaceIndex < 0 || surfaceIndex > surfaces.size() - 1){
+                Log::add('A', 190);
+                surfaceIndex = 0;
+            }
+            glm::vec3 surfaceColor = surfaces[surfaceIndex].color;
+            meshVertices.push_back({{(float)j, ground.getHeightAt(j, i), (float)i}, surfaceColor});
         }
     }
 
@@ -275,6 +273,10 @@ void Scene::buildGroundMesh(Size2 size, Transform transform)
     meshes.push_back(objMesh);
 
     addMeshInstance(meshes.size() - 1);
+
+    // Center mesh
+    transform.position.x -= size.w / 2;
+    transform.position.z -= size.h / 2;
 
     setMatrix(meshInstances.size() - 1, transformToMat(transform));
 }

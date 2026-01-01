@@ -12,12 +12,12 @@
             Log::add('V', 229); \
     } while (0)
 
-void Mesh::init(VulkanContext vulkanContext, std::vector<Vertex> *vertices, std::vector<uint32_t> *indeces)
+void Mesh::init(VulkanContext vulkanContext, std::vector<Vertex> *vertices, std::vector<uint32_t> *indices)
 {
     vertexCount = vertices->size();
-    indexCount = indeces->size();
+    indexCount = indices->size();
     createVertexBuffer(vulkanContext.physicalDevice, vulkanContext.device, vulkanContext.graphicsQueue, vulkanContext.graphicsCommandPool, vertices);
-    createIndexBuffer(vulkanContext.physicalDevice, vulkanContext.device, vulkanContext.graphicsQueue, vulkanContext.graphicsCommandPool, indeces);
+    createIndexBuffer(vulkanContext.physicalDevice, vulkanContext.device, vulkanContext.graphicsQueue, vulkanContext.graphicsCommandPool, indices);
 }
 
 uint32_t findMemoryTypeIndex(VkPhysicalDevice physicalDevice, uint32_t allowedTypes, VkMemoryPropertyFlags properties)
@@ -142,9 +142,9 @@ void Mesh::createVertexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, 
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 
-void Mesh::createIndexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t> *indeces)
+void Mesh::createIndexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t> *indices)
 {
-    VkDeviceSize bufferSize = sizeof(uint32_t) * indeces->size();
+    VkDeviceSize bufferSize = sizeof(uint32_t) * indices->size();
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -152,7 +152,7 @@ void Mesh::createIndexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, V
 
     void *data;
     VK_CHECK(vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data));
-    memcpy(data, indeces->data(), (size_t)bufferSize);
+    memcpy(data, indices->data(), (size_t)bufferSize);
     vkUnmapMemory(device, stagingBufferMemory);
 
     createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &indexBuffer, &indexBufferMemory);

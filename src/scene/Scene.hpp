@@ -39,6 +39,8 @@ public:
     void setCameraFollowHeight(float height);
     void setCameraFollowYawDelay(float yawDelay);
 
+    void buildGroundMesh(Size2 size, Transform transform);
+
     ~Scene();
 
 private:
@@ -65,7 +67,6 @@ private:
     uint32_t loadGLTF(const std::string &filePath);
 
     void makeExampleGround();
-    void buildGroundMesh(Size2 size, Transform transform);
 
     uint32_t addMeshInstance(int32_t meshIndex);
 

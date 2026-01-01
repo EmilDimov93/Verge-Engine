@@ -90,6 +90,8 @@ private:
         scene.addTrigger(1, {{0, 0, 50.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, sTriggerType);
 
         scene.setCameraFollowVehicle(0);
+
+        scene.buildGroundMesh({1000, 1000}, {});
     }
 
     void tick()

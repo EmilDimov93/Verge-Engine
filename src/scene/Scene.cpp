@@ -245,8 +245,6 @@ void Scene::buildGroundMesh(Size2 size)
 
     meshes.push_back(objMesh);
 
-    std::cout << meshVertices[1].pos.x << " " << meshVertices[1].pos.y << " " << meshVertices[1].pos.z << std::endl;
-
     addMeshInstance(meshes.size() - 1);
 
     setMatrix(meshInstances.size() - 1, glm::mat4(1.0f));

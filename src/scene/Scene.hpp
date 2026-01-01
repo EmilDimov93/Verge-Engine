@@ -7,7 +7,7 @@
 #include "camera/Camera.hpp"
 #include "environment/Environment.hpp"
 
-#include "../actors/surface/Surface.hpp"
+#include "../actors/ground/Ground.hpp"
 
 #include "../actors/vehicle/Vehicle.hpp"
 #include "../actors/prop/Prop.hpp"

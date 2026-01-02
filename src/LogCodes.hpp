@@ -114,5 +114,9 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'A', 182}, "Trigger: invalid hitbox shape"},
     {{'A', 183}, "Trigger: invalid hitbox size"},
 
+    // Ground
     {{'A', 190}, "Ground: invalid surface index"},
-    {{'A', 191}, "Ground: invalid coordinates for vertex"}};
+    {{'A', 191}, "Ground: invalid coordinates for vertex"},
+    {{'A', 192}, "Surface: invalid friction value"},
+    {{'A', 193}, "Surface: invalid color value"},
+    {{'A', 194}, "Surface: invalid color distortion value"}};

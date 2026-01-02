@@ -39,6 +39,7 @@ public:
     void setCameraFollowHeight(float height);
     void setCameraFollowYawDelay(float yawDelay);
 
+    uint32_t addSurface(const VE_STRUCT_SURFACE_CREATE_INFO &info);
     void buildGroundMesh(Size2 size, Transform transform);
 
     ~Scene();

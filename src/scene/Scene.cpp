@@ -201,10 +201,6 @@ uint32_t Scene::addMeshInstance(int32_t meshIndex)
 
 void Scene::makeExampleGround()
 {
-    surfaces.push_back({1.0f, {0, 0.6f, 0}, {0, 0.05f, 0}, 0.2f});
-
-    surfaces.push_back({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
-
     for (uint8_t &tile : ground.surfaceMap)
     {
         tile = 1;
@@ -220,12 +216,53 @@ void Scene::makeExampleGround()
 
         for (int j = centerX - roadHalfWidth; j <= centerX + roadHalfWidth; j++)
         {
-            if (j >= 0 && j < (int)ground.w){
+            if (j >= 0 && j < (int)ground.w)
+            {
                 ground.setSurfaceAt(j, i, 2);
                 ground.setHeightAt(j, i, 3.0f);
             }
         }
     }
+}
+
+uint32_t Scene::addSurface(const VE_STRUCT_SURFACE_CREATE_INFO &info)
+{
+    Surface newSurface;
+
+    if (info.friction >= 0)
+    {
+        newSurface.friction = info.friction;
+    }
+    else
+    {
+        Log::add('A', 192);
+        newSurface.friction = 0;
+    }
+
+    if (info.color.r >= 0 && info.color.r <= 1.0f && info.color.g >= 0 && info.color.g <= 1.0f && info.color.b >= 0 && info.color.b <= 1.0f)
+    {
+        newSurface.color = info.color;
+    }
+    else
+    {
+        Log::add('A', 193);
+        newSurface.color = {0, 0, 0};
+    }
+
+    if(info.colorDistortion.r >= 0 && info.colorDistortion.r <= 1.0f && info.colorDistortion.g >= 0 && info.colorDistortion.g <= 1.0f && info.colorDistortion.b >= 0 && info.colorDistortion.b <= 1.0f)
+    {
+        newSurface.colorDistortion = info.colorDistortion;
+    }
+    else{
+        Log::add('A', 194);
+        newSurface.colorDistortion = {0, 0, 0};
+    }
+
+    newSurface.heightDistortion = info.heightDistortion;
+
+    surfaces.push_back(newSurface);
+
+    return surfaces.size() - 1;
 }
 
 void Scene::buildGroundMesh(Size2 size, Transform transform)
@@ -350,13 +387,13 @@ void Scene::tick(ve_time dt)
 {
     for (Vehicle &vehicle : vehicles)
     {
+        vehicle.tick(environment, dt);
+
         setMatrix(vehicle.bodyMeshInstanceIndex, vehicle.bodyMat);
         setMatrix(vehicle.wheelFLMeshInstanceIndex, vehicle.wheelFLMat);
         setMatrix(vehicle.wheelFRMeshInstanceIndex, vehicle.wheelFRMat);
         setMatrix(vehicle.wheelBLMeshInstanceIndex, vehicle.wheelBLMat);
         setMatrix(vehicle.wheelBRMeshInstanceIndex, vehicle.wheelBRMat);
-
-        vehicle.tick(environment, dt);
     }
 
     if (isCameraFollowingVehicle)
@@ -443,9 +480,10 @@ void Scene::cameraFollowVehicle(ve_time dt)
 
 Scene::~Scene()
 {
-    if (vulkanContext.device != VK_NULL_HANDLE){
+    if (vulkanContext.device != VK_NULL_HANDLE)
+    {
         VkResult res = vkDeviceWaitIdle(vulkanContext.device);
-        if(res != VK_SUCCESS)
+        if (res != VK_SUCCESS)
             Log::add('V', 235);
     }
 

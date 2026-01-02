@@ -9,6 +9,14 @@
 
 #include <vector>
 
+struct VE_STRUCT_SURFACE_CREATE_INFO
+{
+    float friction = 1.0f;
+    glm::vec3 color = {0, 0, 0};
+    glm::vec3 colorDistortion = {0, 0, 0};
+    float heightDistortion = 0;
+};
+
 struct Surface
 {
     float friction;

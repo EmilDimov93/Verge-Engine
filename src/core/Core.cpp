@@ -91,6 +91,10 @@ private:
 
         scene.setCameraFollowVehicle(0);
 
+        uint32_t grassSurfaceIndex = scene.addSurface({0.4f, {0, 0.6f, 0}, {0, 0.05f, 0}, 0.2f});
+
+        uint32_t asphaltSurfaceIndex = scene.addSurface({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
+
         scene.buildGroundMesh({1000, 1000}, {});
     }
 

@@ -57,7 +57,6 @@ if ($issues.Count -eq 0) {
     cd build\$config
     ./VergeEngine.exe
     cd ../..
-    Write-Host ""
     Write-Host "Finished" -ForegroundColor Magenta
 } else {
     Write-Host "Build failed with warnings or errors:" -ForegroundColor Red

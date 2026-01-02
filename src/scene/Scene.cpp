@@ -332,7 +332,7 @@ void Scene::buildGroundMesh(Size2 size, Transform transform)
     setMatrix(meshInstances.size() - 1, transformToMat(transform));
 }
 
-uint32_t Scene::addVehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info)
+uint32_t Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform)
 {
     Vehicle newVehicle(transform, info, addMeshInstance(info.bodyMeshIndex), addMeshInstance(info.wheelMeshIndex), addMeshInstance(info.wheelMeshIndex), addMeshInstance(info.wheelMeshIndex), addMeshInstance(info.wheelMeshIndex));
     vehicles.push_back(newVehicle);
@@ -352,7 +352,7 @@ uint32_t Scene::addProp(int32_t meshIndex, Transform transform)
     return props.size() - 1;
 }
 
-uint32_t Scene::addTrigger(int32_t id, Transform transform, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info)
+uint32_t Scene::addTrigger(int32_t id, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform)
 {
     for (Trigger trigger : triggers)
     {

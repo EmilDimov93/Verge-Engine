@@ -76,7 +76,7 @@ private:
         sCar.brakingForce = 14700;
         sCar.tireGrip = 1.1f;
         sCar.camberRad = (PI / 18);
-        scene.addVehicle({{0, 2.9f, -100.0f}}, sCar);
+        scene.addVehicle(sCar, {{0, 2.9f, -100.0f}});
 
         scene.addProp(scene.loadFile("models/cow.obj"), {{10.0f, 3.0f, 30.0f}});
 
@@ -86,8 +86,8 @@ private:
         sTriggerType.hitboxSize = 10.0f;
         sTriggerType.isAutoDestroy = true;
 
-        scene.addTrigger(0, {{0, 0, 20.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, sTriggerType);
-        scene.addTrigger(1, {{0, 0, 50.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, sTriggerType);
+        scene.addTrigger(0, sTriggerType, {{0, 0, 20.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
+        scene.addTrigger(1, sTriggerType, {{0, 0, 50.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
 
         scene.setCameraFollowVehicle(0);
 
@@ -95,7 +95,7 @@ private:
 
         uint32_t asphaltSurfaceIndex = scene.addSurface({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
 
-        scene.buildGroundMesh({1000, 1000}, {});
+        scene.buildGroundMesh({1000, 1000});
     }
 
     void tick()

@@ -23,9 +23,9 @@ public:
 
     uint32_t loadFile(const std::string &filePath);
 
-    uint32_t addVehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info);
+    uint32_t addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform = {});
     uint32_t addProp(int32_t meshIndex, Transform transform);
-    uint32_t addTrigger(int32_t id, Transform transform, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info);
+    uint32_t addTrigger(int32_t id, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform = {});
 
     VulkanContext vulkanContext;
 
@@ -40,7 +40,7 @@ public:
     void setCameraFollowYawDelay(float yawDelay);
 
     uint32_t addSurface(const VE_STRUCT_SURFACE_CREATE_INFO &info);
-    void buildGroundMesh(Size2 size, Transform transform);
+    void buildGroundMesh(Size2 size, Transform transform = {});
 
     ~Scene();
 

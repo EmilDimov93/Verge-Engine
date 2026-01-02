@@ -201,7 +201,7 @@ uint32_t Scene::addMeshInstance(int32_t meshIndex)
 
 void Scene::makeExampleGround()
 {
-    surfaces.push_back({1.0f, {0, 0.6f, 0}, {0, 0.1f, 0}});
+    surfaces.push_back({1.0f, {0, 0.6f, 0}, {0, 0.05f, 0}, 0.2f});
 
     surfaces.push_back({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
 
@@ -257,7 +257,7 @@ void Scene::buildGroundMesh(Size2 size, Transform transform)
             surfaceColor.r = surfaces[surfaceIndex].color.r + glm::linearRand(-surfaces[surfaceIndex].colorDistortion.r, surfaces[surfaceIndex].colorDistortion.r);
             surfaceColor.g = surfaces[surfaceIndex].color.g + glm::linearRand(-surfaces[surfaceIndex].colorDistortion.g, surfaces[surfaceIndex].colorDistortion.g);
             surfaceColor.b = surfaces[surfaceIndex].color.b + glm::linearRand(-surfaces[surfaceIndex].colorDistortion.b, surfaces[surfaceIndex].colorDistortion.b);
-            meshVertices.push_back({{(float)j, ground.getHeightAt(j, i), (float)i}, surfaceColor});
+            meshVertices.push_back({{(float)j, ground.getHeightAt(j, i) + glm::linearRand(-surfaces[surfaceIndex].heightDistortion, surfaces[surfaceIndex].heightDistortion), (float)i}, surfaceColor});
         }
     }
 

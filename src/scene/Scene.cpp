@@ -216,13 +216,9 @@ void Scene::makeExampleGround()
 
     for (size_t i = 0; i < ground.h; i++)
     {
-        int centerX =
-            static_cast<int>(ground.w / 2 +
-                             std::cos(i * curveFrequency) * curveStrength);
+        int centerX = static_cast<int>(ground.w / 2 + std::cos(i * curveFrequency) * curveStrength);
 
-        for (int j = centerX - roadHalfWidth;
-             j <= centerX + roadHalfWidth;
-             j++)
+        for (int j = centerX - roadHalfWidth; j <= centerX + roadHalfWidth; j++)
         {
             if (j >= 0 && j < (int)ground.w){
                 ground.setSurfaceAt(j, i, 2);
@@ -447,6 +443,12 @@ void Scene::cameraFollowVehicle(ve_time dt)
 
 Scene::~Scene()
 {
+    if (vulkanContext.device != VK_NULL_HANDLE){
+        VkResult res = vkDeviceWaitIdle(vulkanContext.device);
+        if(res != VK_SUCCESS)
+            Log::add('V', 235);
+    }
+
     for (auto &mesh : meshes)
         mesh.destroyBuffers(vulkanContext.device);
 }

@@ -57,6 +57,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'V', 235}, "Vulkan failed: vkDeviceWaitIdle"},
     {{'V', 236}, "Vulkan failed to map memory"},
     {{'V', 237}, "Vulkan failed to find a suitable memory type index"},
+    {{'V', 238}, "Vulkan failed: vkQueueWaitIdle"},
 
     // Camera
     {{'K', 100}, "Camera already initialized. Operation cancelled"},

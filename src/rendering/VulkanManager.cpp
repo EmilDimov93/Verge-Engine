@@ -890,6 +890,8 @@ void VulkanManager::drawFrame(const std::vector<Mesh> &meshes, const std::vector
 
     vkCheck(vkQueuePresentKHR(presentQueue, &presentInfo), {'V', 234});
 
+    vkCheck(vkQueueWaitIdle(presentQueue), {'V', 238});
+
     currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
 }
 

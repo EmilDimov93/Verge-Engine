@@ -13,6 +13,7 @@ struct Surface
 {
     float friction;
     glm::vec3 color;
+    glm::vec3 colorDistortion;
     // Texture texture;
 };
 

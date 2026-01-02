@@ -8,6 +8,7 @@
 #include <vector>
 #include <unordered_map>
 #include <filesystem>
+#include <glm/gtc/random.hpp>
 
 #include "../Log.hpp"
 
@@ -200,20 +201,33 @@ uint32_t Scene::addMeshInstance(int32_t meshIndex)
 
 void Scene::makeExampleGround()
 {
-    surfaces.push_back({1.0f, {0, 0.6f, 0}});
+    surfaces.push_back({1.0f, {0, 0.6f, 0}, {0, 0.1f, 0}});
 
-    surfaces.push_back({1.0f, {0.2f, 0.2f, 0.2f}});
+    surfaces.push_back({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
 
     for (uint8_t &tile : ground.surfaceMap)
     {
         tile = 1;
     }
 
-    for (size_t i = 0; i < ground.h - 1; i++)
+    const int roadHalfWidth = 10;
+    const float curveStrength = 40.0f;
+    const float curveFrequency = 0.05f;
+
+    for (size_t i = 0; i < ground.h; i++)
     {
-        for (size_t j = ground.w / 2 - 10; j < ground.w / 2 + 10; j++)
+        int centerX =
+            static_cast<int>(ground.w / 2 +
+                             std::cos(i * curveFrequency) * curveStrength);
+
+        for (int j = centerX - roadHalfWidth;
+             j <= centerX + roadHalfWidth;
+             j++)
         {
-            ground.surfaceMap[ground.w * i + j] = 2;
+            if (j >= 0 && j < (int)ground.w){
+                ground.setSurfaceAt(j, i, 2);
+                ground.setHeightAt(j, i, 3.0f);
+            }
         }
     }
 }
@@ -238,11 +252,15 @@ void Scene::buildGroundMesh(Size2 size, Transform transform)
         for (size_t j = 0; j < ground.w; j++)
         {
             uint8_t surfaceIndex = ground.getSurfaceAt(j, i);
-            if(surfaceIndex < 0 || surfaceIndex > surfaces.size() - 1){
+            if (surfaceIndex < 0 || surfaceIndex > surfaces.size() - 1)
+            {
                 Log::add('A', 190);
                 surfaceIndex = 0;
             }
-            glm::vec3 surfaceColor = surfaces[surfaceIndex].color;
+            glm::vec3 surfaceColor;
+            surfaceColor.r = surfaces[surfaceIndex].color.r + glm::linearRand(-surfaces[surfaceIndex].colorDistortion.r, surfaces[surfaceIndex].colorDistortion.r);
+            surfaceColor.g = surfaces[surfaceIndex].color.g + glm::linearRand(-surfaces[surfaceIndex].colorDistortion.g, surfaces[surfaceIndex].colorDistortion.g);
+            surfaceColor.b = surfaces[surfaceIndex].color.b + glm::linearRand(-surfaces[surfaceIndex].colorDistortion.b, surfaces[surfaceIndex].colorDistortion.b);
             meshVertices.push_back({{(float)j, ground.getHeightAt(j, i), (float)i}, surfaceColor});
         }
     }

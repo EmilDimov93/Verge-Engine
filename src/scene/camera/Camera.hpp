@@ -5,11 +5,6 @@
 
 #include "../../definitions.hpp"
 
-// TODO
-struct VE_STRUCT_CAMERA_INFO
-{
-};
-
 class Camera
 {
 public:

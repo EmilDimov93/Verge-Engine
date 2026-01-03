@@ -19,7 +19,7 @@ class VergeEngine
 public:
     VergeEngine() : window(50.0f),
                     vulkan(window.getReference(), window.getSize()),
-                    scene(vulkan.getContext(), 60.0f, window.getAspectRatio(), 0.1f, 1000.0f)
+                    scene(vulkan.getContext(), window.getAspectRatio())
     {
         Input::init(window.getReference());
         Log::init(VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE);
@@ -32,9 +32,12 @@ public:
         while (window.isOpen())
         {
             fps.sync();
+            
             Input::refresh();
 
-            tick();
+            scene.tick(fps.getFrameTime());
+
+            vulkan.drawFrame(scene.meshes, scene.meshInstances, Camera::getProjectionMatrix(), Camera::getViewMatrix());
         }
 
         Log::end();
@@ -74,7 +77,7 @@ private:
         sCar.dragCoeff = 0.31f;
         sCar.frontalAreaM2 = 2.3f;
         sCar.brakingForce = 14700;
-        sCar.tireGrip = 1.1f;
+        sCar.tireGrip = 1.5f;
         sCar.camberRad = (PI / 18);
         scene.addVehicle(sCar, {{0, 2.9f, -100.0f}});
 
@@ -96,13 +99,6 @@ private:
         uint32_t asphaltSurfaceIndex = scene.addSurface({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
 
         scene.buildGroundMesh({1000, 1000});
-    }
-
-    void tick()
-    {
-        scene.tick(fps.getFrameTime());
-
-        vulkan.drawFrame(scene.meshes, scene.meshInstances, Camera::getProjectionMatrix(), Camera::getViewMatrix());
     }
 };
 

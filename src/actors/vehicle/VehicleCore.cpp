@@ -197,7 +197,7 @@ Vehicle::Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info,
         maxSteeringAngleRad = 0.55f;
     }
 
-    if(info.tireGrip > 0.05f && info.tireGrip < 2.5f)
+    if(info.tireGrip > 0.05f)
     {
         tireGrip = info.tireGrip;
     }

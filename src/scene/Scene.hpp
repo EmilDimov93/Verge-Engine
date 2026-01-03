@@ -19,7 +19,7 @@ public:
     std::vector<Mesh> meshes;
     std::vector<MeshInstance> meshInstances;
 
-    Scene(VulkanContext newVulkanContext, float newFov, float newAspectRatio, float newZNear, float newZFar);
+    Scene(VulkanContext vulkanContext, float aspectRatio, float fov = 60.0f, float zNear = 0.01f, float zFar = 1000.0f);
 
     uint32_t loadFile(const std::string &filePath);
 

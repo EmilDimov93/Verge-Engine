@@ -16,6 +16,39 @@ float Camera::zFar = -1.0f;
 
 bool Camera::isInitialized = false;
 
+void Camera::init(float newFov, float newAspectRatio, float newZNear, float newZFar)
+{
+    if (isInitialized)
+    {
+        Log::add('K', 100);
+        return;
+    }
+
+    if (newFov <= 0 || newFov >= 180)
+    {
+        Log::add('K', 201);
+    }
+    if (newAspectRatio <= 0)
+    {
+        Log::add('K', 202);
+    }
+    if (newZNear <= 0)
+    {
+        Log::add('K', 203);
+    }
+    if (newZFar <= newZNear)
+    {
+        Log::add('K', 204);
+    }
+
+    fov = newFov;
+    aspectRatio = newAspectRatio;
+    zNear = newZNear;
+    zFar = newZFar;
+
+    isInitialized = true;
+}
+
 glm::mat4 Camera::getViewMatrix()
 {
     return glm::lookAt(glm::vec3(position.x, position.y, position.z), glm::vec3(position.x + forward.x, position.y + forward.y, position.z + forward.z), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -73,37 +106,4 @@ void Camera::tick()
     forward.y = sin(glm::radians(rotation.pitch));
     forward.z = sin(glm::radians(rotation.yaw)) * cos(glm::radians(rotation.pitch));
     forward = glm::normalize(forward);
-}
-
-void Camera::init(float newFov, float newAspectRatio, float newZNear, float newZFar)
-{
-    if (isInitialized)
-    {
-        Log::add('K', 100);
-        return;
-    }
-
-    if (newFov <= 0 || newFov >= 180)
-    {
-        Log::add('K', 201);
-    }
-    if (newAspectRatio <= 0)
-    {
-        Log::add('K', 202);
-    }
-    if (newZNear <= 0)
-    {
-        Log::add('K', 203);
-    }
-    if (newZFar <= newZNear)
-    {
-        Log::add('K', 204);
-    }
-
-    fov = newFov;
-    aspectRatio = newAspectRatio;
-    zNear = newZNear;
-    zFar = newZFar;
-
-    isInitialized = true;
 }

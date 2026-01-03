@@ -12,16 +12,16 @@
 
 #include "../Log.hpp"
 
-Scene::Scene(VulkanContext newVulkanContext, float newFov, float newAspectRatio, float newZNear, float newZFar)
+Scene::Scene(VulkanContext vulkanContext, float aspectRatio, float fov, float zNear, float zFar)
 {
-    vulkanContext = newVulkanContext;
+    this->vulkanContext = vulkanContext;
 
     isCameraFollowingVehicle = false;
 
     // Default surface
     surfaces.push_back({1.0f, {0.1f, 0.1f, 0.1f}});
 
-    Camera::init(newFov, newAspectRatio, newZNear, newZFar);
+    Camera::init(fov, aspectRatio, zNear, zFar);
 }
 
 uint32_t Scene::loadFile(const std::string &filePath)

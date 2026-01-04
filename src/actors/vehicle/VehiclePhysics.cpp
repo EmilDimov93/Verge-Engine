@@ -21,17 +21,7 @@ void Vehicle::stallAssist()
     }
 }
 
-void Vehicle::calcForces(Environment environment)
-{
-    glm::mat4 R =
-        glm::rotate(glm::mat4(1.0f), (float)transform.rotation.yaw, glm::vec3(0, 1, 0)) *
-        glm::rotate(glm::mat4(1.0f), (float)transform.rotation.pitch, glm::vec3(1, 0, 0)) *
-        glm::rotate(glm::mat4(1.0f), (float)transform.rotation.roll, glm::vec3(0, 0, 1));
-
-    glm::vec3 forward = glm::normalize(glm::vec3(R * glm::vec4(0, 0, 1, 0)));
-    glm::vec3 right = glm::normalize(glm::vec3(R * glm::vec4(1, 0, 0, 0)));
-    glm::vec3 up = glm::normalize(glm::vec3(R * glm::vec4(0, 1, 0, 0)));
-
+float Vehicle::calcFDriveMag(){
     float engineAngularSpeed = (2 * PI * rpm) / 60;
 
     float powerW = powerKw * 1000;
@@ -44,7 +34,21 @@ void Vehicle::calcForces(Environment environment)
 
     float wheelTorque = engineTorque * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
 
-    float FDriveMag = wheelTorque / wheelRadiusM;
+    return wheelTorque / wheelRadiusM;
+}
+
+void Vehicle::calcForces(Environment environment)
+{
+    glm::mat4 R =
+        glm::rotate(glm::mat4(1.0f), (float)transform.rotation.yaw, glm::vec3(0, 1, 0)) *
+        glm::rotate(glm::mat4(1.0f), (float)transform.rotation.pitch, glm::vec3(1, 0, 0)) *
+        glm::rotate(glm::mat4(1.0f), (float)transform.rotation.roll, glm::vec3(0, 0, 1));
+
+    glm::vec3 forward = glm::normalize(glm::vec3(R * glm::vec4(0, 0, 1, 0)));
+    glm::vec3 right = glm::normalize(glm::vec3(R * glm::vec4(1, 0, 0, 0)));
+    glm::vec3 up = glm::normalize(glm::vec3(R * glm::vec4(0, 1, 0, 0)));
+
+    float FDriveMag = calcFDriveMag();
 
     glm::vec3 FDrive = forward * FDriveMag;
 

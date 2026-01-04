@@ -10,6 +10,8 @@
 
 #include <vector>
 
+#define KW_TO_HP_CONSTANT 1.341022f
+
 enum VEPowerUnit
 {
     VE_POWER_UNIT_KILOWATTS,
@@ -74,14 +76,10 @@ public:
 
     void tick(Environment environment, ve_time deltaTime);
 
-    void calculatePhysics(Environment environment);
-    void updateGraphics();
-
     // Getters
-
     Position3 getWheelOffset() const { return wheelOffset; }
     uint32_t getPowerKw() const { return powerKw; }
-    uint32_t getPowerHp() const { return static_cast<uint32_t>(powerKw * 1.341022f); }
+    uint32_t getPowerHp() const { return static_cast<uint32_t>(powerKw * KW_TO_HP_CONSTANT); }
     float getWeightKg() const { return weightKg; }
     uint32_t getGearCount() const { return gearCount; }
     uint32_t getMaxRpm() const { return maxRpm; }
@@ -98,7 +96,7 @@ public:
     float getDragCoeff() const { return dragCoeff; }
     float getFrontalArea() const { return frontalAreaM2; }
     float getMaxSteeringAngleRad() const { return maxSteeringAngleRad; }
-    float getMaxSteeringAngleDeg() const { return maxSteeringAngleRad * 57.2957795f; }
+    float getMaxSteeringAngleDeg() const { return maxSteeringAngleRad * (PI / 180); }
     float getTireGrip() const { return tireGrip; }
     float getCamber() const { return camberRad; }
     const Transform &getTransform() const { return transform; }
@@ -106,13 +104,12 @@ public:
     float getSpeedMps() const { return speedMps; }
     float getSpeedKmph() const { return speedMps * 3.6f; }
     float getSteeringAngleRad() const { return steeringAngleRad; }
-    float getSteeringAngleDeg() const { return steeringAngleRad * 57.2957795f; }
+    float getSteeringAngleDeg() const { return steeringAngleRad * (PI / 180); }
     uint32_t getGear() const { return gear; }
     float getRpm() const { return rpm; }
     float getClutchState() const { return clutchState; }
 
     // Setters
-
     void setWheelOffset(Position3 value) { wheelOffset = value; }
     void setPowerKw(uint32_t value) { powerKw = value; }
     void setPowerHp(uint32_t value) { powerKw = static_cast<uint32_t>(value / 1.341022f); }
@@ -133,19 +130,23 @@ public:
     void setDragCoeff(float value) { dragCoeff = value; }
     void setFrontalArea(float value) { frontalAreaM2 = value; }
     void setMaxSteeringAngleRad(float value) { maxSteeringAngleRad = value; }
-    void setMaxSteeringAngleDeg(float deg) { maxSteeringAngleRad = deg * 0.0174532925f; }
+    void setMaxSteeringAngleDeg(float deg) { maxSteeringAngleRad = deg * (PI / 180); }
     void setTireGrip(float value) { tireGrip = value; }
     void setCamber(float value) { camberRad = value; }
     void setVelocityVector(const glm::vec3 &value) { velocityMps = value; }
     void setSpeedMps(float value) { speedMps = value; }
     void setSteeringAngleRad(float value) { steeringAngleRad = value; }
-    void setSteeringAngleDeg(float value) { steeringAngleRad = value * 0.0174532925f; }
+    void setSteeringAngleDeg(float value) { steeringAngleRad = value * (PI / 180); }
     void setGear(uint32_t value) { gear = value; }
     void setRpm(float value) { rpm = value; }
     void setClutchState(float value) { clutchState = value; }
 
 private:
+    void calculatePhysics(Environment environment);
+    void updateGraphics();
+
     void stallAssist();
+    float calcFDriveMag();
     void calcForces(Environment environment);
     void calcRpm();
     void handleInput();

@@ -2,9 +2,7 @@
 // Licensed under the Apache License, Version 2.0
 
 #include "../Log.hpp"
-#include "../version.hpp"
 #include "../definitions.hpp"
-#include "../local.hpp"
 
 #include "../system/WindowManager.hpp"
 #include "../system/Input.hpp"

@@ -13,13 +13,17 @@
 #include "../actors/prop/Prop.hpp"
 #include "../actors/trigger/Trigger.hpp"
 
+#define VE_DEFAULT_FOV 60.0f
+#define VE_DEFAULT_ZNEAR 0.01f
+#define VE_DEFAULT_ZFAR 1000.0f
+
 class Scene
 {
 public:
     std::vector<Mesh> meshes;
     std::vector<MeshInstance> meshInstances;
 
-    Scene(VulkanContext vulkanContext, float aspectRatio, float fov = 60.0f, float zNear = 0.01f, float zFar = 1000.0f);
+    Scene(VulkanContext vulkanContext, float aspectRatio, float fov = VE_DEFAULT_FOV, float zNear = VE_DEFAULT_ZNEAR, float zFar = VE_DEFAULT_ZFAR);
 
     uint32_t loadFile(const std::string &filePath);
 

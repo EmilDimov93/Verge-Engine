@@ -157,9 +157,7 @@ uint32_t Scene::loadOBJ(const std::string &filePath)
         }
     }
 
-    Mesh objMesh;
-
-    objMesh.init(vulkanContext, &meshVertices, &meshIndices);
+    Mesh objMesh(vulkanContext, meshVertices, meshIndices);
 
     meshes.push_back(objMesh);
 
@@ -317,9 +315,7 @@ void Scene::buildGroundMesh(Size2 size, Transform transform)
         }
     }
 
-    Mesh objMesh;
-
-    objMesh.init(vulkanContext, &meshVertices, &meshIndices);
+    Mesh objMesh(vulkanContext, meshVertices, meshIndices);
 
     meshes.push_back(objMesh);
 

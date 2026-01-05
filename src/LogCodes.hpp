@@ -23,6 +23,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'V', 102}, "Vulkan returned: VK_SUBOPTIMAL_KHR"},
     {{'V', 103}, "Vulkan returned: VK_EVENT_SET"},
     {{'V', 104}, "Vulkan returned: VK_EVENT_RESET"},
+    {{'V', 120}, "Vulkan: Mesh buffers were not destroyed at exit"},
 
     {{'V', 200}, "Vulkan failed to create instance"},
     {{'V', 201}, "Vulkan failed to create window surface"},

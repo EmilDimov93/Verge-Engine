@@ -141,6 +141,9 @@ public:
     void setRpm(float value) { rpm = value; }
     void setClutchState(float value) { clutchState = value; }
 
+    // Temporary(testing)
+    void setHeight(float h) { transform.position.y = h; }
+
 private:
     void calculatePhysics(Environment environment);
     void updateGraphics();

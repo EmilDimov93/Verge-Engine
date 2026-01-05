@@ -265,6 +265,8 @@ uint32_t Scene::addSurface(const VE_STRUCT_SURFACE_CREATE_INFO &info)
 
 void Scene::buildGroundMesh(Size2 size, Transform transform)
 {
+    ground.transform = transform;
+
     ground.resize(size.w, size.h);
 
     for (uint8_t &tile : ground.surfaceMap)
@@ -292,7 +294,7 @@ void Scene::buildGroundMesh(Size2 size, Transform transform)
             surfaceColor.r = surfaces[surfaceIndex].color.r + glm::linearRand(-surfaces[surfaceIndex].colorDistortion.r, surfaces[surfaceIndex].colorDistortion.r);
             surfaceColor.g = surfaces[surfaceIndex].color.g + glm::linearRand(-surfaces[surfaceIndex].colorDistortion.g, surfaces[surfaceIndex].colorDistortion.g);
             surfaceColor.b = surfaces[surfaceIndex].color.b + glm::linearRand(-surfaces[surfaceIndex].colorDistortion.b, surfaces[surfaceIndex].colorDistortion.b);
-            meshVertices.push_back({{(float)j, ground.getHeightAt(j, i) + glm::linearRand(-surfaces[surfaceIndex].heightDistortion, surfaces[surfaceIndex].heightDistortion), (float)i}, surfaceColor});
+            meshVertices.push_back({{(float)j, ground.heightMap[i * ground.w + j] + glm::linearRand(-surfaces[surfaceIndex].heightDistortion, surfaces[surfaceIndex].heightDistortion), (float)i}, surfaceColor});
         }
     }
 
@@ -383,6 +385,9 @@ void Scene::tick(ve_time dt)
 {
     for (Vehicle &vehicle : vehicles)
     {
+        // Temporary(testing)
+        vehicle.setHeight(ground.sampleHeight(vehicle.getTransform().position.x, vehicle.getTransform().position.z));
+
         vehicle.tick(environment, dt);
 
         setMatrix(vehicle.bodyMeshInstanceIndex, vehicle.bodyMat);

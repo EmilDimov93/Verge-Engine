@@ -33,6 +33,8 @@ struct Ground
     std::vector<float> heightMap;
     std::vector<uint8_t> surfaceMap;
 
+    Transform transform;
+
     void resize(uint32_t w, uint32_t h)
     {
         this->w = w;
@@ -42,7 +44,17 @@ struct Ground
         surfaceMap.resize(w * h);
     }
 
-    size_t getHeightAt(uint32_t x, uint32_t y) const
+    float sampleHeight(float x, float z) const // world coordinates
+    {
+        if(x < transform.position.x - w / 2 || x > transform.position.x + w / 2 || z < transform.position.z - h / 2 || z > transform.position.z + h / 2){
+            Log::add('A', 191);
+            return 0;
+        }
+
+        return heightMap[size_t(h/2 + z - transform.position.z) * w + size_t(w/2 + x - transform.position.x)];
+    }
+
+    float getHeightAt(uint32_t x, uint32_t y) const // grid coordinates
     {
         if(x > w || y > h){
             Log::add('A', 191);
@@ -50,7 +62,7 @@ struct Ground
         }
         return heightMap[size_t(y) * w + x];
     }
-    size_t getSurfaceAt(uint32_t x, uint32_t y) const
+    uint32_t getSurfaceAt(uint32_t x, uint32_t y) const // grid coordinates
     {
         if(x > w || y > h){
             Log::add('A', 191);

@@ -37,7 +37,7 @@ float Vehicle::calcFDriveMag(){
     return wheelTorque / wheelRadiusM;
 }
 
-void Vehicle::calcForces(Environment environment)
+void Vehicle::calcForces(Environment environment, float surfaceFriction)
 {
     glm::mat4 R =
         glm::rotate(glm::mat4(1.0f), (float)transform.rotation.yaw, glm::vec3(0, 1, 0)) *
@@ -77,7 +77,7 @@ void Vehicle::calcForces(Environment environment)
 
     glm::vec3 FLat(0.0f);
     {
-        float currentTireGrip = tireGrip * (1.0f + fabs(camberRad));
+        float currentTireGrip = tireGrip * surfaceFriction * (1.0f + fabs(camberRad));
 
         float maxLat = currentTireGrip * weightKg * GRAVITY_CONSTANT;
 
@@ -199,13 +199,13 @@ void Vehicle::updateTransform()
     transform.position.z += velocityMps.z * dt;
 }
 
-void Vehicle::calculatePhysics(Environment environment)
+void Vehicle::calculatePhysics(Environment environment, float surfaceFriction)
 {
     handleInput();
 
     stallAssist();
 
-    calcForces(environment);
+    calcForces(environment, surfaceFriction);
 
     calcRpm();
 

@@ -74,7 +74,7 @@ public:
 
     Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, uint32_t bodyMeshInstanceIndex, uint32_t wheelFLMeshInstanceIndex, uint32_t wheelFRMeshInstanceIndex, uint32_t wheelBLMeshInstanceIndex, uint32_t wheelBRMeshInstanceIndex);
 
-    void tick(Environment environment, ve_time deltaTime);
+    void tick(Environment environment, float surfaceFriction, ve_time deltaTime);
 
     // Getters
     Position3 getWheelOffset() const { return wheelOffset; }
@@ -145,12 +145,12 @@ public:
     void setHeight(float h) { transform.position.y = h; }
 
 private:
-    void calculatePhysics(Environment environment);
+    void calculatePhysics(Environment environment, float surfaceFriction);
     void updateGraphics();
 
     void stallAssist();
     float calcFDriveMag();
-    void calcForces(Environment environment);
+    void calcForces(Environment environment, float surfaceFriction);
     void calcRpm();
     void handleInput();
     void steer(float turningInput);

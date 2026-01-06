@@ -60,10 +60,19 @@ struct Ground
         int localZLower = (int)localZ;
         int localZUpper = localZLower + 1;
 
-        float avg = getHeightAt(localXLower, localZLower) + getHeightAt(localXLower, localZUpper) + getHeightAt(localXUpper, localZLower) + getHeightAt(localXUpper, localZUpper);
-        avg = avg / 4;
+        float avg = (getHeightAt(localXLower, localZLower) + getHeightAt(localXLower, localZUpper) + getHeightAt(localXUpper, localZLower) + getHeightAt(localXUpper, localZUpper)) / 4;
 
         return avg;
+    }
+
+    float sampleSurfaceIndex(float x, float z) const
+    {
+        if(x < transform.position.x - w / 2 || x > transform.position.x + w / 2 || z < transform.position.z - h / 2 || z > transform.position.z + h / 2){
+            Log::add('A', 191);
+            return 0;
+        }
+
+        return getSurfaceAt(w / 2 + x - transform.position.x, h / 2 + z - transform.position.z);
     }
 
     float getHeightAt(uint32_t x, uint32_t y) const // grid coordinates

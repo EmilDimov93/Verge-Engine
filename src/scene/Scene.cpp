@@ -389,7 +389,7 @@ void Scene::tick(ve_time dt)
         // Temporary(testing)
         vehicle.setHeight(ground.sampleHeight(vehicle.getTransform().position.x, vehicle.getTransform().position.z));
 
-        vehicle.tick(environment, dt);
+        vehicle.tick(environment, surfaces[ground.sampleSurfaceIndex(vehicle.getTransform().position.x, vehicle.getTransform().position.z)].friction, dt);
 
         setMatrix(vehicle.bodyMeshInstanceIndex, vehicle.bodyMat);
         setMatrix(vehicle.wheelFLMeshInstanceIndex, vehicle.wheelFLMat);

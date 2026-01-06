@@ -54,7 +54,7 @@ private:
         sCar.bodyMeshIndex = scene.loadFile("models/car.obj");
         sCar.wheelMeshIndex = scene.loadFile("models/wheel.obj");
         sCar.wheelOffset = {1.05f, 0.5f, 1.8f};
-        sCar.power = 190;
+        sCar.power = 390;
         sCar.powerUnit = VE_POWER_UNIT_HORSEPOWER;
         sCar.weightKg = 1540;
         sCar.maxRpm = 7000;
@@ -79,7 +79,7 @@ private:
         sCar.camberRad = (PI / 18);
         scene.addVehicle(sCar, {{0, 2.9f, -100.0f}});
 
-        scene.addProp(scene.loadFile("models/cow.obj"), {{10.0f, 3.0f, 30.0f}});
+        scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});
 
         VE_STRUCT_TRIGGER_TYPE_CREATE_INFO sTriggerType = {};
         sTriggerType.meshIndex = scene.loadFile("models/checkpoint.obj");
@@ -87,12 +87,12 @@ private:
         sTriggerType.hitboxSize = 10.0f;
         sTriggerType.isAutoDestroy = true;
 
-        scene.addTrigger(0, sTriggerType, {{0, 0, 20.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
-        scene.addTrigger(1, sTriggerType, {{0, 0, 50.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
+        scene.addTrigger(0, sTriggerType, {{35.0f, 3.0f, 0.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
+        scene.addTrigger(1, sTriggerType, {{-35.0f, 3.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
 
         scene.setCameraFollowVehicle(0);
 
-        uint32_t grassSurfaceIndex = scene.addSurface({0.4f, {0, 0.6f, 0}, {0, 0.05f, 0}, 0.2f});
+        uint32_t grassSurfaceIndex = scene.addSurface({0.2f, {0, 0.6f, 0}, {0, 0.05f, 0}, 0.2f});
 
         uint32_t asphaltSurfaceIndex = scene.addSurface({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
 

@@ -229,11 +229,11 @@ Vehicle::Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info,
     this->transform = transform;
 }
 
-void Vehicle::tick(Environment environment, ve_time deltaTime)
+void Vehicle::tick(Environment environment, float surfaceFriction, ve_time deltaTime)
 {
     dt = deltaTime;
 
-    calculatePhysics(environment);
+    calculatePhysics(environment, surfaceFriction);
 
     updateGraphics();
 

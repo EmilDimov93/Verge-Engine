@@ -40,12 +40,12 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     float brakingForce = 1.0f;
     VETransmissionType transmissionType = VE_TRANSMISSION_TYPE_AUTOMATIC;
 
-    VEKey accelerateKey = VE_KEY_UNKNOWN;
-    VEKey brakeKey = VE_KEY_UNKNOWN;
-    VEKey turnLeftKey = VE_KEY_UNKNOWN;
-    VEKey turnRightKey = VE_KEY_UNKNOWN;
-    VEKey shiftUpKey = VE_KEY_UNKNOWN;
-    VEKey shiftDownKey = VE_KEY_UNKNOWN;
+    VEKeybind accelerateKeybind;
+    VEKeybind brakeKeybind;
+    VEKeybind turnLeftKeybind;
+    VEKeybind turnRightKeybind;
+    VEKeybind shiftUpKeybind;
+    VEKeybind shiftDownKeybind;
 
     float *pGearRatios = nullptr;
     float finalDriveRatio = 3.42f;
@@ -171,12 +171,12 @@ private:
     VETransmissionType transmissionType;
     float brakingForce;
 
-    VEKey accelerateKey;
-    VEKey brakeKey;
-    VEKey turnLeftKey;
-    VEKey turnRightKey;
-    VEKey shiftUpKey;
-    VEKey shiftDownKey;
+    VEKeybind accelerateKeybind;
+    VEKeybind brakeKeybind;
+    VEKeybind turnLeftKeybind;
+    VEKeybind turnRightKeybind;
+    VEKeybind shiftUpKeybind;
+    VEKeybind shiftDownKeybind;
 
     std::vector<float> gearRatios;
     float finalDriveRatio;

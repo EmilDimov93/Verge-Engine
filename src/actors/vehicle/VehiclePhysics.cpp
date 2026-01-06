@@ -21,7 +21,8 @@ void Vehicle::stallAssist()
     }
 }
 
-float Vehicle::calcFDriveMag(){
+float Vehicle::calcFDriveMag()
+{
     float engineAngularSpeed = (2 * PI * rpm) / 60;
 
     float powerW = powerKw * 1000;
@@ -158,37 +159,79 @@ void Vehicle::updateTransmission()
     }
     else
     {
-        if (Input::isPressed(shiftUpKey))
+        if (shiftUpKeybind.isAxis())
         {
-            shiftUp();
+            if (shiftUpKeybind.getAxis() > 0)
+            {
+                shiftUp();
+            }
         }
-        if (Input::isPressed(shiftDownKey))
+        else
         {
-            shiftDown();
+            if (shiftUpKeybind.isPressed())
+            {
+                shiftUp();
+            }
+        }
+
+        if (shiftDownKeybind.isAxis())
+        {
+            if (shiftDownKeybind.getAxis() < 0)
+            {
+                shiftDown();
+            }
+        }
+        else
+        {
+            if (shiftDownKeybind.isPressed())
+            {
+                shiftDown();
+            }
         }
     }
 }
 
 void Vehicle::handleInput()
 {
-    if (Input::isDown(accelerateKey))
-        throttleState = 1.0f;
+    if (accelerateKeybind.isAxis())
+    {
+        throttleState = accelerateKeybind.getAxisNormalized();
+    }
     else
-        throttleState = 0.0f;
+    {
+        if (accelerateKeybind.isDown())
+            throttleState = 1.0f;
+        else
+            throttleState = 0.0f;
+    }
 
-    if (Input::isDown(brakeKey))
-        brakeState = 1.0f;
+    if (brakeKeybind.isAxis())
+    {
+        brakeState = brakeKeybind.getAxisNormalized();
+    }
     else
-        brakeState = 0.0f;
+    {
+        if (brakeKeybind.isDown())
+            brakeState = 1.0f;
+        else
+            brakeState = 0.0f;
+    }
 
     steeringAngleRad = 0;
-    if (Input::isDown(turnLeftKey) && Input::isUp(turnRightKey))
+    if (turnLeftKeybind.isAxis() && turnRightKeybind.isAxis())
     {
-        steer(1.0f);
+        steer(-turnLeftKeybind.getAxis());
     }
-    else if (Input::isDown(turnRightKey) && Input::isUp(turnLeftKey))
+    else
     {
-        steer(-1.0f);
+        if (turnLeftKeybind.isDown() && turnRightKeybind.isUp())
+        {
+            steer(1.0f);
+        }
+        else if (turnRightKeybind.isDown() && turnLeftKeybind.isUp())
+        {
+            steer(-1.0f);
+        }
     }
 }
 

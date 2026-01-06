@@ -59,13 +59,22 @@ private:
         sCar.weightKg = 1540;
         sCar.maxRpm = 7000;
         sCar.gearCount = 8;
+        sCar.transmissionType = VE_TRANSMISSION_TYPE_MANUAL;
+        sCar.accelerateKeybind = VE_GAMEPAD_AXIS_RT;
+        sCar.brakeKeybind = VE_GAMEPAD_AXIS_LT;
+        sCar.turnLeftKeybind = VE_GAMEPAD_AXIS_LX;
+        sCar.turnRightKeybind = VE_GAMEPAD_AXIS_LX;
+        sCar.shiftUpKeybind = VE_GAMEPAD_BTN_B;
+        sCar.shiftDownKeybind = VE_GAMEPAD_BTN_X;
+        /*
         sCar.transmissionType = VE_TRANSMISSION_TYPE_AUTOMATIC;
-        sCar.accelerateKey = VE_KEY_W;
-        sCar.brakeKey = VE_KEY_S;
-        sCar.turnLeftKey = VE_KEY_A;
-        sCar.turnRightKey = VE_KEY_D;
-        sCar.shiftUpKey = VE_KEY_M;
-        sCar.shiftDownKey = VE_KEY_N;
+        sCar.accelerateKeybind = VE_KEY_W;
+        sCar.brakeKeybind = VE_KEY_S;
+        sCar.turnLeftKeybind = VE_KEY_A;
+        sCar.turnRightKeybind = VE_KEY_D;
+        sCar.shiftUpKeybind = VE_KEY_M;
+        sCar.shiftDownKeybind = VE_KEY_N;
+        */
         float ratios[8] = {5.519f, 3.184f, 2.050f, 1.492f, 1.235f, 1.000f, 0.801f, 0.673f};
         sCar.pGearRatios = ratios;
         sCar.finalDriveRatio = 3.2f;

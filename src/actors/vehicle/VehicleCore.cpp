@@ -110,12 +110,12 @@ Vehicle::Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info,
         brakingForce = 1.0f;
     }
 
-    accelerateKey = info.accelerateKey;
-    brakeKey = info.brakeKey;
-    turnLeftKey = info.turnLeftKey;
-    turnRightKey = info.turnRightKey;
-    shiftUpKey = info.shiftUpKey;
-    shiftDownKey = info.shiftDownKey;
+    accelerateKeybind = info.accelerateKeybind;
+    brakeKeybind = info.brakeKeybind;
+    turnLeftKeybind = info.turnLeftKeybind;
+    turnRightKeybind = info.turnRightKeybind;
+    shiftUpKeybind = info.shiftUpKeybind;
+    shiftDownKeybind = info.shiftDownKeybind;
 
     if (info.pGearRatios)
     {
@@ -237,5 +237,5 @@ void Vehicle::tick(Environment environment, float surfaceFriction, ve_time delta
 
     updateGraphics();
 
-    // std::cout << std::round(speedMps * 3.6f) << " km/h, " << std::round(rpm) << " rpm, " << gear << " gear" << std::endl;
+    std::cout << std::round(speedMps * 3.6f) << " km/h, " << std::round(rpm) << " rpm, " << gear << " gear" << std::endl;
 }

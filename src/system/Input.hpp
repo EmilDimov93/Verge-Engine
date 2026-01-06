@@ -15,10 +15,10 @@ typedef enum
     KEY_STATE_RELEASED
 } KeyState;
 
-#define VE_KEY_COUNT GLFW_KEY_LAST
-#define VE_MOUSE_BTN_COUNT GLFW_MOUSE_BUTTON_LAST
-#define VE_GAMEPAD_BTN_COUNT GLFW_GAMEPAD_BUTTON_LAST
-#define VE_GAMEPAD_AXIS_COUNT GLFW_GAMEPAD_AXIS_LAST
+#define VE_KEY_COUNT GLFW_KEY_LAST + 1
+#define VE_MOUSE_BTN_COUNT GLFW_MOUSE_BUTTON_LAST + 1
+#define VE_GAMEPAD_BTN_COUNT GLFW_GAMEPAD_BUTTON_LAST + 1
+#define VE_GAMEPAD_AXIS_COUNT GLFW_GAMEPAD_AXIS_LAST + 1
 
 typedef enum
 {
@@ -184,4 +184,101 @@ private:
     static Position2 mousePosition;
 
     static GLFWwindow *window;
+};
+
+enum VEKeyType
+{
+    VE_KEY_TYPE_KEYBOARD,
+    VE_KEY_TYPE_MOUSE,
+    VE_KEY_TYPE_GAMEPAD_BTN,
+    VE_KEY_TYPE_GAMEPAD_AXIS
+};
+
+struct VEKeybind
+{
+    uint32_t key;
+    VEKeyType keyType;
+
+    VEKeybind() : key((uint32_t)VE_KEY_UNKNOWN), keyType(VE_KEY_TYPE_KEYBOARD) {}
+    VEKeybind(VEKey _key) : key((uint32_t)_key), keyType(VE_KEY_TYPE_KEYBOARD) {}
+    VEKeybind(VEMouseBtn _key) : key((uint32_t)_key), keyType(VE_KEY_TYPE_MOUSE) {}
+    VEKeybind(VEGamepadBtn _key) : key((uint32_t)_key), keyType(VE_KEY_TYPE_GAMEPAD_BTN) {}
+    VEKeybind(VEGamepadAxis _key) : key((uint32_t)_key), keyType(VE_KEY_TYPE_GAMEPAD_AXIS) {}
+
+    bool isAxis()
+    {
+        return keyType == VE_KEY_TYPE_GAMEPAD_AXIS;
+    }
+
+    bool isDown()
+    {
+        switch(keyType){
+            case VE_KEY_TYPE_KEYBOARD:
+                return Input::isDown((VEKey)key);
+            case VE_KEY_TYPE_MOUSE:
+                return Input::isDown((VEMouseBtn)key);
+            case VE_KEY_TYPE_GAMEPAD_BTN:
+                return Input::isDown((VEGamepadBtn)key);
+            default:
+                return false;
+        }
+    }
+
+    bool isUp()
+    {
+        switch(keyType){
+            case VE_KEY_TYPE_KEYBOARD:
+                return Input::isUp((VEKey)key);
+            case VE_KEY_TYPE_MOUSE:
+                return Input::isUp((VEMouseBtn)key);
+            case VE_KEY_TYPE_GAMEPAD_BTN:
+                return Input::isUp((VEGamepadBtn)key);
+            default:
+                return false;
+        }
+    }
+
+    bool isPressed()
+    {
+        switch(keyType){
+            case VE_KEY_TYPE_KEYBOARD:
+                return Input::isPressed((VEKey)key);
+            case VE_KEY_TYPE_MOUSE:
+                return Input::isPressed((VEMouseBtn)key);
+            case VE_KEY_TYPE_GAMEPAD_BTN:
+                return Input::isPressed((VEGamepadBtn)key);
+            default:
+                return false;
+        }
+    }
+
+    bool isReleased()
+    {
+        switch(keyType){
+            case VE_KEY_TYPE_KEYBOARD:
+                return Input::isReleased((VEKey)key);
+            case VE_KEY_TYPE_MOUSE:
+                return Input::isReleased((VEMouseBtn)key);
+            case VE_KEY_TYPE_GAMEPAD_BTN:
+                return Input::isReleased((VEGamepadBtn)key);
+            default:
+                return false;
+        }
+    }
+
+    float getAxis()
+    {
+        if(keyType == VE_KEY_TYPE_GAMEPAD_AXIS)
+            return Input::getAxis((VEGamepadAxis)key);
+        else
+            return 0;
+    }
+
+    float getAxisNormalized()
+    {
+        if(keyType == VE_KEY_TYPE_GAMEPAD_AXIS)
+            return (Input::getAxis((VEGamepadAxis)key) + 1.0f) * 0.5f;
+        else
+            return 0;
+    }
 };

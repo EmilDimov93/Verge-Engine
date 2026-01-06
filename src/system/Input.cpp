@@ -5,6 +5,8 @@
 
 #include "../Log.hpp"
 
+#define AXIS_DEAD_ZONE 0.001f
+
 KeyState Input::mouseBtnStates[VE_MOUSE_BTN_COUNT] = {};
 KeyState Input::keyStates[VE_KEY_COUNT] = {};
 
@@ -103,7 +105,7 @@ void Input::refresh()
         }
 
         for (int i = 0; i < VE_GAMEPAD_AXIS_COUNT; i++)
-            gamepadAxes[i] = state.axes[i];
+            gamepadAxes[i] = fabs(state.axes[i]) < AXIS_DEAD_ZONE ? 0.0f : state.axes[i];
     }
     else
     {

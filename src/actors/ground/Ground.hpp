@@ -77,7 +77,7 @@ struct Ground
 
     float getHeightAt(uint32_t x, uint32_t y) const // grid coordinates
     {
-        if(x > w || y > h){
+        if(x >= w || y >= h || x < 0 || y < 0){
             Log::add('A', 191);
             return 0;
         }
@@ -85,7 +85,7 @@ struct Ground
     }
     uint32_t getSurfaceAt(uint32_t x, uint32_t y) const // grid coordinates
     {
-        if(x > w || y > h){
+        if(x >= w || y >= h || x < 0 || y < 0){
             Log::add('A', 191);
             return 0;
         }
@@ -94,7 +94,7 @@ struct Ground
 
     void setHeightAt(uint32_t x, uint32_t y, float value)
     {
-        if(x > w || y > h){
+        if(x > w - 1 || y > h - 1){
             Log::add('A', 191);
             return;
         }

@@ -15,21 +15,10 @@ typedef enum
     KEY_STATE_RELEASED
 } KeyState;
 
-#define VE_MOUSE_BTN_COUNT GLFW_MOUSE_BUTTON_LAST
 #define VE_KEY_COUNT GLFW_KEY_LAST
-
-typedef enum
-{
-    VE_MOUSE_BTN_UNKNOWN = -1,
-    VE_MOUSE_BTN_LEFT = GLFW_MOUSE_BUTTON_1,
-    VE_MOUSE_BTN_RIGHT = GLFW_MOUSE_BUTTON_2,
-    VE_MOUSE_BTN_MIDDLE = GLFW_MOUSE_BUTTON_3,
-    VE_MOUSE_BTN_4 = GLFW_MOUSE_BUTTON_4,
-    VE_MOUSE_BTN_5 = GLFW_MOUSE_BUTTON_5,
-    VE_MOUSE_BTN_6 = GLFW_MOUSE_BUTTON_6,
-    VE_MOUSE_BTN_7 = GLFW_MOUSE_BUTTON_7,
-    VE_MOUSE_BTN_8 = GLFW_MOUSE_BUTTON_8
-} VEMouseBtn;
+#define VE_MOUSE_BTN_COUNT GLFW_MOUSE_BUTTON_LAST
+#define VE_GAMEPAD_BTN_COUNT GLFW_GAMEPAD_BUTTON_LAST
+#define VE_GAMEPAD_AXIS_COUNT GLFW_GAMEPAD_AXIS_LAST
 
 typedef enum
 {
@@ -107,6 +96,50 @@ typedef enum
     VE_KEY_MENU = GLFW_KEY_MENU
 } VEKey;
 
+typedef enum
+{
+    VE_MOUSE_BTN_UNKNOWN = -1,
+    VE_MOUSE_BTN_LEFT = GLFW_MOUSE_BUTTON_1,
+    VE_MOUSE_BTN_RIGHT = GLFW_MOUSE_BUTTON_2,
+    VE_MOUSE_BTN_MIDDLE = GLFW_MOUSE_BUTTON_3,
+    VE_MOUSE_BTN_4 = GLFW_MOUSE_BUTTON_4,
+    VE_MOUSE_BTN_5 = GLFW_MOUSE_BUTTON_5,
+    VE_MOUSE_BTN_6 = GLFW_MOUSE_BUTTON_6,
+    VE_MOUSE_BTN_7 = GLFW_MOUSE_BUTTON_7,
+    VE_MOUSE_BTN_8 = GLFW_MOUSE_BUTTON_8
+} VEMouseBtn;
+
+typedef enum
+{
+    VE_GAMEPAD_BTN_UNKNOWN = -1,
+    VE_GAMEPAD_BTN_A = GLFW_GAMEPAD_BUTTON_A,
+    VE_GAMEPAD_BTN_B = GLFW_GAMEPAD_BUTTON_B,
+    VE_GAMEPAD_BTN_X = GLFW_GAMEPAD_BUTTON_X,
+    VE_GAMEPAD_BTN_Y = GLFW_GAMEPAD_BUTTON_Y,
+    VE_GAMEPAD_BTN_LB = GLFW_GAMEPAD_BUTTON_LEFT_BUMPER,
+    VE_GAMEPAD_BTN_RB = GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER,
+    VE_GAMEPAD_BTN_BACK = GLFW_GAMEPAD_BUTTON_BACK,
+    VE_GAMEPAD_BTN_START = GLFW_GAMEPAD_BUTTON_START,
+    VE_GAMEPAD_BTN_GUIDE = GLFW_GAMEPAD_BUTTON_GUIDE,
+    VE_GAMEPAD_BTN_LS = GLFW_GAMEPAD_BUTTON_LEFT_THUMB,
+    VE_GAMEPAD_BTN_RS = GLFW_GAMEPAD_BUTTON_RIGHT_THUMB,
+    VE_GAMEPAD_BTN_DPAD_UP = GLFW_GAMEPAD_BUTTON_DPAD_UP,
+    VE_GAMEPAD_BTN_DPAD_RIGHT = GLFW_GAMEPAD_BUTTON_DPAD_RIGHT,
+    VE_GAMEPAD_BTN_DPAD_DOWN = GLFW_GAMEPAD_BUTTON_DPAD_DOWN,
+    VE_GAMEPAD_BTN_DPAD_LEFT = GLFW_GAMEPAD_BUTTON_DPAD_LEFT
+} VEGamepadBtn;
+
+typedef enum
+{
+    VE_GAMEPAD_AXIS_UNKNOWN = -1,
+    VE_GAMEPAD_AXIS_LX = GLFW_GAMEPAD_AXIS_LEFT_X,
+    VE_GAMEPAD_AXIS_LY = GLFW_GAMEPAD_AXIS_LEFT_Y,
+    VE_GAMEPAD_AXIS_RX = GLFW_GAMEPAD_AXIS_RIGHT_X,
+    VE_GAMEPAD_AXIS_RY = GLFW_GAMEPAD_AXIS_RIGHT_Y,
+    VE_GAMEPAD_AXIS_LT = GLFW_GAMEPAD_AXIS_LEFT_TRIGGER,
+    VE_GAMEPAD_AXIS_RT = GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER
+} VEGamepadAxis;
+
 class Input
 {
 public:
@@ -114,21 +147,39 @@ public:
 
     static void refresh();
 
-    static bool isDown(VEMouseBtn key);
-    static bool isUp(VEMouseBtn key);
-    static bool isPressed(VEMouseBtn key);
-    static bool isReleased(VEMouseBtn key);
-
+    // Keyboard
     static bool isDown(VEKey key);
     static bool isUp(VEKey key);
     static bool isPressed(VEKey key);
     static bool isReleased(VEKey key);
 
+    // Mouse
+    static bool isDown(VEMouseBtn btn);
+    static bool isUp(VEMouseBtn btn);
+    static bool isPressed(VEMouseBtn btn);
+    static bool isReleased(VEMouseBtn btn);
+
     static Position2 getMousePos();
 
+    // Gamepad
+    static void setGamepad(uint8_t id);
+
+    static bool isDown(VEGamepadBtn btn);
+    static bool isUp(VEGamepadBtn btn);
+    static bool isPressed(VEGamepadBtn btn);
+    static bool isReleased(VEGamepadBtn btn);
+
+    static float getAxis(VEGamepadAxis axis);
+
 private:
-    static KeyState mouseBtnStates[VE_MOUSE_BTN_COUNT];
     static KeyState keyStates[VE_KEY_COUNT];
+    static KeyState mouseBtnStates[VE_MOUSE_BTN_COUNT];
+
+    static int gamepadId;
+    static bool gamepadConnected;
+
+    static KeyState gamepadBtnStates[VE_GAMEPAD_BTN_COUNT];
+    static float gamepadAxes[VE_GAMEPAD_AXIS_COUNT];
 
     static Position2 mousePosition;
 

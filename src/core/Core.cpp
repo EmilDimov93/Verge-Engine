@@ -77,7 +77,7 @@ private:
         sCar.brakingForce = 14700;
         sCar.tireGrip = 1.5f;
         sCar.camberRad = (PI / 18);
-        scene.addVehicle(sCar, {{0, 2.9f, -100.0f}});
+        scene.addVehicle(sCar, {{15.0f, 0, -100.0f}, {0, - PI / 4, 0}});
 
         scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});
 

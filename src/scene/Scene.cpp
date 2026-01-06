@@ -294,7 +294,8 @@ void Scene::buildGroundMesh(Size2 size, Transform transform)
             surfaceColor.r = surfaces[surfaceIndex].color.r + glm::linearRand(-surfaces[surfaceIndex].colorDistortion.r, surfaces[surfaceIndex].colorDistortion.r);
             surfaceColor.g = surfaces[surfaceIndex].color.g + glm::linearRand(-surfaces[surfaceIndex].colorDistortion.g, surfaces[surfaceIndex].colorDistortion.g);
             surfaceColor.b = surfaces[surfaceIndex].color.b + glm::linearRand(-surfaces[surfaceIndex].colorDistortion.b, surfaces[surfaceIndex].colorDistortion.b);
-            meshVertices.push_back({{(float)j, ground.heightMap[i * ground.w + j] + glm::linearRand(-surfaces[surfaceIndex].heightDistortion, surfaces[surfaceIndex].heightDistortion), (float)i}, surfaceColor});
+            ground.heightMap[i * ground.w + j] += glm::linearRand(-surfaces[surfaceIndex].heightDistortion, surfaces[surfaceIndex].heightDistortion);
+            meshVertices.push_back({{(float)j, ground.heightMap[i * ground.w + j], (float)i}, surfaceColor});
         }
     }
 
@@ -456,6 +457,12 @@ void Scene::setCameraFollowYawDelay(float yawDelay)
 
 void Scene::cameraFollowVehicle(ve_time dt)
 {
+    float currCameraHeight = cameraFollowHeight;
+    // Move camera when ground is obstructing view
+    /*if(ground.sampleHeight(Camera::getPosition().x, Camera::getPosition().z) >= currCameraHeight){
+        currCameraHeight += ground.sampleHeight(Camera::getPosition().x, Camera::getPosition().z);
+    }*/
+
     glm::vec3 vehicleVelocityVector = vehicles[cameraFollowedVehicleIndex].getVelocityVector();
     float vehicleYaw = atan2(vehicleVelocityVector.x, vehicleVelocityVector.z);
 
@@ -468,7 +475,7 @@ void Scene::cameraFollowVehicle(ve_time dt)
     Position3 vehiclePos = vehicles[cameraFollowedVehicleIndex].getTransform().position;
 
     static glm::vec3 prevCamPos = {Camera::getPosition().x, Camera::getPosition().y, Camera::getPosition().z};
-    glm::vec3 targetCamPos = {vehiclePos.x + sin(cameraYaw) * cameraFollowDistance, vehiclePos.y + cameraFollowHeight, vehiclePos.z + cos(cameraYaw) * cameraFollowDistance};
+    glm::vec3 targetCamPos = {vehiclePos.x + sin(cameraYaw) * cameraFollowDistance, vehiclePos.y + currCameraHeight, vehiclePos.z + cos(cameraYaw) * cameraFollowDistance};
     glm::vec3 newCamPos = glm::mix(prevCamPos, targetCamPos, std::exp(-dt * 10.0f));
     Camera::move({newCamPos.x, newCamPos.y, newCamPos.z});
     prevCamPos = {Camera::getPosition().x, Camera::getPosition().y, Camera::getPosition().z};

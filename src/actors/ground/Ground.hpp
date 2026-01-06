@@ -51,7 +51,19 @@ struct Ground
             return 0;
         }
 
-        return heightMap[size_t(h/2 + z - transform.position.z) * w + size_t(w/2 + x - transform.position.x)];
+        float localX = w / 2 + x - transform.position.x;
+        float localZ = h / 2 + z - transform.position.z;
+
+        int localXLower = (int)localX;
+        int localXUpper = localXLower + 1;
+
+        int localZLower = (int)localZ;
+        int localZUpper = localZLower + 1;
+
+        float avg = getHeightAt(localXLower, localZLower) + getHeightAt(localXLower, localZUpper) + getHeightAt(localXUpper, localZLower) + getHeightAt(localXUpper, localZUpper);
+        avg = avg / 4;
+
+        return avg;
     }
 
     float getHeightAt(uint32_t x, uint32_t y) const // grid coordinates

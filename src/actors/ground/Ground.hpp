@@ -33,12 +33,13 @@ struct Ground
     std::vector<float> heightMap;
     std::vector<uint8_t> surfaceMap;
 
+    // Rotation and scale not implemented
     Transform transform;
 
-    void resize(uint32_t w, uint32_t h)
+    void resize(Size2 size)
     {
-        this->w = w;
-        this->h = h;
+        this->w = size.w;
+        this->h = size.h;
 
         heightMap.resize(w * h);
         surfaceMap.resize(w * h);

@@ -267,7 +267,7 @@ void Scene::buildGroundMesh(Size2 size, Transform transform)
 {
     ground.transform = transform;
 
-    ground.resize(size.w, size.h);
+    ground.resize(size);
 
     for (uint8_t &tile : ground.surfaceMap)
     {
@@ -285,17 +285,22 @@ void Scene::buildGroundMesh(Size2 size, Transform transform)
         for (size_t j = 0; j < ground.w; j++)
         {
             uint8_t surfaceIndex = ground.getSurfaceAt(j, i);
-            if (surfaceIndex < 0 || surfaceIndex > surfaces.size() - 1)
+            if (surfaceIndex < 0 || surfaceIndex >= surfaces.size())
             {
                 Log::add('A', 190);
                 surfaceIndex = 0;
             }
+
             glm::vec3 surfaceColor;
             surfaceColor.r = surfaces[surfaceIndex].color.r + glm::linearRand(-surfaces[surfaceIndex].colorDistortion.r, surfaces[surfaceIndex].colorDistortion.r);
             surfaceColor.g = surfaces[surfaceIndex].color.g + glm::linearRand(-surfaces[surfaceIndex].colorDistortion.g, surfaces[surfaceIndex].colorDistortion.g);
             surfaceColor.b = surfaces[surfaceIndex].color.b + glm::linearRand(-surfaces[surfaceIndex].colorDistortion.b, surfaces[surfaceIndex].colorDistortion.b);
+
             ground.heightMap[i * ground.w + j] += glm::linearRand(-surfaces[surfaceIndex].heightDistortion, surfaces[surfaceIndex].heightDistortion);
-            meshVertices.push_back({{(float)j, ground.heightMap[i * ground.w + j], (float)i}, surfaceColor});
+
+            const float halfW = (ground.w - 1) * 0.5f;
+            const float halfH = (ground.h - 1) * 0.5f;
+            meshVertices.push_back({{(float)(j - halfW), ground.heightMap[i * ground.w + j], (float)(i - halfH)}, surfaceColor});
         }
     }
 
@@ -323,10 +328,6 @@ void Scene::buildGroundMesh(Size2 size, Transform transform)
     meshes.push_back(objMesh);
 
     addMeshInstance(meshes.size() - 1);
-
-    // Center mesh
-    transform.position.x -= size.w / 2;
-    transform.position.z -= size.h / 2;
 
     setMatrix(meshInstances.size() - 1, transformToMat(transform));
 }

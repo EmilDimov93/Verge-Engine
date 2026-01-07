@@ -59,6 +59,7 @@ private:
         sCar.weightKg = 1540;
         sCar.maxRpm = 7000;
         sCar.gearCount = 8;
+        /*
         sCar.transmissionType = VE_TRANSMISSION_TYPE_MANUAL;
         sCar.accelerateKeybind = VE_GAMEPAD_AXIS_RT;
         sCar.brakeKeybind = VE_GAMEPAD_AXIS_LT;
@@ -66,7 +67,7 @@ private:
         sCar.turnRightKeybind = VE_GAMEPAD_AXIS_LX;
         sCar.shiftUpKeybind = VE_GAMEPAD_BTN_B;
         sCar.shiftDownKeybind = VE_GAMEPAD_BTN_X;
-        /*
+        */
         sCar.transmissionType = VE_TRANSMISSION_TYPE_AUTOMATIC;
         sCar.accelerateKeybind = VE_KEY_W;
         sCar.brakeKeybind = VE_KEY_S;
@@ -74,7 +75,6 @@ private:
         sCar.turnRightKeybind = VE_KEY_D;
         sCar.shiftUpKeybind = VE_KEY_M;
         sCar.shiftDownKeybind = VE_KEY_N;
-        */
         float ratios[8] = {5.519f, 3.184f, 2.050f, 1.492f, 1.235f, 1.000f, 0.801f, 0.673f};
         sCar.pGearRatios = ratios;
         sCar.finalDriveRatio = 3.2f;
@@ -85,7 +85,7 @@ private:
         sCar.frontalAreaM2 = 2.3f;
         sCar.brakingForce = 14700;
         sCar.tireGrip = 1.5f;
-        sCar.camberRad = (PI / 18);
+        sCar.camberRad = (PI / 180);
         scene.addVehicle(sCar, {{15.0f, 0, -100.0f}, {0, - PI / 4, 0}});
 
         scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});

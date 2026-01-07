@@ -11,7 +11,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'E', 000}, "All resources loaded! Welcome!"},
     {{'E', 001}, "Verge Engine exited successfully"},
 
-    {{'E', 100}, "Test code"},
+    {{'E', 100}, "Temporary code"},
 
     {{'E', 200}, "Verge Engine crashed"},
 

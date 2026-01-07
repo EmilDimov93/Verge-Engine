@@ -5,10 +5,11 @@
 
 #include "../Log.hpp"
 
-Renderer::Renderer() : window(50.0f), vulkan(window.getReference(), window.getSize())
+Renderer::Renderer(const VE_STRUCT_RENDERER_CREATE_INFO& info) : window(info.windowSize, info.projectName), vulkan(window.getReference(), window.getSize())
 {
     Input::init(window.getReference());
-    Log::init(VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE);
+    Log::init(info.logOutputMode);
+    fps.setTarget(info.targetFps);
 }
 
 bool Renderer::tick(DrawData drawData)

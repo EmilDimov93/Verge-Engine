@@ -7,25 +7,30 @@
 
 #include <GLFW/glfw3.h>
 
-WindowManager::WindowManager(float percentageOfMonitor)
+WindowManager::WindowManager(Size2 size, std::string projectName)
 {
     if (!glfwInit())
         Log::add('G', 200);
     isInitialized = true;
 
-    if(percentageOfMonitor < 1.0f || percentageOfMonitor > 100.0f){
-        Log::add('G', 102);
-        percentageOfMonitor = 50.0f;
-    }
-
     const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-    windowSize.w = mode->width * percentageOfMonitor / 100.0f;
-    windowSize.h = mode->height * percentageOfMonitor / 100.0f;
+
+    if(size.w > 0 && size.w <= mode->width && size.h > 0 && size.h <= mode->height)
+    {
+        this->size = size;
+    }
+    else
+    {
+        Log::add('G', 102);
+
+        this->size.w = mode->width * 0.5f;
+        this->size.h = mode->height * 0.5f;
+    }
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    window = glfwCreateWindow(windowSize.w, windowSize.h, "Verge Engine", nullptr, nullptr);
+    window = glfwCreateWindow(this->size.w, this->size.h, projectName.c_str(), nullptr, nullptr);
     if (!window)
     {
         Log::add('G', 201);
@@ -41,7 +46,7 @@ GLFWwindow *WindowManager::getReference()
 
 Size2 WindowManager::getSize()
 {
-    return windowSize;
+    return size;
 }
 
 bool WindowManager::isOpen()
@@ -56,10 +61,10 @@ float WindowManager::getAspectRatio()
         Log::add('G', 100);
         return 1.0f;
     }
-    if (windowSize.h == 0)
+    if (size.h == 0)
         return 1.0f;
 
-    return (float)windowSize.w / (float)windowSize.h;
+    return (float)size.w / (float)size.h;
 }
 
 WindowManager::~WindowManager()

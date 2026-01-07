@@ -42,7 +42,7 @@ void FpsManager::sync()
 
 void FpsManager::setTarget(uint16_t targetFps)
 {
-    if (targetFps != 0)
+    if (targetFps > 0)
     {
         targetFrameTime = 1.0 / targetFps;
     }

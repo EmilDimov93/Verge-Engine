@@ -12,7 +12,7 @@ struct GLFWwindow;
 class WindowManager
 {
 public:
-    WindowManager(float percentageOfMonitor);
+    WindowManager(Size2 size, std::string projectName);
 
     GLFWwindow *getReference();
 
@@ -26,7 +26,7 @@ public:
 
 private:
     GLFWwindow *window;
-    Size2 windowSize = {0, 0};
+    Size2 size = {};
 
     bool isInitialized = false;
 };

@@ -5,10 +5,18 @@
 
 #include "../../definitions.hpp"
 
+struct VE_STRUCT_CAMERA_CREATE_INFO
+{
+    float aspectRatio = 1.0f;
+    float fov = 60.0f;
+    float zNear = 0.01f;
+    float zFar = 1000.0f;
+};
+
 class Camera
 {
 public:
-    Camera(float newFov, float newAspectRatio, float newZNear, float newZFar);
+    Camera(const VE_STRUCT_CAMERA_CREATE_INFO& info);
     
     glm::mat4 getViewMatrix();
     glm::mat4 getProjectionMatrix();

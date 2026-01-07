@@ -7,7 +7,7 @@
 class VergeEngine
 {
 public:
-    VergeEngine() : renderer({"Example"}), scene(renderer.vulkan.getContext(), renderer.window.getAspectRatio()) {}
+    VergeEngine() : renderer({"Example"}), scene(renderer.vulkan.getContext(), {renderer.window.getAspectRatio()}) {}
 
     void run()
     {

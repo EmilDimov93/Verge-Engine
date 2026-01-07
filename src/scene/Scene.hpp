@@ -13,14 +13,10 @@
 #include "../actors/prop/Prop.hpp"
 #include "../actors/trigger/Trigger.hpp"
 
-#define VE_DEFAULT_FOV 60.0f
-#define VE_DEFAULT_ZNEAR 0.01f
-#define VE_DEFAULT_ZFAR 1000.0f
-
 class Scene
 {
 public:
-    Scene(VulkanContext vulkanContext, float aspectRatio, float fov = VE_DEFAULT_FOV, float zNear = VE_DEFAULT_ZNEAR, float zFar = VE_DEFAULT_ZFAR);
+    Scene(VulkanContext vulkanContext, const VE_STRUCT_CAMERA_CREATE_INFO& cameraInfo);
 
     DrawData getDrawData();
 

@@ -11,7 +11,7 @@
 
 struct VE_STRUCT_RENDERER_CREATE_INFO
 {
-    std::string projectName;
+    std::string projectName = "Verge Engine Program";
     Size2 windowSize = {};
     LogOutputMode logOutputMode = VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE;
     uint16_t targetFps = VE_DEFAULT_FPS;

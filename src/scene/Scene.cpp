@@ -12,7 +12,7 @@
 
 #include "../Log.hpp"
 
-Scene::Scene(VulkanContext vulkanContext, float aspectRatio, float fov, float zNear, float zFar) : camera(fov, aspectRatio, zNear, zFar)
+Scene::Scene(VulkanContext vulkanContext, const VE_STRUCT_CAMERA_CREATE_INFO& cameraInfo) : camera(cameraInfo)
 {
     this->vulkanContext = vulkanContext;
 

@@ -5,7 +5,7 @@
 
 #include "../../Log.hpp"
 
-Camera::Camera(float newFov, float newAspectRatio, float newZNear, float newZFar)
+Camera::Camera(const VE_STRUCT_CAMERA_CREATE_INFO& info)
 {
     if (isInitialized)
     {
@@ -13,27 +13,22 @@ Camera::Camera(float newFov, float newAspectRatio, float newZNear, float newZFar
         return;
     }
 
-    if (newFov <= 0 || newFov >= 180)
-    {
-        Log::add('K', 201);
-    }
-    if (newAspectRatio <= 0)
-    {
+    if (info.aspectRatio <= 0)
         Log::add('K', 202);
-    }
-    if (newZNear <= 0)
-    {
-        Log::add('K', 203);
-    }
-    if (newZFar <= newZNear)
-    {
-        Log::add('K', 204);
-    }
 
-    fov = newFov;
-    aspectRatio = newAspectRatio;
-    zNear = newZNear;
-    zFar = newZFar;
+    if (info.fov <= 0 || info.fov >= 180)
+        Log::add('K', 201);
+
+    if (info.zNear <= 0)
+        Log::add('K', 203);
+
+    if (info.zFar <= info.zNear)
+        Log::add('K', 204);
+
+    fov = info.fov;
+    aspectRatio = info.aspectRatio;
+    zNear = info.zNear;
+    zFar = info.zFar;
 
     isInitialized = true;
 }

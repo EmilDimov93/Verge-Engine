@@ -3,8 +3,6 @@
 
 #include "Renderer.hpp"
 
-#include "../scene/camera/Camera.hpp"
-
 #include "../Log.hpp"
 
 Renderer::Renderer() : window(50.0f), vulkan(window.getReference(), window.getSize())

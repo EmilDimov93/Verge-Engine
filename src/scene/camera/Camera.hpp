@@ -8,32 +8,32 @@
 class Camera
 {
 public:
-    static void init(float newFov, float newAspectRatio, float newZNear, float newZFar);
+    Camera(float newFov, float newAspectRatio, float newZNear, float newZFar);
     
-    static glm::mat4 getViewMatrix();
-    static glm::mat4 getProjectionMatrix();
+    glm::mat4 getViewMatrix();
+    glm::mat4 getProjectionMatrix();
 
-    static void move(Position3 newPosition);
-    static void moveDelta(Position3 delta);
+    void move(Position3 newPosition);
+    void moveDelta(Position3 delta);
 
-    static void rotate(Rotation3 newRotation);
-    static void rotateDelta(Rotation3 delta);
+    void rotate(Rotation3 newRotation);
+    void rotateDelta(Rotation3 delta);
 
-    static Position3 getPosition();
-    static Rotation3 getRotation();
+    Position3 getPosition();
+    Rotation3 getRotation();
 
-    static void tick();
+    void tick();
 
 private:
-    static Position3 position;
-    static Rotation3 rotation;
+    Position3 position = {0, 0, 0};
+    Rotation3 rotation = {0, 90.0f, 0};
 
-    static glm::vec3 forward;
+    glm::vec3 forward = glm::vec3(0.0f, 0.0f, -1.0f);
 
-    static float fov;
-    static float aspectRatio;
-    static float zNear;
-    static float zFar;
+    float fov = -1.0f;
+    float aspectRatio = -1.0f;
+    float zNear = -1.0f;
+    float zFar = -1.0f;
 
-    static bool isInitialized;
+    bool isInitialized = false;
 };

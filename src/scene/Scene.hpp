@@ -62,6 +62,8 @@ private:
     Environment environment;
 
     // Camera
+    Camera camera;
+
     bool isCameraFollowingVehicle;
     uint32_t cameraFollowedVehicleIndex;
     float cameraFollowDistance = 10.0f;

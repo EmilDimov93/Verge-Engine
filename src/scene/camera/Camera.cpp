@@ -5,18 +5,7 @@
 
 #include "../../Log.hpp"
 
-Position3 Camera::position = {0, 0, 0};
-Rotation3 Camera::rotation = {0, 90.0f, 0};
-glm::vec3 Camera::forward = glm::vec3(0.0f, 0.0f, -1.0f);
-
-float Camera::fov = -1.0f;
-float Camera::aspectRatio = -1.0f;
-float Camera::zNear = -1.0f;
-float Camera::zFar = -1.0f;
-
-bool Camera::isInitialized = false;
-
-void Camera::init(float newFov, float newAspectRatio, float newZNear, float newZFar)
+Camera::Camera(float newFov, float newAspectRatio, float newZNear, float newZFar)
 {
     if (isInitialized)
     {

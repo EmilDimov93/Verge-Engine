@@ -20,10 +20,9 @@
 class Scene
 {
 public:
-    std::vector<Mesh> meshes;
-    std::vector<MeshInstance> meshInstances;
-
     Scene(VulkanContext vulkanContext, float aspectRatio, float fov = VE_DEFAULT_FOV, float zNear = VE_DEFAULT_ZNEAR, float zFar = VE_DEFAULT_ZFAR);
+
+    DrawData getDrawData();
 
     uint32_t loadFile(const std::string &filePath);
 
@@ -49,6 +48,9 @@ public:
     ~Scene();
 
 private:
+    std::vector<Mesh> meshes;
+    std::vector<MeshInstance> meshInstances;
+
     Ground ground;
     std::vector<Surface> surfaces;
 

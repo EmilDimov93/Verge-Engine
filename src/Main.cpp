@@ -1,51 +1,26 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#include "../Log.hpp"
-#include "../definitions.hpp"
-
-#include "../system/WindowManager.hpp"
-#include "../system/Input.hpp"
-#include "../system/FPSManager.hpp"
-
-#include "../rendering/VulkanManager.hpp"
-
-#include "../scene/Scene.hpp"
+#include "rendering/Renderer.hpp"
+#include "scene/Scene.hpp"
 
 class VergeEngine
 {
 public:
-    VergeEngine() : window(50.0f),
-                    vulkan(window.getReference(), window.getSize()),
-                    scene(vulkan.getContext(), window.getAspectRatio())
-    {
-        Input::init(window.getReference());
-        Log::init(VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE);
-    }
+    VergeEngine() : scene(renderer.vulkan.getContext(), renderer.window.getAspectRatio()) {}
 
     void run()
     {
         setupScene();
 
-        while (window.isOpen())
+        while (renderer.tick(scene.getDrawData()))
         {
-            fps.sync();
-            
-            Input::refresh();
-
-            scene.tick(fps.getFrameTime());
-
-            vulkan.drawFrame(scene.meshes, scene.meshInstances, Camera::getProjectionMatrix(), Camera::getViewMatrix());
+            scene.tick(renderer.fps.getFrameTime());
         }
-
-        Log::end();
     }
 
 private:
-    WindowManager window;
-    VulkanManager vulkan;
-    FpsManager fps;
-
+    Renderer renderer;
     Scene scene;
 
     void setupScene()
@@ -86,7 +61,7 @@ private:
         sCar.brakingForce = 14700;
         sCar.tireGrip = 1.5f;
         sCar.camberRad = (PI / 180);
-        scene.addVehicle(sCar, {{15.0f, 0, -100.0f}, {0, - PI / 4, 0}});
+        scene.addVehicle(sCar, {{15.0f, 0, -100.0f}, {0, -PI / 4, 0}});
 
         scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});
 

@@ -19,7 +19,7 @@ class VulkanManager
 public:
     VulkanManager(GLFWwindow *window, Size2 windowSize);
 
-    void drawFrame(const std::vector<Mesh> &meshes, const std::vector<MeshInstance> &meshInstances, glm::mat4 projectionM, glm::mat4 viewM);
+    void drawFrame(DrawData drawData);
 
     void vkCheck(VkResult res, ErrorCode errorCode);
 

@@ -24,6 +24,11 @@ Scene::Scene(VulkanContext vulkanContext, float aspectRatio, float fov, float zN
     Camera::init(fov, aspectRatio, zNear, zFar);
 }
 
+DrawData Scene::getDrawData()
+{
+    return {meshes, meshInstances, Camera::getProjectionMatrix(), Camera::getViewMatrix()};
+}
+
 uint32_t Scene::loadFile(const std::string &filePath)
 {
     std::string ext = std::filesystem::path(filePath).extension().string();

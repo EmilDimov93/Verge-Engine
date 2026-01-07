@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(VergeEngine 
-    src/core/Core.cpp
+    src/Main.cpp
     
     src/Log.cpp
 
@@ -28,6 +28,7 @@ add_executable(VergeEngine
 
     src/scene/camera/Camera.cpp
 
+    src/rendering/Renderer.cpp
     src/scene/Scene.cpp
 )
 

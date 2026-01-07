@@ -855,7 +855,7 @@ void VulkanManager::createDescriptorSets()
     }
 }
 
-void VulkanManager::drawFrame(const std::vector<Mesh> &meshes, const std::vector<MeshInstance> &meshInstances, glm::mat4 projectionM, glm::mat4 viewM)
+void VulkanManager::drawFrame(DrawData drawData)
 {
     vkCheck(vkWaitForFences(device, 1, &drawFences[currentFrame], VK_TRUE, UINT64_MAX), {'V', 231});
     vkCheck(vkResetFences(device, 1, &drawFences[currentFrame]), {'V', 232});
@@ -863,8 +863,8 @@ void VulkanManager::drawFrame(const std::vector<Mesh> &meshes, const std::vector
     uint32_t imageIndex;
     vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex), {'V', 230});
 
-    recordCommands(currentFrame, meshes, meshInstances);
-    updateUniformBuffers(currentFrame, projectionM, viewM);
+    recordCommands(currentFrame, drawData.meshes, drawData.meshInstances);
+    updateUniformBuffers(currentFrame, drawData.projectionM, drawData.viewM);
 
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 

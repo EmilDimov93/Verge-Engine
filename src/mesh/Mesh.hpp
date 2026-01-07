@@ -24,12 +24,6 @@ struct VulkanContext
     VkCommandPool graphicsCommandPool = VK_NULL_HANDLE;
 };
 
-struct MeshInstance
-{
-    uint32_t meshIndex;
-    glm::mat4 model;
-};
-
 class Mesh
 {
 public:
@@ -54,4 +48,19 @@ private:
 
     void createVertexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, const std::vector<Vertex>& vertices);
     void createIndexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, const std::vector<uint32_t>& indices);
+};
+
+struct MeshInstance
+{
+    uint32_t meshIndex;
+    glm::mat4 model;
+};
+
+struct DrawData
+{
+    const std::vector<Mesh>& meshes;
+    const std::vector<MeshInstance>& meshInstances;
+
+    glm::mat4 projectionM;
+    glm::mat4 viewM;
 };

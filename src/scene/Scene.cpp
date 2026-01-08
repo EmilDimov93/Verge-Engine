@@ -480,11 +480,11 @@ void Scene::cameraFollowVehicle(ve_time dt)
 
     static glm::vec3 prevCamPos = {camera.getPosition().x, camera.getPosition().y, camera.getPosition().z};
     glm::vec3 targetCamPos = {vehiclePos.x + sin(cameraYaw) * cameraFollowDistance, vehiclePos.y + currCameraHeight, vehiclePos.z + cos(cameraYaw) * cameraFollowDistance};
-    glm::vec3 newCamPos = glm::mix(prevCamPos, targetCamPos, std::exp(-dt * 10.0f));
+    glm::vec3 newCamPos = glm::mix(prevCamPos, targetCamPos, 1.0f - std::exp(-float(dt) * 10.0f));
     camera.move({newCamPos.x, newCamPos.y, newCamPos.z});
     prevCamPos = {camera.getPosition().x, camera.getPosition().y, camera.getPosition().z};
 
-    glm::vec3 dir = glm::normalize(glm::vec3(vehiclePos.x, vehiclePos.y, vehiclePos.z) - targetCamPos);
+    glm::vec3 dir = glm::normalize(glm::vec3(vehiclePos.x, vehiclePos.y, vehiclePos.z) - newCamPos);
     float pitch = glm::degrees(asin(dir.y));
     float yaw = glm::degrees(atan2(dir.z, dir.x));
     camera.rotate({pitch, yaw, 0});

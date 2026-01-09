@@ -193,7 +193,7 @@ MeshInstanceId Scene::addMeshInstance(int64_t meshId)
     bool foundMesh = false;
     for (size_t i = 0; i < meshes.size(); i++)
     {
-        if (meshes[i].id == meshId)
+        if (meshes[i].getId() == meshId)
         {
             foundMesh = true;
             break;

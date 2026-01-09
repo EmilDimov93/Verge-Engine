@@ -20,7 +20,7 @@ class Mesh
 public:
     Mesh(MeshId newId, const std::vector<Vertex> &newVertices, const std::vector<uint32_t> &newIndices) : id(newId), vertices(newVertices), indices(newIndices) {}
 
-    void updateMesh(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices)
+    void update(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices)
     {
         this->vertices = vertices;
         this->indices = indices;
@@ -28,12 +28,18 @@ public:
         version++;
     }
 
-    std::vector<Vertex> vertices;
-    std::vector<uint32_t> indices;
+    MeshId getId() const { return id; }
+    uint64_t getVersion() const { return version; };
+    const std::vector<Vertex>& getVertices() const { return vertices; }
+    const std::vector<uint32_t>& getIndices() const { return indices; }
+
+private:
+    MeshId id;
 
     uint64_t version = 1;
 
-    MeshId id;
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
 };
 
 struct MeshInstance

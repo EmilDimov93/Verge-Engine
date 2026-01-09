@@ -825,18 +825,53 @@ void VulkanManager::createIndexBuffer(VulkanMesh &vulkanMesh, const std::vector<
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 
-void VulkanManager::initVulkanMesh(MeshId meshId, const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices)
+void VulkanManager::initVulkanMesh(const Mesh& mesh)
 {
     VulkanMesh newVulkanMesh{};
 
-    newVulkanMesh.id = meshId;
+    newVulkanMesh.id = mesh.getId();
+    newVulkanMesh.version = mesh.getVersion();
 
-    newVulkanMesh.vertexCount = vertices.size();
-    newVulkanMesh.indexCount = indices.size();
-    createVertexBuffer(newVulkanMesh, vertices);
-    createIndexBuffer(newVulkanMesh, indices);
+    newVulkanMesh.vertexCount = mesh.getVertices().size();
+    newVulkanMesh.indexCount = mesh.getIndices().size();
+    createVertexBuffer(newVulkanMesh, mesh.getVertices());
+    createIndexBuffer(newVulkanMesh,  mesh.getIndices());
 
     vulkanMeshes.push_back(newVulkanMesh);
+}
+
+void VulkanManager::updateVulkanMesh(VulkanMesh &vulkanMesh, const Mesh& mesh)
+{
+    if (device != VK_NULL_HANDLE)
+        vkCheck(vkDeviceWaitIdle(device), {'V', 235});
+
+    if (vulkanMesh.vertexBuffer)
+        vkDestroyBuffer(device, vulkanMesh.vertexBuffer, nullptr);
+    if (vulkanMesh.vertexBufferMemory)
+        vkFreeMemory(device, vulkanMesh.vertexBufferMemory, nullptr);
+
+    if (vulkanMesh.indexBuffer)
+        vkDestroyBuffer(device, vulkanMesh.indexBuffer, nullptr);
+    if (vulkanMesh.indexBufferMemory)
+        vkFreeMemory(device, vulkanMesh.indexBufferMemory, nullptr);
+
+    vulkanMesh.vertexBuffer = VK_NULL_HANDLE;
+    vulkanMesh.vertexBufferMemory = VK_NULL_HANDLE;
+    vulkanMesh.indexBuffer = VK_NULL_HANDLE;
+    vulkanMesh.indexBufferMemory = VK_NULL_HANDLE;
+
+    VulkanMesh newVulkanMesh{};
+
+    newVulkanMesh.id = mesh.getId();
+
+    newVulkanMesh.vertexCount =  mesh.getVertices().size();
+    newVulkanMesh.indexCount =  mesh.getIndices().size();
+    createVertexBuffer(newVulkanMesh,  mesh.getVertices());
+    createIndexBuffer(newVulkanMesh,  mesh.getIndices());
+
+    vulkanMesh = newVulkanMesh;
+
+    vulkanMesh.version = mesh.getVersion();
 }
 
 void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh> &meshes, const std::vector<MeshInstance> &meshInstances, ve_color_t backgroundColor)
@@ -867,14 +902,19 @@ void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh
     {
         for (const Mesh &mesh : meshes)
         {
-            if (mesh.id == instance.meshId)
+            if (mesh.getId() == instance.meshId)
             {
                 bool vulkanMeshFound = false;
-                for (const VulkanMesh &vulkanMesh : vulkanMeshes)
+                for (VulkanMesh &vulkanMesh : vulkanMeshes)
                 {
-                    if (vulkanMesh.id == mesh.id)
+                    if (vulkanMesh.id == mesh.getId())
                     {
                         vulkanMeshFound = true;
+
+                        if (vulkanMesh.version < mesh.getVersion())
+                        {
+                            updateVulkanMesh(vulkanMesh, mesh);
+                        }
 
                         VkBuffer vertexBuffers[] = {vulkanMesh.vertexBuffer};
                         VkDeviceSize offsets[] = {0};
@@ -895,7 +935,7 @@ void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh
 
                 if (!vulkanMeshFound)
                 {
-                    initVulkanMesh(mesh.id, mesh.vertices, mesh.indices);
+                    initVulkanMesh(mesh);
                 }
             }
         }

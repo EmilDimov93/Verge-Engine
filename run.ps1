@@ -2,7 +2,7 @@
 
 Build & Run file for Verge Engine Alpha
 
-Warning: Verge Engine is still in alpha, there is nothing to see.
+Warning: Verge Engine is still in alpha, it is unstable and missing a lot of features.
 If you want to run it anyway:
 
 Requirements:
@@ -13,7 +13,7 @@ Requirements:
 - CMake >= 3.25
 - Microsoft Visual Studio 2022 (C++23 workload)
 - GLFW 3.4(change path in CMakeLists.txt)
-- "models" folder with car.obj and wheel.obj in /build/Release
+- "models" folder with .obj files in /build/Release
 
 Usage:
 

@@ -44,7 +44,8 @@ private:
     std::vector<VulkanMesh> vulkanMeshes;
     void createVertexBuffer(VulkanMesh &vulkanMesh, const std::vector<Vertex> &vertices);
     void createIndexBuffer(VulkanMesh &vulkanMesh, const std::vector<uint32_t> &indices);
-    void initVulkanMesh(MeshId meshId, const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices);
+    void initVulkanMesh(const Mesh& mesh);
+    void updateVulkanMesh(VulkanMesh& vulkanMesh, const Mesh& mesh);
 
     int currentFrame = 0;
 

@@ -48,12 +48,12 @@ void FpsManager::setTarget(uint16_t targetFps)
     }
 }
 
-uint16_t FpsManager::getFps()
+uint16_t FpsManager::getFps() const
 {
     return currentFps;
 }
 
-ve_time_t FpsManager::getFrameTime()
+ve_time_t FpsManager::getFrameTime() const
 {
     return lastFrameTime;
 }

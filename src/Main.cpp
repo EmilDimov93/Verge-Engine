@@ -7,7 +7,7 @@
 class VergeEngine
 {
 public:
-    VergeEngine() : renderer({"Example"}), scene({0.7f, 1.0f, 1.0f}, {renderer.window.getAspectRatio()}) {}
+    VergeEngine() : renderer({"Example"}), scene({0.7f, 1.0f, 1.0f}, {renderer.getAspectRatio()}) {}
 
     void run()
     {
@@ -15,7 +15,7 @@ public:
 
         while (renderer.tick(scene.getDrawData()))
         {
-            scene.tick(renderer.fps.getFrameTime());
+            scene.tick(renderer.getFrameTime());
         }
     }
 
@@ -34,15 +34,6 @@ private:
         sCar.weightKg = 1540;
         sCar.maxRpm = 7000;
         sCar.gearCount = 8;
-        /*
-        sCar.transmissionType = VE_TRANSMISSION_TYPE_MANUAL;
-        sCar.accelerateKeybind = VE_GAMEPAD_AXIS_RT;
-        sCar.brakeKeybind = VE_GAMEPAD_AXIS_LT;
-        sCar.turnLeftKeybind = VE_GAMEPAD_AXIS_LX;
-        sCar.turnRightKeybind = VE_GAMEPAD_AXIS_LX;
-        sCar.shiftUpKeybind = VE_GAMEPAD_BTN_B;
-        sCar.shiftDownKeybind = VE_GAMEPAD_BTN_X;
-        */
         sCar.transmissionType = VE_TRANSMISSION_TYPE_AUTOMATIC;
         sCar.accelerateKeybind = VE_KEY_W;
         sCar.brakeKeybind = VE_KEY_S;

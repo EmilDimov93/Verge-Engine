@@ -15,8 +15,8 @@ public:
     FpsManager();
     void sync();
     void setTarget(uint16_t targetFps);
-    uint16_t getFps();
-    double getFrameTime();
+    uint16_t getFps() const;
+    double getFrameTime() const;
 
 private:
     std::chrono::steady_clock::time_point timeAtStartOfFrame;

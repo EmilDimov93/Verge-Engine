@@ -4,7 +4,6 @@
 #include "Vehicle.hpp"
 
 #define TORQUE_CONVERSION_CONSTANT 5252
-#define GRAVITY_CONSTANT 9.81f
 
 #define BASELINE_TORQUE_FACTOR 0.9f
 #define SURFACE_ROLLING_COEFFICIENT 0.015f
@@ -61,7 +60,7 @@ void Vehicle::calcForces(Environment environment, float surfaceFriction)
         FDrag = -(velocityMps / glm::length(velocityMps)) * FDragMag;
     }
 
-    float FRollMag = SURFACE_ROLLING_COEFFICIENT * weightKg * GRAVITY_CONSTANT * (speedMps == 0 ? 0 : 1);
+    float FRollMag = SURFACE_ROLLING_COEFFICIENT * weightKg * environment.gravity * (speedMps == 0 ? 0 : 1);
 
     glm::vec3 FRoll(0.0f);
     if (glm::length(velocityMps) > 0.01f)
@@ -80,7 +79,7 @@ void Vehicle::calcForces(Environment environment, float surfaceFriction)
     {
         float currentTireGrip = tireGrip * surfaceFriction * (1.0f + fabs(camberRad));
 
-        float maxLat = currentTireGrip * weightKg * GRAVITY_CONSTANT;
+        float maxLat = currentTireGrip * weightKg * environment.gravity;
 
         float FLatMag = -(currentTireGrip * 1000) * glm::dot(velocityMps, right); // (currentTireGrip * 1000) is corner stiffness
         FLatMag = glm::clamp(FLatMag, -maxLat, maxLat);
@@ -89,14 +88,14 @@ void Vehicle::calcForces(Environment environment, float surfaceFriction)
     }
 
     const float slope = std::atan(std::sqrt(std::tan(transform.rotation.pitch) * std::tan(transform.rotation.pitch) + std::tan(transform.rotation.roll) * std::tan(transform.rotation.roll)));
-    float FSlopeMag = weightKg * GRAVITY_CONSTANT * sin(slope);
+    float FSlopeMag = weightKg * environment.gravity * sin(slope);
 
     glm::vec3 FSlope(0.0f);
     {
         FSlope = -forward * FSlopeMag;
     }
 
-    glm::vec3 FGravity(0.0f, -weightKg * GRAVITY_CONSTANT, 0.0f);
+    glm::vec3 FGravity(0.0f, -weightKg * environment.gravity, 0.0f);
 
     glm::vec3 FTotal = FDrive + FDrag + FRoll + FBrake + FLat + FSlope; // + FGravity;
 

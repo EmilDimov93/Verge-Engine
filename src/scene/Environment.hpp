@@ -6,4 +6,5 @@
 struct Environment
 {
     float airDensity = 1.225f;
+    float gravity = 9.81f;
 };

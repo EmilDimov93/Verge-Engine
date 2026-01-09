@@ -19,15 +19,20 @@ struct VE_STRUCT_RENDERER_CREATE_INFO
 class Renderer
 {
 public:
-    WindowManager window;
-    VulkanManager vulkan;
-    FpsManager fps;
-
-    Renderer(const VE_STRUCT_RENDERER_CREATE_INFO& info = {});
+    Renderer(const VE_STRUCT_RENDERER_CREATE_INFO &info = {});
 
     bool tick(DrawData drawData);
 
     ~Renderer();
 
+    ve_time_t getFrameTime() const;
+    uint32_t getFps() const;
+    void setTargetFps(uint16_t target);
+
+    float getAspectRatio();
+
 private:
+    WindowManager window;
+    VulkanManager vulkan;
+    FpsManager fps;
 };

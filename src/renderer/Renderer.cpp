@@ -27,3 +27,23 @@ Renderer::~Renderer()
 {
     Log::end();
 }
+
+ve_time_t Renderer::getFrameTime() const
+{
+    return fps.getFrameTime();
+}
+
+uint32_t Renderer::getFps() const
+{
+    return fps.getFps();
+}
+
+void Renderer::setTargetFps(uint16_t target)
+{
+    fps.setTarget(target);
+}
+
+float Renderer::getAspectRatio()
+{
+    return window.getAspectRatio();
+}

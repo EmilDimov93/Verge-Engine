@@ -27,7 +27,7 @@ struct VulkanContext
 class Mesh
 {
 public:
-    Mesh(VulkanContext vulkanContext, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
+    Mesh(VulkanContext vulkanContext, const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices);
 
     uint64_t getVertexCount() const;
     VkBuffer getVertexBuffer() const;
@@ -46,8 +46,8 @@ private:
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;
 
-    void createVertexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, const std::vector<Vertex>& vertices);
-    void createIndexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, const std::vector<uint32_t>& indices);
+    void createVertexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, const std::vector<Vertex> &vertices);
+    void createIndexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, const std::vector<uint32_t> &indices);
 };
 
 struct MeshInstance
@@ -58,9 +58,18 @@ struct MeshInstance
 
 struct DrawData
 {
-    const std::vector<Mesh>& meshes;
-    const std::vector<MeshInstance>& meshInstances;
+    const std::vector<Mesh> &meshes;
+    const std::vector<MeshInstance> &meshInstances;
 
     glm::mat4 projectionM;
     glm::mat4 viewM;
+
+    ve_color_t backgroundColor;
+
+    DrawData(const std::vector<Mesh> &newMeshes,
+             const std::vector<MeshInstance> &newMeshInstances,
+             glm::mat4 newProjectionM,
+             glm::mat4 newViewM,
+             ve_color_t newBackgroundColor)
+        : meshes(newMeshes), meshInstances(newMeshInstances), projectionM(newProjectionM), viewM(newViewM), backgroundColor(newBackgroundColor) {}
 };

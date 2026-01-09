@@ -97,7 +97,7 @@ private:
     void createDescriptorPool();
     void createDescriptorSets();
 
-    void recordCommands(uint32_t currentImage, const std::vector<Mesh> &meshes, const std::vector<MeshInstance> &meshInstances);
+    void recordCommands(uint32_t currentImage, const std::vector<Mesh> &meshes, const std::vector<MeshInstance> &meshInstances, ve_color_t backgroundColor);
 
     void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionM, glm::mat4 viewM);
 

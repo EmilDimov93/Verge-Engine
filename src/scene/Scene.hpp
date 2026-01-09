@@ -16,7 +16,7 @@
 class Scene
 {
 public:
-    Scene(VulkanContext vulkanContext, const VE_STRUCT_CAMERA_CREATE_INFO& cameraInfo);
+    Scene(VulkanContext vulkanContext, ve_color_t backgroundColor, const VE_STRUCT_CAMERA_CREATE_INFO& cameraInfo);
 
     DrawData getDrawData();
 
@@ -45,6 +45,8 @@ public:
 
 private:
     ve_time_t dt;
+
+    ve_color_t backgroundColor;
 
     std::vector<Mesh> meshes;
     std::vector<MeshInstance> meshInstances;

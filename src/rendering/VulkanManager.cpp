@@ -673,6 +673,25 @@ void VulkanManager::createCommandBuffers()
     vkCheck(vkAllocateCommandBuffers(device, &commandBufferAllocInfo, commandBuffers.data()), {'V', 212});
 }
 
+void VulkanManager::createSemaphores()
+{
+    imageAvailableSemaphores.resize(MAX_FRAME_DRAWS);
+    renderFinishedSemaphores.resize(MAX_FRAME_DRAWS);
+    VkSemaphoreCreateInfo semaphoreCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
+
+    drawFences.resize(MAX_FRAME_DRAWS);
+    VkFenceCreateInfo fenceCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+        .flags = VK_FENCE_CREATE_SIGNALED_BIT};
+    for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+    {
+        vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &imageAvailableSemaphores[i]), {'V', 215});
+        vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores[i]), {'V', 215});
+        vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &drawFences[i]), {'V', 216});
+    }
+}
+
 void VulkanManager::updateUniformBuffers(uint32_t currentFrame, glm::mat4 projectionM, glm::mat4 viewM)
 {
     struct UboViewProjection
@@ -690,7 +709,7 @@ void VulkanManager::updateUniformBuffers(uint32_t currentFrame, glm::mat4 projec
     vkUnmapMemory(device, vpUniformBufferMemory[currentFrame]);
 }
 
-void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh> &meshes, const std::vector<MeshInstance> &meshInstances)
+void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh> &meshes, const std::vector<MeshInstance> &meshInstances, ve_color_t backgroundColor)
 {
     VkCommandBufferBeginInfo commandBufferBeginInfo = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
@@ -705,7 +724,7 @@ void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh
     renderPassBeginInfo.renderArea.extent = swapChainExtent;
 
     std::array<VkClearValue, 2> clearValues = {};
-    clearValues[0].color = {0.733f, 0.957f, 0.988f, 1.0f};
+    clearValues[0].color = {backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f};
     clearValues[1].depthStencil.depth = 1.0f;
     renderPassBeginInfo.pClearValues = clearValues.data();
     renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -734,25 +753,6 @@ void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh
     vkCmdEndRenderPass(commandBuffers[currentFrame]);
 
     vkCheck(vkEndCommandBuffer(commandBuffers[currentFrame]), {'V', 213});
-}
-
-void VulkanManager::createSemaphores()
-{
-    imageAvailableSemaphores.resize(MAX_FRAME_DRAWS);
-    renderFinishedSemaphores.resize(MAX_FRAME_DRAWS);
-    VkSemaphoreCreateInfo semaphoreCreateInfo = {
-        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
-
-    drawFences.resize(MAX_FRAME_DRAWS);
-    VkFenceCreateInfo fenceCreateInfo = {
-        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-        .flags = VK_FENCE_CREATE_SIGNALED_BIT};
-    for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
-    {
-        vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &imageAvailableSemaphores[i]), {'V', 215});
-        vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores[i]), {'V', 215});
-        vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &drawFences[i]), {'V', 216});
-    }
 }
 
 // Duplicate: exists in Mesh.cpp already
@@ -863,7 +863,7 @@ void VulkanManager::drawFrame(DrawData drawData)
     uint32_t imageIndex;
     vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex), {'V', 230});
 
-    recordCommands(currentFrame, drawData.meshes, drawData.meshInstances);
+    recordCommands(currentFrame, drawData.meshes, drawData.meshInstances, drawData.backgroundColor);
     updateUniformBuffers(currentFrame, drawData.projectionM, drawData.viewM);
 
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};

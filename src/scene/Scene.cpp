@@ -12,9 +12,11 @@
 
 #include "../Log.hpp"
 
-Scene::Scene(VulkanContext vulkanContext, const VE_STRUCT_CAMERA_CREATE_INFO& cameraInfo) : camera(cameraInfo)
+Scene::Scene(VulkanContext vulkanContext, ve_color_t backgroundColor, const VE_STRUCT_CAMERA_CREATE_INFO& cameraInfo) : camera(cameraInfo)
 {
     this->vulkanContext = vulkanContext;
+
+    this->backgroundColor = backgroundColor;
 
     isCameraFollowingVehicle = false;
 
@@ -24,7 +26,8 @@ Scene::Scene(VulkanContext vulkanContext, const VE_STRUCT_CAMERA_CREATE_INFO& ca
 
 DrawData Scene::getDrawData()
 {
-    return {meshes, meshInstances, camera.getProjectionMatrix(), camera.getViewMatrix()};
+    DrawData drawData(meshes, meshInstances, camera.getProjectionMatrix(), camera.getViewMatrix(), backgroundColor);
+    return drawData;
 }
 
 uint32_t Scene::loadFile(const std::string &filePath)

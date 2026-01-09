@@ -5,21 +5,11 @@
 
 #include "../../Log.hpp"
 
-Trigger::Trigger(uint32_t id, Transform transform, uint32_t meshInstanceIndex, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info)
+Trigger::Trigger(uint32_t id, Transform transform, MeshInstanceId meshInstanceId, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info)
 {
-    if (id >= 0)
-        this->id = id;
-    else
-    {
-        Log::add('A', 180);
-    }
+    this->id = id;
 
-    if (meshInstanceIndex >= 0)
-        meshInstanceIndex = meshInstanceIndex;
-    else
-    {
-        Log::add('A', 181);
-    }
+    this->meshInstanceId = meshInstanceId;
 
     if (info.hitboxShape != VE_SHAPE_UNKNOWN)
         hitboxShape = info.hitboxShape;

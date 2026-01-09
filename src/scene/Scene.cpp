@@ -12,10 +12,8 @@
 
 #include "../Log.hpp"
 
-Scene::Scene(VulkanContext vulkanContext, ve_color_t backgroundColor, const VE_STRUCT_CAMERA_CREATE_INFO& cameraInfo) : camera(cameraInfo)
+Scene::Scene(ve_color_t backgroundColor, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo) : camera(cameraInfo)
 {
-    this->vulkanContext = vulkanContext;
-
     this->backgroundColor = backgroundColor;
 
     isCameraFollowingVehicle = false;
@@ -30,7 +28,7 @@ DrawData Scene::getDrawData()
     return drawData;
 }
 
-uint32_t Scene::loadFile(const std::string &filePath)
+MeshId Scene::loadFile(const std::string &filePath)
 {
     std::string ext = std::filesystem::path(filePath).extension().string();
 
@@ -58,7 +56,7 @@ uint32_t Scene::loadFile(const std::string &filePath)
     return -1;
 }
 
-uint32_t Scene::loadOBJ(const std::string &filePath)
+MeshId Scene::loadOBJ(const std::string &filePath)
 {
     std::vector<Vertex> meshVertices;
     std::vector<uint32_t> meshIndices;
@@ -163,44 +161,57 @@ uint32_t Scene::loadOBJ(const std::string &filePath)
         }
     }
 
-    Mesh objMesh(vulkanContext, meshVertices, meshIndices);
+    MeshId newMeshId = getNextMeshId();
+
+    Mesh objMesh(newMeshId, meshVertices, meshIndices);
 
     meshes.push_back(objMesh);
 
-    return meshes.size() - 1;
+    return newMeshId;
 }
 
-uint32_t Scene::loadFBX(const std::string &filePath)
+MeshId Scene::loadFBX(const std::string &filePath)
 {
     Log::add('S', 100);
     return -1;
 }
 
-uint32_t Scene::loadGLB(const std::string &filePath)
+MeshId Scene::loadGLB(const std::string &filePath)
 {
     Log::add('S', 100);
     return -1;
 }
 
-uint32_t Scene::loadGLTF(const std::string &filePath)
+MeshId Scene::loadGLTF(const std::string &filePath)
 {
     Log::add('S', 100);
     return -1;
 }
 
-uint32_t Scene::addMeshInstance(int32_t meshIndex)
+MeshInstanceId Scene::addMeshInstance(int64_t meshId)
 {
-    if (meshIndex < 0 || meshIndex >= meshes.size())
+    bool foundMesh = false;
+    for (size_t i = 0; i < meshes.size(); i++)
+    {
+        if (meshes[i].id == meshId)
+        {
+            foundMesh = true;
+            break;
+        }
+    }
+
+    if (!foundMesh)
     {
         Log::add('S', 200);
     }
 
     MeshInstance newMeshInstance;
-    newMeshInstance.meshIndex = meshIndex;
+    newMeshInstance.meshId = meshId;
+    newMeshInstance.id = getNextMeshInstanceId();
 
     meshInstances.push_back(newMeshInstance);
 
-    return meshInstances.size() - 1;
+    return newMeshInstance.id;
 }
 
 void Scene::makeExampleGround()
@@ -253,11 +264,12 @@ uint32_t Scene::addSurface(const VE_STRUCT_SURFACE_CREATE_INFO &info)
         newSurface.color = {0, 0, 0};
     }
 
-    if(info.colorDistortion.r >= 0 && info.colorDistortion.r <= 1.0f && info.colorDistortion.g >= 0 && info.colorDistortion.g <= 1.0f && info.colorDistortion.b >= 0 && info.colorDistortion.b <= 1.0f)
+    if (info.colorDistortion.r >= 0 && info.colorDistortion.r <= 1.0f && info.colorDistortion.g >= 0 && info.colorDistortion.g <= 1.0f && info.colorDistortion.b >= 0 && info.colorDistortion.b <= 1.0f)
     {
         newSurface.colorDistortion = info.colorDistortion;
     }
-    else{
+    else
+    {
         Log::add('A', 194);
         newSurface.colorDistortion = {0, 0, 0};
     }
@@ -329,36 +341,40 @@ void Scene::buildGroundMesh(Size2 size, Transform transform)
         }
     }
 
-    Mesh objMesh(vulkanContext, meshVertices, meshIndices);
+    MeshId newMeshId = getNextMeshId();
+
+    Mesh objMesh(newMeshId, meshVertices, meshIndices);
 
     meshes.push_back(objMesh);
 
-    addMeshInstance(meshes.size() - 1);
+    MeshInstanceId newMeshInstanceId = addMeshInstance(newMeshId);
 
-    setMatrix(meshInstances.size() - 1, transformToMat(transform));
+    setMatrix(newMeshInstanceId, transformToMat(transform));
 }
 
-uint32_t Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform)
+void Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform)
 {
-    Vehicle newVehicle(transform, info, addMeshInstance(info.bodyMeshIndex), addMeshInstance(info.wheelMeshIndex), addMeshInstance(info.wheelMeshIndex), addMeshInstance(info.wheelMeshIndex), addMeshInstance(info.wheelMeshIndex));
+    Vehicle newVehicle(transform,
+                       info,
+                       addMeshInstance(info.bodyMeshId),
+                       addMeshInstance(info.wheelMeshId),
+                       addMeshInstance(info.wheelMeshId),
+                       addMeshInstance(info.wheelMeshId),
+                       addMeshInstance(info.wheelMeshId));
     vehicles.push_back(newVehicle);
-
-    return vehicles.size() - 1;
 }
 
-uint32_t Scene::addProp(int32_t meshIndex, Transform transform)
+void Scene::addProp(MeshId meshId, Transform transform)
 {
-    uint32_t meshInstanceIndex = addMeshInstance(meshIndex);
+    uint32_t meshInstanceId = addMeshInstance(meshId);
 
-    Prop newProp(meshInstanceIndex, transform);
+    Prop newProp(meshInstanceId, transform);
     props.push_back(newProp);
 
-    setMatrix(meshInstanceIndex, newProp.getModelMat());
-
-    return props.size() - 1;
+    setMatrix(meshInstanceId, newProp.getModelMat());
 }
 
-uint32_t Scene::addTrigger(int32_t id, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform)
+void Scene::addTrigger(int32_t id, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform)
 {
     for (Trigger trigger : triggers)
     {
@@ -368,25 +384,24 @@ uint32_t Scene::addTrigger(int32_t id, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO 
         }
     }
 
-    uint32_t meshInstanceIndex = addMeshInstance(info.meshIndex);
+    uint32_t meshInstanceId = addMeshInstance(info.meshId);
 
-    Trigger newTrigger(id, transform, meshInstanceIndex, info);
+    Trigger newTrigger(id, transform, meshInstanceId, info);
     triggers.push_back(newTrigger);
 
-    setMatrix(meshInstanceIndex, newTrigger.getModelMat());
-
-    return triggers.size() - 1;
+    setMatrix(meshInstanceId, newTrigger.getModelMat());
 }
 
-void Scene::setMatrix(int meshInstanceIndex, glm::mat4 newModel)
+void Scene::setMatrix(MeshInstanceId meshInstanceId, glm::mat4 newModel)
 {
-    if (meshInstanceIndex >= meshInstances.size() || meshInstanceIndex < 0)
+    for(MeshInstance &instance : meshInstances)
     {
-        Log::add('S', 102);
-        return;
+        if(instance.id == meshInstanceId)
+        {
+            instance.model = newModel;
+            break;
+        }
     }
-
-    meshInstances[meshInstanceIndex].model = newModel;
 }
 
 void Scene::tick(ve_time_t frameTime)
@@ -400,11 +415,11 @@ void Scene::tick(ve_time_t frameTime)
 
         vehicle.tick(environment, surfaces[ground.sampleSurfaceIndex(vehicle.getTransform().position.x, vehicle.getTransform().position.z)].friction, dt);
 
-        setMatrix(vehicle.bodyMeshInstanceIndex, vehicle.bodyMat);
-        setMatrix(vehicle.wheelFLMeshInstanceIndex, vehicle.wheelFLMat);
-        setMatrix(vehicle.wheelFRMeshInstanceIndex, vehicle.wheelFRMat);
-        setMatrix(vehicle.wheelBLMeshInstanceIndex, vehicle.wheelBLMat);
-        setMatrix(vehicle.wheelBRMeshInstanceIndex, vehicle.wheelBRMat);
+        setMatrix(vehicle.bodyMeshInstanceId, vehicle.bodyMat);
+        setMatrix(vehicle.wheelFLMeshInstanceId, vehicle.wheelFLMat);
+        setMatrix(vehicle.wheelFRMeshInstanceId, vehicle.wheelFRMat);
+        setMatrix(vehicle.wheelBLMeshInstanceId, vehicle.wheelBLMat);
+        setMatrix(vehicle.wheelBRMeshInstanceId, vehicle.wheelBRMat);
     }
 
     if (isCameraFollowingVehicle)
@@ -497,13 +512,18 @@ void Scene::cameraFollowVehicle()
 
 Scene::~Scene()
 {
-    if (vulkanContext.device != VK_NULL_HANDLE)
-    {
-        VkResult res = vkDeviceWaitIdle(vulkanContext.device);
-        if (res != VK_SUCCESS)
-            Log::add('V', 235);
-    }
+}
 
-    for (auto &mesh : meshes)
-        mesh.destroyBuffers(vulkanContext.device);
+// Should check unique?
+uint64_t Scene::getNextMeshId()
+{
+    lastMeshId++;
+    return lastMeshId;
+}
+
+// Should check unique?
+MeshInstanceId Scene::getNextMeshInstanceId()
+{
+    lastMeshInstanceId++;
+    return lastMeshInstanceId;
 }

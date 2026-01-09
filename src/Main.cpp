@@ -7,7 +7,7 @@
 class VergeEngine
 {
 public:
-    VergeEngine() : renderer({"Example"}), scene(renderer.vulkan.getContext(), {0.7f, 1.0f, 1.0f}, {renderer.window.getAspectRatio()}) {}
+    VergeEngine() : renderer({"Example"}), scene({0.7f, 1.0f, 1.0f}, {renderer.window.getAspectRatio()}) {}
 
     void run()
     {
@@ -26,8 +26,8 @@ private:
     void setupScene()
     {
         VE_STRUCT_VEHICLE_CREATE_INFO sCar = {};
-        sCar.bodyMeshIndex = scene.loadFile("models/car.obj");
-        sCar.wheelMeshIndex = scene.loadFile("models/wheel.obj");
+        sCar.bodyMeshId = scene.loadFile("models/car.obj");
+        sCar.wheelMeshId = scene.loadFile("models/wheel.obj");
         sCar.wheelOffset = {1.05f, 0.5f, 1.8f};
         sCar.power = 390;
         sCar.powerUnit = VE_POWER_UNIT_HORSEPOWER;
@@ -66,7 +66,7 @@ private:
         scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});
 
         VE_STRUCT_TRIGGER_TYPE_CREATE_INFO sTriggerType = {};
-        sTriggerType.meshIndex = scene.loadFile("models/checkpoint.obj");
+        sTriggerType.meshId = scene.loadFile("models/checkpoint.obj");
         sTriggerType.hitboxShape = VE_SHAPE_SPHERE;
         sTriggerType.hitboxSize = 10.0f;
         sTriggerType.isAutoDestroy = true;

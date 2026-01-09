@@ -3,10 +3,9 @@
 
 #pragma once
 
-#include "../definitions.hpp"
-
-#include <vulkan/vulkan.h>
 #include <vector>
+
+#include "../definitions.hpp"
 
 struct Vertex
 {
@@ -16,43 +15,32 @@ struct Vertex
     Vertex(const glm::vec3 &position = glm::vec3(0.0f), const ve_color_t &color = ve_color_t(1.0f)) : pos(position), col(color) {}
 };
 
-struct VulkanContext
-{
-    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-    VkDevice device = VK_NULL_HANDLE;
-    VkQueue graphicsQueue = VK_NULL_HANDLE;
-    VkCommandPool graphicsCommandPool = VK_NULL_HANDLE;
-};
-
 class Mesh
 {
 public:
-    Mesh(VulkanContext vulkanContext, const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices);
+    Mesh(MeshId newId, const std::vector<Vertex> &newVertices, const std::vector<uint32_t> &newIndices) : id(newId), vertices(newVertices), indices(newIndices) {}
 
-    uint64_t getVertexCount() const;
-    VkBuffer getVertexBuffer() const;
+    void updateMesh(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices)
+    {
+        this->vertices = vertices;
+        this->indices = indices;
 
-    uint64_t getIndexCount() const;
-    VkBuffer getIndexBuffer() const;
+        version++;
+    }
 
-    void destroyBuffers(VkDevice device);
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
 
-private:
-    uint64_t vertexCount;
-    VkBuffer vertexBuffer;
-    VkDeviceMemory vertexBufferMemory;
+    uint64_t version = 1;
 
-    uint64_t indexCount;
-    VkBuffer indexBuffer;
-    VkDeviceMemory indexBufferMemory;
-
-    void createVertexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, const std::vector<Vertex> &vertices);
-    void createIndexBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, const std::vector<uint32_t> &indices);
+    MeshId id;
 };
 
 struct MeshInstance
 {
-    uint32_t meshIndex;
+    MeshInstanceId id;
+
+    MeshId meshId;
     glm::mat4 model;
 };
 

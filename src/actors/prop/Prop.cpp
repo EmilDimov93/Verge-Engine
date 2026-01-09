@@ -5,17 +5,9 @@
 
 #include "../../Log.hpp"
 
-Prop::Prop(uint32_t meshInstanceIndex, Transform transform)
+Prop::Prop(MeshInstanceId meshInstanceId, Transform transform)
 {
-    if (meshInstanceIndex >= 0)
-    {
-        this->meshInstanceIndex = meshInstanceIndex;
-    }
-    else
-    {
-        this->meshInstanceIndex = -1;
-        Log::add('A', 160);
-    }
+    this->meshInstanceId = meshInstanceId;
 
     this->transform = transform;
 

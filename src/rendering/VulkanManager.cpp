@@ -446,8 +446,7 @@ void VulkanManager::createGraphicsPipeline()
     vkDestroyShaderModule(device, fragmentShaderModule, nullptr);
 }
 
-// Duplicate: exists in Mesh.cpp already
-uint32_t findMemoryTypeIndex1(VkPhysicalDevice physicalDevice, uint32_t allowedTypes, VkMemoryPropertyFlags properties)
+uint32_t findMemoryTypeIndex(VkPhysicalDevice physicalDevice, uint32_t allowedTypes, VkMemoryPropertyFlags properties)
 {
     VkPhysicalDeviceMemoryProperties memoryProperties;
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
@@ -489,7 +488,7 @@ void VulkanManager::createDepthBufferImage()
     VkMemoryAllocateInfo memoryAllocInfo = {
         .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
         .allocationSize = memoryRequirements.size,
-        .memoryTypeIndex = findMemoryTypeIndex1(physicalDevice, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)};
+        .memoryTypeIndex = findMemoryTypeIndex(physicalDevice, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)};
 
     vkCheck(vkAllocateMemory(device, &memoryAllocInfo, nullptr, &depthBufferImageMemory), {'V', 222});
 
@@ -709,6 +708,137 @@ void VulkanManager::updateUniformBuffers(uint32_t currentFrame, glm::mat4 projec
     vkUnmapMemory(device, vpUniformBufferMemory[currentFrame]);
 }
 
+#define VK_CHECK1(res)         \
+    do                         \
+    {                          \
+        if (res != VK_SUCCESS) \
+            return res;        \
+    } while (0)
+
+VkResult createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory)
+{
+    VkBufferCreateInfo bufferCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .size = bufferSize,
+        .usage = bufferUsageFlags,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
+
+    VK_CHECK1(vkCreateBuffer(device, &bufferCreateInfo, nullptr, buffer));
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(device, *buffer, &memRequirements);
+
+    VkMemoryAllocateInfo memoryAllocInfo = {
+        .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+        .allocationSize = memRequirements.size,
+        .memoryTypeIndex = findMemoryTypeIndex(physicalDevice, memRequirements.memoryTypeBits, bufferPropertyFlags)};
+
+    VK_CHECK1(vkAllocateMemory(device, &memoryAllocInfo, nullptr, bufferMemory));
+
+    VK_CHECK1(vkBindBufferMemory(device, *buffer, *bufferMemory, 0));
+
+    return VK_SUCCESS;
+}
+
+void copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBufer, VkBuffer dstBuffer, VkDeviceSize bufferSize)
+{
+    VkCommandBuffer transferCommandBuffer;
+
+    VkCommandBufferAllocateInfo allocInfo = {
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+        .commandPool = transferCommandPool,
+        .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        .commandBufferCount = 1};
+
+    vkAllocateCommandBuffers(device, &allocInfo, &transferCommandBuffer); // Should vkCheck
+
+    VkCommandBufferBeginInfo beginInfo = {
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+        .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+    };
+
+    vkBeginCommandBuffer(transferCommandBuffer, &beginInfo); // Should vkCheck
+
+    VkBufferCopy bufferCopyRegion = {
+        .srcOffset = 0,
+        .dstOffset = 0,
+        .size = bufferSize};
+
+    vkCmdCopyBuffer(transferCommandBuffer, srcBufer, dstBuffer, 1, &bufferCopyRegion);
+
+    vkEndCommandBuffer(transferCommandBuffer); // Should vkCheck
+
+    VkSubmitInfo submitInfo = {
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .commandBufferCount = 1,
+        .pCommandBuffers = &transferCommandBuffer};
+
+    vkQueueSubmit(transferQueue, 1, &submitInfo, VK_NULL_HANDLE); // Should vkCheck
+
+    vkQueueWaitIdle(transferQueue); // Should vkCheck
+
+    vkFreeCommandBuffers(device, transferCommandPool, 1, &transferCommandBuffer);
+}
+
+void VulkanManager::createVertexBuffer(VulkanMesh &vulkanMesh, const std::vector<Vertex> &vertices)
+{
+    VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+
+    createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
+
+    void *data;
+    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data); // Should vkCheck
+    memcpy(data, vertices.data(), (size_t)bufferSize);
+    vkUnmapMemory(device, stagingBufferMemory);
+
+    createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &vulkanMesh.vertexBuffer, &vulkanMesh.vertexBufferMemory);
+
+    // Should be transferQueue and transferCommandPool?
+    copyBuffer(device, graphicsQueue, graphicsCommandPool, stagingBuffer, vulkanMesh.vertexBuffer, bufferSize);
+
+    vkDestroyBuffer(device, stagingBuffer, nullptr);
+    vkFreeMemory(device, stagingBufferMemory, nullptr);
+}
+
+void VulkanManager::createIndexBuffer(VulkanMesh &vulkanMesh, const std::vector<uint32_t> &indices)
+{
+    VkDeviceSize bufferSize = sizeof(uint32_t) * indices.size();
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
+
+    void *data;
+    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data); // Should vkCheck
+    memcpy(data, indices.data(), (size_t)bufferSize);
+    vkUnmapMemory(device, stagingBufferMemory);
+
+    createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &vulkanMesh.indexBuffer, &vulkanMesh.indexBufferMemory);
+
+    // Should be transferQueue and transferCommandPool?
+    copyBuffer(device, graphicsQueue, graphicsCommandPool, stagingBuffer, vulkanMesh.indexBuffer, bufferSize);
+
+    vkDestroyBuffer(device, stagingBuffer, nullptr);
+    vkFreeMemory(device, stagingBufferMemory, nullptr);
+}
+
+void VulkanManager::initVulkanMesh(MeshId meshId, const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices)
+{
+    VulkanMesh newVulkanMesh{};
+
+    newVulkanMesh.id = meshId;
+
+    newVulkanMesh.vertexCount = vertices.size();
+    newVulkanMesh.indexCount = indices.size();
+    createVertexBuffer(newVulkanMesh, vertices);
+    createIndexBuffer(newVulkanMesh, indices);
+
+    vulkanMeshes.push_back(newVulkanMesh);
+}
+
 void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh> &meshes, const std::vector<MeshInstance> &meshInstances, ve_color_t backgroundColor)
 {
     VkCommandBufferBeginInfo commandBufferBeginInfo = {
@@ -733,60 +863,47 @@ void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh
 
     vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-    for(MeshInstance instance : meshInstances)
+    for (const MeshInstance &instance : meshInstances)
     {
-        uint32_t index = instance.meshIndex;
-        VkBuffer vertexBuffers[] = {meshes[index].getVertexBuffer()};
-        VkDeviceSize offsets[] = {0};
-        vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
+        for (const Mesh &mesh : meshes)
+        {
+            if (mesh.id == instance.meshId)
+            {
+                bool vulkanMeshFound = false;
+                for (const VulkanMesh &vulkanMesh : vulkanMeshes)
+                {
+                    if (vulkanMesh.id == mesh.id)
+                    {
+                        vulkanMeshFound = true;
 
-        vkCmdBindIndexBuffer(commandBuffers[currentFrame], meshes[index].getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+                        VkBuffer vertexBuffers[] = {vulkanMesh.vertexBuffer};
+                        VkDeviceSize offsets[] = {0};
+                        vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
 
-        glm::mat4 m = instance.model;
-        vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &m);
+                        vkCmdBindIndexBuffer(commandBuffers[currentFrame], vulkanMesh.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-        vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+                        glm::mat4 m = instance.model;
+                        vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &m);
 
-        vkCmdDrawIndexed(commandBuffers[currentFrame], meshes[index].getIndexCount(), 1, 0, 0, 0);
+                        vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+
+                        vkCmdDrawIndexed(commandBuffers[currentFrame], vulkanMesh.indexCount, 1, 0, 0, 0);
+
+                        break;
+                    }
+                }
+
+                if (!vulkanMeshFound)
+                {
+                    initVulkanMesh(mesh.id, mesh.vertices, mesh.indices);
+                }
+            }
+        }
     }
 
     vkCmdEndRenderPass(commandBuffers[currentFrame]);
 
     vkCheck(vkEndCommandBuffer(commandBuffers[currentFrame]), {'V', 213});
-}
-
-// Duplicate: exists in Mesh.cpp already
-#define VK_CHECK1(res)         \
-    do                         \
-    {                          \
-        if (res != VK_SUCCESS) \
-            return res;        \
-    } while (0)
-
-// Duplicate: exists in Mesh.cpp already
-VkResult createBuffer1(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory)
-{
-    VkBufferCreateInfo bufferCreateInfo = {
-        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-        .size = bufferSize,
-        .usage = bufferUsageFlags,
-        .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
-
-    VK_CHECK1(vkCreateBuffer(device, &bufferCreateInfo, nullptr, buffer));
-
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(device, *buffer, &memRequirements);
-
-    VkMemoryAllocateInfo memoryAllocInfo = {
-        .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-        .allocationSize = memRequirements.size,
-        .memoryTypeIndex = findMemoryTypeIndex1(physicalDevice, memRequirements.memoryTypeBits, bufferPropertyFlags)};
-
-    VK_CHECK1(vkAllocateMemory(device, &memoryAllocInfo, nullptr, bufferMemory));
-
-    VK_CHECK1(vkBindBufferMemory(device, *buffer, *bufferMemory, 0));
-
-    return VK_SUCCESS;
 }
 
 void VulkanManager::createUniformBuffers()
@@ -798,7 +915,7 @@ void VulkanManager::createUniformBuffers()
 
     for (size_t i = 0; i < swapChainImages.size(); i++)
     {
-        vkCheck(createBuffer1(physicalDevice, device, vpBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &vpUniformBuffer[i], &vpUniformBufferMemory[i]), {'V', 218});
+        vkCheck(createBuffer(physicalDevice, device, vpBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &vpUniformBuffer[i], &vpUniformBufferMemory[i]), {'V', 218});
     }
 }
 
@@ -921,21 +1038,28 @@ void VulkanManager::vkCheck(VkResult res, ErrorCode errorCode)
     }
 }
 
-VulkanContext VulkanManager::getContext()
-{
-    VulkanContext ctx = {
-        .physicalDevice = physicalDevice,
-        .device = device,
-        .graphicsQueue = graphicsQueue,
-        .graphicsCommandPool = graphicsCommandPool};
-
-    return ctx;
-}
-
 VulkanManager::~VulkanManager()
 {
     if (device != VK_NULL_HANDLE)
         vkCheck(vkDeviceWaitIdle(device), {'V', 235});
+
+    for (VulkanMesh vulkanMesh : vulkanMeshes)
+    {
+        if (vulkanMesh.vertexBuffer)
+            vkDestroyBuffer(device, vulkanMesh.vertexBuffer, nullptr);
+        if (vulkanMesh.vertexBufferMemory)
+            vkFreeMemory(device, vulkanMesh.vertexBufferMemory, nullptr);
+
+        if (vulkanMesh.indexBuffer)
+            vkDestroyBuffer(device, vulkanMesh.indexBuffer, nullptr);
+        if (vulkanMesh.indexBufferMemory)
+            vkFreeMemory(device, vulkanMesh.indexBufferMemory, nullptr);
+
+        vulkanMesh.vertexBuffer = VK_NULL_HANDLE;
+        vulkanMesh.vertexBufferMemory = VK_NULL_HANDLE;
+        vulkanMesh.indexBuffer = VK_NULL_HANDLE;
+        vulkanMesh.indexBufferMemory = VK_NULL_HANDLE;
+    }
 
     if (depthBufferImageView)
         vkDestroyImageView(device, depthBufferImageView, nullptr);

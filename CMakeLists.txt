@@ -9,27 +9,20 @@ add_executable(VergeEngine
     src/Main.cpp
     
     src/Log.cpp
-
-    src/system/WindowManager.cpp
     src/system/Input.cpp
-    src/system/FpsManager.cpp
-    
+
+    src/rendering/Renderer.cpp
+    src/system/WindowManager.cpp
     src/rendering/VulkanManager.cpp
+    src/system/FpsManager.cpp
 
-    src/mesh/Mesh.cpp
-
+    src/scene/Scene.cpp
     src/actors/vehicle/VehicleCore.cpp
     src/actors/vehicle/VehicleGraphics.cpp
     src/actors/vehicle/VehiclePhysics.cpp
-
     src/actors/prop/Prop.cpp
-
     src/actors/trigger/Trigger.cpp
-
     src/scene/camera/Camera.cpp
-
-    src/rendering/Renderer.cpp
-    src/scene/Scene.cpp
 )
 
 target_include_directories(VergeEngine PRIVATE

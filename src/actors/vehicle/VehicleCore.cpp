@@ -7,22 +7,22 @@
 
 #define HP_TO_KW_CONVERSION_FACTOR 0.7457f
 
-Vehicle::Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, uint32_t bodyMeshInstanceIndex, uint32_t wheelFLMeshInstanceIndex, uint32_t wheelFRMeshInstanceIndex, uint32_t wheelBLMeshInstanceIndex, uint32_t wheelBRMeshInstanceIndex)
+Vehicle::Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceId bodyMeshInstanceId, MeshInstanceId wheelFLMeshInstanceId, MeshInstanceId wheelFRMeshInstanceId, MeshInstanceId wheelBLMeshInstanceId, MeshInstanceId wheelBRMeshInstanceId)
 {
-    if (bodyMeshInstanceIndex != -1)
+    if (bodyMeshInstanceId != -1)
     {
-        this->bodyMeshInstanceIndex = bodyMeshInstanceIndex;
+        this->bodyMeshInstanceId = bodyMeshInstanceId;
     }
     else
     {
         Log::add('A', 100);
     }
-    if (wheelFLMeshInstanceIndex != -1 && wheelFRMeshInstanceIndex != -1 && wheelBLMeshInstanceIndex != -1 && wheelBRMeshInstanceIndex != -1)
+    if (wheelFLMeshInstanceId != -1 && wheelFRMeshInstanceId != -1 && wheelBLMeshInstanceId != -1 && wheelBRMeshInstanceId != -1)
     {
-        this->wheelFLMeshInstanceIndex = wheelFLMeshInstanceIndex;
-        this->wheelFRMeshInstanceIndex = wheelFRMeshInstanceIndex;
-        this->wheelBLMeshInstanceIndex = wheelBLMeshInstanceIndex;
-        this->wheelBRMeshInstanceIndex = wheelBRMeshInstanceIndex;
+        this->wheelFLMeshInstanceId = wheelFLMeshInstanceId;
+        this->wheelFRMeshInstanceId = wheelFRMeshInstanceId;
+        this->wheelBLMeshInstanceId = wheelBLMeshInstanceId;
+        this->wheelBRMeshInstanceId = wheelBRMeshInstanceId;
     }
     else
     {
@@ -237,5 +237,5 @@ void Vehicle::tick(Environment environment, float surfaceFriction, ve_time_t del
 
     updateGraphics();
 
-    std::cout << std::round(speedMps * 3.6f) << " km/h, " << std::round(rpm) << " rpm, " << gear << " gear" << std::endl;
+    // std::cout << std::round(speedMps * 3.6f) << " km/h, " << std::round(rpm) << " rpm, " << gear << " gear" << std::endl;
 }

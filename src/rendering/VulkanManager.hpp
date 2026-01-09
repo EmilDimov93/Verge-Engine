@@ -23,11 +23,28 @@ public:
 
     void vkCheck(VkResult res, ErrorCode errorCode);
 
-    VulkanContext getContext();
-
     ~VulkanManager();
 
 private:
+    struct VulkanMesh {
+        MeshId id;
+
+        uint64_t vertexCount = 0;
+        VkBuffer vertexBuffer = VK_NULL_HANDLE;
+        VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;
+
+        uint64_t indexCount = 0;
+        VkBuffer indexBuffer = VK_NULL_HANDLE;
+        VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
+
+        uint64_t version = 0;
+    };
+
+    std::vector<VulkanMesh> vulkanMeshes;
+    void createVertexBuffer(VulkanMesh& vulkanMesh, const std::vector<Vertex> &vertices);
+    void createIndexBuffer(VulkanMesh& vulkanMesh, const std::vector<uint32_t> &indices);
+    void initVulkanMesh(MeshId meshId, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
+
     int currentFrame = 0;
 
     VkInstance instance = VK_NULL_HANDLE;

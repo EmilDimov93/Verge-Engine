@@ -26,8 +26,8 @@ enum VETransmissionType
 
 struct VE_STRUCT_VEHICLE_CREATE_INFO
 {
-    int32_t bodyMeshIndex = -1;
-    int32_t wheelMeshIndex = -1;
+    int32_t bodyMeshId = -1;
+    int32_t wheelMeshId = -1;
 
     Position3 wheelOffset = {0, 0, 0};
 
@@ -63,16 +63,16 @@ class Vehicle
 {
 public:
     // Temporarily public
-    uint32_t bodyMeshInstanceIndex;
-    uint32_t wheelFLMeshInstanceIndex;
-    uint32_t wheelFRMeshInstanceIndex;
-    uint32_t wheelBLMeshInstanceIndex;
-    uint32_t wheelBRMeshInstanceIndex;
+    MeshInstanceId bodyMeshInstanceId;
+    MeshInstanceId wheelFLMeshInstanceId;
+    MeshInstanceId wheelFRMeshInstanceId;
+    MeshInstanceId wheelBLMeshInstanceId;
+    MeshInstanceId wheelBRMeshInstanceId;
 
     glm::mat4 bodyMat;
     glm::mat4 wheelFLMat, wheelFRMat, wheelBLMat, wheelBRMat;
 
-    Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, uint32_t bodyMeshInstanceIndex, uint32_t wheelFLMeshInstanceIndex, uint32_t wheelFRMeshInstanceIndex, uint32_t wheelBLMeshInstanceIndex, uint32_t wheelBRMeshInstanceIndex);
+    Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceId bodyMeshInstanceId, MeshInstanceId wheelFLMeshInstanceId, MeshInstanceId wheelFRMeshInstanceId, MeshInstanceId wheelBLMeshInstanceId, MeshInstanceId wheelBRMeshInstanceId);
 
     void tick(Environment environment, float surfaceFriction, ve_time_t deltaTime);
 

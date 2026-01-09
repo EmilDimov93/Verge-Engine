@@ -16,19 +16,17 @@
 class Scene
 {
 public:
-    Scene(VulkanContext vulkanContext, ve_color_t backgroundColor, const VE_STRUCT_CAMERA_CREATE_INFO& cameraInfo);
+    Scene(ve_color_t backgroundColor, const VE_STRUCT_CAMERA_CREATE_INFO& cameraInfo);
 
     DrawData getDrawData();
 
-    uint32_t loadFile(const std::string &filePath);
+    MeshId loadFile(const std::string &filePath);
 
-    uint32_t addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform = {});
-    uint32_t addProp(int32_t meshIndex, Transform transform);
-    uint32_t addTrigger(int32_t id, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform = {});
+    void addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform = {});
+    void addProp(MeshId meshId, Transform transform);
+    void addTrigger(int32_t id, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform = {});
 
-    VulkanContext vulkanContext;
-
-    void setMatrix(int meshInstanceIndex, glm::mat4 newModel);
+    void setMatrix(MeshInstanceId meshInstanceId, glm::mat4 newModel);
 
     void tick(ve_time_t dt);
 
@@ -48,8 +46,14 @@ private:
 
     ve_color_t backgroundColor;
 
+    // Meshes
     std::vector<Mesh> meshes;
     std::vector<MeshInstance> meshInstances;
+    uint64_t lastMeshId = 0;
+    uint64_t lastMeshInstanceId = 0;
+
+    MeshId getNextMeshId();
+    MeshInstanceId getNextMeshInstanceId();
 
     Ground ground;
     std::vector<Surface> surfaces;
@@ -58,26 +62,25 @@ private:
     std::vector<Prop> props;
     std::vector<Trigger> triggers;
 
-    // Scenery
+    // Environment
     Environment environment;
 
     // Camera
     Camera camera;
-
     bool isCameraFollowingVehicle;
     uint32_t cameraFollowedVehicleIndex;
     float cameraFollowDistance = 10.0f;
     float cameraFollowHeight = 3.0f;
     float cameraFollowYawDelay = 0.01f;
 
-    uint32_t loadOBJ(const std::string &filePath);
-    uint32_t loadFBX(const std::string &filePath);
-    uint32_t loadGLB(const std::string &filePath);
-    uint32_t loadGLTF(const std::string &filePath);
+    MeshId loadOBJ(const std::string &filePath);
+    MeshId loadFBX(const std::string &filePath);
+    MeshId loadGLB(const std::string &filePath);
+    MeshId loadGLTF(const std::string &filePath);
 
     void makeExampleGround();
 
-    uint32_t addMeshInstance(int32_t meshIndex);
+    MeshInstanceId addMeshInstance(int64_t meshId);
 
     void cameraFollowVehicle();
 };

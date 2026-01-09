@@ -30,7 +30,7 @@ public:
 
     void setMatrix(int meshInstanceIndex, glm::mat4 newModel);
 
-    void tick(ve_time dt);
+    void tick(ve_time_t dt);
 
     void setCameraFollowVehicle(uint32_t vehicleIndex);
     void unsetCameraFollowVehicle();
@@ -44,6 +44,8 @@ public:
     ~Scene();
 
 private:
+    ve_time_t dt;
+
     std::vector<Mesh> meshes;
     std::vector<MeshInstance> meshInstances;
 
@@ -75,5 +77,5 @@ private:
 
     uint32_t addMeshInstance(int32_t meshIndex);
 
-    void cameraFollowVehicle(ve_time dt);
+    void cameraFollowVehicle();
 };

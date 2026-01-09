@@ -18,7 +18,7 @@ void FpsManager::sync()
 
     auto now = steady_clock::now();
     auto elapsed = now - timeAtStartOfFrame;
-    auto target = duration<ve_time>(targetFrameTime);
+    auto target = duration<ve_time_t>(targetFrameTime);
 
     if (elapsed < target)
     {
@@ -35,8 +35,8 @@ void FpsManager::sync()
     }
 
     now = steady_clock::now();
-    currentFps = static_cast<uint16_t>(1.0 / duration<ve_time>(now - timeAtStartOfFrame).count());
-    lastFrameTime = std::chrono::duration<ve_time>(now - timeAtStartOfFrame).count();
+    currentFps = static_cast<uint16_t>(1.0 / duration<ve_time_t>(now - timeAtStartOfFrame).count());
+    lastFrameTime = std::chrono::duration<ve_time_t>(now - timeAtStartOfFrame).count();
     timeAtStartOfFrame = now;
 }
 
@@ -53,7 +53,7 @@ uint16_t FpsManager::getFps()
     return currentFps;
 }
 
-ve_time FpsManager::getFrameTime()
+ve_time_t FpsManager::getFrameTime()
 {
     return lastFrameTime;
 }

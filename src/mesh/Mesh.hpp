@@ -11,9 +11,9 @@
 struct Vertex
 {
     glm::vec3 pos;
-    glm::vec3 col;
+    ve_color_t col;
 
-    Vertex(const glm::vec3 &position = glm::vec3(0.0f), const glm::vec3 &color = glm::vec3(1.0f)) : pos(position), col(color) {}
+    Vertex(const glm::vec3 &position = glm::vec3(0.0f), const ve_color_t &color = ve_color_t(1.0f)) : pos(position), col(color) {}
 };
 
 struct VulkanContext

@@ -69,7 +69,7 @@ uint32_t Scene::loadOBJ(const std::string &filePath)
     std::vector<glm::vec3> positions;
     std::unordered_map<std::string, glm::vec3> materials;
 
-    glm::vec3 currentColor(1.0f);
+    ve_color_t currentColor(1.0f);
 
     auto trim = [](std::string &s)
     {
@@ -386,8 +386,10 @@ void Scene::setMatrix(int meshInstanceIndex, glm::mat4 newModel)
     meshInstances[meshInstanceIndex].model = newModel;
 }
 
-void Scene::tick(ve_time dt)
+void Scene::tick(ve_time_t frameTime)
 {
+    dt = frameTime;
+
     for (Vehicle &vehicle : vehicles)
     {
         // Temporary(testing)
@@ -403,7 +405,7 @@ void Scene::tick(ve_time dt)
     }
 
     if (isCameraFollowingVehicle)
-        cameraFollowVehicle(dt);
+        cameraFollowVehicle();
 
     for (Trigger &trigger : triggers)
     {
@@ -459,7 +461,7 @@ void Scene::setCameraFollowYawDelay(float yawDelay)
     cameraFollowYawDelay = yawDelay;
 }
 
-void Scene::cameraFollowVehicle(ve_time dt)
+void Scene::cameraFollowVehicle()
 {
     float currCameraHeight = cameraFollowHeight;
     // Move camera when ground is obstructing view

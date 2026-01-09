@@ -74,7 +74,7 @@ public:
 
     Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, uint32_t bodyMeshInstanceIndex, uint32_t wheelFLMeshInstanceIndex, uint32_t wheelFRMeshInstanceIndex, uint32_t wheelBLMeshInstanceIndex, uint32_t wheelBRMeshInstanceIndex);
 
-    void tick(Environment environment, float surfaceFriction, ve_time deltaTime);
+    void tick(Environment environment, float surfaceFriction, ve_time_t deltaTime);
 
     // Getters
     Position3 getWheelOffset() const { return wheelOffset; }
@@ -199,5 +199,5 @@ private:
     float clutchState;
     float throttleState;
     float brakeState;
-    ve_time dt;
+    ve_time_t dt;
 };

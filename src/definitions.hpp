@@ -10,7 +10,8 @@
 
 #define PI 3.14159265358979323846264338327950288419716939937510f
 
-using ve_time = double;
+using ve_time_t = double;
+using ve_color_t = glm::vec3;
 
 struct Size2
 {

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../../definitions.hpp"
+#include "../shared/definitions.hpp"
 
 struct VE_STRUCT_CAMERA_CREATE_INFO
 {
@@ -16,8 +16,8 @@ struct VE_STRUCT_CAMERA_CREATE_INFO
 class Camera
 {
 public:
-    Camera(const VE_STRUCT_CAMERA_CREATE_INFO& info);
-    
+    Camera(const VE_STRUCT_CAMERA_CREATE_INFO &info);
+
     glm::mat4 getViewMatrix();
     glm::mat4 getProjectionMatrix();
 

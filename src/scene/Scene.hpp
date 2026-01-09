@@ -3,20 +3,20 @@
 
 #pragma once
 
-#include "../mesh/Mesh.hpp"
-#include "camera/Camera.hpp"
-#include "environment/Environment.hpp"
+#include "actors/Ground.hpp"
+#include "actors/Vehicle.hpp"
+#include "actors/Prop.hpp"
+#include "actors/Trigger.hpp"
 
-#include "../actors/ground/Ground.hpp"
+#include "Camera.hpp"
+#include "Environment.hpp"
 
-#include "../actors/vehicle/Vehicle.hpp"
-#include "../actors/prop/Prop.hpp"
-#include "../actors/trigger/Trigger.hpp"
+#include "../shared/Mesh.hpp"
 
 class Scene
 {
 public:
-    Scene(ve_color_t backgroundColor, const VE_STRUCT_CAMERA_CREATE_INFO& cameraInfo);
+    Scene(ve_color_t backgroundColor, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo);
 
     DrawData getDrawData();
 

@@ -3,7 +3,7 @@
 
 #include "Trigger.hpp"
 
-#include "../../Log.hpp"
+#include "../../shared/Log.hpp"
 
 Trigger::Trigger(uint32_t id, Transform transform, MeshInstanceId meshInstanceId, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info)
 {

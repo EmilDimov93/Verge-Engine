@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <vector>
+#include "definitions.hpp"
 
-#include "../definitions.hpp"
+#include <vector>
 
 struct Vertex
 {

@@ -3,9 +3,9 @@
 
 #include "WindowManager.hpp"
 
-#include "../Log.hpp"
-
 #include <GLFW/glfw3.h>
+
+#include "../shared/Log.hpp"
 
 WindowManager::WindowManager(Size2 size, std::string projectName)
 {
@@ -15,7 +15,7 @@ WindowManager::WindowManager(Size2 size, std::string projectName)
 
     const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-    if(size.w > 0 && size.w <= mode->width && size.h > 0 && size.h <= mode->height)
+    if (size.w > 0 && size.w <= mode->width && size.h > 0 && size.h <= mode->height)
     {
         this->size = size;
     }

@@ -3,7 +3,7 @@
 
 #include "Vehicle.hpp"
 
-#include "../../Log.hpp"
+#include "../../shared/Log.hpp"
 
 #define HP_TO_KW_CONVERSION_FACTOR 0.7457f
 
@@ -197,7 +197,7 @@ Vehicle::Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info,
         maxSteeringAngleRad = 0.55f;
     }
 
-    if(info.tireGrip > 0.05f)
+    if (info.tireGrip > 0.05f)
     {
         tireGrip = info.tireGrip;
     }

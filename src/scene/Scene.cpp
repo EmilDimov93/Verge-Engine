@@ -10,7 +10,7 @@
 #include <filesystem>
 #include <glm/gtc/random.hpp>
 
-#include "../Log.hpp"
+#include "../shared/Log.hpp"
 
 Scene::Scene(ve_color_t backgroundColor, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo) : camera(cameraInfo)
 {
@@ -394,9 +394,9 @@ void Scene::addTrigger(int32_t id, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &inf
 
 void Scene::setMatrix(MeshInstanceId meshInstanceId, glm::mat4 newModel)
 {
-    for(MeshInstance &instance : meshInstances)
+    for (MeshInstance &instance : meshInstances)
     {
-        if(instance.id == meshInstanceId)
+        if (instance.id == meshInstanceId)
         {
             instance.model = newModel;
             break;

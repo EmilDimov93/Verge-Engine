@@ -3,7 +3,7 @@
 
 #include "Input.hpp"
 
-#include "../Log.hpp"
+#include "Log.hpp"
 
 #define AXIS_DEAD_ZONE 0.001f
 

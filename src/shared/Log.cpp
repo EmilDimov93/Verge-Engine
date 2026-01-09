@@ -35,9 +35,11 @@ void Log::init(LogOutputMode mode)
 {
     outputMode = mode;
 
-    if(mode == VE_LOG_OUTPUT_MODE_CONSOLE || mode == VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE){
-        for(std::string message : getNewMessages()){
-            std::cout << "LOG: " << message << std::endl; 
+    if (mode == VE_LOG_OUTPUT_MODE_CONSOLE || mode == VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE)
+    {
+        for (std::string message : getNewMessages())
+        {
+            std::cout << "LOG: " << message << std::endl;
         }
     }
 
@@ -63,7 +65,8 @@ void Log::add(char letter, uint16_t number)
     hasNewMessagesFlag = true;
     newMessageCount++;
 
-    if(outputMode == VE_LOG_OUTPUT_MODE_CONSOLE || outputMode == VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE){
+    if (outputMode == VE_LOG_OUTPUT_MODE_CONSOLE || outputMode == VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE)
+    {
         std::cout << "LOG: " << entries.back().getMessage() << std::endl;
     }
 

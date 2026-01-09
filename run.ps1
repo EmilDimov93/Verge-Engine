@@ -40,10 +40,10 @@ if (-not (Test-Path -Path "build")) {
 
 New-Item -ItemType Directory -Force -Path "build/$config/shaders" | Out-Null
 
-& $glslang -V "src/rendering/shaders/shader.vert" -o "build/$config/shaders/vert.spv"
+& $glslang -V "src/renderer/shaders/shader.vert" -o "build/$config/shaders/vert.spv"
 if ($LASTEXITCODE -ne 0) { exit 1 }
 
-& $glslang -V "src/rendering/shaders/shader.frag" -o "build/$config/shaders/frag.spv"
+& $glslang -V "src/renderer/shaders/shader.frag" -o "build/$config/shaders/frag.spv"
 if ($LASTEXITCODE -ne 0) { exit 1 }
 
 Write-Host "Shaders compiled" -ForegroundColor Blue

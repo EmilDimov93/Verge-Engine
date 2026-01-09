@@ -1,13 +1,12 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#include "../system/WindowManager.hpp"
-#include "../system/Input.hpp"
-#include "../system/FPSManager.hpp"
-
+#include "WindowManager.hpp"
 #include "VulkanManager.hpp"
+#include "FPSManager.hpp"
 
-#include "../Log.hpp"
+#include "../shared/Input.hpp"
+#include "../shared/Log.hpp"
 
 struct VE_STRUCT_RENDERER_CREATE_INFO
 {

@@ -3,8 +3,8 @@
 
 #include "VulkanManager.hpp"
 
-#include "../Log.hpp"
-#include "../version.hpp"
+#include "../shared/Log.hpp"
+#include "../shared/version.hpp"
 
 #include <GLFW/glfw3.h>
 #include <array>

@@ -8,21 +8,21 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_executable(VergeEngine 
     src/Main.cpp
     
-    src/Log.cpp
-    src/system/Input.cpp
+    src/shared/Log.cpp
+    src/shared/Input.cpp
 
-    src/rendering/Renderer.cpp
-    src/system/WindowManager.cpp
-    src/rendering/VulkanManager.cpp
-    src/system/FpsManager.cpp
+    src/renderer/Renderer.cpp
+    src/renderer/WindowManager.cpp
+    src/renderer/VulkanManager.cpp
+    src/renderer/FpsManager.cpp
 
     src/scene/Scene.cpp
-    src/actors/vehicle/VehicleCore.cpp
-    src/actors/vehicle/VehicleGraphics.cpp
-    src/actors/vehicle/VehiclePhysics.cpp
-    src/actors/prop/Prop.cpp
-    src/actors/trigger/Trigger.cpp
-    src/scene/camera/Camera.cpp
+    src/scene/actors/VehicleCore.cpp
+    src/scene/actors/VehicleGraphics.cpp
+    src/scene/actors/VehiclePhysics.cpp
+    src/scene/actors/Prop.cpp
+    src/scene/actors/Trigger.cpp
+    src/scene/Camera.cpp
 )
 
 target_include_directories(VergeEngine PRIVATE

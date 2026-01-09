@@ -1,7 +1,7 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#include "rendering/Renderer.hpp"
+#include "renderer/Renderer.hpp"
 #include "scene/Scene.hpp"
 
 class VergeEngine

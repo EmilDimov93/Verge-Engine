@@ -67,7 +67,7 @@ struct Transform
     constexpr Transform(Position3 p = {}, Rotation3 r = {}, Scale3 s = {}) : position(p), rotation(r), scale(s) {}
 };
 
-inline glm::mat4 transformToMat(const Transform& transform)
+inline glm::mat4 transformToMat(const Transform &transform)
 {
     glm::mat4 mat(1.0f);
 
@@ -85,5 +85,6 @@ inline glm::mat4 transformToMat(const Transform& transform)
 template <typename T>
 inline T clamp(T v, T lo, T hi)
 {
-    return (v < lo) ? lo : (v > hi) ? hi : v;
+    return (v < lo) ? lo : (v > hi) ? hi
+                                    : v;
 }

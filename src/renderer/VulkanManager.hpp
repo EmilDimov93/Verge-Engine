@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "../mesh/Mesh.hpp"
-#include "../definitions.hpp"
+#include "../shared/Mesh.hpp"
+#include "../shared/definitions.hpp"
 
 #include <vulkan/vulkan.h>
 #include <vector>
@@ -26,7 +26,8 @@ public:
     ~VulkanManager();
 
 private:
-    struct VulkanMesh {
+    struct VulkanMesh
+    {
         MeshId id;
 
         uint64_t vertexCount = 0;
@@ -41,9 +42,9 @@ private:
     };
 
     std::vector<VulkanMesh> vulkanMeshes;
-    void createVertexBuffer(VulkanMesh& vulkanMesh, const std::vector<Vertex> &vertices);
-    void createIndexBuffer(VulkanMesh& vulkanMesh, const std::vector<uint32_t> &indices);
-    void initVulkanMesh(MeshId meshId, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
+    void createVertexBuffer(VulkanMesh &vulkanMesh, const std::vector<Vertex> &vertices);
+    void createIndexBuffer(VulkanMesh &vulkanMesh, const std::vector<uint32_t> &indices);
+    void initVulkanMesh(MeshId meshId, const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices);
 
     int currentFrame = 0;
 

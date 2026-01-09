@@ -3,9 +3,9 @@
 
 #include "Renderer.hpp"
 
-#include "../Log.hpp"
+#include "../shared/Log.hpp"
 
-Renderer::Renderer(const VE_STRUCT_RENDERER_CREATE_INFO& info) : window(info.windowSize, info.projectName), vulkan(window.getReference(), window.getSize())
+Renderer::Renderer(const VE_STRUCT_RENDERER_CREATE_INFO &info) : window(info.windowSize, info.projectName), vulkan(window.getReference(), window.getSize())
 {
     Input::init(window.getReference());
     Log::init(info.logOutputMode);

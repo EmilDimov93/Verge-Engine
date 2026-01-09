@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include "../definitions.hpp"
-
 #include <GLFW/glfw3.h>
+
+#include "definitions.hpp"
 
 typedef enum
 {
@@ -212,63 +212,67 @@ struct VEKeybind
 
     bool isDown()
     {
-        switch(keyType){
-            case VE_KEY_TYPE_KEYBOARD:
-                return Input::isDown((VEKey)key);
-            case VE_KEY_TYPE_MOUSE:
-                return Input::isDown((VEMouseBtn)key);
-            case VE_KEY_TYPE_GAMEPAD_BTN:
-                return Input::isDown((VEGamepadBtn)key);
-            default:
-                return false;
+        switch (keyType)
+        {
+        case VE_KEY_TYPE_KEYBOARD:
+            return Input::isDown((VEKey)key);
+        case VE_KEY_TYPE_MOUSE:
+            return Input::isDown((VEMouseBtn)key);
+        case VE_KEY_TYPE_GAMEPAD_BTN:
+            return Input::isDown((VEGamepadBtn)key);
+        default:
+            return false;
         }
     }
 
     bool isUp()
     {
-        switch(keyType){
-            case VE_KEY_TYPE_KEYBOARD:
-                return Input::isUp((VEKey)key);
-            case VE_KEY_TYPE_MOUSE:
-                return Input::isUp((VEMouseBtn)key);
-            case VE_KEY_TYPE_GAMEPAD_BTN:
-                return Input::isUp((VEGamepadBtn)key);
-            default:
-                return false;
+        switch (keyType)
+        {
+        case VE_KEY_TYPE_KEYBOARD:
+            return Input::isUp((VEKey)key);
+        case VE_KEY_TYPE_MOUSE:
+            return Input::isUp((VEMouseBtn)key);
+        case VE_KEY_TYPE_GAMEPAD_BTN:
+            return Input::isUp((VEGamepadBtn)key);
+        default:
+            return false;
         }
     }
 
     bool isPressed()
     {
-        switch(keyType){
-            case VE_KEY_TYPE_KEYBOARD:
-                return Input::isPressed((VEKey)key);
-            case VE_KEY_TYPE_MOUSE:
-                return Input::isPressed((VEMouseBtn)key);
-            case VE_KEY_TYPE_GAMEPAD_BTN:
-                return Input::isPressed((VEGamepadBtn)key);
-            default:
-                return false;
+        switch (keyType)
+        {
+        case VE_KEY_TYPE_KEYBOARD:
+            return Input::isPressed((VEKey)key);
+        case VE_KEY_TYPE_MOUSE:
+            return Input::isPressed((VEMouseBtn)key);
+        case VE_KEY_TYPE_GAMEPAD_BTN:
+            return Input::isPressed((VEGamepadBtn)key);
+        default:
+            return false;
         }
     }
 
     bool isReleased()
     {
-        switch(keyType){
-            case VE_KEY_TYPE_KEYBOARD:
-                return Input::isReleased((VEKey)key);
-            case VE_KEY_TYPE_MOUSE:
-                return Input::isReleased((VEMouseBtn)key);
-            case VE_KEY_TYPE_GAMEPAD_BTN:
-                return Input::isReleased((VEGamepadBtn)key);
-            default:
-                return false;
+        switch (keyType)
+        {
+        case VE_KEY_TYPE_KEYBOARD:
+            return Input::isReleased((VEKey)key);
+        case VE_KEY_TYPE_MOUSE:
+            return Input::isReleased((VEMouseBtn)key);
+        case VE_KEY_TYPE_GAMEPAD_BTN:
+            return Input::isReleased((VEGamepadBtn)key);
+        default:
+            return false;
         }
     }
 
     float getAxis()
     {
-        if(keyType == VE_KEY_TYPE_GAMEPAD_AXIS)
+        if (keyType == VE_KEY_TYPE_GAMEPAD_AXIS)
             return Input::getAxis((VEGamepadAxis)key);
         else
             return 0;
@@ -276,7 +280,7 @@ struct VEKeybind
 
     float getAxisNormalized()
     {
-        if(keyType == VE_KEY_TYPE_GAMEPAD_AXIS)
+        if (keyType == VE_KEY_TYPE_GAMEPAD_AXIS)
             return (Input::getAxis((VEGamepadAxis)key) + 1.0f) * 0.5f;
         else
             return 0;

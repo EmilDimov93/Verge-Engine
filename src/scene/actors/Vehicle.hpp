@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include "../../definitions.hpp"
-#include "../../system/Input.hpp"
+#include "../Environment.hpp"
 
-#include "../../scene/environment/Environment.hpp"
+#include "../../shared/definitions.hpp"
+#include "../../shared/Input.hpp"
 
 #include <vector>
 

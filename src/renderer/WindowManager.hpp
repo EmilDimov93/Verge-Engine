@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../definitions.hpp"
+#include "../shared/definitions.hpp"
 
 class Log;
 

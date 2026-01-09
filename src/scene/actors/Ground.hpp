@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include "../../Log.hpp"
+#include "../../shared/Log.hpp"
 
-#include "../../definitions.hpp"
+#include "../../shared/definitions.hpp"
 
 #include <vector>
 
@@ -47,7 +47,8 @@ struct Ground
 
     float sampleHeight(float x, float z) const // world coordinates
     {
-        if(x < transform.position.x - w / 2 || x > transform.position.x + w / 2 || z < transform.position.z - h / 2 || z > transform.position.z + h / 2){
+        if (x < transform.position.x - w / 2 || x > transform.position.x + w / 2 || z < transform.position.z - h / 2 || z > transform.position.z + h / 2)
+        {
             Log::add('A', 191);
             return 0;
         }
@@ -68,7 +69,8 @@ struct Ground
 
     float sampleSurfaceIndex(float x, float z) const
     {
-        if(x < transform.position.x - w / 2 || x > transform.position.x + w / 2 || z < transform.position.z - h / 2 || z > transform.position.z + h / 2){
+        if (x < transform.position.x - w / 2 || x > transform.position.x + w / 2 || z < transform.position.z - h / 2 || z > transform.position.z + h / 2)
+        {
             Log::add('A', 191);
             return 0;
         }
@@ -78,7 +80,8 @@ struct Ground
 
     float getHeightAt(uint32_t x, uint32_t y) const // grid coordinates
     {
-        if(x >= w || y >= h || x < 0 || y < 0){
+        if (x >= w || y >= h || x < 0 || y < 0)
+        {
             Log::add('A', 191);
             return 0;
         }
@@ -86,7 +89,8 @@ struct Ground
     }
     uint32_t getSurfaceAt(uint32_t x, uint32_t y) const // grid coordinates
     {
-        if(x >= w || y >= h || x < 0 || y < 0){
+        if (x >= w || y >= h || x < 0 || y < 0)
+        {
             Log::add('A', 191);
             return 0;
         }
@@ -95,7 +99,8 @@ struct Ground
 
     void setHeightAt(uint32_t x, uint32_t y, float value)
     {
-        if(x > w - 1 || y > h - 1){
+        if (x > w - 1 || y > h - 1)
+        {
             Log::add('A', 191);
             return;
         }
@@ -103,7 +108,8 @@ struct Ground
     }
     void setSurfaceAt(uint32_t x, uint32_t y, uint8_t surfaceIndex)
     {
-        if(x > w || y > h){
+        if (x > w || y > h)
+        {
             Log::add('A', 191);
             return;
         }

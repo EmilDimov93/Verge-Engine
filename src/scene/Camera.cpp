@@ -3,9 +3,9 @@
 
 #include "Camera.hpp"
 
-#include "../../Log.hpp"
+#include "../shared/Log.hpp"
 
-Camera::Camera(const VE_STRUCT_CAMERA_CREATE_INFO& info)
+Camera::Camera(const VE_STRUCT_CAMERA_CREATE_INFO &info)
 {
     if (isInitialized)
     {

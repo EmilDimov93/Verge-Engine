@@ -39,16 +39,14 @@ public:
     uint32_t addSurface(const VE_STRUCT_SURFACE_CREATE_INFO &info);
     void buildGroundMesh(Size2 size, Transform transform = {});
 
-    void setAirDensity();
-    void setGravity();
-    void setBackgroundColor();
+    void setAirDensity(float airDensity);
+    void setGravity(float gravity);
+    void setBackgroundColor(ve_color_t backgroundColor);
 
     ~Scene();
 
 private:
     ve_time_t dt;
-
-    ve_color_t backgroundColor;
 
     // Meshes
     std::vector<Mesh> meshes;

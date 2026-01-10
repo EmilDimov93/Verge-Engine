@@ -14,7 +14,7 @@
 
 Scene::Scene(ve_color_t backgroundColor, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo) : camera(cameraInfo)
 {
-    this->backgroundColor = backgroundColor;
+    environment.backgroundColor = backgroundColor;
 
     isCameraFollowingVehicle = false;
 
@@ -24,7 +24,7 @@ Scene::Scene(ve_color_t backgroundColor, const VE_STRUCT_CAMERA_CREATE_INFO &cam
 
 DrawData Scene::getDrawData()
 {
-    DrawData drawData(meshes, meshInstances, camera.getProjectionMatrix(), camera.getViewMatrix(), backgroundColor);
+    DrawData drawData(meshes, meshInstances, camera.getProjectionMatrix(), camera.getViewMatrix(), environment.backgroundColor);
     return drawData;
 }
 
@@ -350,6 +350,21 @@ void Scene::buildGroundMesh(Size2 size, Transform transform)
     MeshInstanceId newMeshInstanceId = addMeshInstance(newMeshId);
 
     setMatrix(newMeshInstanceId, transformToMat(transform));
+}
+
+void Scene::setAirDensity(float airDensity)
+{
+    environment.airDensity = airDensity;
+}
+
+void Scene::setGravity(float gravity)
+{
+    environment.gravity = gravity;
+}
+
+void Scene::setBackgroundColor(ve_color_t backgroundColor)
+{
+    environment.backgroundColor = backgroundColor;
 }
 
 void Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform)

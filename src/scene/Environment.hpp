@@ -3,8 +3,11 @@
 
 #pragma once
 
+#include "../shared/definitions.hpp"
+
 struct Environment
 {
+    ve_color_t backgroundColor;
     float airDensity = 1.225f;
     float gravity = 9.81f;
 };

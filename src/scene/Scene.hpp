@@ -39,6 +39,10 @@ public:
     uint32_t addSurface(const VE_STRUCT_SURFACE_CREATE_INFO &info);
     void buildGroundMesh(Size2 size, Transform transform = {});
 
+    void setAirDensity();
+    void setGravity();
+    void setBackgroundColor();
+
     ~Scene();
 
 private:

@@ -825,7 +825,7 @@ void VulkanManager::createIndexBuffer(VulkanMesh &vulkanMesh, const std::vector<
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 
-void VulkanManager::initVulkanMesh(const Mesh& mesh)
+void VulkanManager::initVulkanMesh(const Mesh &mesh)
 {
     VulkanMesh newVulkanMesh{};
 
@@ -835,12 +835,12 @@ void VulkanManager::initVulkanMesh(const Mesh& mesh)
     newVulkanMesh.vertexCount = mesh.getVertices().size();
     newVulkanMesh.indexCount = mesh.getIndices().size();
     createVertexBuffer(newVulkanMesh, mesh.getVertices());
-    createIndexBuffer(newVulkanMesh,  mesh.getIndices());
+    createIndexBuffer(newVulkanMesh, mesh.getIndices());
 
     vulkanMeshes.push_back(newVulkanMesh);
 }
 
-void VulkanManager::updateVulkanMesh(VulkanMesh &vulkanMesh, const Mesh& mesh)
+void VulkanManager::updateVulkanMesh(VulkanMesh &vulkanMesh, const Mesh &mesh)
 {
     if (device != VK_NULL_HANDLE)
         vkCheck(vkDeviceWaitIdle(device), {'V', 235});
@@ -864,10 +864,10 @@ void VulkanManager::updateVulkanMesh(VulkanMesh &vulkanMesh, const Mesh& mesh)
 
     newVulkanMesh.id = mesh.getId();
 
-    newVulkanMesh.vertexCount =  mesh.getVertices().size();
-    newVulkanMesh.indexCount =  mesh.getIndices().size();
-    createVertexBuffer(newVulkanMesh,  mesh.getVertices());
-    createIndexBuffer(newVulkanMesh,  mesh.getIndices());
+    newVulkanMesh.vertexCount = mesh.getVertices().size();
+    newVulkanMesh.indexCount = mesh.getIndices().size();
+    createVertexBuffer(newVulkanMesh, mesh.getVertices());
+    createIndexBuffer(newVulkanMesh, mesh.getIndices());
 
     vulkanMesh = newVulkanMesh;
 
@@ -898,45 +898,47 @@ void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh
 
     vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
+    for (const Mesh &mesh : meshes)
+    {
+        bool vulkanMeshFound = false;
+        for (VulkanMesh &vulkanMesh : vulkanMeshes)
+        {
+            if (mesh.getId() == vulkanMesh.id)
+            {
+                vulkanMeshFound = true;
+                if (mesh.getVersion() > vulkanMesh.version)
+                {
+                    updateVulkanMesh(vulkanMesh, mesh);
+                }
+                break;
+            }
+        }
+        if (!vulkanMeshFound)
+        {
+            initVulkanMesh(mesh);
+        }
+    }
+
     for (const MeshInstance &instance : meshInstances)
     {
-        for (const Mesh &mesh : meshes)
+        for (const VulkanMesh &vulkanMesh : vulkanMeshes)
         {
-            if (mesh.getId() == instance.meshId)
+            if (instance.meshId == vulkanMesh.id)
             {
-                bool vulkanMeshFound = false;
-                for (VulkanMesh &vulkanMesh : vulkanMeshes)
-                {
-                    if (vulkanMesh.id == mesh.getId())
-                    {
-                        vulkanMeshFound = true;
+                VkBuffer vertexBuffers[] = {vulkanMesh.vertexBuffer};
+                VkDeviceSize offsets[] = {0};
+                vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
 
-                        if (vulkanMesh.version < mesh.getVersion())
-                        {
-                            updateVulkanMesh(vulkanMesh, mesh);
-                        }
+                vkCmdBindIndexBuffer(commandBuffers[currentFrame], vulkanMesh.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-                        VkBuffer vertexBuffers[] = {vulkanMesh.vertexBuffer};
-                        VkDeviceSize offsets[] = {0};
-                        vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
+                glm::mat4 m = instance.model;
+                vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &m);
 
-                        vkCmdBindIndexBuffer(commandBuffers[currentFrame], vulkanMesh.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+                vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
-                        glm::mat4 m = instance.model;
-                        vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &m);
+                vkCmdDrawIndexed(commandBuffers[currentFrame], vulkanMesh.indexCount, 1, 0, 0, 0);
 
-                        vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-
-                        vkCmdDrawIndexed(commandBuffers[currentFrame], vulkanMesh.indexCount, 1, 0, 0, 0);
-
-                        break;
-                    }
-                }
-
-                if (!vulkanMeshFound)
-                {
-                    initVulkanMesh(mesh);
-                }
+                break;
             }
         }
     }

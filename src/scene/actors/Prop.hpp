@@ -10,10 +10,12 @@ public:
 
     glm::mat4 getModelMat();
 
-private:
-    Transform transform;
+    void setTransform(Transform transform);
 
     MeshInstanceId meshInstanceId;
+
+private:
+    Transform transform;
 
     glm::mat4 modelMat;
 };

@@ -437,6 +437,11 @@ void Scene::tick(ve_time_t frameTime)
         setMatrix(vehicle.wheelBRMeshInstanceId, vehicle.wheelBRMat);
     }
 
+    for(Prop &prop : props)
+    {
+        setMatrix(prop.meshInstanceId, prop.getModelMat());
+    }
+
     if (isCameraFollowingVehicle)
         cameraFollowVehicle();
 

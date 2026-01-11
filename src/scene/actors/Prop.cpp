@@ -18,3 +18,10 @@ glm::mat4 Prop::getModelMat()
 {
     return modelMat;
 }
+
+void Prop::setTransform(Transform transform)
+{
+    this->transform = transform;
+
+    modelMat = transformToMat(transform);
+}

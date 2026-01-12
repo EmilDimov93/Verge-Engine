@@ -708,14 +708,7 @@ void VulkanManager::updateUniformBuffers(uint32_t currentFrame, glm::mat4 projec
     vkUnmapMemory(device, vpUniformBufferMemory[currentFrame]);
 }
 
-#define VK_CHECK1(res)         \
-    do                         \
-    {                          \
-        if (res != VK_SUCCESS) \
-            return res;        \
-    } while (0)
-
-VkResult createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory)
+void VulkanManager::createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory)
 {
     VkBufferCreateInfo bufferCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
@@ -723,7 +716,7 @@ VkResult createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDevice
         .usage = bufferUsageFlags,
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
 
-    VK_CHECK1(vkCreateBuffer(device, &bufferCreateInfo, nullptr, buffer));
+    vkCheck(vkCreateBuffer(device, &bufferCreateInfo, nullptr, buffer), {'V', 218});
 
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(device, *buffer, &memRequirements);
@@ -733,11 +726,9 @@ VkResult createBuffer(VkPhysicalDevice physicalDevice, VkDevice device, VkDevice
         .allocationSize = memRequirements.size,
         .memoryTypeIndex = findMemoryTypeIndex(physicalDevice, memRequirements.memoryTypeBits, bufferPropertyFlags)};
 
-    VK_CHECK1(vkAllocateMemory(device, &memoryAllocInfo, nullptr, bufferMemory));
+    vkCheck(vkAllocateMemory(device, &memoryAllocInfo, nullptr, bufferMemory), {'V', 218});
 
-    VK_CHECK1(vkBindBufferMemory(device, *buffer, *bufferMemory, 0));
-
-    return VK_SUCCESS;
+    vkCheck(vkBindBufferMemory(device, *buffer, *bufferMemory, 0), {'V', 218});
 }
 
 void copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBufer, VkBuffer dstBuffer, VkDeviceSize bufferSize)
@@ -787,14 +778,14 @@ void VulkanManager::createVertexBuffer(VulkanMesh &vulkanMesh, const std::vector
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
 
-    createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
 
     void *data;
     vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data); // Should vkCheck
     memcpy(data, vertices.data(), (size_t)bufferSize);
     vkUnmapMemory(device, stagingBufferMemory);
 
-    createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &vulkanMesh.vertexBuffer, &vulkanMesh.vertexBufferMemory);
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &vulkanMesh.vertexBuffer, &vulkanMesh.vertexBufferMemory);
 
     // Should be transferQueue and transferCommandPool?
     copyBuffer(device, graphicsQueue, graphicsCommandPool, stagingBuffer, vulkanMesh.vertexBuffer, bufferSize);
@@ -809,14 +800,14 @@ void VulkanManager::createIndexBuffer(VulkanMesh &vulkanMesh, const std::vector<
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
-    createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
 
     void *data;
     vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data); // Should vkCheck
     memcpy(data, indices.data(), (size_t)bufferSize);
     vkUnmapMemory(device, stagingBufferMemory);
 
-    createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &vulkanMesh.indexBuffer, &vulkanMesh.indexBufferMemory);
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &vulkanMesh.indexBuffer, &vulkanMesh.indexBufferMemory);
 
     // Should be transferQueue and transferCommandPool?
     copyBuffer(device, graphicsQueue, graphicsCommandPool, stagingBuffer, vulkanMesh.indexBuffer, bufferSize);
@@ -957,7 +948,7 @@ void VulkanManager::createUniformBuffers()
 
     for (size_t i = 0; i < swapChainImages.size(); i++)
     {
-        vkCheck(createBuffer(physicalDevice, device, vpBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &vpUniformBuffer[i], &vpUniformBufferMemory[i]), {'V', 218});
+        createBuffer(vpBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &vpUniformBuffer[i], &vpUniformBufferMemory[i]);
     }
 }
 

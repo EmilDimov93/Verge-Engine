@@ -43,7 +43,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'V', 215}, "Vulkan failed to create semaphore"},
     {{'V', 216}, "Vulkan failed to create fence"},
     {{'V', 217}, "Vulkan failed to create descriptor set layout"},
-    {{'V', 218}, "Vulkan failed to create buffer"}, //
+    {{'V', 218}, "Vulkan failed to create buffer"},
     {{'V', 219}, "Vulkan failed to create descriptor pool"},
     {{'V', 220}, "Vulkan failed to allocate descriptor sets"},
     {{'V', 221}, "Vulkan failed to find shader files"},

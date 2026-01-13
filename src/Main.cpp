@@ -4,6 +4,8 @@
 #include "renderer/Renderer.hpp"
 #include "scene/Scene.hpp"
 
+#include "scene/Player.hpp"
+
 class VergeEngine
 {
 public:
@@ -13,8 +15,13 @@ public:
     {
         setupScene();
 
+        Player p1;
+        p1.keybinds.steerLeft = VE_MOUSE_BTN_LEFT;
+        p1.keybinds.steerRight = VE_MOUSE_BTN_RIGHT;
+
         while (renderer.tick(scene.getDrawData()))
         {
+            std::cout << p1.tick().steer << std::endl;
             scene.tick(renderer.getFrameTime());
         }
     }

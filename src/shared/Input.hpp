@@ -212,6 +212,7 @@ struct VEKeybind
 
     bool isDown()
     {
+        if(key == VE_KEY_UNKNOWN) return false;
         switch (keyType)
         {
         case VE_KEY_TYPE_KEYBOARD:
@@ -227,6 +228,7 @@ struct VEKeybind
 
     bool isUp()
     {
+        if(key == VE_KEY_UNKNOWN) return true;
         switch (keyType)
         {
         case VE_KEY_TYPE_KEYBOARD:
@@ -236,12 +238,13 @@ struct VEKeybind
         case VE_KEY_TYPE_GAMEPAD_BTN:
             return Input::isUp((VEGamepadBtn)key);
         default:
-            return false;
+            return true;
         }
     }
 
     bool isPressed()
     {
+        if(key == VE_KEY_UNKNOWN) return false;
         switch (keyType)
         {
         case VE_KEY_TYPE_KEYBOARD:
@@ -257,6 +260,7 @@ struct VEKeybind
 
     bool isReleased()
     {
+        if(key == VE_KEY_UNKNOWN) return false;
         switch (keyType)
         {
         case VE_KEY_TYPE_KEYBOARD:

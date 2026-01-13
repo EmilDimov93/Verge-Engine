@@ -9,25 +9,11 @@
 
 Vehicle::Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceId bodyMeshInstanceId, MeshInstanceId wheelFLMeshInstanceId, MeshInstanceId wheelFRMeshInstanceId, MeshInstanceId wheelBLMeshInstanceId, MeshInstanceId wheelBRMeshInstanceId)
 {
-    if (bodyMeshInstanceId != -1)
-    {
-        this->bodyMeshInstanceId = bodyMeshInstanceId;
-    }
-    else
-    {
-        Log::add('A', 100);
-    }
-    if (wheelFLMeshInstanceId != -1 && wheelFRMeshInstanceId != -1 && wheelBLMeshInstanceId != -1 && wheelBRMeshInstanceId != -1)
-    {
-        this->wheelFLMeshInstanceId = wheelFLMeshInstanceId;
-        this->wheelFRMeshInstanceId = wheelFRMeshInstanceId;
-        this->wheelBLMeshInstanceId = wheelBLMeshInstanceId;
-        this->wheelBRMeshInstanceId = wheelBRMeshInstanceId;
-    }
-    else
-    {
-        Log::add('A', 101);
-    }
+    this->bodyMeshInstanceId = bodyMeshInstanceId;
+    this->wheelFLMeshInstanceId = wheelFLMeshInstanceId;
+    this->wheelFRMeshInstanceId = wheelFRMeshInstanceId;
+    this->wheelBLMeshInstanceId = wheelBLMeshInstanceId;
+    this->wheelBRMeshInstanceId = wheelBRMeshInstanceId;
 
     bodyMat = glm::mat4(1.0f);
     wheelFLMat = glm::mat4(1.0f);

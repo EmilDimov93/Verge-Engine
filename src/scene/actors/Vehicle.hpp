@@ -26,8 +26,8 @@ enum VETransmissionType
 
 struct VE_STRUCT_VEHICLE_CREATE_INFO
 {
-    int32_t bodyMeshId = -1;
-    int32_t wheelMeshId = -1;
+    MeshId bodyMeshId = INVALID_MESH_ID;
+    MeshId wheelMeshId = INVALID_MESH_ID;
 
     Position3 wheelOffset = {0, 0, 0};
 

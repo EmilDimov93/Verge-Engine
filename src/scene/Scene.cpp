@@ -188,8 +188,13 @@ MeshId Scene::loadGLTF(const std::string &filePath)
     return -1;
 }
 
-MeshInstanceId Scene::addMeshInstance(int64_t meshId)
+MeshInstanceId Scene::addMeshInstance(MeshId meshId)
 {
+    if (meshId == INVALID_MESH_ID)
+    {
+        Log::add('S', 200);
+    }
+
     bool foundMesh = false;
     for (size_t i = 0; i < meshes.size(); i++)
     {
@@ -381,7 +386,7 @@ void Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform tran
 
 void Scene::addProp(MeshId meshId, Transform transform)
 {
-    uint32_t meshInstanceId = addMeshInstance(meshId);
+    MeshInstanceId meshInstanceId = addMeshInstance(meshId);
 
     Prop newProp(meshInstanceId, transform);
     props.push_back(newProp);
@@ -389,17 +394,17 @@ void Scene::addProp(MeshId meshId, Transform transform)
     setMatrix(meshInstanceId, newProp.getModelMat());
 }
 
-void Scene::addTrigger(int32_t id, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform)
+void Scene::addTrigger(TriggerId id, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform)
 {
     for (Trigger trigger : triggers)
     {
         if (id == trigger.getId())
         {
-            Log::add('S', 200);
+            Log::add('S', 201);
         }
     }
 
-    uint32_t meshInstanceId = addMeshInstance(info.meshId);
+    MeshInstanceId meshInstanceId = addMeshInstance(info.meshId);
 
     Trigger newTrigger(id, transform, meshInstanceId, info);
     triggers.push_back(newTrigger);
@@ -437,7 +442,7 @@ void Scene::tick(ve_time_t frameTime)
         setMatrix(vehicle.wheelBRMeshInstanceId, vehicle.wheelBRMat);
     }
 
-    for(Prop &prop : props)
+    for (Prop &prop : props)
     {
         setMatrix(prop.meshInstanceId, prop.getModelMat());
     }

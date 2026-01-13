@@ -81,7 +81,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     // Scene
     {{'S', 100}, "Unsupported file type"},
     {{'S', 101}, "File not found"},
-    {{'S', 102}, "Out of bounds access to mesh list"},
+    // {'S', 102} removed
     {{'S', 103}, "Out of bounds access to vehicle list"},
     {{'S', 200}, "Invalid mesh ID"},
     {{'S', 201}, "Trigger ID already exists"},
@@ -89,8 +89,8 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     // Actors
 
     // Vehicle
-    {{'A', 100}, "Vehicle: missing mesh for body"},
-    {{'A', 101}, "Vehicle: missing mesh for tire"},
+    // {'A', 100} removed
+    // {'A', 101} removed
     {{'A', 102}, "Vehicle: invalid power unit. Using default KILOWATTS"},
     {{'A', 103}, "Vehicle: invalid power. Using default value"},
     {{'A', 104}, "Vehicle: invalid weight. Using default value"},
@@ -107,11 +107,11 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'A', 115}, "Vehicle: invalid tire grip. Using default value"},
 
     // Prop
-    {{'A', 160}, "Prop: invalid mesh index"},
+    // {'A', 160} removed
 
     // Trigger
-    {{'A', 180}, "Trigger: invalid ID"},
-    {{'A', 181}, "Trigger: invalid mesh index"},
+    // {'A', 180} removed
+    // {{'A', 181} removed
     {{'A', 182}, "Trigger: invalid hitbox shape"},
     {{'A', 183}, "Trigger: invalid hitbox size"},
 

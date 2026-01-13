@@ -24,7 +24,7 @@ public:
 
     void addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform = {});
     void addProp(MeshId meshId, Transform transform);
-    void addTrigger(int32_t id, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform = {});
+    void addTrigger(TriggerId id, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform = {});
 
     void setMatrix(MeshInstanceId meshInstanceId, glm::mat4 newModel);
 
@@ -51,8 +51,8 @@ private:
     // Meshes
     std::vector<Mesh> meshes;
     std::vector<MeshInstance> meshInstances;
-    uint64_t lastMeshId = 0;
-    uint64_t lastMeshInstanceId = 0;
+    MeshId lastMeshId = 1; // Starts from one because of INVALID_MESH_ID
+    MeshInstanceId lastMeshInstanceId = 0;
 
     MeshId getNextMeshId();
     MeshInstanceId getNextMeshInstanceId();
@@ -82,7 +82,7 @@ private:
 
     void makeExampleGround();
 
-    MeshInstanceId addMeshInstance(int64_t meshId);
+    MeshInstanceId addMeshInstance(MeshId meshId);
 
     void cameraFollowVehicle();
 };

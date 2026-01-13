@@ -5,7 +5,7 @@
 
 #include "../../shared/Log.hpp"
 
-Trigger::Trigger(uint32_t id, Transform transform, MeshInstanceId meshInstanceId, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info)
+Trigger::Trigger(TriggerId id, Transform transform, MeshInstanceId meshInstanceId, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info)
 {
     this->id = id;
 
@@ -69,7 +69,7 @@ bool Trigger::doesActorTrigger(Position3 actorPos)
     return false;
 }
 
-uint32_t Trigger::getId() const
+TriggerId Trigger::getId() const
 {
     return id;
 }

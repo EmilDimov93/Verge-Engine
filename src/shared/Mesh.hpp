@@ -47,6 +47,7 @@ struct MeshInstance
     MeshInstanceId id;
 
     MeshId meshId;
+
     glm::mat4 model;
 };
 

@@ -26,9 +26,11 @@ public:
     ~VulkanManager();
 
 private:
-    struct VulkanMesh
+    struct MeshGPU
     {
         MeshId id;
+
+        uint64_t version = 0;
 
         uint64_t vertexCount = 0;
         VkBuffer vertexBuffer = VK_NULL_HANDLE;
@@ -37,15 +39,13 @@ private:
         uint64_t indexCount = 0;
         VkBuffer indexBuffer = VK_NULL_HANDLE;
         VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
-
-        uint64_t version = 0;
     };
 
-    std::vector<VulkanMesh> vulkanMeshes;
-    void createVertexBuffer(VulkanMesh &vulkanMesh, const std::vector<Vertex> &vertices);
-    void createIndexBuffer(VulkanMesh &vulkanMesh, const std::vector<uint32_t> &indices);
-    void initVulkanMesh(const Mesh& mesh);
-    void updateVulkanMesh(VulkanMesh& vulkanMesh, const Mesh& mesh);
+    std::vector<MeshGPU> MeshGPUs;
+    void createVertexBuffer(MeshGPU &MeshGPU, const std::vector<Vertex> &vertices);
+    void createIndexBuffer(MeshGPU &MeshGPU, const std::vector<uint32_t> &indices);
+    void initMeshGPU(const Mesh& mesh);
+    void updateMeshGPU(MeshGPU& MeshGPU, const Mesh& mesh);
 
     int currentFrame = 0;
 

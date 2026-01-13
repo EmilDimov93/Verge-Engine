@@ -87,6 +87,5 @@ inline glm::mat4 transformToMat(const Transform &transform)
 template <typename T>
 inline T clamp(T v, T lo, T hi)
 {
-    return (v < lo) ? lo : (v > hi) ? hi
-                                    : v;
+    return (v < lo) ? lo : (v > hi) ? hi : v;
 }

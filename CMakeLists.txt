@@ -16,7 +16,8 @@ add_executable(VergeEngine
     src/renderer/VulkanManager.cpp
     src/renderer/FpsManager.cpp
 
-    src/scene/Scene.cpp
+    src/scene/SceneCore.cpp
+    src/scene/SceneActors.cpp
     src/scene/actors/VehicleCore.cpp
     src/scene/actors/VehicleGraphics.cpp
     src/scene/actors/VehiclePhysics.cpp

@@ -26,8 +26,9 @@ struct Surface
     // Texture texture;
 };
 
-struct Ground
+class Ground
 {
+public:
     uint32_t w = 0, h = 0;
 
     std::vector<float> heightMap;
@@ -115,4 +116,6 @@ struct Ground
         }
         surfaceMap[size_t(y) * w + x] = surfaceIndex;
     }
+
+private:
 };

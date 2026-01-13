@@ -43,8 +43,6 @@ public:
     void setGravity(float gravity);
     void setBackgroundColor(ve_color_t backgroundColor);
 
-    ~Scene();
-
 private:
     ve_time_t dt;
 

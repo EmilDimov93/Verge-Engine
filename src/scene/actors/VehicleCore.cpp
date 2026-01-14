@@ -96,13 +96,6 @@ Vehicle::Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info,
         brakingForce = 1.0f;
     }
 
-    accelerateKeybind = info.accelerateKeybind;
-    brakeKeybind = info.brakeKeybind;
-    turnLeftKeybind = info.turnLeftKeybind;
-    turnRightKeybind = info.turnRightKeybind;
-    shiftUpKeybind = info.shiftUpKeybind;
-    shiftDownKeybind = info.shiftDownKeybind;
-
     if (info.pGearRatios)
     {
         // error if pGearRatios size is lower than gearCount
@@ -208,16 +201,15 @@ Vehicle::Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info,
     speedMps = 0;
     gear = 1;
     rpm = 0;
-    clutchState = 0.0f;
-    throttleState = 0.0f;
-    brakeState = 0.0f;
 
     this->transform = transform;
 }
 
-void Vehicle::tick(Environment environment, float surfaceFriction, ve_time_t deltaTime)
+void Vehicle::tick(VehicleInputState vis, Environment environment, float surfaceFriction, ve_time_t deltaTime)
 {
     dt = deltaTime;
+
+    this->vis = vis;
 
     calculatePhysics(environment, surfaceFriction);
 

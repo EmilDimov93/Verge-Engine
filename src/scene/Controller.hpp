@@ -1,6 +1,10 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
+#pragma once
+
+#include <cstdint>
+
 struct VehicleInputState{
     float throttle = 0;
     float brake = 0;
@@ -13,6 +17,7 @@ struct VehicleInputState{
 
 class Controller{
 public:
-    virtual const VehicleInputState tick() = 0;
+    virtual const VehicleInputState getVehicleInputState() = 0;
+    virtual const uint64_t getVehicleIndex() = 0;
     virtual ~Controller() = default;
 };

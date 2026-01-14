@@ -9,12 +9,23 @@ void Scene::tick(ve_time_t frameTime)
 {
     dt = frameTime;
 
+    // Temporary
+    uint64_t vehicleIndex = 0;
     for (Vehicle &vehicle : vehicles)
     {
         // Temporary(testing)
         vehicle.setHeight(ground.sampleHeight(vehicle.getTransform().position.x, vehicle.getTransform().position.z));
 
-        vehicle.tick(environment, surfaces[ground.sampleSurfaceIndex(vehicle.getTransform().position.x, vehicle.getTransform().position.z)].friction, dt);
+        VehicleInputState vis{};
+        for(const std::unique_ptr<Controller>& controller : controllers){
+            if(controller->getVehicleIndex() == vehicleIndex){
+                vis = controller->getVehicleInputState();
+                break;
+            }
+        }
+        vehicleIndex++;
+
+        vehicle.tick(vis, environment, surfaces[ground.sampleSurfaceIndex(vehicle.getTransform().position.x, vehicle.getTransform().position.z)].friction, dt);
 
         setMatrix(vehicle.bodyMeshInstanceId, vehicle.bodyMat);
         setMatrix(vehicle.wheelFLMeshInstanceId, vehicle.wheelFLMat);

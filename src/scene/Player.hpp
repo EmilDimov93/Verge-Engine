@@ -24,12 +24,12 @@ struct PlayerVehicleKeybinds
 class Player : public Controller
 {
 public:
-    Player() : camera({1.0f})
+    Player(const PlayerVehicleKeybinds& keybinds, const VE_STRUCT_CAMERA_CREATE_INFO& cameraInfo) : camera(cameraInfo)
     {
-
+        this->keybinds = keybinds;
     }
 
-    const VehicleInputState tick() override
+    const VehicleInputState getVehicleInputState() override
     {
         VehicleInputState vis{};
 
@@ -80,15 +80,21 @@ public:
         return vis;
     }
 
-    void setVehicleIndex();
+    void setVehicleIndex(uint64_t vehicleIndex){
+        this->vehicleIndex = vehicleIndex;
+    }
+
+    const uint64_t getVehicleIndex() override{
+        return vehicleIndex;
+    }
 
     // Temporarily public
-    PlayerVehicleKeybinds keybinds;
+    Camera camera;
 
 private:
-    Camera camera;
+    
 
     uint64_t vehicleIndex;
 
-    
+    PlayerVehicleKeybinds keybinds;
 };

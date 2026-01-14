@@ -15,13 +15,8 @@ public:
     {
         setupScene();
 
-        Player p1;
-        p1.keybinds.steerLeft = VE_MOUSE_BTN_LEFT;
-        p1.keybinds.steerRight = VE_MOUSE_BTN_RIGHT;
-
         while (renderer.tick(scene.getDrawData()))
         {
-            std::cout << p1.tick().steer << std::endl;
             scene.tick(renderer.getFrameTime());
         }
     }
@@ -32,6 +27,17 @@ private:
 
     void setupScene()
     {
+        PlayerVehicleKeybinds p1Keybinds{};
+        p1Keybinds.throttle = VE_KEY_K;
+        p1Keybinds.steerLeft = VE_MOUSE_BTN_LEFT;
+        p1Keybinds.steerRight = VE_MOUSE_BTN_RIGHT;
+
+        Player p1(p1Keybinds, {renderer.getAspectRatio()});
+
+        p1.setVehicleIndex(0);
+
+        scene.addPlayer(p1);
+
         VE_STRUCT_VEHICLE_CREATE_INFO sCar = {};
         sCar.bodyMeshId = scene.loadFile("models/car.obj");
         sCar.wheelMeshId = scene.loadFile("models/wheel.obj");
@@ -42,12 +48,6 @@ private:
         sCar.maxRpm = 7000;
         sCar.gearCount = 8;
         sCar.transmissionType = VE_TRANSMISSION_TYPE_AUTOMATIC;
-        sCar.accelerateKeybind = VE_KEY_W;
-        sCar.brakeKeybind = VE_KEY_S;
-        sCar.turnLeftKeybind = VE_KEY_A;
-        sCar.turnRightKeybind = VE_KEY_D;
-        sCar.shiftUpKeybind = VE_KEY_M;
-        sCar.shiftDownKeybind = VE_KEY_N;
         float ratios[8] = {5.519f, 3.184f, 2.050f, 1.492f, 1.235f, 1.000f, 0.801f, 0.673f};
         sCar.pGearRatios = ratios;
         sCar.finalDriveRatio = 3.2f;

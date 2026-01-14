@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "Player.hpp"
+
 #include "actors/Ground.hpp"
 #include "actors/Vehicle.hpp"
 #include "actors/Prop.hpp"
@@ -21,6 +23,8 @@ public:
     DrawData getDrawData();
 
     MeshId loadFile(const std::string &filePath);
+
+    void addPlayer(Player player);
 
     void addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform = {});
     void addProp(MeshId meshId, Transform transform);
@@ -45,6 +49,9 @@ public:
 
 private:
     ve_time_t dt;
+
+    // Controllers
+    std::vector<std::unique_ptr<Controller>> controllers;
 
     // Meshes
     std::vector<Mesh> meshes;

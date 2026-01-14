@@ -12,11 +12,11 @@ void Vehicle::stallAssist()
 {
     if (rpm >= maxRpm)
     {
-        throttleState = 0.0f;
+        vis.throttle = 0.0f;
     }
-    else if (rpm < idleRpm && throttleState < 0.0001f / dt)
+    else if (rpm < idleRpm && vis.throttle < 0.0001f / dt)
     {
-        throttleState = 0.0001f / dt;
+        vis.throttle = 0.0001f / dt;
     }
 }
 
@@ -26,7 +26,7 @@ float Vehicle::calcFDriveMag()
 
     float powerW = powerKw * 1000;
 
-    float powerAtCurrRPM = powerW * throttleState;
+    float powerAtCurrRPM = powerW * vis.throttle;
 
     float torqueCurveFactor = BASELINE_TORQUE_FACTOR + (1.0f - BASELINE_TORQUE_FACTOR) * (1.0f - rpm / maxRpm);
 
@@ -68,7 +68,7 @@ void Vehicle::calcForces(Environment environment, float surfaceFriction)
         FRoll = -(velocityMps / glm::length(velocityMps)) * FRollMag;
     }
 
-    float FBrakeMag = brakeState * brakingForce;
+    float FBrakeMag = vis.brake * brakingForce;
 
     glm::vec3 FBrake(0.0f);
     {
@@ -158,78 +158,11 @@ void Vehicle::updateTransmission()
     }
     else
     {
-        if (shiftUpKeybind.isAxis())
-        {
-            if (shiftUpKeybind.getAxis() > 0)
-            {
-                shiftUp();
-            }
+        if(vis.shiftUp){
+            shiftUp();
         }
-        else
-        {
-            if (shiftUpKeybind.isPressed())
-            {
-                shiftUp();
-            }
-        }
-
-        if (shiftDownKeybind.isAxis())
-        {
-            if (shiftDownKeybind.getAxis() < 0)
-            {
-                shiftDown();
-            }
-        }
-        else
-        {
-            if (shiftDownKeybind.isPressed())
-            {
-                shiftDown();
-            }
-        }
-    }
-}
-
-void Vehicle::handleInput()
-{
-    if (accelerateKeybind.isAxis())
-    {
-        throttleState = accelerateKeybind.getAxisNormalized();
-    }
-    else
-    {
-        if (accelerateKeybind.isDown())
-            throttleState = 1.0f;
-        else
-            throttleState = 0.0f;
-    }
-
-    if (brakeKeybind.isAxis())
-    {
-        brakeState = brakeKeybind.getAxisNormalized();
-    }
-    else
-    {
-        if (brakeKeybind.isDown())
-            brakeState = 1.0f;
-        else
-            brakeState = 0.0f;
-    }
-
-    steeringAngleRad = 0;
-    if (turnLeftKeybind.isAxis() && turnRightKeybind.isAxis())
-    {
-        steer(-turnLeftKeybind.getAxis());
-    }
-    else
-    {
-        if (turnLeftKeybind.isDown() && turnRightKeybind.isUp())
-        {
-            steer(1.0f);
-        }
-        else if (turnRightKeybind.isDown() && turnLeftKeybind.isUp())
-        {
-            steer(-1.0f);
+        if(vis.shiftDown){
+            shiftDown();
         }
     }
 }
@@ -243,7 +176,7 @@ void Vehicle::updateTransform()
 
 void Vehicle::calculatePhysics(Environment environment, float surfaceFriction)
 {
-    handleInput();
+    steer(vis.steer);
 
     stallAssist();
 

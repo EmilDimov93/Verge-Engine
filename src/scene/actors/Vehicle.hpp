@@ -5,8 +5,9 @@
 
 #include "../Environment.hpp"
 
+#include "../Controller.hpp"
+
 #include "../../shared/definitions.hpp"
-#include "../../shared/Input.hpp"
 
 #include <vector>
 
@@ -40,13 +41,6 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     float brakingForce = 1.0f;
     VETransmissionType transmissionType = VE_TRANSMISSION_TYPE_AUTOMATIC;
 
-    VEKeybind accelerateKeybind;
-    VEKeybind brakeKeybind;
-    VEKeybind turnLeftKeybind;
-    VEKeybind turnRightKeybind;
-    VEKeybind shiftUpKeybind;
-    VEKeybind shiftDownKeybind;
-
     float *pGearRatios = nullptr;
     float finalDriveRatio = 3.42f;
     float drivetrainEfficiency = 0.85f;
@@ -74,7 +68,7 @@ public:
 
     Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceId bodyMeshInstanceId, MeshInstanceId wheelFLMeshInstanceId, MeshInstanceId wheelFRMeshInstanceId, MeshInstanceId wheelBLMeshInstanceId, MeshInstanceId wheelBRMeshInstanceId);
 
-    void tick(Environment environment, float surfaceFriction, ve_time_t deltaTime);
+    void tick(VehicleInputState vis, Environment environment, float surfaceFriction, ve_time_t deltaTime);
 
     // Getters
     Position3 getWheelOffset() const { return wheelOffset; }
@@ -107,7 +101,6 @@ public:
     float getSteeringAngleDeg() const { return steeringAngleRad * (PI / 180); }
     uint32_t getGear() const { return gear; }
     float getRpm() const { return rpm; }
-    float getClutchState() const { return clutchState; }
 
     // Setters
     void setWheelOffset(Position3 value) { wheelOffset = value; }
@@ -139,7 +132,7 @@ public:
     void setSteeringAngleDeg(float value) { steeringAngleRad = value * (PI / 180); }
     void setGear(uint32_t value) { gear = value; }
     void setRpm(float value) { rpm = value; }
-    void setClutchState(float value) { clutchState = value; }
+    void setVis(VehicleInputState value) { vis = value; }
 
     // Temporary(testing)
     void setHeight(float h) { transform.position.y = h; }
@@ -152,7 +145,6 @@ private:
     float calcFDriveMag();
     void calcForces(Environment environment, float surfaceFriction);
     void calcRpm();
-    void handleInput();
     void steer(float turningInput);
     void shiftUp();
     void shiftDown();
@@ -171,13 +163,6 @@ private:
     VETransmissionType transmissionType;
     float brakingForce;
 
-    VEKeybind accelerateKeybind;
-    VEKeybind brakeKeybind;
-    VEKeybind turnLeftKeybind;
-    VEKeybind turnRightKeybind;
-    VEKeybind shiftUpKeybind;
-    VEKeybind shiftDownKeybind;
-
     std::vector<float> gearRatios;
     float finalDriveRatio;
     float drivetrainEfficiency;
@@ -190,14 +175,13 @@ private:
     float camberRad;
 
     // Runtime
+    VehicleInputState vis;
+
     Transform transform;
     glm::vec3 velocityMps;
     float speedMps;
     float steeringAngleRad;
     uint32_t gear;
     float rpm;
-    float clutchState;
-    float throttleState;
-    float brakeState;
     ve_time_t dt;
 };

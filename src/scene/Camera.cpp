@@ -33,12 +33,12 @@ Camera::Camera(const VE_STRUCT_CAMERA_CREATE_INFO &info)
     isInitialized = true;
 }
 
-glm::mat4 Camera::getViewMatrix()
+glm::mat4 Camera::getViewMatrix() const
 {
     return glm::lookAt(glm::vec3(position.x, position.y, position.z), glm::vec3(position.x + forward.x, position.y + forward.y, position.z + forward.z), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
-glm::mat4 Camera::getProjectionMatrix()
+glm::mat4 Camera::getProjectionMatrix() const
 {
     if (!isInitialized)
     {
@@ -65,6 +65,11 @@ void Camera::moveDelta(Position3 delta)
 void Camera::rotate(Rotation3 newRotation)
 {
     rotation = newRotation;
+
+    forward.x = cos(glm::radians(rotation.yaw)) * cos(glm::radians(rotation.pitch));
+    forward.y = sin(glm::radians(rotation.pitch));
+    forward.z = sin(glm::radians(rotation.yaw)) * cos(glm::radians(rotation.pitch));
+    forward = glm::normalize(forward);
 }
 
 void Camera::rotateDelta(Rotation3 delta)
@@ -72,22 +77,19 @@ void Camera::rotateDelta(Rotation3 delta)
     rotation.pitch += delta.pitch;
     rotation.yaw += delta.yaw;
     rotation.roll += delta.roll;
-}
 
-Position3 Camera::getPosition()
-{
-    return position;
-}
-
-Rotation3 Camera::getRotation()
-{
-    return rotation;
-}
-
-void Camera::tick()
-{
     forward.x = cos(glm::radians(rotation.yaw)) * cos(glm::radians(rotation.pitch));
     forward.y = sin(glm::radians(rotation.pitch));
     forward.z = sin(glm::radians(rotation.yaw)) * cos(glm::radians(rotation.pitch));
     forward = glm::normalize(forward);
+}
+
+Position3 Camera::getPosition() const
+{
+    return position;
+}
+
+Rotation3 Camera::getRotation() const
+{
+    return rotation;
 }

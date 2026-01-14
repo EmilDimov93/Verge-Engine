@@ -11,11 +11,9 @@
 
 #include "../shared/Log.hpp"
 
-Scene::Scene(ve_color_t backgroundColor, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo) : camera(cameraInfo)
+Scene::Scene(ve_color_t backgroundColor)
 {
     environment.backgroundColor = backgroundColor;
-
-    isCameraFollowingVehicle = false;
 
     // Default surface
     surfaces.push_back({1.0f, {0.1f, 0.1f, 0.1f}});
@@ -194,67 +192,4 @@ void Scene::setGravity(float gravity)
 void Scene::setBackgroundColor(ve_color_t backgroundColor)
 {
     environment.backgroundColor = backgroundColor;
-}
-
-void Scene::setCameraFollowVehicle(uint32_t vehicleIndex)
-{
-    if (vehicleIndex < 0 || vehicleIndex > vehicles.size() + 1)
-    {
-        Log::add('S', 103);
-        return;
-    }
-
-    isCameraFollowingVehicle = true;
-    cameraFollowedVehicleIndex = vehicleIndex;
-}
-
-void Scene::unsetCameraFollowVehicle()
-{
-    isCameraFollowingVehicle = false;
-}
-
-void Scene::setCameraFollowDistance(float distance)
-{
-    cameraFollowDistance = distance;
-}
-
-void Scene::setCameraFollowHeight(float height)
-{
-    cameraFollowHeight = height;
-}
-
-void Scene::setCameraFollowYawDelay(float yawDelay)
-{
-    cameraFollowYawDelay = yawDelay;
-}
-
-void Scene::cameraFollowVehicle()
-{
-    float currCameraHeight = cameraFollowHeight;
-    // Move camera when ground is obstructing view
-    /*if(ground.sampleHeight(camera.getPosition().x, camera.getPosition().z) >= currCameraHeight){
-        currCameraHeight += ground.sampleHeight(camera.getPosition().x, camera.getPosition().z);
-    }*/
-
-    glm::vec3 vehicleVelocityVector = vehicles[cameraFollowedVehicleIndex].getVelocityVector();
-    float vehicleYaw = atan2(vehicleVelocityVector.x, vehicleVelocityVector.z);
-
-    static float cameraYaw = vehicleYaw - PI;
-
-    float targetYaw = vehicleYaw - PI;
-
-    cameraYaw += (targetYaw - cameraYaw) * cameraFollowYawDelay;
-
-    Position3 vehiclePos = vehicles[cameraFollowedVehicleIndex].getTransform().position;
-
-    static glm::vec3 prevCamPos = {camera.getPosition().x, camera.getPosition().y, camera.getPosition().z};
-    glm::vec3 targetCamPos = {vehiclePos.x + sin(cameraYaw) * cameraFollowDistance, vehiclePos.y + currCameraHeight, vehiclePos.z + cos(cameraYaw) * cameraFollowDistance};
-    glm::vec3 newCamPos = glm::mix(prevCamPos, targetCamPos, 1.0f - std::exp(-float(dt) * 10.0f));
-    camera.move({newCamPos.x, newCamPos.y, newCamPos.z});
-    prevCamPos = {camera.getPosition().x, camera.getPosition().y, camera.getPosition().z};
-
-    glm::vec3 dir = glm::normalize(glm::vec3(vehiclePos.x, vehiclePos.y, vehiclePos.z) - newCamPos);
-    float pitch = glm::degrees(asin(dir.y));
-    float yaw = glm::degrees(atan2(dir.z, dir.x));
-    camera.rotate({pitch, yaw, 0});
 }

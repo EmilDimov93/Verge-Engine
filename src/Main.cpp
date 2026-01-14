@@ -9,13 +9,13 @@
 class VergeEngine
 {
 public:
-    VergeEngine() : renderer({"Example"}), scene({0.7f, 1.0f, 1.0f}, {renderer.getAspectRatio()}) {}
+    VergeEngine() : renderer({"Example"}), scene({0.7f, 1.0f, 1.0f}) {}
 
     void run()
     {
         setupScene();
 
-        while (renderer.tick(scene.getDrawData()))
+        while (renderer.tick(scene.getDrawData(1)))
         {
             scene.tick(renderer.getFrameTime());
         }
@@ -27,7 +27,8 @@ private:
 
     void setupScene()
     {
-        PlayerVehicleKeybinds p1Keybinds{};
+        // Player
+        PlayerKeybinds p1Keybinds{};
         p1Keybinds.throttle = VE_KEY_K;
         p1Keybinds.steerLeft = VE_MOUSE_BTN_LEFT;
         p1Keybinds.steerRight = VE_MOUSE_BTN_RIGHT;
@@ -36,8 +37,11 @@ private:
 
         p1.setVehicleIndex(0);
 
+        p1.id = 1;
+
         scene.addPlayer(p1);
 
+        // Vehicle
         VE_STRUCT_VEHICLE_CREATE_INFO sCar = {};
         sCar.bodyMeshId = scene.loadFile("models/car.obj");
         sCar.wheelMeshId = scene.loadFile("models/wheel.obj");
@@ -61,8 +65,10 @@ private:
         sCar.camberRad = (PI / 180);
         scene.addVehicle(sCar, {{15.0f, 0, -100.0f}, {0, -PI / 4, 0}});
 
+        // Prop
         scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});
 
+        // Triggers
         VE_STRUCT_TRIGGER_TYPE_CREATE_INFO sTriggerType = {};
         sTriggerType.meshId = scene.loadFile("models/checkpoint.obj");
         sTriggerType.hitboxShape = VE_SHAPE_SPHERE;
@@ -72,10 +78,8 @@ private:
         scene.addTrigger(0, sTriggerType, {{35.0f, 3.0f, 0.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
         scene.addTrigger(1, sTriggerType, {{-35.0f, 3.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
 
-        scene.setCameraFollowVehicle(0);
-
+        // Ground
         uint32_t grassSurfaceIndex = scene.addSurface({0.2f, {0, 0.6f, 0}, {0, 0.05f, 0}, 0.2f});
-
         uint32_t asphaltSurfaceIndex = scene.addSurface({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
 
         scene.buildGroundMesh({1000, 1000});

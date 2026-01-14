@@ -34,13 +34,16 @@ void Scene::tick(ve_time_t frameTime)
         setMatrix(vehicle.wheelBRMeshInstanceId, vehicle.wheelBRMat);
     }
 
+    for(std::unique_ptr<Controller>& controller : controllers){
+        if(Player* player = dynamic_cast<Player*>(controller.get())){
+            player->updateCamera(dt, vehicles[player->getVehicleIndex()].getTransform(), vehicles[player->getVehicleIndex()].getVelocityVector());
+        }
+    }
+
     for (Prop &prop : props)
     {
         setMatrix(prop.meshInstanceId, prop.getModelMat());
     }
-
-    if (isCameraFollowingVehicle)
-        cameraFollowVehicle();
 
     for (Trigger &trigger : triggers)
     {
@@ -60,14 +63,21 @@ void Scene::tick(ve_time_t frameTime)
     }
     std::erase_if(triggers, [](const Trigger &t)
                   { return t.getIsMarkedForDestroy(); });
-
-    camera.tick();
 }
 
-DrawData Scene::getDrawData()
+DrawData Scene::getDrawData(PlayerId playerId)
 {
-    DrawData drawData(meshes, meshInstances, camera.getProjectionMatrix(), camera.getViewMatrix(), environment.backgroundColor);
-    return drawData;
+    for(const std::unique_ptr<Controller>& controller : controllers){
+        if(const Player* player = dynamic_cast<const Player*>(controller.get())){
+            if(player->getId() == playerId){
+                DrawData drawData(meshes, meshInstances, player->camera.getProjectionMatrix(), player->camera.getViewMatrix(), environment.backgroundColor);
+                return drawData;
+            }
+        }
+    }
+
+    Log::add('S', 202);
+    return DrawData{meshes, meshInstances, {0}, {0}, environment.backgroundColor};
 }
 
 void Scene::setMatrix(MeshInstanceId meshInstanceId, glm::mat4 newModel)

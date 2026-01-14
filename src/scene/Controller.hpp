@@ -17,7 +17,7 @@ struct VehicleInputState{
 
 class Controller{
 public:
-    virtual const VehicleInputState getVehicleInputState() = 0;
-    virtual const uint64_t getVehicleIndex() = 0;
+    virtual VehicleInputState getVehicleInputState() = 0; // Should be const
+    virtual uint64_t getVehicleIndex() const = 0;
     virtual ~Controller() = default;
 };

@@ -18,9 +18,9 @@
 class Scene
 {
 public:
-    Scene(ve_color_t backgroundColor, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo);
+    Scene(ve_color_t backgroundColor);
 
-    DrawData getDrawData();
+    DrawData getDrawData(PlayerId playerId);
 
     MeshId loadFile(const std::string &filePath);
 
@@ -33,12 +33,6 @@ public:
     void setMatrix(MeshInstanceId meshInstanceId, glm::mat4 newModel);
 
     void tick(ve_time_t dt);
-
-    void setCameraFollowVehicle(uint32_t vehicleIndex);
-    void unsetCameraFollowVehicle();
-    void setCameraFollowDistance(float distance);
-    void setCameraFollowHeight(float height);
-    void setCameraFollowYawDelay(float yawDelay);
 
     uint32_t addSurface(const VE_STRUCT_SURFACE_CREATE_INFO &info);
     void buildGroundMesh(Size2 size, Transform transform = {});
@@ -72,14 +66,6 @@ private:
     // Environment
     Environment environment;
 
-    // Camera
-    Camera camera;
-    bool isCameraFollowingVehicle;
-    uint32_t cameraFollowedVehicleIndex;
-    float cameraFollowDistance = 10.0f;
-    float cameraFollowHeight = 3.0f;
-    float cameraFollowYawDelay = 0.01f;
-
     MeshId loadOBJ(const std::string &filePath);
     MeshId loadFBX(const std::string &filePath);
     MeshId loadGLB(const std::string &filePath);
@@ -88,6 +74,4 @@ private:
     void makeExampleGround();
 
     MeshInstanceId addMeshInstance(MeshId meshId);
-
-    void cameraFollowVehicle();
 };

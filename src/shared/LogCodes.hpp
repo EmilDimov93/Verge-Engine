@@ -85,6 +85,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'S', 103}, "Out of bounds access to vehicle list"},
     {{'S', 200}, "Invalid mesh ID"},
     {{'S', 201}, "Trigger ID already exists"},
+    {{'S', 202}, "Invalid player ID for getDrawData"},
 
     // Actors
 

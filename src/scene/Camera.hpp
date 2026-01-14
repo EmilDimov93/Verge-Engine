@@ -18,8 +18,8 @@ class Camera
 public:
     Camera(const VE_STRUCT_CAMERA_CREATE_INFO &info);
 
-    glm::mat4 getViewMatrix();
-    glm::mat4 getProjectionMatrix();
+    glm::mat4 getViewMatrix() const;
+    glm::mat4 getProjectionMatrix() const;
 
     void move(Position3 newPosition);
     void moveDelta(Position3 delta);
@@ -27,10 +27,8 @@ public:
     void rotate(Rotation3 newRotation);
     void rotateDelta(Rotation3 delta);
 
-    Position3 getPosition();
-    Rotation3 getRotation();
-
-    void tick();
+    Position3 getPosition() const;
+    Rotation3 getRotation() const;
 
 private:
     Position3 position = {0, 0, 0};

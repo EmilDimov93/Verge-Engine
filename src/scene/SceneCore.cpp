@@ -49,7 +49,7 @@ MeshId Scene::loadFile(const std::string &filePath)
         Log::add('S', 100);
     }
 
-    return -1;
+    return INVALID_MESH_ID;
 }
 
 MeshId Scene::loadOBJ(const std::string &filePath)
@@ -164,19 +164,19 @@ MeshId Scene::loadOBJ(const std::string &filePath)
 MeshId Scene::loadFBX(const std::string &filePath)
 {
     Log::add('S', 100);
-    return -1;
+    return INVALID_MESH_ID;
 }
 
 MeshId Scene::loadGLB(const std::string &filePath)
 {
     Log::add('S', 100);
-    return -1;
+    return INVALID_MESH_ID;
 }
 
 MeshId Scene::loadGLTF(const std::string &filePath)
 {
     Log::add('S', 100);
-    return -1;
+    return INVALID_MESH_ID;
 }
 
 void Scene::setAirDensity(float airDensity)

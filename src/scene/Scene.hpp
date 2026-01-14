@@ -50,8 +50,8 @@ private:
     // Meshes
     std::vector<Mesh> meshes;
     std::vector<MeshInstance> meshInstances;
-    MeshId lastMeshId = 1; // Starts from one because of INVALID_MESH_ID
-    MeshInstanceId lastMeshInstanceId = 0;
+    MeshId lastMeshId = {1}; // Starts from one because of INVALID_MESH_ID
+    MeshInstanceId lastMeshInstanceId = {0};
 
     MeshId getNextMeshId();
     MeshInstanceId getNextMeshInstanceId();
@@ -60,9 +60,9 @@ private:
     std::vector<Surface> surfaces;
 
     std::vector<Vehicle> vehicles; 
-    VehicleId lastVehicleId = 0; 
+    VehicleId lastVehicleId = {0}; 
     VehicleId getNextVehicleId();
-    
+
     std::vector<Prop> props;
     std::vector<Trigger> triggers;
 

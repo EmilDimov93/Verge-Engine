@@ -15,7 +15,7 @@ public:
     {
         setupScene();
 
-        while (renderer.tick(scene.getDrawData(1)))
+        while (renderer.tick(scene.getDrawData(p1h)))
         {
             scene.tick(renderer.getFrameTime());
         }
@@ -24,6 +24,8 @@ public:
 private:
     Renderer renderer;
     Scene scene;
+
+    PlayerId p1h;
 
     void setupScene()
     {
@@ -60,7 +62,8 @@ private:
 
         Player p1(car1, p1Keybinds, {renderer.getAspectRatio()});
 
-        p1.id = 1;
+        p1h.value = 1;
+        p1.id = p1h;
 
         scene.addPlayer(p1);
 

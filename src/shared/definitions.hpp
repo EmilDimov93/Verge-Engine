@@ -10,13 +10,13 @@
 
 #define PI 3.14159265358979323846264338327950288419716939937510f
 
-using MeshId = uint64_t;
-using MeshInstanceId = uint64_t;
+struct MeshId { uint64_t value; friend bool operator==(const MeshId&, const MeshId&) = default; };
+struct MeshInstanceId { uint64_t value; friend bool operator==(const MeshInstanceId&, const MeshInstanceId&) = default; };
 
-using PlayerId = uint64_t;
-using VehicleId = uint64_t;
+struct PlayerId { uint64_t value; friend bool operator==(const PlayerId&, const PlayerId&) = default; };
+struct VehicleId { uint64_t value; friend bool operator==(const VehicleId&, const VehicleId&) = default; };
 
-#define INVALID_MESH_ID 0
+#define INVALID_MESH_ID MeshId{0}
 
 using ve_time_t = double;
 using ve_color_t = glm::vec3;

@@ -180,22 +180,22 @@ void Scene::addTrigger(TriggerId id, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &i
 }
 
 // Should check unique?
-uint64_t Scene::getNextMeshId()
+MeshId Scene::getNextMeshId()
 {
-    lastMeshId++;
+    lastMeshId.value++;
     return lastMeshId;
 }
 
 // Should check unique?
 MeshInstanceId Scene::getNextMeshInstanceId()
 {
-    lastMeshInstanceId++;
+    lastMeshInstanceId.value++;
     return lastMeshInstanceId;
 }
 
 VehicleId Scene::getNextVehicleId()
 {
-    lastVehicleId++;
+    lastVehicleId.value++;
     return lastVehicleId;
 }
 

@@ -3,6 +3,7 @@
 
 #include "Renderer.hpp"
 
+#include "../shared/Input.hpp"
 #include "../shared/Log.hpp"
 
 Renderer::Renderer(const VE_STRUCT_RENDERER_CREATE_INFO &info) : window(info.windowSize, info.projectName), vulkan(window.getReference(), window.getSize())

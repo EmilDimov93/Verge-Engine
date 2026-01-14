@@ -5,7 +5,6 @@
 #include "VulkanManager.hpp"
 #include "FPSManager.hpp"
 
-#include "../shared/Input.hpp"
 #include "../shared/Log.hpp"
 
 struct VE_STRUCT_RENDERER_CREATE_INFO

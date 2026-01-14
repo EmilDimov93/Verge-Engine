@@ -27,19 +27,6 @@ private:
 
     void setupScene()
     {
-        // Player
-        PlayerKeybinds p1Keybinds{};
-        p1Keybinds.throttle = VE_KEY_W;
-        p1Keybinds.brake = VE_KEY_S;
-        p1Keybinds.steerLeft = VE_KEY_A;
-        p1Keybinds.steerRight = VE_KEY_D;
-
-        Player p1(p1Keybinds, {renderer.getAspectRatio()});
-
-        p1.id = 1;
-
-        scene.addPlayer(p1);
-
         // Vehicle
         VE_STRUCT_VEHICLE_CREATE_INFO sCar = {};
         sCar.bodyMeshId = scene.loadFile("models/car.obj");
@@ -64,7 +51,18 @@ private:
         sCar.camberRad = (PI / 180);
         VehicleId car1 = scene.addVehicle(sCar, {{15.0f, 0, -100.0f}, {0, -PI / 4, 0}});
 
-        p1.setVehicleId(car1);
+        // Player
+        PlayerKeybinds p1Keybinds{};
+        p1Keybinds.throttle = VE_KEY_W;
+        p1Keybinds.brake = VE_KEY_S;
+        p1Keybinds.steerLeft = VE_KEY_A;
+        p1Keybinds.steerRight = VE_KEY_D;
+
+        Player p1(car1, p1Keybinds, {renderer.getAspectRatio()});
+
+        p1.id = 1;
+
+        scene.addPlayer(p1);
 
         // Prop
         scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});

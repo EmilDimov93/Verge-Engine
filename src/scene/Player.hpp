@@ -24,8 +24,9 @@ struct PlayerKeybinds
 class Player : public Controller
 {
 public:
-    Player(const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo) : camera(cameraInfo)
+    Player(VehicleId vehicleId, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo) : camera(cameraInfo)
     {
+        this->vehicleId = vehicleId;
         this->keybinds = keybinds;
     }
 
@@ -116,7 +117,7 @@ public:
 
         float targetYaw = vehicleYaw - PI;
 
-        cameraYaw += (targetYaw - cameraYaw) * cameraFollowYawDelay;
+        cameraYaw += (targetYaw - cameraYaw) * cameraFollowDelay;
 
         Position3 vehiclePos = vehicleTransform.position;
 
@@ -132,16 +133,33 @@ public:
         camera.rotate({pitch, yaw, 0});
     }
 
+    void setCameraFollowDistance(float distance){
+        cameraFollowDistance = distance;
+    }
+
+    void setCameraFollowHeight(float height){
+        cameraFollowHeight = height;
+    }
+
+    void setCameraFollowDelay(float delay){
+        cameraFollowDelay = delay;
+    }
+
+    void setCameraFollowVehicle(bool shouldFollow){
+        isCameraFollowingVehicle = shouldFollow;
+    }
+
     // Temporarily public
     Camera camera;
     PlayerId id;
-    bool isCameraFollowingVehicle = true;
-    float cameraFollowDistance = 10.0f;
-    float cameraFollowHeight = 3.0f;
-    float cameraFollowYawDelay = 0.01f;
 
 private:
     VehicleId vehicleId;
 
     PlayerKeybinds keybinds;
+
+    bool isCameraFollowingVehicle = true;
+    float cameraFollowDistance = 10.0f;
+    float cameraFollowHeight = 3.0f;
+    float cameraFollowDelay = 0.01f;
 };

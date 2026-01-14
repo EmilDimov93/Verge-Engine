@@ -9,6 +9,8 @@
 
 Vehicle::Vehicle(VehicleId id, Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceId bodyMeshInstanceId, MeshInstanceId wheelFLMeshInstanceId, MeshInstanceId wheelFRMeshInstanceId, MeshInstanceId wheelBLMeshInstanceId, MeshInstanceId wheelBRMeshInstanceId)
 {
+    this->id = id;
+
     this->bodyMeshInstanceId = bodyMeshInstanceId;
     this->wheelFLMeshInstanceId = wheelFLMeshInstanceId;
     this->wheelFRMeshInstanceId = wheelFRMeshInstanceId;

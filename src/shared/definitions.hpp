@@ -13,6 +13,9 @@
 using MeshId = uint64_t;
 using MeshInstanceId = uint64_t;
 
+using PlayerId = uint64_t;
+using VehicleId = uint64_t;
+
 #define INVALID_MESH_ID 0
 
 using ve_time_t = double;

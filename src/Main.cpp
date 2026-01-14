@@ -29,13 +29,12 @@ private:
     {
         // Player
         PlayerKeybinds p1Keybinds{};
-        p1Keybinds.throttle = VE_KEY_K;
-        p1Keybinds.steerLeft = VE_MOUSE_BTN_LEFT;
-        p1Keybinds.steerRight = VE_MOUSE_BTN_RIGHT;
+        p1Keybinds.throttle = VE_KEY_W;
+        p1Keybinds.brake = VE_KEY_S;
+        p1Keybinds.steerLeft = VE_KEY_A;
+        p1Keybinds.steerRight = VE_KEY_D;
 
         Player p1(p1Keybinds, {renderer.getAspectRatio()});
-
-        p1.setVehicleIndex(0);
 
         p1.id = 1;
 
@@ -63,7 +62,9 @@ private:
         sCar.brakingForce = 14700;
         sCar.tireGrip = 1.5f;
         sCar.camberRad = (PI / 180);
-        scene.addVehicle(sCar, {{15.0f, 0, -100.0f}, {0, -PI / 4, 0}});
+        VehicleId car1 = scene.addVehicle(sCar, {{15.0f, 0, -100.0f}, {0, -PI / 4, 0}});
+
+        p1.setVehicleId(car1);
 
         // Prop
         scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});

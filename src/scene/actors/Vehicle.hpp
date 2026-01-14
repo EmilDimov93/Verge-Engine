@@ -66,7 +66,7 @@ public:
     glm::mat4 bodyMat;
     glm::mat4 wheelFLMat, wheelFRMat, wheelBLMat, wheelBRMat;
 
-    Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceId bodyMeshInstanceId, MeshInstanceId wheelFLMeshInstanceId, MeshInstanceId wheelFRMeshInstanceId, MeshInstanceId wheelBLMeshInstanceId, MeshInstanceId wheelBRMeshInstanceId);
+    Vehicle(VehicleId id, Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceId bodyMeshInstanceId, MeshInstanceId wheelFLMeshInstanceId, MeshInstanceId wheelFRMeshInstanceId, MeshInstanceId wheelBLMeshInstanceId, MeshInstanceId wheelBRMeshInstanceId);
 
     void tick(VehicleInputState vis, Environment environment, float surfaceFriction, ve_time_t deltaTime);
 
@@ -137,6 +137,10 @@ public:
     // Temporary(testing)
     void setHeight(float h) { transform.position.y = h; }
 
+    VehicleId getId() const{
+        return id;
+    }
+
 private:
     void calculatePhysics(Environment environment, float surfaceFriction);
     void updateGraphics();
@@ -153,6 +157,8 @@ private:
 
     void updateBodyMatrix();
     void updateWheelMatrices();
+
+    VehicleId id;
 
     Position3 wheelOffset;
 

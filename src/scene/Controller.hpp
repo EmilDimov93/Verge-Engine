@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <cstdint>
+#include "../shared/definitions.hpp"
 
 struct VehicleInputState{
     float throttle = 0;
@@ -18,6 +18,6 @@ struct VehicleInputState{
 class Controller{
 public:
     virtual VehicleInputState getVehicleInputState() = 0; // Should be const
-    virtual uint64_t getVehicleIndex() const = 0;
+    virtual VehicleId getVehicleId() const = 0;
     virtual ~Controller() = default;
 };

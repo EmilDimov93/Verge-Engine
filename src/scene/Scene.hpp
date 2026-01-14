@@ -26,7 +26,7 @@ public:
 
     void addPlayer(Player player);
 
-    void addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform = {});
+    VehicleId addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform = {});
     void addProp(MeshId meshId, Transform transform);
     void addTrigger(TriggerId id, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform = {});
 
@@ -59,7 +59,10 @@ private:
     Ground ground;
     std::vector<Surface> surfaces;
 
-    std::vector<Vehicle> vehicles;
+    std::vector<Vehicle> vehicles; 
+    VehicleId lastVehicleId = 0; 
+    VehicleId getNextVehicleId();
+    
     std::vector<Prop> props;
     std::vector<Trigger> triggers;
 

@@ -9,21 +9,20 @@ void Scene::tick(ve_time_t frameTime)
 {
     dt = frameTime;
 
-    // Temporary
-    uint64_t vehicleIndex = 0;
     for (Vehicle &vehicle : vehicles)
     {
         // Temporary(testing)
         vehicle.setHeight(ground.sampleHeight(vehicle.getTransform().position.x, vehicle.getTransform().position.z));
 
         VehicleInputState vis{};
-        for(const std::unique_ptr<Controller>& controller : controllers){
-            if(controller->getVehicleIndex() == vehicleIndex){
+        for (const std::unique_ptr<Controller> &controller : controllers)
+        {
+            if (controller->getVehicleId() == vehicle.getId())
+            {
                 vis = controller->getVehicleInputState();
                 break;
             }
         }
-        vehicleIndex++;
 
         vehicle.tick(vis, environment, surfaces[ground.sampleSurfaceIndex(vehicle.getTransform().position.x, vehicle.getTransform().position.z)].friction, dt);
 
@@ -34,9 +33,17 @@ void Scene::tick(ve_time_t frameTime)
         setMatrix(vehicle.wheelBRMeshInstanceId, vehicle.wheelBRMat);
     }
 
-    for(std::unique_ptr<Controller>& controller : controllers){
-        if(Player* player = dynamic_cast<Player*>(controller.get())){
-            player->updateCamera(dt, vehicles[player->getVehicleIndex()].getTransform(), vehicles[player->getVehicleIndex()].getVelocityVector());
+    for (std::unique_ptr<Controller> &controller : controllers)
+    {
+        if (Player *player = dynamic_cast<Player *>(controller.get()))
+        {
+            for (Vehicle &vehicle : vehicles)
+            {
+                if (player->getVehicleId() == vehicle.getId())
+                {
+                    player->updateCamera(dt, vehicle.getTransform(), vehicle.getVelocityVector());
+                }
+            }
         }
     }
 
@@ -67,9 +74,12 @@ void Scene::tick(ve_time_t frameTime)
 
 DrawData Scene::getDrawData(PlayerId playerId)
 {
-    for(const std::unique_ptr<Controller>& controller : controllers){
-        if(const Player* player = dynamic_cast<const Player*>(controller.get())){
-            if(player->getId() == playerId){
+    for (const std::unique_ptr<Controller> &controller : controllers)
+    {
+        if (const Player *player = dynamic_cast<const Player *>(controller.get()))
+        {
+            if (player->getId() == playerId)
+            {
                 DrawData drawData(meshes, meshInstances, player->camera.getProjectionMatrix(), player->camera.getViewMatrix(), environment.backgroundColor);
                 return drawData;
             }
@@ -123,16 +133,22 @@ MeshInstanceId Scene::addMeshInstance(MeshId meshId)
     return newMeshInstance.id;
 }
 
-void Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform)
+VehicleId Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform)
 {
-    Vehicle newVehicle(transform,
+    VehicleId id = getNextVehicleId();
+
+    Vehicle newVehicle(id,
+                       transform,
                        info,
                        addMeshInstance(info.bodyMeshId),
                        addMeshInstance(info.wheelMeshId),
                        addMeshInstance(info.wheelMeshId),
                        addMeshInstance(info.wheelMeshId),
                        addMeshInstance(info.wheelMeshId));
+
     vehicles.push_back(newVehicle);
+
+    return id;
 }
 
 void Scene::addProp(MeshId meshId, Transform transform)
@@ -175,6 +191,12 @@ MeshInstanceId Scene::getNextMeshInstanceId()
 {
     lastMeshInstanceId++;
     return lastMeshInstanceId;
+}
+
+VehicleId Scene::getNextVehicleId()
+{
+    lastVehicleId++;
+    return lastVehicleId;
 }
 
 void Scene::makeExampleGround()

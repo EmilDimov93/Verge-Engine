@@ -7,7 +7,7 @@
 
 #define HP_TO_KW_CONVERSION_FACTOR 0.7457f
 
-Vehicle::Vehicle(Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceId bodyMeshInstanceId, MeshInstanceId wheelFLMeshInstanceId, MeshInstanceId wheelFRMeshInstanceId, MeshInstanceId wheelBLMeshInstanceId, MeshInstanceId wheelBRMeshInstanceId)
+Vehicle::Vehicle(VehicleId id, Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceId bodyMeshInstanceId, MeshInstanceId wheelFLMeshInstanceId, MeshInstanceId wheelFRMeshInstanceId, MeshInstanceId wheelBLMeshInstanceId, MeshInstanceId wheelBRMeshInstanceId)
 {
     this->bodyMeshInstanceId = bodyMeshInstanceId;
     this->wheelFLMeshInstanceId = wheelFLMeshInstanceId;

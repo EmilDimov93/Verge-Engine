@@ -8,10 +8,6 @@
 #include "Camera.hpp"
 #include "../shared/Input.hpp"
 
-#include "../shared/definitions.hpp"
-
-using PlayerId = uint64_t;
-
 struct PlayerKeybinds
 {
     VEKeybind throttle;
@@ -88,14 +84,14 @@ public:
         return vis;
     }
 
-    void setVehicleIndex(uint64_t vehicleIndex)
+    void setVehicleId(VehicleId vehicleId)
     {
-        this->vehicleIndex = vehicleIndex;
+        this->vehicleId = vehicleId;
     }
 
-    uint64_t getVehicleIndex() const override
+    VehicleId getVehicleId() const override
     {
-        return vehicleIndex;
+        return vehicleId;
     }
 
     PlayerId getId() const
@@ -145,7 +141,7 @@ public:
     float cameraFollowYawDelay = 0.01f;
 
 private:
-    uint64_t vehicleIndex;
+    VehicleId vehicleId;
 
     PlayerKeybinds keybinds;
 };

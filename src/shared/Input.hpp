@@ -205,12 +205,12 @@ struct VEKeybind
     VEKeybind(VEGamepadBtn _key) : key((uint32_t)_key), keyType(VE_KEY_TYPE_GAMEPAD_BTN) {}
     VEKeybind(VEGamepadAxis _key) : key((uint32_t)_key), keyType(VE_KEY_TYPE_GAMEPAD_AXIS) {}
 
-    bool isAxis()
+    bool isAxis() const
     {
         return keyType == VE_KEY_TYPE_GAMEPAD_AXIS;
     }
 
-    bool isDown()
+    bool isDown() const
     {
         if(key == VE_KEY_UNKNOWN) return false;
         switch (keyType)
@@ -226,7 +226,7 @@ struct VEKeybind
         }
     }
 
-    bool isUp()
+    bool isUp() const
     {
         if(key == VE_KEY_UNKNOWN) return true;
         switch (keyType)
@@ -242,7 +242,7 @@ struct VEKeybind
         }
     }
 
-    bool isPressed()
+    bool isPressed() const
     {
         if(key == VE_KEY_UNKNOWN) return false;
         switch (keyType)
@@ -258,7 +258,7 @@ struct VEKeybind
         }
     }
 
-    bool isReleased()
+    bool isReleased() const
     {
         if(key == VE_KEY_UNKNOWN) return false;
         switch (keyType)
@@ -274,7 +274,7 @@ struct VEKeybind
         }
     }
 
-    float getAxis()
+    float getAxis() const
     {
         if (keyType == VE_KEY_TYPE_GAMEPAD_AXIS)
             return Input::getAxis((VEGamepadAxis)key);
@@ -282,7 +282,7 @@ struct VEKeybind
             return 0;
     }
 
-    float getAxisNormalized()
+    float getAxisNormalized() const
     {
         if (keyType == VE_KEY_TYPE_GAMEPAD_AXIS)
             return (Input::getAxis((VEGamepadAxis)key) + 1.0f) * 0.5f;

@@ -31,7 +31,7 @@ public:
         this->keybinds = keybinds;
     }
 
-    VehicleInputState getVehicleInputState() override
+    VehicleInputState getVehicleInputState() const override
     {
         VehicleInputState vis{};
 

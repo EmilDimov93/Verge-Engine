@@ -17,7 +17,7 @@ struct VehicleInputState{
 
 class Controller{
 public:
-    virtual VehicleInputState getVehicleInputState() = 0; // Should be const
+    virtual VehicleInputState getVehicleInputState() const = 0;
     virtual VehicleId getVehicleId() const = 0;
     virtual ~Controller() = default;
 };

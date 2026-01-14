@@ -24,7 +24,7 @@ public:
 
     MeshId loadFile(const std::string &filePath);
 
-    void addPlayer(Player player);
+    PlayerId addPlayer(VehicleId vehicleId, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo);
 
     VehicleId addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform = {});
     void addProp(MeshId meshId, Transform transform);
@@ -46,6 +46,9 @@ private:
 
     // Controllers
     std::vector<std::unique_ptr<Controller>> controllers;
+
+    PlayerId lastPlayerId = {0};
+    PlayerId getNextPlayerId();
 
     // Meshes
     std::vector<Mesh> meshes;

@@ -24,8 +24,9 @@ struct PlayerKeybinds
 class Player : public Controller
 {
 public:
-    Player(VehicleId vehicleId, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo) : camera(cameraInfo)
+    Player(PlayerId id, VehicleId vehicleId, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo) : camera(cameraInfo)
     {
+        this->id = id;
         this->vehicleId = vehicleId;
         this->keybinds = keybinds;
     }
@@ -113,15 +114,13 @@ public:
 
         float vehicleYaw = atan2(vehicleVelocityVector.x, vehicleVelocityVector.z);
 
-        static float cameraYaw = vehicleYaw - PI;
-
         float targetYaw = vehicleYaw - PI;
 
         cameraYaw += (targetYaw - cameraYaw) * cameraFollowDelay;
 
         Position3 vehiclePos = vehicleTransform.position;
 
-        static glm::vec3 prevCamPos = {camera.getPosition().x, camera.getPosition().y, camera.getPosition().z};
+        prevCamPos = {camera.getPosition().x, camera.getPosition().y, camera.getPosition().z};
         glm::vec3 targetCamPos = {vehiclePos.x + sin(cameraYaw) * cameraFollowDistance, vehiclePos.y + currCameraHeight, vehiclePos.z + cos(cameraYaw) * cameraFollowDistance};
         glm::vec3 newCamPos = glm::mix(prevCamPos, targetCamPos, 1.0f - std::exp(-float(dt) * 10.0f));
         camera.move({newCamPos.x, newCamPos.y, newCamPos.z});
@@ -149,14 +148,25 @@ public:
         isCameraFollowingVehicle = shouldFollow;
     }
 
-    // Temporarily public
-    Camera camera;
-    PlayerId id;
+    glm::mat4 getCameraProjectionMatrix() const{
+        return camera.getProjectionMatrix();
+    }
+
+    glm::mat4 getCameraViewMatrix() const{
+        return camera.getViewMatrix();
+    }
 
 private:
+    PlayerId id;
+
     VehicleId vehicleId;
 
+    Camera camera;
+
     PlayerKeybinds keybinds;
+
+    float cameraYaw = 0;
+    glm::vec3 prevCamPos;
 
     bool isCameraFollowingVehicle = true;
     float cameraFollowDistance = 10.0f;

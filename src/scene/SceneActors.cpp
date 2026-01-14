@@ -80,7 +80,7 @@ DrawData Scene::getDrawData(PlayerId playerId)
         {
             if (player->getId() == playerId)
             {
-                DrawData drawData(meshes, meshInstances, player->camera.getProjectionMatrix(), player->camera.getViewMatrix(), environment.backgroundColor);
+                DrawData drawData(meshes, meshInstances, player->getCameraProjectionMatrix(), player->getCameraViewMatrix(), environment.backgroundColor);
                 return drawData;
             }
         }
@@ -131,6 +131,15 @@ MeshInstanceId Scene::addMeshInstance(MeshId meshId)
     meshInstances.push_back(newMeshInstance);
 
     return newMeshInstance.id;
+}
+
+PlayerId Scene::addPlayer(VehicleId vehicleId, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo)
+{
+    PlayerId id = getNextPlayerId();
+    
+    controllers.push_back(std::make_unique<Player>(id, vehicleId, keybinds, cameraInfo));
+
+    return id;
 }
 
 VehicleId Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform)
@@ -197,6 +206,12 @@ VehicleId Scene::getNextVehicleId()
 {
     lastVehicleId.value++;
     return lastVehicleId;
+}
+
+PlayerId Scene::getNextPlayerId()
+{
+    lastPlayerId.value++;
+    return lastPlayerId;
 }
 
 void Scene::makeExampleGround()

@@ -19,11 +19,6 @@ Scene::Scene(ve_color_t backgroundColor)
     surfaces.push_back({1.0f, {0.1f, 0.1f, 0.1f}});
 }
 
-void Scene::addPlayer(Player player)
-{
-    controllers.emplace_back(std::make_unique<Player>(std::move(player)));
-}
-
 MeshId Scene::loadFile(const std::string &filePath)
 {
     std::string ext = std::filesystem::path(filePath).extension().string();

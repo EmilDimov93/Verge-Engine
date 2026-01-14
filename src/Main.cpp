@@ -4,28 +4,28 @@
 #include "renderer/Renderer.hpp"
 #include "scene/Scene.hpp"
 
-#include "scene/Player.hpp"
-
 class VergeEngine
 {
 public:
-    VergeEngine() : renderer({"Example"}), scene({0.7f, 1.0f, 1.0f}) {}
+    VergeEngine() : r1({"Window 1", {1200, 2000}}), r2({"Window 2", {1200, 2000}}), scene({0.7f, 1.0f, 1.0f}) {}
 
     void run()
     {
         setupScene();
 
-        while (renderer.tick(scene.getDrawData(p1h)))
+        while (r1.tick(scene.getDrawData(p1h)) && r2.tick(scene.getDrawData(p2h)))
         {
-            scene.tick(renderer.getFrameTime());
+            scene.tick(r1.getFrameTime());
         }
     }
 
 private:
-    Renderer renderer;
+    Renderer r1;
+    Renderer r2;
     Scene scene;
 
     PlayerId p1h;
+    PlayerId p2h;
 
     void setupScene()
     {
@@ -53,6 +53,8 @@ private:
         sCar.camberRad = (PI / 180);
         VehicleId car1 = scene.addVehicle(sCar, {{15.0f, 0, -100.0f}, {0, -PI / 4, 0}});
 
+        VehicleId car2 = scene.addVehicle(sCar, {{15.0f, 0, -100.0f}, {0, -PI / 4, 0}});
+
         // Player
         PlayerKeybinds p1Keybinds{};
         p1Keybinds.throttle = VE_KEY_W;
@@ -60,12 +62,15 @@ private:
         p1Keybinds.steerLeft = VE_KEY_A;
         p1Keybinds.steerRight = VE_KEY_D;
 
-        Player p1(car1, p1Keybinds, {renderer.getAspectRatio()});
+        PlayerKeybinds p2Keybinds{};
+        p2Keybinds.throttle = VE_KEY_I;
+        p2Keybinds.brake = VE_KEY_K;
+        p2Keybinds.steerLeft = VE_KEY_J;
+        p2Keybinds.steerRight = VE_KEY_L;
 
-        p1h.value = 1;
-        p1.id = p1h;
+        p1h = scene.addPlayer(car1, p1Keybinds, {r1.getAspectRatio()});
 
-        scene.addPlayer(p1);
+        p2h = scene.addPlayer(car2, p2Keybinds, {r2.getAspectRatio()});
 
         // Prop
         scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});

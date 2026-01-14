@@ -13,8 +13,8 @@
 struct MeshId { uint64_t value; friend bool operator==(const MeshId&, const MeshId&) = default; };
 struct MeshInstanceId { uint64_t value; friend bool operator==(const MeshInstanceId&, const MeshInstanceId&) = default; };
 
-struct PlayerId { uint64_t value; friend bool operator==(const PlayerId&, const PlayerId&) = default; };
 struct VehicleId { uint64_t value; friend bool operator==(const VehicleId&, const VehicleId&) = default; };
+struct PlayerId { uint64_t value; friend bool operator==(const PlayerId&, const PlayerId&) = default; };
 
 #define INVALID_MESH_ID MeshId{0}
 

@@ -28,7 +28,7 @@ public:
 private:
     struct MeshGPU
     {
-        MeshId id;
+        MeshHandle handle;
 
         uint64_t version = 0;
 

@@ -17,7 +17,7 @@ void Scene::tick(ve_time_t frameTime)
         VehicleInputState vis{};
         for (const std::unique_ptr<Controller> &controller : controllers)
         {
-            if (controller->getVehicleId() == vehicle.getId())
+            if (controller->getVehicleHandle() == vehicle.getHandle())
             {
                 vis = controller->getVehicleInputState();
                 break;
@@ -26,11 +26,11 @@ void Scene::tick(ve_time_t frameTime)
 
         vehicle.tick(vis, environment, surfaces[ground.sampleSurfaceIndex(vehicle.getTransform().position.x, vehicle.getTransform().position.z)].friction, dt);
 
-        setMatrix(vehicle.bodyMeshInstanceId, vehicle.bodyMat);
-        setMatrix(vehicle.wheelFLMeshInstanceId, vehicle.wheelFLMat);
-        setMatrix(vehicle.wheelFRMeshInstanceId, vehicle.wheelFRMat);
-        setMatrix(vehicle.wheelBLMeshInstanceId, vehicle.wheelBLMat);
-        setMatrix(vehicle.wheelBRMeshInstanceId, vehicle.wheelBRMat);
+        setMatrix(vehicle.bodyMeshInstanceHandle, vehicle.bodyMat);
+        setMatrix(vehicle.wheelFLMeshInstanceHandle, vehicle.wheelFLMat);
+        setMatrix(vehicle.wheelFRMeshInstanceHandle, vehicle.wheelFRMat);
+        setMatrix(vehicle.wheelBLMeshInstanceHandle, vehicle.wheelBLMat);
+        setMatrix(vehicle.wheelBRMeshInstanceHandle, vehicle.wheelBRMat);
     }
 
     for (std::unique_ptr<Controller> &controller : controllers)
@@ -39,7 +39,7 @@ void Scene::tick(ve_time_t frameTime)
         {
             for (Vehicle &vehicle : vehicles)
             {
-                if (player->getVehicleId() == vehicle.getId())
+                if (player->getVehicleHandle() == vehicle.getHandle())
                 {
                     player->updateCamera(dt, vehicle.getTransform(), vehicle.getVelocityVector());
                 }
@@ -49,7 +49,7 @@ void Scene::tick(ve_time_t frameTime)
 
     for (Prop &prop : props)
     {
-        setMatrix(prop.meshInstanceId, prop.getModelMat());
+        setMatrix(prop.meshInstanceHandle, prop.getModelMat());
     }
 
     for (Trigger &trigger : triggers)
@@ -58,7 +58,7 @@ void Scene::tick(ve_time_t frameTime)
         {
             if (trigger.doesActorTrigger(vehicle.getTransform().position))
             {
-                std::cout << "Triggered: " << trigger.getId() << std::endl;
+                std::cout << "Triggered: " << trigger.getHandle().value << std::endl;
                 // call callback function
                 if (trigger.getIsAutoDestroy())
                 {
@@ -72,13 +72,13 @@ void Scene::tick(ve_time_t frameTime)
                   { return t.getIsMarkedForDestroy(); });
 }
 
-DrawData Scene::getDrawData(PlayerId playerId)
+DrawData Scene::getDrawData(PlayerHandle playerHandle)
 {
     for (const std::unique_ptr<Controller> &controller : controllers)
     {
         if (const Player *player = dynamic_cast<const Player *>(controller.get()))
         {
-            if (player->getId() == playerId)
+            if (player->getHandle() == playerHandle)
             {
                 DrawData drawData(meshes, meshInstances, player->getCameraProjectionMatrix(), player->getCameraViewMatrix(), environment.backgroundColor);
                 return drawData;
@@ -90,11 +90,11 @@ DrawData Scene::getDrawData(PlayerId playerId)
     return DrawData{meshes, meshInstances, {0}, {0}, environment.backgroundColor};
 }
 
-void Scene::setMatrix(MeshInstanceId meshInstanceId, glm::mat4 newModel)
+void Scene::setMatrix(MeshInstanceHandle meshInstanceHandle, glm::mat4 newModel)
 {
     for (MeshInstance &instance : meshInstances)
     {
-        if (instance.id == meshInstanceId)
+        if (instance.handle == meshInstanceHandle)
         {
             instance.model = newModel;
             break;
@@ -102,9 +102,9 @@ void Scene::setMatrix(MeshInstanceId meshInstanceId, glm::mat4 newModel)
     }
 }
 
-MeshInstanceId Scene::addMeshInstance(MeshId meshId)
+MeshInstanceHandle Scene::addMeshInstance(MeshHandle meshHandle)
 {
-    if (meshId == INVALID_MESH_ID)
+    if (meshHandle == INVALID_MESH_HANDLE)
     {
         Log::add('S', 200);
     }
@@ -112,7 +112,7 @@ MeshInstanceId Scene::addMeshInstance(MeshId meshId)
     bool foundMesh = false;
     for (size_t i = 0; i < meshes.size(); i++)
     {
-        if (meshes[i].getId() == meshId)
+        if (meshes[i].getHandle() == meshHandle)
         {
             foundMesh = true;
             break;
@@ -125,93 +125,93 @@ MeshInstanceId Scene::addMeshInstance(MeshId meshId)
     }
 
     MeshInstance newMeshInstance;
-    newMeshInstance.meshId = meshId;
-    newMeshInstance.id = getNextMeshInstanceId();
+    newMeshInstance.meshHandle = meshHandle;
+    newMeshInstance.handle = getNextMeshInstanceHandle();
 
     meshInstances.push_back(newMeshInstance);
 
-    return newMeshInstance.id;
+    return newMeshInstance.handle;
 }
 
-PlayerId Scene::addPlayer(VehicleId vehicleId, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo)
+PlayerHandle Scene::addPlayer(VehicleHandle vehicleHandle, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo)
 {
-    PlayerId id = getNextPlayerId();
+    PlayerHandle handle = getNextPlayerHandle();
     
-    controllers.push_back(std::make_unique<Player>(id, vehicleId, keybinds, cameraInfo));
+    controllers.push_back(std::make_unique<Player>(handle, vehicleHandle, keybinds, cameraInfo));
 
-    return id;
+    return handle;
 }
 
-VehicleId Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform)
+VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform)
 {
-    VehicleId id = getNextVehicleId();
+    VehicleHandle handle = getNextVehicleHandle();
 
-    Vehicle newVehicle(id,
+    Vehicle newVehicle(handle,
                        transform,
                        info,
-                       addMeshInstance(info.bodyMeshId),
-                       addMeshInstance(info.wheelMeshId),
-                       addMeshInstance(info.wheelMeshId),
-                       addMeshInstance(info.wheelMeshId),
-                       addMeshInstance(info.wheelMeshId));
+                       addMeshInstance(info.bodyMeshHandle),
+                       addMeshInstance(info.wheelMeshHandle),
+                       addMeshInstance(info.wheelMeshHandle),
+                       addMeshInstance(info.wheelMeshHandle),
+                       addMeshInstance(info.wheelMeshHandle));
 
     vehicles.push_back(newVehicle);
 
-    return id;
+    return handle;
 }
 
-void Scene::addProp(MeshId meshId, Transform transform)
+void Scene::addProp(MeshHandle meshHandle, Transform transform)
 {
-    MeshInstanceId meshInstanceId = addMeshInstance(meshId);
+    MeshInstanceHandle meshInstanceHandle = addMeshInstance(meshHandle);
 
-    Prop newProp(meshInstanceId, transform);
+    Prop newProp(meshInstanceHandle, transform);
     props.push_back(newProp);
 
-    setMatrix(meshInstanceId, newProp.getModelMat());
+    setMatrix(meshInstanceHandle, newProp.getModelMat());
 }
 
-void Scene::addTrigger(TriggerId id, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform)
+void Scene::addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform)
 {
-    for (Trigger trigger : triggers)
-    {
-        if (id == trigger.getId())
-        {
-            Log::add('S', 201);
-        }
-    }
+    TriggerHandle handle = getNextTriggerHandle();
 
-    MeshInstanceId meshInstanceId = addMeshInstance(info.meshId);
+    MeshInstanceHandle meshInstanceHandle = addMeshInstance(info.meshHandle);
 
-    Trigger newTrigger(id, transform, meshInstanceId, info);
+    Trigger newTrigger(handle, transform, meshInstanceHandle, info);
     triggers.push_back(newTrigger);
 
-    setMatrix(meshInstanceId, newTrigger.getModelMat());
+    setMatrix(meshInstanceHandle, newTrigger.getModelMat());
 }
 
 // Should check unique?
-MeshId Scene::getNextMeshId()
+MeshHandle Scene::getNextMeshHandle()
 {
-    lastMeshId.value++;
-    return lastMeshId;
+    lastMeshHandle.value++;
+    return lastMeshHandle;
 }
 
 // Should check unique?
-MeshInstanceId Scene::getNextMeshInstanceId()
+MeshInstanceHandle Scene::getNextMeshInstanceHandle()
 {
-    lastMeshInstanceId.value++;
-    return lastMeshInstanceId;
+    lastMeshInstanceHandle.value++;
+    return lastMeshInstanceHandle;
 }
 
-VehicleId Scene::getNextVehicleId()
+VehicleHandle Scene::getNextVehicleHandle()
 {
-    lastVehicleId.value++;
-    return lastVehicleId;
+    lastVehicleHandle.value++;
+    return lastVehicleHandle;
 }
 
-PlayerId Scene::getNextPlayerId()
+TriggerHandle Scene::getNextTriggerHandle()
 {
-    lastPlayerId.value++;
-    return lastPlayerId;
+    lastTriggerHandle.value++;
+    return lastTriggerHandle;
+}
+
+PlayerHandle Scene::getNextPlayerHandle()
+{
+    lastPlayerHandle.value++;
+    return lastPlayerHandle;
 }
 
 void Scene::makeExampleGround()
@@ -341,13 +341,13 @@ void Scene::buildGroundMesh(Size2 size, Transform transform)
         }
     }
 
-    MeshId newMeshId = getNextMeshId();
+    MeshHandle newMeshHandle = getNextMeshHandle();
 
-    Mesh objMesh(newMeshId, meshVertices, meshIndices);
+    Mesh objMesh(newMeshHandle, meshVertices, meshIndices);
 
     meshes.push_back(objMesh);
 
-    MeshInstanceId newMeshInstanceId = addMeshInstance(newMeshId);
+    MeshInstanceHandle newMeshInstanceHandle = addMeshInstance(newMeshHandle);
 
-    setMatrix(newMeshInstanceId, transformToMat(transform));
+    setMatrix(newMeshInstanceHandle, transformToMat(transform));
 }

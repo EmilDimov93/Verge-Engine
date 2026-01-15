@@ -24,15 +24,15 @@ private:
     Renderer r2;
     Scene scene;
 
-    PlayerId p1h;
-    PlayerId p2h;
+    PlayerHandle p1h;
+    PlayerHandle p2h;
 
     void setupScene()
     {
         // Vehicle
         VE_STRUCT_VEHICLE_CREATE_INFO sCar = {};
-        sCar.bodyMeshId = scene.loadFile("models/car.obj");
-        sCar.wheelMeshId = scene.loadFile("models/wheel.obj");
+        sCar.bodyMeshHandle = scene.loadFile("models/car.obj");
+        sCar.wheelMeshHandle = scene.loadFile("models/wheel.obj");
         sCar.wheelOffset = {1.05f, 0.5f, 1.8f};
         sCar.power = 390;
         sCar.powerUnit = VE_POWER_UNIT_HORSEPOWER;
@@ -51,9 +51,11 @@ private:
         sCar.brakingForce = 14700;
         sCar.tireGrip = 1.5f;
         sCar.camberRad = (PI / 180);
-        VehicleId car1 = scene.addVehicle(sCar, {{15.0f, 0, -100.0f}, {0, -PI / 4, 0}});
+        VehicleHandle car1 = scene.addVehicle(sCar, {{17.0f, 0, -100.0f}, {0, -PI / 4, 0}});
 
-        VehicleId car2 = scene.addVehicle(sCar, {{15.0f, 0, -100.0f}, {0, -PI / 4, 0}});
+        sCar.bodyMeshHandle = scene.loadFile("models/carLowPoly.obj");
+        sCar.wheelMeshHandle = scene.loadFile("models/wheelLowPoly.obj");
+        VehicleHandle car2 = scene.addVehicle(sCar, {{13.0f, 0, -100.0f}, {0, -PI / 4, 0}});
 
         // Player
         PlayerKeybinds p1Keybinds{};
@@ -63,10 +65,10 @@ private:
         p1Keybinds.steerRight = VE_KEY_D;
 
         PlayerKeybinds p2Keybinds{};
-        p2Keybinds.throttle = VE_KEY_I;
-        p2Keybinds.brake = VE_KEY_K;
-        p2Keybinds.steerLeft = VE_KEY_J;
-        p2Keybinds.steerRight = VE_KEY_L;
+        p2Keybinds.throttle = VE_KEY_UP;
+        p2Keybinds.brake = VE_KEY_DOWN;
+        p2Keybinds.steerLeft = VE_KEY_LEFT;
+        p2Keybinds.steerRight = VE_KEY_RIGHT;
 
         p1h = scene.addPlayer(car1, p1Keybinds, {r1.getAspectRatio()});
 
@@ -77,13 +79,13 @@ private:
 
         // Triggers
         VE_STRUCT_TRIGGER_TYPE_CREATE_INFO sTriggerType = {};
-        sTriggerType.meshId = scene.loadFile("models/checkpoint.obj");
+        sTriggerType.meshHandle = scene.loadFile("models/checkpoint.obj");
         sTriggerType.hitboxShape = VE_SHAPE_SPHERE;
         sTriggerType.hitboxSize = 10.0f;
         sTriggerType.isAutoDestroy = true;
 
-        scene.addTrigger(0, sTriggerType, {{35.0f, 3.0f, 0.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
-        scene.addTrigger(1, sTriggerType, {{-35.0f, 3.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
+        scene.addTrigger(sTriggerType, {{35.0f, 3.0f, 0.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
+        scene.addTrigger(sTriggerType, {{-35.0f, 3.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
 
         // Ground
         uint32_t grassSurfaceIndex = scene.addSurface({0.2f, {0, 0.6f, 0}, {0, 0.05f, 0}, 0.2f});

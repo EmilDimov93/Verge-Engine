@@ -83,9 +83,9 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'S', 101}, "File not found"},
     // {'S', 102} removed
     {{'S', 103}, "Out of bounds access to vehicle list"},
-    {{'S', 200}, "Invalid mesh ID"},
-    {{'S', 201}, "Trigger ID already exists"},
-    {{'S', 202}, "Invalid player ID for getDrawData"},
+    {{'S', 200}, "Invalid mesh handle"},
+    {{'S', 201}, "Trigger handle already exists"},
+    {{'S', 202}, "Invalid player handle for getDrawData"},
 
     // Actors
 

@@ -7,15 +7,15 @@
 
 #define HP_TO_KW_CONVERSION_FACTOR 0.7457f
 
-Vehicle::Vehicle(VehicleId id, Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceId bodyMeshInstanceId, MeshInstanceId wheelFLMeshInstanceId, MeshInstanceId wheelFRMeshInstanceId, MeshInstanceId wheelBLMeshInstanceId, MeshInstanceId wheelBRMeshInstanceId)
+Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceHandle bodyMeshInstanceHandle, MeshInstanceHandle wheelFLMeshInstanceHandle, MeshInstanceHandle wheelFRMeshInstanceHandle, MeshInstanceHandle wheelBLMeshInstanceHandle, MeshInstanceHandle wheelBRMeshInstanceHandle)
 {
-    this->id = id;
+    this->handle = handle;
 
-    this->bodyMeshInstanceId = bodyMeshInstanceId;
-    this->wheelFLMeshInstanceId = wheelFLMeshInstanceId;
-    this->wheelFRMeshInstanceId = wheelFRMeshInstanceId;
-    this->wheelBLMeshInstanceId = wheelBLMeshInstanceId;
-    this->wheelBRMeshInstanceId = wheelBRMeshInstanceId;
+    this->bodyMeshInstanceHandle = bodyMeshInstanceHandle;
+    this->wheelFLMeshInstanceHandle = wheelFLMeshInstanceHandle;
+    this->wheelFRMeshInstanceHandle = wheelFRMeshInstanceHandle;
+    this->wheelBLMeshInstanceHandle = wheelBLMeshInstanceHandle;
+    this->wheelBRMeshInstanceHandle = wheelBRMeshInstanceHandle;
 
     bodyMat = glm::mat4(1.0f);
     wheelFLMat = glm::mat4(1.0f);

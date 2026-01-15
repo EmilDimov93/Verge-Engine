@@ -5,8 +5,6 @@
 
 #include "../../shared/definitions.hpp"
 
-using TriggerId = uint64_t;
-
 enum VE_SHAPE
 {
     VE_SHAPE_UNKNOWN,
@@ -16,7 +14,7 @@ enum VE_SHAPE
 
 struct VE_STRUCT_TRIGGER_TYPE_CREATE_INFO
 {
-    MeshId meshId = INVALID_MESH_ID;
+    MeshHandle meshHandle = INVALID_MESH_HANDLE;
     VE_SHAPE hitboxShape = VE_SHAPE_UNKNOWN;
     float hitboxSize = -1.0f;
     bool isAutoDestroy = false;
@@ -26,11 +24,11 @@ struct VE_STRUCT_TRIGGER_TYPE_CREATE_INFO
 class Trigger
 {
 public:
-    Trigger(TriggerId id, Transform transform, MeshInstanceId meshInstanceId, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info);
+    Trigger(TriggerHandle handle, Transform transform, MeshInstanceHandle meshInstanceHandle, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info);
 
     bool doesActorTrigger(Position3 actorPos);
 
-    TriggerId getId() const;
+    TriggerHandle getHandle() const;
     bool getIsAutoDestroy() const;
 
     void markForDestroy();
@@ -39,11 +37,11 @@ public:
     glm::mat4 getModelMat();
 
 private:
-    TriggerId id;
+    TriggerHandle handle;
 
     Transform transform;
 
-    MeshInstanceId meshInstanceId;
+    MeshInstanceHandle meshInstanceHandle;
 
     VE_SHAPE hitboxShape;
     float hitboxSize;

@@ -19,7 +19,7 @@ Scene::Scene(ve_color_t backgroundColor)
     surfaces.push_back({1.0f, {0.1f, 0.1f, 0.1f}});
 }
 
-MeshId Scene::loadFile(const std::string &filePath)
+MeshHandle Scene::loadFile(const std::string &filePath)
 {
     std::string ext = std::filesystem::path(filePath).extension().string();
 
@@ -44,10 +44,10 @@ MeshId Scene::loadFile(const std::string &filePath)
         Log::add('S', 100);
     }
 
-    return INVALID_MESH_ID;
+    return INVALID_MESH_HANDLE;
 }
 
-MeshId Scene::loadOBJ(const std::string &filePath)
+MeshHandle Scene::loadOBJ(const std::string &filePath)
 {
     std::vector<Vertex> meshVertices;
     std::vector<uint32_t> meshIndices;
@@ -56,6 +56,7 @@ MeshId Scene::loadOBJ(const std::string &filePath)
     if (!file.is_open())
     {
         Log::add('S', 101);
+        return INVALID_MESH_HANDLE;
     }
 
     std::vector<glm::vec3> positions;
@@ -147,31 +148,31 @@ MeshId Scene::loadOBJ(const std::string &filePath)
         }
     }
 
-    MeshId newMeshId = getNextMeshId();
+    MeshHandle newMeshHandle = getNextMeshHandle();
 
-    Mesh objMesh(newMeshId, meshVertices, meshIndices);
+    Mesh objMesh(newMeshHandle, meshVertices, meshIndices);
 
     meshes.push_back(objMesh);
 
-    return newMeshId;
+    return newMeshHandle;
 }
 
-MeshId Scene::loadFBX(const std::string &filePath)
+MeshHandle Scene::loadFBX(const std::string &filePath)
 {
     Log::add('S', 100);
-    return INVALID_MESH_ID;
+    return INVALID_MESH_HANDLE;
 }
 
-MeshId Scene::loadGLB(const std::string &filePath)
+MeshHandle Scene::loadGLB(const std::string &filePath)
 {
     Log::add('S', 100);
-    return INVALID_MESH_ID;
+    return INVALID_MESH_HANDLE;
 }
 
-MeshId Scene::loadGLTF(const std::string &filePath)
+MeshHandle Scene::loadGLTF(const std::string &filePath)
 {
     Log::add('S', 100);
-    return INVALID_MESH_ID;
+    return INVALID_MESH_HANDLE;
 }
 
 void Scene::setAirDensity(float airDensity)

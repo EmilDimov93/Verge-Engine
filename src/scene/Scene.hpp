@@ -20,17 +20,17 @@ class Scene
 public:
     Scene(ve_color_t backgroundColor);
 
-    DrawData getDrawData(PlayerId playerId);
+    DrawData getDrawData(PlayerHandle playerHandle);
 
-    MeshId loadFile(const std::string &filePath);
+    MeshHandle loadFile(const std::string &filePath);
 
-    PlayerId addPlayer(VehicleId vehicleId, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo);
+    PlayerHandle addPlayer(VehicleHandle vehicleHandle, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo);
 
-    VehicleId addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform = {});
-    void addProp(MeshId meshId, Transform transform);
-    void addTrigger(TriggerId id, const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform = {});
+    VehicleHandle addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform = {});
+    void addProp(MeshHandle meshHandle, Transform transform);
+    void addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform = {});
 
-    void setMatrix(MeshInstanceId meshInstanceId, glm::mat4 newModel);
+    void setMatrix(MeshInstanceHandle meshInstanceHandle, glm::mat4 newModel);
 
     void tick(ve_time_t dt);
 
@@ -47,37 +47,39 @@ private:
     // Controllers
     std::vector<std::unique_ptr<Controller>> controllers;
 
-    PlayerId lastPlayerId = {0};
-    PlayerId getNextPlayerId();
+    PlayerHandle lastPlayerHandle = {0};
+    PlayerHandle getNextPlayerHandle();
 
     // Meshes
     std::vector<Mesh> meshes;
     std::vector<MeshInstance> meshInstances;
-    MeshId lastMeshId = {1}; // Starts from one because of INVALID_MESH_ID
-    MeshInstanceId lastMeshInstanceId = {0};
+    MeshHandle lastMeshHandle = {1}; // Starts from one because of INVALID_MESH_HANDLE
+    MeshInstanceHandle lastMeshInstanceHandle = {0};
 
-    MeshId getNextMeshId();
-    MeshInstanceId getNextMeshInstanceId();
+    MeshHandle getNextMeshHandle();
+    MeshInstanceHandle getNextMeshInstanceHandle();
 
     Ground ground;
     std::vector<Surface> surfaces;
 
     std::vector<Vehicle> vehicles; 
-    VehicleId lastVehicleId = {0}; 
-    VehicleId getNextVehicleId();
+    VehicleHandle lastVehicleHandle = {0}; 
+    VehicleHandle getNextVehicleHandle();
 
     std::vector<Prop> props;
     std::vector<Trigger> triggers;
+    TriggerHandle lastTriggerHandle = {0}; 
+    TriggerHandle getNextTriggerHandle();
 
     // Environment
     Environment environment;
 
-    MeshId loadOBJ(const std::string &filePath);
-    MeshId loadFBX(const std::string &filePath);
-    MeshId loadGLB(const std::string &filePath);
-    MeshId loadGLTF(const std::string &filePath);
+    MeshHandle loadOBJ(const std::string &filePath);
+    MeshHandle loadFBX(const std::string &filePath);
+    MeshHandle loadGLB(const std::string &filePath);
+    MeshHandle loadGLTF(const std::string &filePath);
 
     void makeExampleGround();
 
-    MeshInstanceId addMeshInstance(MeshId meshId);
+    MeshInstanceHandle addMeshInstance(MeshHandle meshHandle);
 };

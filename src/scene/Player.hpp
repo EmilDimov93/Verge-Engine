@@ -24,10 +24,10 @@ struct PlayerKeybinds
 class Player : public Controller
 {
 public:
-    Player(PlayerId id, VehicleId vehicleId, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo) : camera(cameraInfo)
+    Player(PlayerHandle handle, VehicleHandle vehicleHandle, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo) : camera(cameraInfo)
     {
-        this->id = id;
-        this->vehicleId = vehicleId;
+        this->handle = handle;
+        this->vehicleHandle = vehicleHandle;
         this->keybinds = keybinds;
     }
 
@@ -86,19 +86,19 @@ public:
         return vis;
     }
 
-    void setVehicleId(VehicleId vehicleId)
+    void setVehicleHandle(VehicleHandle vehicleHandle)
     {
-        this->vehicleId = vehicleId;
+        this->vehicleHandle = vehicleHandle;
     }
 
-    VehicleId getVehicleId() const override
+    VehicleHandle getVehicleHandle() const override
     {
-        return vehicleId;
+        return vehicleHandle;
     }
 
-    PlayerId getId() const
+    PlayerHandle getHandle() const
     {
-        return id;
+        return handle;
     }
 
     void updateCamera(ve_time_t dt, Transform vehicleTransform, glm::vec3 vehicleVelocityVector)
@@ -157,9 +157,9 @@ public:
     }
 
 private:
-    PlayerId id;
+    PlayerHandle handle;
 
-    VehicleId vehicleId;
+    VehicleHandle vehicleHandle;
 
     Camera camera;
 

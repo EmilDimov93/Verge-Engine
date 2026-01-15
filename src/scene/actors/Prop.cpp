@@ -5,9 +5,9 @@
 
 #include "../../shared/Log.hpp"
 
-Prop::Prop(MeshInstanceId meshInstanceId, Transform transform)
+Prop::Prop(MeshInstanceHandle meshInstanceHandle, Transform transform)
 {
-    this->meshInstanceId = meshInstanceId;
+    this->meshInstanceHandle = meshInstanceHandle;
 
     this->transform = transform;
 

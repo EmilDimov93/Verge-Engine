@@ -6,13 +6,13 @@
 class Prop
 {
 public:
-    Prop(MeshInstanceId meshInstanceId, Transform transform);
+    Prop(MeshInstanceHandle meshInstanceHandle, Transform transform);
 
     glm::mat4 getModelMat();
 
     void setTransform(Transform transform);
 
-    MeshInstanceId meshInstanceId;
+    MeshInstanceHandle meshInstanceHandle;
 
 private:
     Transform transform;

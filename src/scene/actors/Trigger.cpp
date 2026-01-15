@@ -5,11 +5,11 @@
 
 #include "../../shared/Log.hpp"
 
-Trigger::Trigger(TriggerId id, Transform transform, MeshInstanceId meshInstanceId, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info)
+Trigger::Trigger(TriggerHandle handle, Transform transform, MeshInstanceHandle meshInstanceHandle, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info)
 {
-    this->id = id;
+    this->handle = handle;
 
-    this->meshInstanceId = meshInstanceId;
+    this->meshInstanceHandle = meshInstanceHandle;
 
     if (info.hitboxShape != VE_SHAPE_UNKNOWN)
         hitboxShape = info.hitboxShape;
@@ -69,9 +69,9 @@ bool Trigger::doesActorTrigger(Position3 actorPos)
     return false;
 }
 
-TriggerId Trigger::getId() const
+TriggerHandle Trigger::getHandle() const
 {
-    return id;
+    return handle;
 }
 
 bool Trigger::getIsAutoDestroy() const

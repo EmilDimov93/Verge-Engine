@@ -820,7 +820,7 @@ void VulkanManager::initMeshGPU(const Mesh &mesh)
 {
     MeshGPU newMeshGPU{};
 
-    newMeshGPU.id = mesh.getId();
+    newMeshGPU.handle = mesh.getHandle();
     newMeshGPU.version = mesh.getVersion();
 
     newMeshGPU.vertexCount = mesh.getVertices().size();
@@ -853,7 +853,7 @@ void VulkanManager::updateMeshGPU(MeshGPU &meshGPU, const Mesh &mesh)
 
     MeshGPU newMeshGPU{};
 
-    newMeshGPU.id = mesh.getId();
+    newMeshGPU.handle = mesh.getHandle();
 
     newMeshGPU.vertexCount = mesh.getVertices().size();
     newMeshGPU.indexCount = mesh.getIndices().size();
@@ -894,7 +894,7 @@ void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh
         bool MeshGPUFound = false;
         for (MeshGPU &meshGPU : MeshGPUs)
         {
-            if (mesh.getId() == meshGPU.id)
+            if (mesh.getHandle() == meshGPU.handle)
             {
                 MeshGPUFound = true;
                 if (mesh.getVersion() > meshGPU.version)
@@ -914,7 +914,7 @@ void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh
     {
         for (const MeshGPU &meshGPU : MeshGPUs)
         {
-            if (instance.meshId == meshGPU.id)
+            if (instance.meshHandle == meshGPU.handle)
             {
                 VkBuffer vertexBuffers[] = {meshGPU.vertexBuffer};
                 VkDeviceSize offsets[] = {0};

@@ -27,8 +27,8 @@ enum VETransmissionType
 
 struct VE_STRUCT_VEHICLE_CREATE_INFO
 {
-    MeshId bodyMeshId = INVALID_MESH_ID;
-    MeshId wheelMeshId = INVALID_MESH_ID;
+    MeshHandle bodyMeshHandle = INVALID_MESH_HANDLE;
+    MeshHandle wheelMeshHandle = INVALID_MESH_HANDLE;
 
     Position3 wheelOffset = {0, 0, 0};
 
@@ -57,16 +57,16 @@ class Vehicle
 {
 public:
     // Temporarily public
-    MeshInstanceId bodyMeshInstanceId;
-    MeshInstanceId wheelFLMeshInstanceId;
-    MeshInstanceId wheelFRMeshInstanceId;
-    MeshInstanceId wheelBLMeshInstanceId;
-    MeshInstanceId wheelBRMeshInstanceId;
+    MeshInstanceHandle bodyMeshInstanceHandle;
+    MeshInstanceHandle wheelFLMeshInstanceHandle;
+    MeshInstanceHandle wheelFRMeshInstanceHandle;
+    MeshInstanceHandle wheelBLMeshInstanceHandle;
+    MeshInstanceHandle wheelBRMeshInstanceHandle;
 
     glm::mat4 bodyMat;
     glm::mat4 wheelFLMat, wheelFRMat, wheelBLMat, wheelBRMat;
 
-    Vehicle(VehicleId id, Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceId bodyMeshInstanceId, MeshInstanceId wheelFLMeshInstanceId, MeshInstanceId wheelFRMeshInstanceId, MeshInstanceId wheelBLMeshInstanceId, MeshInstanceId wheelBRMeshInstanceId);
+    Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceHandle bodyMeshInstanceHandle, MeshInstanceHandle wheelFLMeshInstanceHandle, MeshInstanceHandle wheelFRMeshInstanceHandle, MeshInstanceHandle wheelBLMeshInstanceHandle, MeshInstanceHandle wheelBRMeshInstanceHandle);
 
     void tick(VehicleInputState vis, Environment environment, float surfaceFriction, ve_time_t deltaTime);
 
@@ -137,8 +137,8 @@ public:
     // Temporary(testing)
     void setHeight(float h) { transform.position.y = h; }
 
-    VehicleId getId() const{
-        return id;
+    VehicleHandle getHandle() const{
+        return handle;
     }
 
 private:
@@ -158,7 +158,7 @@ private:
     void updateBodyMatrix();
     void updateWheelMatrices();
 
-    VehicleId id;
+    VehicleHandle handle;
 
     Position3 wheelOffset;
 

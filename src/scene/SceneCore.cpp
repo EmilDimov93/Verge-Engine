@@ -3,13 +3,15 @@
 
 #include "Scene.hpp"
 
+#include "HandleFactory.hpp"
+
+#include "../shared/Log.hpp"
+
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <unordered_map>
 #include <filesystem>
-
-#include "../shared/Log.hpp"
 
 Scene::Scene(ve_color_t backgroundColor)
 {
@@ -148,7 +150,7 @@ MeshHandle Scene::loadOBJ(const std::string &filePath)
         }
     }
 
-    MeshHandle newMeshHandle = getNextMeshHandle();
+    MeshHandle newMeshHandle = HandleFactory<MeshHandle>::getNewHandle();
 
     Mesh objMesh(newMeshHandle, meshVertices, meshIndices);
 

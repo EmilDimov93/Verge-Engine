@@ -10,13 +10,35 @@
 
 #define PI 3.14159265358979323846264338327950288419716939937510f
 
-struct MeshHandle { uint64_t value; friend bool operator==(const MeshHandle&, const MeshHandle&) = default; };
-struct MeshInstanceHandle { uint64_t value; friend bool operator==(const MeshInstanceHandle&, const MeshInstanceHandle&) = default; };
+template <typename Tag>
+class Handle
+{
+public:
+    constexpr Handle() = default;
+    constexpr explicit Handle(uint64_t value) : value(value) {}
 
-struct VehicleHandle { uint64_t value; friend bool operator==(const VehicleHandle&, const VehicleHandle&) = default; };
-struct PlayerHandle { uint64_t value; friend bool operator==(const PlayerHandle&, const PlayerHandle&) = default; };
+    static constexpr uint64_t INVALID = 0;
 
-struct TriggerHandle { uint64_t value; friend bool operator==(const TriggerHandle&, const TriggerHandle&) = default; };
+    constexpr bool isValid() const { return value != INVALID; }
+    constexpr uint64_t getValue() const { return value; }
+
+    friend bool operator==(const Handle &, const Handle &) = default;
+
+private:
+    uint64_t value = INVALID;
+};
+
+struct MeshTag {};
+struct MeshInstanceTag {};
+struct VehicleTag {};
+struct PlayerTag {};
+struct TriggerTag {};
+
+using MeshHandle = Handle<MeshTag>;
+using MeshInstanceHandle = Handle<MeshInstanceTag>;
+using VehicleHandle = Handle<VehicleTag>;
+using PlayerHandle = Handle<PlayerTag>;
+using TriggerHandle = Handle<TriggerTag>;
 
 #define INVALID_MESH_HANDLE MeshHandle{0}
 
@@ -92,5 +114,6 @@ inline glm::mat4 transformToMat(const Transform &transform)
 template <typename T>
 inline T clamp(T v, T lo, T hi)
 {
-    return (v < lo) ? lo : (v > hi) ? hi : v;
+    return (v < lo) ? lo : (v > hi) ? hi
+                                    : v;
 }

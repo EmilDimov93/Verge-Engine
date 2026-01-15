@@ -28,7 +28,7 @@ public:
 
     VehicleHandle addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform = {});
     void addProp(MeshHandle meshHandle, Transform transform);
-    void addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform = {});
+    TriggerHandle addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform = {});
 
     void setMatrix(MeshInstanceHandle meshInstanceHandle, glm::mat4 newModel);
 
@@ -47,29 +47,16 @@ private:
     // Controllers
     std::vector<std::unique_ptr<Controller>> controllers;
 
-    PlayerHandle lastPlayerHandle = {0};
-    PlayerHandle getNextPlayerHandle();
-
     // Meshes
     std::vector<Mesh> meshes;
     std::vector<MeshInstance> meshInstances;
-    MeshHandle lastMeshHandle = {1}; // Starts from one because of INVALID_MESH_HANDLE
-    MeshInstanceHandle lastMeshInstanceHandle = {0};
-
-    MeshHandle getNextMeshHandle();
-    MeshInstanceHandle getNextMeshInstanceHandle();
 
     Ground ground;
     std::vector<Surface> surfaces;
 
-    std::vector<Vehicle> vehicles; 
-    VehicleHandle lastVehicleHandle = {0}; 
-    VehicleHandle getNextVehicleHandle();
-
+    std::vector<Vehicle> vehicles;
     std::vector<Prop> props;
     std::vector<Trigger> triggers;
-    TriggerHandle lastTriggerHandle = {0}; 
-    TriggerHandle getNextTriggerHandle();
 
     // Environment
     Environment environment;

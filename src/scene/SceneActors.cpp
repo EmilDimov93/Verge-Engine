@@ -3,6 +3,8 @@
 
 #include "Scene.hpp"
 
+#include "HandleFactory.hpp"
+
 #include <glm/gtc/random.hpp>
 
 void Scene::tick(ve_time_t frameTime)
@@ -58,7 +60,7 @@ void Scene::tick(ve_time_t frameTime)
         {
             if (trigger.doesActorTrigger(vehicle.getTransform().position))
             {
-                std::cout << "Triggered: " << trigger.getHandle().value << std::endl;
+                std::cout << "Triggered: " << trigger.getHandle().getValue() << std::endl;
                 // call callback function
                 if (trigger.getIsAutoDestroy())
                 {
@@ -124,7 +126,7 @@ MeshInstanceHandle Scene::addMeshInstance(MeshHandle meshHandle)
         Log::add('S', 200);
     }
 
-    MeshInstance newMeshInstance(getNextMeshInstanceHandle(), meshHandle, glm::mat4(1.0f));
+    MeshInstance newMeshInstance(HandleFactory<MeshInstanceHandle>::getNewHandle(), meshHandle, glm::mat4(1.0f));
 
     meshInstances.push_back(newMeshInstance);
 
@@ -133,7 +135,7 @@ MeshInstanceHandle Scene::addMeshInstance(MeshHandle meshHandle)
 
 PlayerHandle Scene::addPlayer(VehicleHandle vehicleHandle, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo)
 {
-    PlayerHandle handle = getNextPlayerHandle();
+    PlayerHandle handle = HandleFactory<PlayerHandle>::getNewHandle();
     
     controllers.push_back(std::make_unique<Player>(handle, vehicleHandle, keybinds, cameraInfo));
 
@@ -142,7 +144,7 @@ PlayerHandle Scene::addPlayer(VehicleHandle vehicleHandle, const PlayerKeybinds 
 
 VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform)
 {
-    VehicleHandle handle = getNextVehicleHandle();
+    VehicleHandle handle = HandleFactory<VehicleHandle>::getNewHandle();
 
     Vehicle newVehicle(handle,
                        transform,
@@ -168,47 +170,17 @@ void Scene::addProp(MeshHandle meshHandle, Transform transform)
     setMatrix(meshInstanceHandle, newProp.getModelMat());
 }
 
-void Scene::addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform)
+TriggerHandle Scene::addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform)
 {
-    TriggerHandle handle = getNextTriggerHandle();
+    TriggerHandle handle = HandleFactory<TriggerHandle>::getNewHandle();
 
     MeshInstanceHandle meshInstanceHandle = addMeshInstance(info.meshHandle);
 
     triggers.emplace_back(handle, transform, meshInstanceHandle, info);
 
     setMatrix(meshInstanceHandle, triggers.back().getModelMat());
-}
 
-// Should check unique?
-MeshHandle Scene::getNextMeshHandle()
-{
-    lastMeshHandle.value++;
-    return lastMeshHandle;
-}
-
-// Should check unique?
-MeshInstanceHandle Scene::getNextMeshInstanceHandle()
-{
-    lastMeshInstanceHandle.value++;
-    return lastMeshInstanceHandle;
-}
-
-VehicleHandle Scene::getNextVehicleHandle()
-{
-    lastVehicleHandle.value++;
-    return lastVehicleHandle;
-}
-
-TriggerHandle Scene::getNextTriggerHandle()
-{
-    lastTriggerHandle.value++;
-    return lastTriggerHandle;
-}
-
-PlayerHandle Scene::getNextPlayerHandle()
-{
-    lastPlayerHandle.value++;
-    return lastPlayerHandle;
+    return handle;
 }
 
 void Scene::makeExampleGround()
@@ -338,7 +310,7 @@ void Scene::buildGroundMesh(Size2 size, Transform transform)
         }
     }
 
-    MeshHandle newMeshHandle = getNextMeshHandle();
+    MeshHandle newMeshHandle = HandleFactory<MeshHandle>::getNewHandle();
 
     Mesh objMesh(newMeshHandle, meshVertices, meshIndices);
 

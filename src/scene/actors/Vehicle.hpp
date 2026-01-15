@@ -189,5 +189,6 @@ private:
     float steeringAngleRad;
     uint32_t gear;
     float rpm;
+    float wheelSpin;
     ve_time_t dt;
 };

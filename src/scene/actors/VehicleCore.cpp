@@ -202,6 +202,7 @@ Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHI
     speedMps = 0;
     gear = 1;
     rpm = 0;
+    wheelSpin = 0;
 
     this->transform = transform;
 }

@@ -28,7 +28,7 @@ public:
 private:
     struct MeshGPU
     {
-        MeshHandle handle;
+        const MeshHandle handle;
 
         uint64_t version = 0;
 
@@ -39,6 +39,8 @@ private:
         uint64_t indexCount = 0;
         VkBuffer indexBuffer = VK_NULL_HANDLE;
         VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
+
+        MeshGPU(MeshHandle handle) : handle(handle) {}
     };
 
     std::vector<MeshGPU> MeshGPUs;

@@ -818,9 +818,8 @@ void VulkanManager::createIndexBuffer(MeshGPU &meshGPU, const std::vector<uint32
 
 void VulkanManager::initMeshGPU(const Mesh &mesh)
 {
-    MeshGPU newMeshGPU{};
+    MeshGPU newMeshGPU(mesh.getHandle());
 
-    newMeshGPU.handle = mesh.getHandle();
     newMeshGPU.version = mesh.getVersion();
 
     newMeshGPU.vertexCount = mesh.getVertices().size();
@@ -851,16 +850,10 @@ void VulkanManager::updateMeshGPU(MeshGPU &meshGPU, const Mesh &mesh)
     meshGPU.indexBuffer = VK_NULL_HANDLE;
     meshGPU.indexBufferMemory = VK_NULL_HANDLE;
 
-    MeshGPU newMeshGPU{};
-
-    newMeshGPU.handle = mesh.getHandle();
-
-    newMeshGPU.vertexCount = mesh.getVertices().size();
-    newMeshGPU.indexCount = mesh.getIndices().size();
-    createVertexBuffer(newMeshGPU, mesh.getVertices());
-    createIndexBuffer(newMeshGPU, mesh.getIndices());
-
-    meshGPU = newMeshGPU;
+    meshGPU.vertexCount = mesh.getVertices().size();
+    meshGPU.indexCount = mesh.getIndices().size();
+    createVertexBuffer(meshGPU, mesh.getVertices());
+    createIndexBuffer(meshGPU, mesh.getIndices());
 
     meshGPU.version = mesh.getVersion();
 }
@@ -922,8 +915,8 @@ void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh
 
                 vkCmdBindIndexBuffer(commandBuffers[currentFrame], meshGPU.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-                glm::mat4 m = instance.model;
-                vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &m);
+                glm::mat4 modelM = instance.modelM;
+                vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &modelM);
 
                 vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 

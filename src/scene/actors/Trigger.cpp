@@ -6,9 +6,8 @@
 #include "../../shared/Log.hpp"
 
 Trigger::Trigger(TriggerHandle handle, Transform transform, MeshInstanceHandle meshInstanceHandle, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info)
+    : handle(handle)
 {
-    this->handle = handle;
-
     this->meshInstanceHandle = meshInstanceHandle;
 
     if (info.hitboxShape != VE_SHAPE_UNKNOWN)

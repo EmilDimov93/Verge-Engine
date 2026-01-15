@@ -18,7 +18,7 @@ struct Vertex
 class Mesh
 {
 public:
-    Mesh(MeshHandle newHandle, const std::vector<Vertex> &newVertices, const std::vector<uint32_t> &newIndices) : handle(newHandle), vertices(newVertices), indices(newIndices) {}
+    Mesh(MeshHandle handle, const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices) : handle(handle), vertices(vertices), indices(indices) {}
 
     void update(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices)
     {
@@ -34,7 +34,7 @@ public:
     const std::vector<uint32_t>& getIndices() const { return indices; }
 
 private:
-    MeshHandle handle;
+    const MeshHandle handle;
 
     uint64_t version = 1;
 
@@ -44,11 +44,14 @@ private:
 
 struct MeshInstance
 {
-    MeshInstanceHandle handle;
+    const MeshInstanceHandle handle;
 
     MeshHandle meshHandle;
 
-    glm::mat4 model;
+    glm::mat4 modelM;
+
+    MeshInstance(MeshInstanceHandle handle, MeshHandle meshHandle, glm::mat4 modelM)
+    : handle(handle), meshHandle(meshHandle), modelM(modelM) { }
 };
 
 struct DrawData

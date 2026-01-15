@@ -158,7 +158,7 @@ private:
     void updateBodyMatrix();
     void updateWheelMatrices();
 
-    VehicleHandle handle;
+    const VehicleHandle handle;
 
     Position3 wheelOffset;
 

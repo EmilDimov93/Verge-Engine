@@ -8,9 +8,8 @@
 #define HP_TO_KW_CONVERSION_FACTOR 0.7457f
 
 Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceHandle bodyMeshInstanceHandle, MeshInstanceHandle wheelFLMeshInstanceHandle, MeshInstanceHandle wheelFRMeshInstanceHandle, MeshInstanceHandle wheelBLMeshInstanceHandle, MeshInstanceHandle wheelBRMeshInstanceHandle)
+    : handle(handle)
 {
-    this->handle = handle;
-
     this->bodyMeshInstanceHandle = bodyMeshInstanceHandle;
     this->wheelFLMeshInstanceHandle = wheelFLMeshInstanceHandle;
     this->wheelFRMeshInstanceHandle = wheelFRMeshInstanceHandle;

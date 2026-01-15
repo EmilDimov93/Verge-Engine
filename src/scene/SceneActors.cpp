@@ -96,7 +96,7 @@ void Scene::setMatrix(MeshInstanceHandle meshInstanceHandle, glm::mat4 newModel)
     {
         if (instance.handle == meshInstanceHandle)
         {
-            instance.model = newModel;
+            instance.modelM = newModel;
             break;
         }
     }
@@ -124,9 +124,7 @@ MeshInstanceHandle Scene::addMeshInstance(MeshHandle meshHandle)
         Log::add('S', 200);
     }
 
-    MeshInstance newMeshInstance;
-    newMeshInstance.meshHandle = meshHandle;
-    newMeshInstance.handle = getNextMeshInstanceHandle();
+    MeshInstance newMeshInstance(getNextMeshInstanceHandle(), meshHandle, glm::mat4(1.0f));
 
     meshInstances.push_back(newMeshInstance);
 
@@ -176,10 +174,9 @@ void Scene::addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform
 
     MeshInstanceHandle meshInstanceHandle = addMeshInstance(info.meshHandle);
 
-    Trigger newTrigger(handle, transform, meshInstanceHandle, info);
-    triggers.push_back(newTrigger);
+    triggers.emplace_back(handle, transform, meshInstanceHandle, info);
 
-    setMatrix(meshInstanceHandle, newTrigger.getModelMat());
+    setMatrix(meshInstanceHandle, triggers.back().getModelMat());
 }
 
 // Should check unique?

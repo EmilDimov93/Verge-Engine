@@ -24,9 +24,9 @@ struct PlayerKeybinds
 class Player : public Controller
 {
 public:
-    Player(PlayerHandle handle, VehicleHandle vehicleHandle, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo) : camera(cameraInfo)
+    Player(PlayerHandle handle, VehicleHandle vehicleHandle, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo)
+        : handle(handle), camera(cameraInfo)
     {
-        this->handle = handle;
         this->vehicleHandle = vehicleHandle;
         this->keybinds = keybinds;
     }
@@ -132,32 +132,38 @@ public:
         camera.rotate({pitch, yaw, 0});
     }
 
-    void setCameraFollowDistance(float distance){
+    void setCameraFollowDistance(float distance)
+    {
         cameraFollowDistance = distance;
     }
 
-    void setCameraFollowHeight(float height){
+    void setCameraFollowHeight(float height)
+    {
         cameraFollowHeight = height;
     }
 
-    void setCameraFollowDelay(float delay){
+    void setCameraFollowDelay(float delay)
+    {
         cameraFollowDelay = delay;
     }
 
-    void setCameraFollowVehicle(bool shouldFollow){
+    void setCameraFollowVehicle(bool shouldFollow)
+    {
         isCameraFollowingVehicle = shouldFollow;
     }
 
-    glm::mat4 getCameraProjectionMatrix() const{
+    glm::mat4 getCameraProjectionMatrix() const
+    {
         return camera.getProjectionMatrix();
     }
 
-    glm::mat4 getCameraViewMatrix() const{
+    glm::mat4 getCameraViewMatrix() const
+    {
         return camera.getViewMatrix();
     }
 
 private:
-    PlayerHandle handle;
+    const PlayerHandle handle;
 
     VehicleHandle vehicleHandle;
 

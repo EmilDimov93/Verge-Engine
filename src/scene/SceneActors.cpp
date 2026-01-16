@@ -160,14 +160,19 @@ VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Trans
     return handle;
 }
 
-void Scene::addProp(MeshHandle meshHandle, Transform transform)
+PropHandle Scene::addProp(MeshHandle meshHandle, Transform transform)
 {
+    PropHandle handle = HandleFactory<PropHandle>::getNewHandle();
+
     MeshInstanceHandle meshInstanceHandle = addMeshInstance(meshHandle);
 
-    Prop newProp(meshInstanceHandle, transform);
+    Prop newProp(handle, meshInstanceHandle, transform);
+    
     props.push_back(newProp);
 
     setMatrix(meshInstanceHandle, newProp.getModelMat());
+
+    return handle;
 }
 
 TriggerHandle Scene::addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform)

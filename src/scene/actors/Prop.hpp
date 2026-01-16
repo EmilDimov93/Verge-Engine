@@ -6,7 +6,9 @@
 class Prop
 {
 public:
-    Prop(MeshInstanceHandle meshInstanceHandle, Transform transform);
+    Prop(PropHandle handle, MeshInstanceHandle meshInstanceHandle, Transform transform);
+
+    PropHandle getHandle() const;
 
     glm::mat4 getModelMat();
 
@@ -15,6 +17,8 @@ public:
     MeshInstanceHandle meshInstanceHandle;
 
 private:
+    PropHandle handle;
+
     Transform transform;
 
     glm::mat4 modelMat;

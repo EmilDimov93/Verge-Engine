@@ -27,7 +27,7 @@ public:
     PlayerHandle addPlayer(VehicleHandle vehicleHandle, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo);
 
     VehicleHandle addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform = {});
-    void addProp(MeshHandle meshHandle, Transform transform);
+    PropHandle addProp(MeshHandle meshHandle, Transform transform);
     TriggerHandle addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform = {});
 
     void setMatrix(MeshInstanceHandle meshInstanceHandle, glm::mat4 newModel);

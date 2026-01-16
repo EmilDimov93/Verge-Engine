@@ -33,12 +33,14 @@ struct MeshInstanceTag {};
 struct VehicleTag {};
 struct PlayerTag {};
 struct TriggerTag {};
+struct PropTag {};
 
 using MeshHandle = Handle<MeshTag>;
 using MeshInstanceHandle = Handle<MeshInstanceTag>;
 using VehicleHandle = Handle<VehicleTag>;
 using PlayerHandle = Handle<PlayerTag>;
 using TriggerHandle = Handle<TriggerTag>;
+using PropHandle = Handle<PropTag>;
 
 #define INVALID_MESH_HANDLE MeshHandle{0}
 

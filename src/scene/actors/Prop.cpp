@@ -5,13 +5,19 @@
 
 #include "../../shared/Log.hpp"
 
-Prop::Prop(MeshInstanceHandle meshInstanceHandle, Transform transform)
+Prop::Prop(PropHandle handle, MeshInstanceHandle meshInstanceHandle, Transform transform)
+: handle(handle)
 {
     this->meshInstanceHandle = meshInstanceHandle;
 
     this->transform = transform;
 
     modelMat = transformToMat(transform);
+}
+
+PropHandle Prop::getHandle() const
+{
+    return handle;
 }
 
 glm::mat4 Prop::getModelMat()

@@ -53,6 +53,7 @@ private:
         sCar.camberRad = (PI / 180);
         VehicleHandle car1 = scene.addVehicle(sCar, {{17.0f, 0, -100.0f}, {0, -PI / 4, 0}});
 
+        sCar.power = 600;
         sCar.bodyMeshHandle = scene.loadFile("models/carLowPoly.obj");
         sCar.wheelMeshHandle = scene.loadFile("models/wheelLowPoly.obj");
         VehicleHandle car2 = scene.addVehicle(sCar, {{13.0f, 0, -100.0f}, {0, -PI / 4, 0}});

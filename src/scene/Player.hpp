@@ -152,14 +152,14 @@ public:
         isCameraFollowingVehicle = shouldFollow;
     }
 
-    glm::mat4 getCameraProjectionMatrix() const
+    glm::mat4 getCameraProjectionMat() const
     {
-        return camera.getProjectionMatrix();
+        return camera.getProjectionMat();
     }
 
-    glm::mat4 getCameraViewMatrix() const
+    glm::mat4 getCameraViewMat() const
     {
-        return camera.getViewMatrix();
+        return camera.getViewMat();
     }
 
 private:
@@ -171,10 +171,10 @@ private:
 
     PlayerKeybinds keybinds;
 
-    float cameraYaw = 0;
+    float cameraYaw = -PI;
     glm::vec3 prevCamPos;
 
-    bool isCameraFollowingVehicle = true;
+    bool isCameraFollowingVehicle = false;
     float cameraFollowDistance = 10.0f;
     float cameraFollowHeight = 3.0f;
     float cameraFollowDelay = 0.01f;

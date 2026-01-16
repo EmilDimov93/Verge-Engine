@@ -30,7 +30,7 @@ public:
     PropHandle addProp(MeshHandle meshHandle, Transform transform);
     TriggerHandle addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform = {});
 
-    void setMatrix(MeshInstanceHandle meshInstanceHandle, glm::mat4 newModel);
+    void setModelMat(MeshInstanceHandle meshInstanceHandle, glm::mat4 newModel);
 
     void tick(ve_time_t dt);
 

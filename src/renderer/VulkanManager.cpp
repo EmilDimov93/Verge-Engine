@@ -915,8 +915,8 @@ void VulkanManager::recordCommands(uint32_t currentFrame, const std::vector<Mesh
 
                 vkCmdBindIndexBuffer(commandBuffers[currentFrame], meshGPU.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-                glm::mat4 modelM = instance.modelM;
-                vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &modelM);
+                glm::mat4 modelMat = instance.modelMat;
+                vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &modelMat);
 
                 vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
@@ -1007,7 +1007,7 @@ void VulkanManager::drawFrame(DrawData drawData)
     vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex), {'V', 230});
 
     recordCommands(currentFrame, drawData.meshes, drawData.meshInstances, drawData.backgroundColor);
-    updateUniformBuffers(currentFrame, drawData.projectionM, drawData.viewM);
+    updateUniformBuffers(currentFrame, drawData.projectionMat, drawData.viewMat);
 
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 

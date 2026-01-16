@@ -26,15 +26,14 @@ class Trigger
 public:
     Trigger(TriggerHandle handle, Transform transform, MeshInstanceHandle meshInstanceHandle, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info);
 
+    TriggerHandle getHandle() const;
+    glm::mat4 getModelMat();
+
     bool doesActorTrigger(Position3 actorPos);
 
-    TriggerHandle getHandle() const;
     bool getIsAutoDestroy() const;
-
     void markForDestroy();
     bool getIsMarkedForDestroy() const;
-
-    glm::mat4 getModelMat();
 
 private:
     TriggerHandle handle;

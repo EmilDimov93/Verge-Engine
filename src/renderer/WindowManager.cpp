@@ -3,9 +3,9 @@
 
 #include "WindowManager.hpp"
 
-#include <GLFW/glfw3.h>
-
 #include "../shared/Log.hpp"
+
+#include <GLFW/glfw3.h>
 
 WindowManager::WindowManager(Size2 size, std::string projectName)
 {

@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <GLFW/glfw3.h>
-
 #include "definitions.hpp"
+
+#include <GLFW/glfw3.h>
 
 typedef enum
 {

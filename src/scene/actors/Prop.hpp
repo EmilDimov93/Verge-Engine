@@ -9,7 +9,6 @@ public:
     Prop(PropHandle handle, MeshInstanceHandle meshInstanceHandle, Transform transform);
 
     PropHandle getHandle() const;
-
     glm::mat4 getModelMat();
 
     void setTransform(Transform transform);

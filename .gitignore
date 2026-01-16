@@ -2,8 +2,7 @@
 build/
 logo/
 early_dev/
-desktop.ini
-log.txt
-git.ps1
-shaderCompiler.ps1
 ext/soloud
+desktop.ini
+git.ps1
+conventions.md

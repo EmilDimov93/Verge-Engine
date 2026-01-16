@@ -68,6 +68,9 @@ public:
 
     Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceHandle bodyMeshInstanceHandle, MeshInstanceHandle wheelFLMeshInstanceHandle, MeshInstanceHandle wheelFRMeshInstanceHandle, MeshInstanceHandle wheelBLMeshInstanceHandle, MeshInstanceHandle wheelBRMeshInstanceHandle);
 
+    VehicleHandle getHandle() const;
+    glm::mat4 getBodyMat() const;
+
     void tick(VehicleInputState vis, Environment environment, float surfaceFriction, ve_time_t deltaTime);
 
     // Getters
@@ -136,10 +139,6 @@ public:
 
     // Temporary(testing)
     void setHeight(float h) { transform.position.y = h; }
-
-    VehicleHandle getHandle() const{
-        return handle;
-    }
 
 private:
     void calculatePhysics(Environment environment, float surfaceFriction);

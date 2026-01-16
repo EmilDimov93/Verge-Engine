@@ -48,10 +48,10 @@ struct MeshInstance
 
     MeshHandle meshHandle;
 
-    glm::mat4 modelM;
+    glm::mat4 modelMat;
 
-    MeshInstance(MeshInstanceHandle handle, MeshHandle meshHandle, glm::mat4 modelM)
-    : handle(handle), meshHandle(meshHandle), modelM(modelM) { }
+    MeshInstance(MeshInstanceHandle handle, MeshHandle meshHandle, glm::mat4 modelMat)
+    : handle(handle), meshHandle(meshHandle), modelMat(modelMat) { }
 };
 
 struct DrawData
@@ -59,15 +59,15 @@ struct DrawData
     const std::vector<Mesh> &meshes;
     const std::vector<MeshInstance> &meshInstances;
 
-    glm::mat4 projectionM;
-    glm::mat4 viewM;
+    glm::mat4 projectionMat;
+    glm::mat4 viewMat;
 
     ve_color_t backgroundColor;
 
     DrawData(const std::vector<Mesh> &newMeshes,
              const std::vector<MeshInstance> &newMeshInstances,
-             glm::mat4 newProjectionM,
-             glm::mat4 newViewM,
+             glm::mat4 newProjectionMat,
+             glm::mat4 newViewMat,
              ve_color_t newBackgroundColor)
-        : meshes(newMeshes), meshInstances(newMeshInstances), projectionM(newProjectionM), viewM(newViewM), backgroundColor(newBackgroundColor) {}
+        : meshes(newMeshes), meshInstances(newMeshInstances), projectionMat(newProjectionMat), viewMat(newViewMat), backgroundColor(newBackgroundColor) {}
 };

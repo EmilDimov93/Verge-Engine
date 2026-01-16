@@ -28,11 +28,11 @@ void Scene::tick(ve_time_t frameTime)
 
         vehicle.tick(vis, environment, surfaces[ground.sampleSurfaceIndex(vehicle.getTransform().position.x, vehicle.getTransform().position.z)].friction, dt);
 
-        setMatrix(vehicle.bodyMeshInstanceHandle, vehicle.bodyMat);
-        setMatrix(vehicle.wheelFLMeshInstanceHandle, vehicle.wheelFLMat);
-        setMatrix(vehicle.wheelFRMeshInstanceHandle, vehicle.wheelFRMat);
-        setMatrix(vehicle.wheelBLMeshInstanceHandle, vehicle.wheelBLMat);
-        setMatrix(vehicle.wheelBRMeshInstanceHandle, vehicle.wheelBRMat);
+        setModelMat(vehicle.bodyMeshInstanceHandle, vehicle.bodyMat);
+        setModelMat(vehicle.wheelFLMeshInstanceHandle, vehicle.wheelFLMat);
+        setModelMat(vehicle.wheelFRMeshInstanceHandle, vehicle.wheelFRMat);
+        setModelMat(vehicle.wheelBLMeshInstanceHandle, vehicle.wheelBLMat);
+        setModelMat(vehicle.wheelBRMeshInstanceHandle, vehicle.wheelBRMat);
     }
 
     for (std::unique_ptr<Controller> &controller : controllers)
@@ -51,7 +51,7 @@ void Scene::tick(ve_time_t frameTime)
 
     for (Prop &prop : props)
     {
-        setMatrix(prop.meshInstanceHandle, prop.getModelMat());
+        setModelMat(prop.meshInstanceHandle, prop.getModelMat());
     }
 
     for (Trigger &trigger : triggers)
@@ -82,7 +82,7 @@ DrawData Scene::getDrawData(PlayerHandle playerHandle)
         {
             if (player->getHandle() == playerHandle)
             {
-                DrawData drawData(meshes, meshInstances, player->getCameraProjectionMatrix(), player->getCameraViewMatrix(), environment.backgroundColor);
+                DrawData drawData(meshes, meshInstances, player->getCameraProjectionMat(), player->getCameraViewMat(), environment.backgroundColor);
                 return drawData;
             }
         }
@@ -92,13 +92,13 @@ DrawData Scene::getDrawData(PlayerHandle playerHandle)
     return DrawData{meshes, meshInstances, {0}, {0}, environment.backgroundColor};
 }
 
-void Scene::setMatrix(MeshInstanceHandle meshInstanceHandle, glm::mat4 newModel)
+void Scene::setModelMat(MeshInstanceHandle meshInstanceHandle, glm::mat4 modelMat)
 {
     for (MeshInstance &instance : meshInstances)
     {
         if (instance.handle == meshInstanceHandle)
         {
-            instance.modelM = newModel;
+            instance.modelMat = modelMat;
             break;
         }
     }
@@ -167,10 +167,10 @@ PropHandle Scene::addProp(MeshHandle meshHandle, Transform transform)
     MeshInstanceHandle meshInstanceHandle = addMeshInstance(meshHandle);
 
     Prop newProp(handle, meshInstanceHandle, transform);
-    
+
     props.push_back(newProp);
 
-    setMatrix(meshInstanceHandle, newProp.getModelMat());
+    setModelMat(meshInstanceHandle, newProp.getModelMat());
 
     return handle;
 }
@@ -183,7 +183,7 @@ TriggerHandle Scene::addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, 
 
     triggers.emplace_back(handle, transform, meshInstanceHandle, info);
 
-    setMatrix(meshInstanceHandle, triggers.back().getModelMat());
+    setModelMat(meshInstanceHandle, triggers.back().getModelMat());
 
     return handle;
 }
@@ -317,11 +317,11 @@ void Scene::buildGroundMesh(Size2 size, Transform transform)
 
     MeshHandle newMeshHandle = HandleFactory<MeshHandle>::getNewHandle();
 
-    Mesh objMesh(newMeshHandle, meshVertices, meshIndices);
+    Mesh newMesh(newMeshHandle, meshVertices, meshIndices);
 
-    meshes.push_back(objMesh);
+    meshes.push_back(newMesh);
 
     MeshInstanceHandle newMeshInstanceHandle = addMeshInstance(newMeshHandle);
 
-    setMatrix(newMeshInstanceHandle, transformToMat(transform));
+    setModelMat(newMeshInstanceHandle, transformToMat(transform));
 }

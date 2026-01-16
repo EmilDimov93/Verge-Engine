@@ -33,21 +33,21 @@ Camera::Camera(const VE_STRUCT_CAMERA_CREATE_INFO &info)
     isInitialized = true;
 }
 
-glm::mat4 Camera::getViewMatrix() const
+glm::mat4 Camera::getViewMat() const
 {
     return glm::lookAt(glm::vec3(position.x, position.y, position.z), glm::vec3(position.x + forward.x, position.y + forward.y, position.z + forward.z), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
-glm::mat4 Camera::getProjectionMatrix() const
+glm::mat4 Camera::getProjectionMat() const
 {
     if (!isInitialized)
     {
         Log::add('K', 200);
     }
 
-    glm::mat4 projectionMatrix = glm::perspective(glm::radians(fov), aspectRatio, zNear, zFar);
-    projectionMatrix[1][1] *= -1;
-    return projectionMatrix;
+    glm::mat4 projectionMat = glm::perspective(glm::radians(fov), aspectRatio, zNear, zFar);
+    projectionMat[1][1] *= -1;
+    return projectionMat;
 }
 
 void Camera::move(Position3 newPosition)

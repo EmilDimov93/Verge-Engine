@@ -152,9 +152,9 @@ MeshHandle Scene::loadOBJ(const std::string &filePath)
 
     MeshHandle newMeshHandle = HandleFactory<MeshHandle>::getNewHandle();
 
-    Mesh objMesh(newMeshHandle, meshVertices, meshIndices);
+    Mesh newMesh(newMeshHandle, meshVertices, meshIndices);
 
-    meshes.push_back(objMesh);
+    meshes.push_back(newMesh);
 
     return newMeshHandle;
 }

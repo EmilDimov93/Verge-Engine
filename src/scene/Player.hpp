@@ -174,7 +174,7 @@ private:
     float cameraYaw = -PI;
     glm::vec3 prevCamPos;
 
-    bool isCameraFollowingVehicle = false;
+    bool isCameraFollowingVehicle = true;
     float cameraFollowDistance = 10.0f;
     float cameraFollowHeight = 3.0f;
     float cameraFollowDelay = 0.01f;

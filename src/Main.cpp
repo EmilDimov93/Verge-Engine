@@ -7,25 +7,23 @@
 class VergeEngine
 {
 public:
-    VergeEngine() : r1({"Window 1", {1200, 2000}}), r2({"Window 2", {1200, 2000}}), scene({0.7f, 1.0f, 1.0f}) {}
+    VergeEngine() : renderer({"Example", {1200, 2000}}), scene({0.7f, 1.0f, 1.0f}) {}
 
     void run()
     {
         setupScene();
 
-        while (r1.tick(scene.getDrawData(p1h)) && r2.tick(scene.getDrawData(p2h)))
+        while (renderer.tick(scene.getDrawData(p1h)))
         {
-            scene.tick(r1.getFrameTime());
+            scene.tick(renderer.getFrameTime());
         }
     }
 
 private:
-    Renderer r1;
-    Renderer r2;
+    Renderer renderer;
     Scene scene;
 
     PlayerHandle p1h;
-    PlayerHandle p2h;
 
     void setupScene()
     {
@@ -71,9 +69,7 @@ private:
         p2Keybinds.steerLeft = VE_KEY_LEFT;
         p2Keybinds.steerRight = VE_KEY_RIGHT;
 
-        p1h = scene.addPlayer(car1, p1Keybinds, {r1.getAspectRatio()});
-
-        p2h = scene.addPlayer(car2, p2Keybinds, {r2.getAspectRatio()});
+        p1h = scene.addPlayer(car1, p1Keybinds, {renderer.getAspectRatio()});
 
         // Prop
         scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});

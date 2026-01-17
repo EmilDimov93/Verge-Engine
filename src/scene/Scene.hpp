@@ -10,7 +10,6 @@
 #include "actors/Prop.hpp"
 #include "actors/Trigger.hpp"
 
-#include "Camera.hpp"
 #include "Environment.hpp"
 
 #include "../shared/Mesh.hpp"

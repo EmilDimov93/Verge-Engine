@@ -107,29 +107,25 @@ public:
             return;
 
         float currCameraHeight = cameraFollowHeight;
+        
         // Move camera when ground is obstructing view
         /*if(ground.sampleHeight(camera.getPosition().x, camera.getPosition().z) >= currCameraHeight){
             currCameraHeight += ground.sampleHeight(camera.getPosition().x, camera.getPosition().z);
         }*/
 
-        float vehicleYaw = atan2(vehicleVelocityVector.x, vehicleVelocityVector.z);
-
-        float targetYaw = vehicleYaw - PI;
-
-        cameraYaw += (targetYaw - cameraYaw) * cameraFollowDelay;
+        float targetYaw = atan2(vehicleVelocityVector.x, vehicleVelocityVector.z) - PI;
 
         Position3 vehiclePos = vehicleTransform.position;
 
-        prevCamPos = {camera.getPosition().x, camera.getPosition().y, camera.getPosition().z};
+        camPos = {camera.getPosition().x, camera.getPosition().y, camera.getPosition().z};
         glm::vec3 targetCamPos = {vehiclePos.x + sin(cameraYaw) * cameraFollowDistance, vehiclePos.y + currCameraHeight, vehiclePos.z + cos(cameraYaw) * cameraFollowDistance};
-        glm::vec3 newCamPos = glm::mix(prevCamPos, targetCamPos, 1.0f - std::exp(-float(dt) * 10.0f));
-        camera.move({newCamPos.x, newCamPos.y, newCamPos.z});
-        prevCamPos = {camera.getPosition().x, camera.getPosition().y, camera.getPosition().z};
+        camPos = glm::mix(camPos, targetCamPos, 1.0f - std::exp(-float(dt) * 10.0f));
+        camera.move({camPos.x, camPos.y, camPos.z});
 
-        glm::vec3 dir = glm::normalize(glm::vec3(vehiclePos.x, vehiclePos.y, vehiclePos.z) - newCamPos);
-        float pitch = glm::degrees(asin(dir.y));
-        float yaw = glm::degrees(atan2(dir.z, dir.x));
-        camera.rotate({pitch, yaw, 0});
+        cameraYaw += (targetYaw - cameraYaw) * cameraFollowDelay;
+
+        glm::vec3 dir = glm::normalize(glm::vec3(vehiclePos.x, vehiclePos.y, vehiclePos.z) - camPos);
+        camera.rotate({glm::degrees(asin(dir.y)), glm::degrees(atan2(dir.z, dir.x)), 0});
     }
 
     void setCameraFollowDistance(float distance)
@@ -172,7 +168,7 @@ private:
     PlayerKeybinds keybinds;
 
     float cameraYaw = -PI;
-    glm::vec3 prevCamPos;
+    glm::vec3 camPos;
 
     bool isCameraFollowingVehicle = true;
     float cameraFollowDistance = 10.0f;

@@ -30,4 +30,16 @@ void Prop::setTransform(Transform transform)
     this->transform = transform;
 
     modelMat = transformToMat(transform);
+
+    hasChanged = true;
+}
+
+bool Prop::hasChanges()
+{
+    return hasChanged;
+}
+
+void Prop::markChangesSaved()
+{
+    hasChanged = false;
 }

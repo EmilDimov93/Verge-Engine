@@ -13,7 +13,7 @@ public:
     {
         setupScene();
 
-        while (renderer.tick(scene.getDrawData(p1h)))
+        while (renderer.tick(scene.getDrawData(p1)))
         {
             scene.tick(renderer.getFrameTime());
         }
@@ -23,7 +23,7 @@ private:
     Renderer renderer;
     Scene scene;
 
-    PlayerHandle p1h;
+    PlayerHandle p1;
 
     void setupScene()
     {
@@ -69,7 +69,7 @@ private:
         p2Keybinds.steerLeft = VE_KEY_LEFT;
         p2Keybinds.steerRight = VE_KEY_RIGHT;
 
-        p1h = scene.addPlayer(car1, p1Keybinds, {renderer.getAspectRatio()});
+        p1 = scene.addPlayer(car1, p1Keybinds, {renderer.getAspectRatio()});
 
         // Prop
         scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});

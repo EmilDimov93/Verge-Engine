@@ -51,7 +51,10 @@ void Scene::tick(ve_time_t frameTime)
 
     for (Prop &prop : props)
     {
-        setModelMat(prop.meshInstanceHandle, prop.getModelMat());
+        if(prop.hasChanges()){
+            setModelMat(prop.meshInstanceHandle, prop.getModelMat());
+            prop.markChangesSaved();
+        }
     }
 
     for (Trigger &trigger : triggers)

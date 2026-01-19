@@ -15,10 +15,15 @@ public:
 
     MeshInstanceHandle meshInstanceHandle;
 
+    bool hasChanges();
+    void markChangesSaved();
+
 private:
     PropHandle handle;
 
     Transform transform;
 
     glm::mat4 modelMat;
+
+    bool hasChanged = true;
 };

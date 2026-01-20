@@ -33,7 +33,7 @@ Trigger::Trigger(TriggerHandle handle, Transform transform, MeshInstanceHandle m
     modelMat = transformToMat(transform);
 }
 
-bool Trigger::doesActorTrigger(Position3 actorPos)
+bool Trigger::doesActorTrigger(Position3 actorPos) const
 {
     Position3 triggerPos = transform.position;
 
@@ -88,7 +88,7 @@ bool Trigger::getIsMarkedForDestroy() const
     return isMarkedForDestroy;
 }
 
-glm::mat4 Trigger::getModelMat()
+glm::mat4 Trigger::getModelMat() const
 {
     return modelMat;
 }

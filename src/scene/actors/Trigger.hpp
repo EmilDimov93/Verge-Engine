@@ -27,9 +27,9 @@ public:
     Trigger(TriggerHandle handle, Transform transform, MeshInstanceHandle meshInstanceHandle, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info);
 
     TriggerHandle getHandle() const;
-    glm::mat4 getModelMat();
+    glm::mat4 getModelMat() const;
 
-    bool doesActorTrigger(Position3 actorPos);
+    bool doesActorTrigger(Position3 actorPos) const;
 
     bool getIsAutoDestroy() const;
     void markForDestroy();

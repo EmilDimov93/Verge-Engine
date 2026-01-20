@@ -56,24 +56,24 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
 class Vehicle
 {
 public:
-    // Temporarily public
-    MeshInstanceHandle bodyMeshInstanceHandle;
-    MeshInstanceHandle wheelFLMeshInstanceHandle;
-    MeshInstanceHandle wheelFRMeshInstanceHandle;
-    MeshInstanceHandle wheelBLMeshInstanceHandle;
-    MeshInstanceHandle wheelBRMeshInstanceHandle;
-
-    glm::mat4 bodyMat;
-    glm::mat4 wheelFLMat, wheelFRMat, wheelBLMat, wheelBRMat;
-
     Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceHandle bodyMeshInstanceHandle, MeshInstanceHandle wheelFLMeshInstanceHandle, MeshInstanceHandle wheelFRMeshInstanceHandle, MeshInstanceHandle wheelBLMeshInstanceHandle, MeshInstanceHandle wheelBRMeshInstanceHandle);
-
-    VehicleHandle getHandle() const;
-    glm::mat4 getBodyMat() const;
 
     void tick(VehicleInputState vis, Environment environment, float surfaceFriction, ve_time_t deltaTime);
 
     // Getters
+    VehicleHandle getHandle() const { return handle; };
+
+    glm::mat4 getBodyMat() const { return bodyMat; };
+    glm::mat4 getWheelFLMat() const { return wheelFLMat; };
+    glm::mat4 getWheelFRMat() const { return wheelFRMat; };
+    glm::mat4 getWheelBLMat() const { return wheelBLMat; };
+    glm::mat4 getWheelBRMat() const { return wheelBRMat; };
+
+    MeshInstanceHandle getBodyMeshInstanceHandle() const { return bodyMeshInstanceHandle; };
+    MeshInstanceHandle getWheelFLMeshInstanceHandle() const { return wheelFLMeshInstanceHandle; };
+    MeshInstanceHandle getWheelFRMeshInstanceHandle() const { return wheelFRMeshInstanceHandle; };
+    MeshInstanceHandle getWheelBLMeshInstanceHandle() const { return wheelBLMeshInstanceHandle; };
+    MeshInstanceHandle getWheelBRMeshInstanceHandle() const { return wheelBRMeshInstanceHandle; };
     Position3 getWheelOffset() const { return wheelOffset; }
     uint32_t getPowerKw() const { return powerKw; }
     uint32_t getPowerHp() const { return static_cast<uint32_t>(powerKw * KW_TO_HP_CONSTANT); }
@@ -108,7 +108,7 @@ public:
     // Setters
     void setWheelOffset(Position3 value) { wheelOffset = value; }
     void setPowerKw(uint32_t value) { powerKw = value; }
-    void setPowerHp(uint32_t value) { powerKw = static_cast<uint32_t>(value / 1.341022f); }
+    void setPowerHp(uint32_t value) { powerKw = static_cast<uint32_t>(value / KW_TO_HP_CONSTANT); }
     void setWeightKg(float value) { weightKg = value; }
     void setGearCount(uint32_t value) { gearCount = value; }
     void setMaxRpm(uint32_t value) { maxRpm = value; }
@@ -159,6 +159,12 @@ private:
 
     const VehicleHandle handle;
 
+    MeshInstanceHandle bodyMeshInstanceHandle;
+    MeshInstanceHandle wheelFLMeshInstanceHandle;
+    MeshInstanceHandle wheelFRMeshInstanceHandle;
+    MeshInstanceHandle wheelBLMeshInstanceHandle;
+    MeshInstanceHandle wheelBRMeshInstanceHandle;
+
     Position3 wheelOffset;
 
     uint32_t powerKw;
@@ -167,7 +173,6 @@ private:
     uint32_t maxRpm;
     VETransmissionType transmissionType;
     float brakingForce;
-
     std::vector<float> gearRatios;
     float finalDriveRatio;
     float drivetrainEfficiency;
@@ -189,5 +194,9 @@ private:
     uint32_t gear;
     float rpm;
     float wheelSpin;
+
+    glm::mat4 bodyMat;
+    glm::mat4 wheelFLMat, wheelFRMat, wheelBLMat, wheelBRMat;
+
     ve_time_t dt;
 };

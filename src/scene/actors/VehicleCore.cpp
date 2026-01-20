@@ -207,11 +207,6 @@ Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHI
     this->transform = transform;
 }
 
-VehicleHandle Vehicle::getHandle() const
-{
-    return handle;
-}
-
 void Vehicle::tick(VehicleInputState vis, Environment environment, float surfaceFriction, ve_time_t deltaTime)
 {
     dt = deltaTime;

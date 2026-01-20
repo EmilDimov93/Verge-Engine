@@ -20,7 +20,7 @@ PropHandle Prop::getHandle() const
     return handle;
 }
 
-glm::mat4 Prop::getModelMat()
+glm::mat4 Prop::getModelMat() const
 {
     return modelMat;
 }
@@ -34,7 +34,12 @@ void Prop::setTransform(Transform transform)
     hasChanged = true;
 }
 
-bool Prop::hasChanges()
+MeshInstanceHandle Prop::getMeshInstanceHandle() const
+{
+    return meshInstanceHandle;
+}
+
+bool Prop::hasChanges() const
 {
     return hasChanged;
 }

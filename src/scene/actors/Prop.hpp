@@ -9,13 +9,13 @@ public:
     Prop(PropHandle handle, MeshInstanceHandle meshInstanceHandle, Transform transform);
 
     PropHandle getHandle() const;
-    glm::mat4 getModelMat();
+    glm::mat4 getModelMat() const;
 
     void setTransform(Transform transform);
 
-    MeshInstanceHandle meshInstanceHandle;
+    MeshInstanceHandle getMeshInstanceHandle() const;
 
-    bool hasChanges();
+    bool hasChanges() const;
     void markChangesSaved();
 
 private:
@@ -24,6 +24,8 @@ private:
     Transform transform;
 
     glm::mat4 modelMat;
+
+    MeshInstanceHandle meshInstanceHandle;
 
     bool hasChanged = true;
 };

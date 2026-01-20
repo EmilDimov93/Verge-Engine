@@ -21,6 +21,77 @@ Scene::Scene(ve_color_t backgroundColor)
     surfaces.push_back({1.0f, {0.1f, 0.1f, 0.1f}});
 }
 
+void Scene::tick(ve_time_t frameTime)
+{
+    dt = frameTime;
+
+    for (Vehicle &vehicle : vehicles)
+    {
+        // Temporary(testing)
+        vehicle.setHeight(ground.sampleHeight(vehicle.getTransform().position.x, vehicle.getTransform().position.z));
+
+        VehicleInputState vis{};
+        for (const std::unique_ptr<Controller> &controller : controllers)
+        {
+            if (controller->getVehicleHandle() == vehicle.getHandle())
+            {
+                vis = controller->getVehicleInputState();
+                break;
+            }
+        }
+
+        vehicle.tick(vis, environment, surfaces[ground.sampleSurfaceIndex(vehicle.getTransform().position.x, vehicle.getTransform().position.z)].friction, dt);
+
+        setModelMat(vehicle.getBodyMeshInstanceHandle(), vehicle.getBodyMat());
+
+        setModelMat(vehicle.getWheelFLMeshInstanceHandle(), vehicle.getWheelFLMat());
+        setModelMat(vehicle.getWheelFRMeshInstanceHandle(), vehicle.getWheelFRMat());
+        setModelMat(vehicle.getWheelBLMeshInstanceHandle(), vehicle.getWheelBLMat());
+        setModelMat(vehicle.getWheelBRMeshInstanceHandle(), vehicle.getWheelBRMat());
+    }
+
+    for (std::unique_ptr<Controller> &controller : controllers)
+    {
+        if (Player *player = dynamic_cast<Player *>(controller.get()))
+        {
+            for (Vehicle &vehicle : vehicles)
+            {
+                if (player->getVehicleHandle() == vehicle.getHandle())
+                {
+                    player->updateCamera(dt, vehicle.getTransform(), vehicle.getVelocityVector());
+                }
+            }
+        }
+    }
+
+    for (Prop &prop : props)
+    {
+        if(prop.hasChanges()){
+            setModelMat(prop.getMeshInstanceHandle(), prop.getModelMat());
+            prop.markChangesSaved();
+        }
+    }
+
+    for (Trigger &trigger : triggers)
+    {
+        for (Vehicle &vehicle : vehicles)
+        {
+            if (trigger.doesActorTrigger(vehicle.getTransform().position))
+            {
+                std::cout << "Triggered: " << trigger.getHandle().getValue() << std::endl;
+                // call callback function
+                if (trigger.getIsAutoDestroy())
+                {
+                    trigger.markForDestroy();
+                    break;
+                }
+            }
+        }
+    }
+    std::erase_if(triggers, [](const Trigger &t)
+                  { return t.getIsMarkedForDestroy(); });
+}
+
 MeshHandle Scene::loadFile(const std::string &filePath)
 {
     std::string ext = std::filesystem::path(filePath).extension().string();

@@ -72,7 +72,8 @@ void Vehicle::calcForces(Environment environment, float surfaceFriction)
 
     glm::vec3 FBrake(0.0f);
     {
-        FBrake = -forward * (glm::sign(glm::dot(velocityMps, forward)) * FBrakeMag);
+        if (glm::length(velocityMps) > 0.01f)
+            FBrake = -(velocityMps / glm::length(velocityMps)) * FBrakeMag;
     }
 
     glm::vec3 FLat(0.0f);

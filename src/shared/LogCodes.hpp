@@ -49,6 +49,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'V', 221}, "Vulkan failed to find shader files"},
     {{'V', 222}, "Vulkan failed to create depth buffer image"},
     {{'V', 223}, "Vulkan failed to find supported image format"},
+    {{'V', 224}, "Vulkan failed to copy buffer"},
     {{'V', 229}, "Vulkan failed to initialize mesh"},
     {{'V', 230}, "Vulkan failed to acquire swapchain image"},
     {{'V', 231}, "Vulkan failed to wait for fence"},

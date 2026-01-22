@@ -691,7 +691,7 @@ void VulkanManager::createSemaphores()
     }
 }
 
-void VulkanManager::updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionM, glm::mat4 viewM)
+void VulkanManager::updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat)
 {
     struct UboViewProjection
     {
@@ -699,8 +699,8 @@ void VulkanManager::updateUniformBuffers(uint32_t imageIndex, glm::mat4 projecti
         glm::mat4 view;
     } uboViewProjection;
 
-    uboViewProjection.projection = projectionM;
-    uboViewProjection.view = viewM;
+    uboViewProjection.projection = projectionMat;
+    uboViewProjection.view = viewMat;
 
     void *data;
     vkCheck(vkMapMemory(device, vpUniformBufferMemory[imageIndex], 0, sizeof(UboViewProjection), 0, &data), {'V', 236});
@@ -731,8 +731,10 @@ void VulkanManager::createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags buf
     vkCheck(vkBindBufferMemory(device, *buffer, *bufferMemory, 0), {'V', 218});
 }
 
-void copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBufer, VkBuffer dstBuffer, VkDeviceSize bufferSize)
+VkResult copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBufer, VkBuffer dstBuffer, VkDeviceSize bufferSize)
 {
+    VkResult res;
+
     VkCommandBuffer transferCommandBuffer;
 
     VkCommandBufferAllocateInfo allocInfo = {
@@ -741,14 +743,16 @@ void copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCo
         .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
         .commandBufferCount = 1};
 
-    vkAllocateCommandBuffers(device, &allocInfo, &transferCommandBuffer); // Should vkCheck
+    res = vkAllocateCommandBuffers(device, &allocInfo, &transferCommandBuffer);
+    if(res != VK_SUCCESS) return res;
 
     VkCommandBufferBeginInfo beginInfo = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
         .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
     };
 
-    vkBeginCommandBuffer(transferCommandBuffer, &beginInfo); // Should vkCheck
+    res = vkBeginCommandBuffer(transferCommandBuffer, &beginInfo);
+    if(res != VK_SUCCESS) return res;
 
     VkBufferCopy bufferCopyRegion = {
         .srcOffset = 0,
@@ -757,18 +761,23 @@ void copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCo
 
     vkCmdCopyBuffer(transferCommandBuffer, srcBufer, dstBuffer, 1, &bufferCopyRegion);
 
-    vkEndCommandBuffer(transferCommandBuffer); // Should vkCheck
+    res = vkEndCommandBuffer(transferCommandBuffer);
+    if(res != VK_SUCCESS) return res;
 
     VkSubmitInfo submitInfo = {
         .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
         .commandBufferCount = 1,
         .pCommandBuffers = &transferCommandBuffer};
 
-    vkQueueSubmit(transferQueue, 1, &submitInfo, VK_NULL_HANDLE); // Should vkCheck
+    res = vkQueueSubmit(transferQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    if(res != VK_SUCCESS) return res;
 
-    vkQueueWaitIdle(transferQueue); // Should vkCheck
+    res = vkQueueWaitIdle(transferQueue);
+    if(res != VK_SUCCESS) return res;
 
     vkFreeCommandBuffers(device, transferCommandPool, 1, &transferCommandBuffer);
+
+    return VK_SUCCESS;
 }
 
 void VulkanManager::createVertexBuffer(MeshGPU &meshGPU, const std::vector<Vertex> &vertices)
@@ -781,14 +790,14 @@ void VulkanManager::createVertexBuffer(MeshGPU &meshGPU, const std::vector<Verte
     createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
 
     void *data;
-    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data); // Should vkCheck
+    vkCheck(vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data), {'V', 236});
     memcpy(data, vertices.data(), (size_t)bufferSize);
     vkUnmapMemory(device, stagingBufferMemory);
 
     createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &meshGPU.vertexBuffer, &meshGPU.vertexBufferMemory);
 
     // Should be transferQueue and transferCommandPool?
-    copyBuffer(device, graphicsQueue, graphicsCommandPool, stagingBuffer, meshGPU.vertexBuffer, bufferSize);
+    vkCheck(copyBuffer(device, graphicsQueue, graphicsCommandPool, stagingBuffer, meshGPU.vertexBuffer, bufferSize), {'V', 224});
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
@@ -803,14 +812,14 @@ void VulkanManager::createIndexBuffer(MeshGPU &meshGPU, const std::vector<uint32
     createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
 
     void *data;
-    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data); // Should vkCheck
+    vkCheck(vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data), {'V', 236});
     memcpy(data, indices.data(), (size_t)bufferSize);
     vkUnmapMemory(device, stagingBufferMemory);
 
     createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &meshGPU.indexBuffer, &meshGPU.indexBufferMemory);
 
     // Should be transferQueue and transferCommandPool?
-    copyBuffer(device, graphicsQueue, graphicsCommandPool, stagingBuffer, meshGPU.indexBuffer, bufferSize);
+    vkCheck(copyBuffer(device, graphicsQueue, graphicsCommandPool, stagingBuffer, meshGPU.indexBuffer, bufferSize), {'V', 224});
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);

@@ -122,7 +122,7 @@ private:
 
     void recordCommands(uint32_t currentImage, const std::vector<Mesh> &meshes, const std::vector<MeshInstance> &meshInstances, ve_color_t backgroundColor);
 
-    void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionM, glm::mat4 viewM);
+    void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat);
 
     VkShaderModule createShaderModule(const std::vector<char> &code);
     int rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);

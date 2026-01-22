@@ -16,12 +16,6 @@ Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHI
     this->wheelBLMeshInstanceHandle = wheelBLMeshInstanceHandle;
     this->wheelBRMeshInstanceHandle = wheelBRMeshInstanceHandle;
 
-    bodyMat = glm::mat4(1.0f);
-    wheelFLMat = glm::mat4(1.0f);
-    wheelFRMat = glm::mat4(1.0f);
-    wheelBLMat = glm::mat4(1.0f);
-    wheelBRMat = glm::mat4(1.0f);
-
     wheelOffset = info.wheelOffset;
 
     if (info.power > 0)
@@ -210,5 +204,5 @@ void Vehicle::tick(VehicleInputState vis, Environment environment, float surface
 
     updateGraphics();
 
-    std::cout << std::round(speedMps * 3.6f) << " km/h, " << std::round(rpm) << " rpm, " << gear << " gear" << std::endl;
+    // std::cout << std::round(speedMps * 3.6f) << " km/h, " << std::round(rpm) << " rpm, " << gear << " gear" << std::endl;
 }

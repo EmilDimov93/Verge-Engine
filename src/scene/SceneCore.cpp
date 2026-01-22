@@ -28,7 +28,8 @@ void Scene::tick(ve_time_t frameTime)
     for (Vehicle &vehicle : vehicles)
     {
         // Temporary(testing)
-        vehicle.setHeight(ground.sampleHeight(vehicle.getTransform().position.x, vehicle.getTransform().position.z));
+        // vehicle.setHeight(ground.sampleHeight(vehicle.getTransform().position.x, vehicle.getTransform().position.z));
+        // std::cout << vehicle.getTransform().rotation.yaw - std::atan2(vehicle.getVelocityVector().x, vehicle.getVelocityVector().z) << std::endl;
 
         VehicleInputState vis{};
         for (const std::unique_ptr<Controller> &controller : controllers)

@@ -146,9 +146,9 @@ private:
 
     void stallAssist();
     float calcFDriveMag();
-    void calcForces(Environment environment, float surfaceFriction);
+    void calcForces(const Environment& environment, float surfaceFriction);
     void calcRpm();
-    void steer(float turningInput);
+    void steer();
     void shiftUp();
     void shiftDown();
     void updateTransmission();
@@ -197,6 +197,6 @@ private:
 
     glm::mat4 bodyMat;
     glm::mat4 wheelFLMat, wheelFRMat, wheelBLMat, wheelBRMat;
-
+float yawRateRadps = 0.0f;
     ve_time_t dt;
 };

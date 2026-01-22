@@ -37,7 +37,7 @@ float Vehicle::calcFDriveMag()
     return wheelTorque / wheelRadiusM;
 }
 
-void Vehicle::calcForces(Environment environment, float surfaceFriction)
+void Vehicle::calcForces(const Environment &environment, float surfaceFriction)
 {
     glm::mat4 R =
         glm::rotate(glm::mat4(1.0f), (float)transform.rotation.yaw, glm::vec3(0, 1, 0)) *
@@ -78,14 +78,43 @@ void Vehicle::calcForces(Environment environment, float surfaceFriction)
 
     glm::vec3 FLat(0.0f);
     {
-        float currentTireGrip = tireGrip * surfaceFriction * (1.0f + fabs(camberRad));
+        float forwardSpeedMps = glm::dot(velocityMps, forward);
+        float lateralSpeedMps = glm::dot(velocityMps, right);
 
-        float maxLat = currentTireGrip * weightKg * environment.gravity;
+        float centerOfGravity = wheelOffset.z / 2;
 
-        float FLatMag = -(currentTireGrip * 1000) * glm::dot(velocityMps, right); // (currentTireGrip * 1000) is corner stiffness
-        FLatMag = glm::clamp(FLatMag, -maxLat, maxLat);
+        float frontSlipAngleRad = std::atan2(lateralSpeedMps + centerOfGravity * yawRateRadps, forwardSpeedMps) - steeringAngleRad;
 
-        FLat = right * FLatMag;
+        float rearSlipAngleRad = std::atan2(lateralSpeedMps - centerOfGravity * yawRateRadps, forwardSpeedMps);
+
+        float frictionCoefficient = tireGrip * surfaceFriction * (1.0f + std::fabs(camberRad));
+
+        float totalNormalForceN = weightKg * environment.gravity;
+        float frontAxleNormalForceN = 0.5f * totalNormalForceN;
+        float rearAxleNormalForceN = 0.5f * totalNormalForceN;
+
+        const float frontCorneringStiffnessNPerRad = 80000.0f;
+        const float rearCorneringStiffnessNPerRad = 90000.0f;
+
+        float frontLateralForceN = -frontCorneringStiffnessNPerRad * frontSlipAngleRad;
+        float rearLateralForceN = -rearCorneringStiffnessNPerRad * rearSlipAngleRad;
+
+        float maxFrontLateralForceN = frictionCoefficient * frontAxleNormalForceN;
+        float maxRearLateralForceN = frictionCoefficient * rearAxleNormalForceN;
+
+        frontLateralForceN = maxFrontLateralForceN * std::tanh(frontLateralForceN / maxFrontLateralForceN);
+
+        rearLateralForceN = maxRearLateralForceN * std::tanh(rearLateralForceN / maxRearLateralForceN);
+
+        FLat = right * (frontLateralForceN + rearLateralForceN);
+
+        float yawMomentNm = centerOfGravity * (frontLateralForceN - rearLateralForceN);
+
+        const float yawInertiaKgM2 = 2500.0f;
+
+        float yawAccelerationRadps2 = yawMomentNm / yawInertiaKgM2;
+
+        yawRateRadps += yawAccelerationRadps2 * (float)dt;
     }
 
     const float slope = std::atan(std::sqrt(std::tan(transform.rotation.pitch) * std::tan(transform.rotation.pitch) + std::tan(transform.rotation.roll) * std::tan(transform.rotation.roll)));
@@ -112,17 +141,15 @@ void Vehicle::calcRpm()
     rpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
 }
 
-void Vehicle::steer(float turningInput)
+void Vehicle::steer()
 {
-    const float k = 0.005f;
+    const float k = 0.0025f;
     float speedFactor = 1.0f / (1.0f + k * speedMps * speedMps);
-    speedFactor = clamp(speedFactor, 0.0f, 1.0f);
+    speedFactor = clamp(speedFactor, 0.15f, 1.0f);
 
-    turningInput = clamp(turningInput, -1.0f, 1.0f);
-    steeringAngleRad = turningInput * maxSteeringAngleRad * speedFactor;
+    float target = vis.steer * maxSteeringAngleRad * speedFactor;
 
-    const float wheelBase = wheelOffset.z;
-    transform.rotation.yaw += speedMps * tan(steeringAngleRad) / wheelBase * dt;
+    steeringAngleRad += target - steeringAngleRad;
 }
 
 void Vehicle::shiftUp()
@@ -159,10 +186,12 @@ void Vehicle::updateTransmission()
     }
     else
     {
-        if(vis.shiftUp){
+        if (vis.shiftUp)
+        {
             shiftUp();
         }
-        if(vis.shiftDown){
+        if (vis.shiftDown)
+        {
             shiftDown();
         }
     }
@@ -173,11 +202,13 @@ void Vehicle::updateTransform()
     transform.position.x += velocityMps.x * dt;
     transform.position.y += velocityMps.y * dt;
     transform.position.z += velocityMps.z * dt;
+
+    transform.rotation.yaw += yawRateRadps * (float)dt;
 }
 
 void Vehicle::calculatePhysics(Environment environment, float surfaceFriction)
 {
-    steer(vis.steer);
+    steer();
 
     stallAssist();
 

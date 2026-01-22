@@ -49,12 +49,7 @@ private:
         sCar.brakingForce = 14700;
         sCar.tireGrip = 1.5f;
         sCar.camberRad = (PI / 180);
-        VehicleHandle car1 = scene.addVehicle(sCar, {{17.0f, 0, -100.0f}, {0, -PI / 4, 0}});
-
-        sCar.power = 600;
-        sCar.bodyMeshHandle = scene.loadFile("models/carLowPoly.obj");
-        sCar.wheelMeshHandle = scene.loadFile("models/wheelLowPoly.obj");
-        VehicleHandle car2 = scene.addVehicle(sCar, {{13.0f, 0, -100.0f}, {0, -PI / 4, 0}});
+        VehicleHandle car1 = scene.addVehicle(sCar, {{17.0f, 3.0f, -100.0f}, {0, -PI / 4, 0}});
 
         // Player
         PlayerKeybinds p1Keybinds{};
@@ -62,12 +57,6 @@ private:
         p1Keybinds.brake = VE_KEY_S;
         p1Keybinds.steerLeft = VE_KEY_A;
         p1Keybinds.steerRight = VE_KEY_D;
-
-        PlayerKeybinds p2Keybinds{};
-        p2Keybinds.throttle = VE_KEY_UP;
-        p2Keybinds.brake = VE_KEY_DOWN;
-        p2Keybinds.steerLeft = VE_KEY_LEFT;
-        p2Keybinds.steerRight = VE_KEY_RIGHT;
 
         p1 = scene.addPlayer(car1, p1Keybinds, {renderer.getAspectRatio()});
 

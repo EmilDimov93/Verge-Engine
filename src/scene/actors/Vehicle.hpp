@@ -188,15 +188,18 @@ private:
     VehicleInputState vis;
 
     Transform transform;
-    glm::vec3 velocityMps;
-    float speedMps;
-    float steeringAngleRad;
-    uint32_t gear;
-    float rpm;
-    float wheelSpin;
+    glm::vec3 velocityMps = glm::vec3(0.0f);
+
+    float speedMps = 0.0f;
+    uint32_t gear = 1;
+    float rpm = 0.0f;
+
+    float steeringAngleRad = 0.0f;
+    float wheelSpin = 0.0f;
+    float yawRateRadps = 0.0f;
 
     glm::mat4 bodyMat;
     glm::mat4 wheelFLMat, wheelFRMat, wheelBLMat, wheelBRMat;
-float yawRateRadps = 0.0f;
+
     ve_time_t dt;
 };

@@ -40,9 +40,9 @@ void Vehicle::updateWheelMatrices()
     wheelSpin += speedMps * dt / wheelRadiusM;
 
     wheelFLMat = glm::rotate(wheelFLMat, wheelSpin, glm::vec3(1.0f, 0, 0));
-    wheelFRMat = glm::rotate(wheelFRMat, wheelSpin, glm::vec3(1.0f, 0, 0));
+    wheelFRMat = glm::rotate(wheelFRMat, wheelSpin, glm::vec3(-1.0f, 0, 0));
     wheelBLMat = glm::rotate(wheelBLMat, wheelSpin, glm::vec3(1.0f, 0, 0));
-    wheelBRMat = glm::rotate(wheelBRMat, wheelSpin, glm::vec3(1.0f, 0, 0));
+    wheelBRMat = glm::rotate(wheelBRMat, wheelSpin, glm::vec3(-1.0f, 0, 0));
 }
 
 void Vehicle::updateGraphics()

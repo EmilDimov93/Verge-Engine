@@ -162,8 +162,8 @@ Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHI
         frontalAreaM2 = 0.0009f * info.weightKg + 0.5f;
     }
 
-    if (info.maxSteeringAngleRad > 0 && info.maxSteeringAngleRad <= 0.9f)
-    { // Hardcoded limit
+    if (info.maxSteeringAngleRad > 0 && info.maxSteeringAngleRad <= 0.9f) // Hardcoded limit
+    {
         maxSteeringAngleRad = info.maxSteeringAngleRad;
     }
     else if (info.maxSteeringAngleRad >= -0.9f && info.maxSteeringAngleRad <= 0.9f)
@@ -196,13 +196,6 @@ Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHI
         Log::add('A', 114);
         camberRad = 0;
     }
-
-    velocityMps = glm::vec3(0.0f);
-    steeringAngleRad = 0;
-    speedMps = 0;
-    gear = 1;
-    rpm = 0;
-    wheelSpin = 0;
 
     this->transform = transform;
 }

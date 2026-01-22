@@ -37,7 +37,7 @@ void Vehicle::updateWheelMatrices()
     wheelBRMat = glm::rotate(wheelBRMat, camberRad, glm::vec3(0, 0, 1));
 
     // Spin
-    wheelSpin += speedMps * dt / wheelRadiusM;
+    wheelSpin = std::fmod(wheelSpin + speedMps * dt / wheelRadiusM, 2.0f * PI);
 
     wheelFLMat = glm::rotate(wheelFLMat, wheelSpin, glm::vec3(1.0f, 0, 0));
     wheelFRMat = glm::rotate(wheelFRMat, wheelSpin, glm::vec3(-1.0f, 0, 0));

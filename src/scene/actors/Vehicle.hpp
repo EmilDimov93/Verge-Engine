@@ -53,6 +53,15 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     float camberRad = 0;
 };
 
+struct TireState
+{
+    float grip;
+    float suspension;
+    float spin;
+
+    // wear, heat
+};
+
 class Vehicle
 {
 public:

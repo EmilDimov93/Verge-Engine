@@ -28,28 +28,28 @@ private:
     void setupScene()
     {
         // Vehicle
-        VE_STRUCT_VEHICLE_CREATE_INFO sCar = {};
-        sCar.bodyMeshHandle = scene.loadFile("models/car.obj");
-        sCar.wheelMeshHandle = scene.loadFile("models/wheel.obj");
-        sCar.wheelOffset = {1.05f, 0.5f, 1.8f};
-        sCar.power = 390;
-        sCar.powerUnit = VE_POWER_UNIT_HORSEPOWER;
-        sCar.weightKg = 1540;
-        sCar.maxRpm = 7000;
-        sCar.gearCount = 8;
-        sCar.transmissionType = VE_TRANSMISSION_TYPE_AUTOMATIC;
+        VE_STRUCT_VEHICLE_CREATE_INFO carInfo = {};
+        carInfo.bodyMeshHandle = scene.loadFile("models/car.obj");
+        carInfo.wheelMeshHandle = scene.loadFile("models/wheel.obj");
+        carInfo.wheelOffset = {1.05f, 0.5f, 1.8f};
+        carInfo.power = 390;
+        carInfo.powerUnit = VE_POWER_UNIT_HORSEPOWER;
+        carInfo.weightKg = 1540;
+        carInfo.maxRpm = 7000;
+        carInfo.idleRpm = 800;
+        carInfo.gearCount = 8;
+        carInfo.transmissionType = VE_TRANSMISSION_TYPE_AUTOMATIC;
         float ratios[8] = {5.519f, 3.184f, 2.050f, 1.492f, 1.235f, 1.000f, 0.801f, 0.673f};
-        sCar.pGearRatios = ratios;
-        sCar.finalDriveRatio = 3.2f;
-        sCar.drivetrainEfficiency = 0.9f;
-        sCar.wheelRadiusM = 0.31f;
-        sCar.idleRpm = 800.0f;
-        sCar.dragCoeff = 0.31f;
-        sCar.frontalAreaM2 = 2.3f;
-        sCar.brakingForce = 14700;
-        sCar.tireGrip = 1.5f;
-        sCar.camberRad = (PI / 180);
-        VehicleHandle car1 = scene.addVehicle(sCar, {{17.0f, 3.0f, -100.0f}, {0, -PI / 4, 0}});
+        carInfo.pGearRatios = ratios;
+        carInfo.finalDriveRatio = 3.2f;
+        carInfo.drivetrainEfficiency = 0.9f;
+        carInfo.wheelRadiusM = 0.31f;
+        carInfo.dragCoeff = 0.31f;
+        carInfo.frontalAreaM2 = 2.3f;
+        carInfo.brakingForce = 14700;
+        carInfo.tireGrip = 1.5f;
+        carInfo.camberRad = (PI / 180);
+        VehicleHandle car1 = scene.addVehicle(carInfo, {{17.0f, 3.0f, -100.0f}, {0, -PI / 4, 0}});
 
         // Player
         PlayerKeybinds p1Keybinds{};
@@ -74,7 +74,7 @@ private:
         scene.addTrigger(sTriggerType, {{-35.0f, 3.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
 
         // Ground
-        uint32_t grassSurfaceIndex = scene.addSurface({0.2f, {0, 0.6f, 0}, {0, 0.05f, 0}, 0.2f});
+        uint32_t grassSurfaceIndex = scene.addSurface({0.6f, {0, 0.5f, 0}, {0, 0.05f, 0}, 0.2f});
         uint32_t asphaltSurfaceIndex = scene.addSurface({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
 
         scene.buildGroundMesh({1000, 1000});

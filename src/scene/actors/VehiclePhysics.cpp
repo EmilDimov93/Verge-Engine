@@ -178,8 +178,7 @@ void Vehicle::updateTransmission()
         {
             shiftUp();
         }
-        // Error if idleRpm is more than 90% of maxRpm
-        else if (gear > 1 && maxRpm * 9 / 10 >= rpm * gearRatios[gear - 2] / gearRatios[gear - 1])
+        else if (gear > 1 && idleRpm + (maxRpm - idleRpm) * 9 / 10 >= rpm * gearRatios[gear - 2] / gearRatios[gear - 1])
         {
             shiftDown();
         }

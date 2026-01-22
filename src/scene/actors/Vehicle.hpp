@@ -80,6 +80,7 @@ public:
     float getWeightKg() const { return weightKg; }
     uint32_t getGearCount() const { return gearCount; }
     uint32_t getMaxRpm() const { return maxRpm; }
+    uint32_t getIdleRpm() const { return idleRpm; }
     VETransmissionType getTransmissionType() const { return transmissionType; }
     float getBrakingForce() const { return brakingForce; }
     float getGearRatio(uint32_t gearIndex) const
@@ -89,7 +90,6 @@ public:
     float getFinalDriveRatio() const { return finalDriveRatio; }
     float getDrivetrainEfficiency() const { return drivetrainEfficiency; }
     float getWheelRadius() const { return wheelRadiusM; }
-    float getIdleRpm() const { return idleRpm; }
     float getDragCoeff() const { return dragCoeff; }
     float getFrontalArea() const { return frontalAreaM2; }
     float getMaxSteeringAngleRad() const { return maxSteeringAngleRad; }
@@ -112,6 +112,7 @@ public:
     void setWeightKg(float value) { weightKg = value; }
     void setGearCount(uint32_t value) { gearCount = value; }
     void setMaxRpm(uint32_t value) { maxRpm = value; }
+    void setIdleRpm(uint32_t value) { idleRpm = value; }
     void setTransmissionType(VETransmissionType value) { transmissionType = value; }
     void setBrakingForce(float value) { brakingForce = value; }
     void setGearRatio(uint32_t gearIndex, float value)
@@ -122,7 +123,6 @@ public:
     void setFinalDriveRatio(float value) { finalDriveRatio = value; }
     void setDrivetrainEfficiency(float value) { drivetrainEfficiency = value; }
     void setWheelRadius(float value) { wheelRadiusM = value; }
-    void setIdleRpm(float value) { idleRpm = value; }
     void setDragCoeff(float value) { dragCoeff = value; }
     void setFrontalArea(float value) { frontalAreaM2 = value; }
     void setMaxSteeringAngleRad(float value) { maxSteeringAngleRad = value; }
@@ -171,13 +171,13 @@ private:
     float weightKg;
     uint32_t gearCount;
     uint32_t maxRpm;
+    uint32_t idleRpm;
     VETransmissionType transmissionType;
     float brakingForce;
     std::vector<float> gearRatios;
     float finalDriveRatio;
     float drivetrainEfficiency;
     float wheelRadiusM;
-    float idleRpm;
     float dragCoeff;
     float frontalAreaM2;
     float maxSteeringAngleRad;

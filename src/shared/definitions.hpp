@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#define PI 3.14159265358979323846264338327950288419716939937510f
+constexpr float PI = glm::radians(180.0f);
 
 template <typename Tag>
 class Handle

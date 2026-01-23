@@ -194,15 +194,95 @@ Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHI
     this->transform = transform;
 }
 
+glm::mat4 Vehicle::getWheelFLMat() const
+{
+    glm::mat4 wheelMat =
+        bodyMat *
+        glm::translate(glm::mat4(1.0f), glm::vec3(wheelOffset.x, wheelOffset.y, wheelOffset.z)) /*Offset*/;
+
+    // Steer
+    wheelMat = glm::rotate(wheelMat, steeringAngleRad, glm::vec3(0, 1.0f, 0));
+
+    // Camber
+    wheelMat = glm::rotate(wheelMat, camberRad, glm::vec3(0, 0, 1));
+
+    // Spin
+    wheelMat = glm::rotate(wheelMat, wheelSpin, glm::vec3(1.0f, 0, 0));
+
+    return wheelMat;
+}
+
+glm::mat4 Vehicle::getWheelFRMat() const
+{
+    glm::mat4 wheelMat =
+        bodyMat *
+        glm::translate(glm::mat4(1.0f), glm::vec3(-wheelOffset.x, wheelOffset.y, wheelOffset.z)) /*Offset*/ *
+        glm::rotate(glm::mat4(1.0f), PI, glm::vec3(0, 1, 0)) /*Flip*/;
+
+    // Steer
+    wheelMat = glm::rotate(wheelMat, steeringAngleRad, glm::vec3(0, 1.0f, 0));
+
+    // Camber
+    wheelMat = glm::rotate(wheelMat, camberRad, glm::vec3(0, 0, 1));
+
+    // Spin
+    wheelMat = glm::rotate(wheelMat, wheelSpin, glm::vec3(-1.0f, 0, 0));
+
+    return wheelMat;
+}
+
+glm::mat4 Vehicle::getWheelBLMat() const
+{
+    glm::mat4 wheelMat =
+        bodyMat *
+        glm::translate(glm::mat4(1.0f), glm::vec3(wheelOffset.x, wheelOffset.y, -wheelOffset.z)) /*Offset*/;
+
+    // Camber
+    wheelMat = glm::rotate(wheelMat, camberRad, glm::vec3(0, 0, 1));
+
+    // Spin
+    wheelMat = glm::rotate(wheelMat, wheelSpin, glm::vec3(1.0f, 0, 0));
+
+    return wheelMat;
+}
+
+glm::mat4 Vehicle::getWheelBRMat() const
+{
+    glm::mat4 wheelMat =
+        bodyMat *
+        glm::translate(glm::mat4(1.0f), glm::vec3(-wheelOffset.x, wheelOffset.y, -wheelOffset.z)) /*Offset*/ *
+        glm::rotate(glm::mat4(1.0f), PI, glm::vec3(0, 1, 0)) /*Flip*/;
+
+    // Camber
+    wheelMat = glm::rotate(wheelMat, camberRad, glm::vec3(0, 0, 1));
+
+    // Spin
+    wheelMat = glm::rotate(wheelMat, wheelSpin, glm::vec3(-1.0f, 0, 0));
+
+    return wheelMat;
+}
+
 void Vehicle::tick(VehicleInputState vis, Environment environment, float surfaceFriction, ve_time_t deltaTime)
 {
     dt = deltaTime;
 
     this->vis = vis;
 
-    calculatePhysics(environment, surfaceFriction);
+    steer();
 
-    updateGraphics();
+    stallAssist();
+
+    calcForces(environment, surfaceFriction);
+
+    calcRpm();
+
+    updateTransmission();
+
+    wheelSpin = std::fmod(wheelSpin + speedMps * dt / wheelRadiusM, 2.0f * PI);
+
+    updateTransform();
+
+    bodyMat = transformToMat(transform);
 
     // std::cout << std::round(speedMps * 3.6f) << " km/h, " << std::round(rpm) << " rpm, " << gear << " gear" << std::endl;
 }

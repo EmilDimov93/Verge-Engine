@@ -69,14 +69,74 @@ public:
 
     void tick(VehicleInputState vis, Environment environment, float surfaceFriction, ve_time_t deltaTime);
 
+    // Temporary(testing)
+    void setHeight(float h) { transform.position.y = h; }
+
+private:
+    void stallAssist();
+    float calcFDriveMag();
+    void calcForces(const Environment &environment, float surfaceFriction);
+    void calcRpm();
+    void steer();
+    void shiftUp();
+    void shiftDown();
+    void updateTransmission();
+    void updateTransform();
+
+    const VehicleHandle handle;
+
+    MeshInstanceHandle bodyMeshInstanceHandle;
+    MeshInstanceHandle wheelFLMeshInstanceHandle;
+    MeshInstanceHandle wheelFRMeshInstanceHandle;
+    MeshInstanceHandle wheelBLMeshInstanceHandle;
+    MeshInstanceHandle wheelBRMeshInstanceHandle;
+
+    Position3 wheelOffset;
+
+    uint32_t powerKw;
+    float weightKg;
+    uint32_t gearCount;
+    uint32_t maxRpm;
+    uint32_t idleRpm;
+    VETransmissionType transmissionType;
+    float brakingForce;
+    std::vector<float> gearRatios;
+    float finalDriveRatio;
+    float drivetrainEfficiency;
+    float wheelRadiusM;
+    float dragCoeff;
+    float frontalAreaM2;
+    float maxSteeringAngleRad;
+    float tireGrip;
+    float camberRad;
+
+    // Runtime
+    VehicleInputState vis;
+
+    Transform transform;
+    glm::vec3 velocityMps = glm::vec3(0.0f);
+
+    float speedMps = 0.0f;
+    uint32_t gear = 1;
+    float rpm = 0.0f;
+
+    float steeringAngleRad = 0.0f;
+    float wheelSpin = 0.0f;
+    float yawRateRadps = 0.0f;
+
+    glm::mat4 bodyMat;
+
+    ve_time_t dt;
+
+public:
     // Getters
     VehicleHandle getHandle() const { return handle; };
 
     glm::mat4 getBodyMat() const { return bodyMat; };
-    glm::mat4 getWheelFLMat() const { return wheelFLMat; };
-    glm::mat4 getWheelFRMat() const { return wheelFRMat; };
-    glm::mat4 getWheelBLMat() const { return wheelBLMat; };
-    glm::mat4 getWheelBRMat() const { return wheelBRMat; };
+    glm::mat4 getWheelFLMat() const;
+    glm::mat4 getWheelFRMat() const;
+    glm::mat4 getWheelBLMat() const;
+    glm::mat4 getWheelBRMat() const;
 
     MeshInstanceHandle getBodyMeshInstanceHandle() const { return bodyMeshInstanceHandle; };
     MeshInstanceHandle getWheelFLMeshInstanceHandle() const { return wheelFLMeshInstanceHandle; };
@@ -145,70 +205,4 @@ public:
     void setGear(uint32_t value) { gear = value; }
     void setRpm(float value) { rpm = value; }
     void setVis(VehicleInputState value) { vis = value; }
-
-    // Temporary(testing)
-    void setHeight(float h) { transform.position.y = h; }
-
-private:
-    void calculatePhysics(Environment environment, float surfaceFriction);
-    void updateGraphics();
-
-    void stallAssist();
-    float calcFDriveMag();
-    void calcForces(const Environment& environment, float surfaceFriction);
-    void calcRpm();
-    void steer();
-    void shiftUp();
-    void shiftDown();
-    void updateTransmission();
-    void updateTransform();
-
-    void updateBodyMatrix();
-    void updateWheelMatrices();
-
-    const VehicleHandle handle;
-
-    MeshInstanceHandle bodyMeshInstanceHandle;
-    MeshInstanceHandle wheelFLMeshInstanceHandle;
-    MeshInstanceHandle wheelFRMeshInstanceHandle;
-    MeshInstanceHandle wheelBLMeshInstanceHandle;
-    MeshInstanceHandle wheelBRMeshInstanceHandle;
-
-    Position3 wheelOffset;
-
-    uint32_t powerKw;
-    float weightKg;
-    uint32_t gearCount;
-    uint32_t maxRpm;
-    uint32_t idleRpm;
-    VETransmissionType transmissionType;
-    float brakingForce;
-    std::vector<float> gearRatios;
-    float finalDriveRatio;
-    float drivetrainEfficiency;
-    float wheelRadiusM;
-    float dragCoeff;
-    float frontalAreaM2;
-    float maxSteeringAngleRad;
-    float tireGrip;
-    float camberRad;
-
-    // Runtime
-    VehicleInputState vis;
-
-    Transform transform;
-    glm::vec3 velocityMps = glm::vec3(0.0f);
-
-    float speedMps = 0.0f;
-    uint32_t gear = 1;
-    float rpm = 0.0f;
-
-    float steeringAngleRad = 0.0f;
-    float wheelSpin = 0.0f;
-    float yawRateRadps = 0.0f;
-
-    glm::mat4 bodyMat;
-    glm::mat4 wheelFLMat, wheelFRMat, wheelBLMat, wheelBRMat;
-
-    ve_time_t dt;
 };

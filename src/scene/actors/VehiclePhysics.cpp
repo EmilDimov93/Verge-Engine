@@ -204,18 +204,3 @@ void Vehicle::updateTransform()
 
     transform.rotation.yaw += yawRateRadps * (float)dt;
 }
-
-void Vehicle::calculatePhysics(Environment environment, float surfaceFriction)
-{
-    steer();
-
-    stallAssist();
-
-    calcForces(environment, surfaceFriction);
-
-    calcRpm();
-
-    updateTransmission();
-
-    updateTransform();
-}

@@ -198,7 +198,7 @@ glm::mat4 Vehicle::getWheelFLMat() const
 {
     glm::mat4 wheelMat =
         bodyMat *
-        glm::translate(glm::mat4(1.0f), glm::vec3(wheelOffset.x, wheelOffset.y, wheelOffset.z)) /*Offset*/;
+        glm::translate(glm::mat4(1.0f), glm::vec3(wheelOffset.x, wheelOffset.y + flState.suspension, wheelOffset.z)) /*Offset & Suspension*/;
 
     // Steer
     wheelMat = glm::rotate(wheelMat, steeringAngleRad, glm::vec3(0, 1.0f, 0));
@@ -216,7 +216,7 @@ glm::mat4 Vehicle::getWheelFRMat() const
 {
     glm::mat4 wheelMat =
         bodyMat *
-        glm::translate(glm::mat4(1.0f), glm::vec3(-wheelOffset.x, wheelOffset.y, wheelOffset.z)) /*Offset*/ *
+        glm::translate(glm::mat4(1.0f), glm::vec3(-wheelOffset.x, wheelOffset.y + frState.suspension, wheelOffset.z)) /*Offset & Suspension*/ *
         glm::rotate(glm::mat4(1.0f), PI, glm::vec3(0, 1, 0)) /*Flip*/;
 
     // Steer
@@ -235,7 +235,7 @@ glm::mat4 Vehicle::getWheelBLMat() const
 {
     glm::mat4 wheelMat =
         bodyMat *
-        glm::translate(glm::mat4(1.0f), glm::vec3(wheelOffset.x, wheelOffset.y, -wheelOffset.z)) /*Offset*/;
+        glm::translate(glm::mat4(1.0f), glm::vec3(wheelOffset.x, wheelOffset.y + blState.suspension, -wheelOffset.z)) /*Offset & Suspension*/;
 
     // Camber
     wheelMat = glm::rotate(wheelMat, camberRad, glm::vec3(0, 0, 1));
@@ -250,7 +250,7 @@ glm::mat4 Vehicle::getWheelBRMat() const
 {
     glm::mat4 wheelMat =
         bodyMat *
-        glm::translate(glm::mat4(1.0f), glm::vec3(-wheelOffset.x, wheelOffset.y, -wheelOffset.z)) /*Offset*/ *
+        glm::translate(glm::mat4(1.0f), glm::vec3(-wheelOffset.x, wheelOffset.y + brState.suspension, -wheelOffset.z)) /*Offset & Suspension*/ *
         glm::rotate(glm::mat4(1.0f), PI, glm::vec3(0, 1, 0)) /*Flip*/;
 
     // Camber

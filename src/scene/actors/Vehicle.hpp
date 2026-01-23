@@ -53,10 +53,10 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     float camberRad = 0;
 };
 
-struct TireState
+struct WheelState
 {
     float grip;
-    float suspension;
+    float suspension = 0;
     float spin;
 
     // wear, heat
@@ -71,6 +71,12 @@ public:
 
     // Temporary(testing)
     void setHeight(float h) { transform.position.y = h; }
+
+    // Temporarily public
+    WheelState flState;
+    WheelState frState;
+    WheelState blState;
+    WheelState brState;
 
 private:
     void stallAssist();

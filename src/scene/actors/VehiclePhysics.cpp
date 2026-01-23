@@ -37,7 +37,7 @@ float Vehicle::calcFDriveMag()
     return wheelTorque / wheelRadiusM;
 }
 
-void Vehicle::calcForces(const Environment &environment, float surfaceFriction)
+void Vehicle::calcForces(const Environment &environment)
 {
     glm::mat4 R =
         glm::rotate(glm::mat4(1.0f), (float)transform.rotation.yaw, glm::vec3(0, 1, 0)) *
@@ -52,7 +52,7 @@ void Vehicle::calcForces(const Environment &environment, float surfaceFriction)
 
     glm::vec3 FDrive = forward * FDriveMag;
 
-    float FDragMag = 0.5f * environment.airDensity * dragCoeff * frontalAreaM2 * speedMps * speedMps;
+    float FDragMag = 0.5f * environment.airDensityKgpm3 * dragCoeff * frontalAreaM2 * speedMps * speedMps;
 
     glm::vec3 FDrag(0.0f);
     if (glm::length(velocityMps) > 0.01f)
@@ -60,7 +60,7 @@ void Vehicle::calcForces(const Environment &environment, float surfaceFriction)
         FDrag = -(velocityMps / glm::length(velocityMps)) * FDragMag;
     }
 
-    float FRollMag = SURFACE_ROLLING_COEFFICIENT * weightKg * environment.gravity * (speedMps == 0 ? 0 : 1);
+    float FRollMag = SURFACE_ROLLING_COEFFICIENT * weightKg * environment.gravityMps2 * (speedMps == 0 ? 0 : 1);
 
     glm::vec3 FRoll(0.0f);
     if (glm::length(velocityMps) > 0.01f)
@@ -85,30 +85,31 @@ void Vehicle::calcForces(const Environment &environment, float surfaceFriction)
 
         float frontSlipAngleRad = std::atan2(lateralSpeedMps + centerOfGravity * yawRateRadps, forwardSpeedMps) - steeringAngleRad;
 
-        float rearSlipAngleRad = std::atan2(lateralSpeedMps - centerOfGravity * yawRateRadps, forwardSpeedMps);
+        float backSlipAngleRad = std::atan2(lateralSpeedMps - centerOfGravity * yawRateRadps, forwardSpeedMps);
 
-        float frictionCoefficient = tireGrip * surfaceFriction * (1.0f + std::fabs(camberRad));
+        float frontFrictionCoefficient = tireGrip * (flState.grip + frState.grip) / 2 * (1.0f + std::fabs(camberRad));
+        float backFrictionCoefficient = tireGrip * (blState.grip + brState.grip) / 2 * (1.0f + std::fabs(camberRad));
 
-        float totalNormalForceN = weightKg * environment.gravity;
+        float totalNormalForceN = weightKg * environment.gravityMps2;
         float frontAxleNormalForceN = 0.5f * totalNormalForceN;
-        float rearAxleNormalForceN = 0.5f * totalNormalForceN;
+        float backAxleNormalForceN = 0.5f * totalNormalForceN;
+
+        float maxFrontLateralForceN = frontFrictionCoefficient * frontAxleNormalForceN;
+        float maxBackLateralForceN = backFrictionCoefficient * backAxleNormalForceN;
 
         const float frontCorneringStiffnessNPerRad = 80000.0f;
-        const float rearCorneringStiffnessNPerRad = 90000.0f;
+        const float backCorneringStiffnessNPerRad = 90000.0f;
 
         float frontLateralForceN = -frontCorneringStiffnessNPerRad * frontSlipAngleRad;
-        float rearLateralForceN = -rearCorneringStiffnessNPerRad * rearSlipAngleRad;
+        float backLateralForceN = -backCorneringStiffnessNPerRad * backSlipAngleRad;
 
-        float maxFrontLateralForceN = frictionCoefficient * frontAxleNormalForceN;
-        float maxRearLateralForceN = frictionCoefficient * rearAxleNormalForceN;
+        frontLateralForceN = maxFrontLateralForceN * std::tanh(frontLateralForceN / AvoidZero(maxFrontLateralForceN));
 
-        frontLateralForceN = maxFrontLateralForceN * std::tanh(frontLateralForceN / maxFrontLateralForceN);
+        backLateralForceN = maxBackLateralForceN * std::tanh(backLateralForceN / AvoidZero(maxBackLateralForceN));
 
-        rearLateralForceN = maxRearLateralForceN * std::tanh(rearLateralForceN / maxRearLateralForceN);
+        FLat = right * (frontLateralForceN + backLateralForceN);
 
-        FLat = right * (frontLateralForceN + rearLateralForceN);
-
-        float yawMomentNm = centerOfGravity * (frontLateralForceN - rearLateralForceN);
+        float yawMomentNm = centerOfGravity * (frontLateralForceN - backLateralForceN);
 
         const float yawInertiaKgM2 = 2500.0f;
 
@@ -118,14 +119,14 @@ void Vehicle::calcForces(const Environment &environment, float surfaceFriction)
     }
 
     const float slope = std::atan(std::sqrt(std::tan(transform.rotation.pitch) * std::tan(transform.rotation.pitch) + std::tan(transform.rotation.roll) * std::tan(transform.rotation.roll)));
-    float FSlopeMag = weightKg * environment.gravity * sin(slope);
+    float FSlopeMag = weightKg * environment.gravityMps2 * sin(slope);
 
     glm::vec3 FSlope(0.0f);
     {
         FSlope = -forward * FSlopeMag;
     }
 
-    glm::vec3 FGravity(0.0f, -weightKg * environment.gravity, 0.0f);
+    glm::vec3 FGravity(0.0f, -weightKg * environment.gravityMps2, 0.0f);
 
     glm::vec3 FTotal = FDrive + FDrag + FRoll + FBrake + FLat + FSlope; // + FGravity;
 

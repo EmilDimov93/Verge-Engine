@@ -8,6 +8,7 @@
 struct Environment
 {
     ve_color_t backgroundColor;
-    float airDensity = 1.225f;
-    float gravity = 9.81f;
+    float airDensityKgpm3 = 1.225f;
+    float gravityMps2 = 9.81f;
+    float temperatureK = 293.15f;
 };

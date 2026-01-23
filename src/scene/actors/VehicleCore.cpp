@@ -268,11 +268,16 @@ void Vehicle::tick(VehicleInputState vis, Environment environment, float surface
 
     this->vis = vis;
 
+    flState.grip = surfaceFriction;
+    frState.grip = surfaceFriction;
+    blState.grip = surfaceFriction;
+    brState.grip = surfaceFriction;
+
     steer();
 
     stallAssist();
 
-    calcForces(environment, surfaceFriction);
+    calcForces(environment);
 
     calcRpm();
 

@@ -249,14 +249,14 @@ MeshHandle Scene::loadGLTF(const std::string &filePath)
     return INVALID_MESH_HANDLE;
 }
 
-void Scene::setAirDensity(float airDensity)
+void Scene::setAirDensity(float airDensityKgpm3)
 {
-    environment.airDensity = airDensity;
+    environment.airDensityKgpm3 = airDensityKgpm3;
 }
 
-void Scene::setGravity(float gravity)
+void Scene::setGravity(float gravityMps2)
 {
-    environment.gravity = gravity;
+    environment.gravityMps2 = gravityMps2;
 }
 
 void Scene::setBackgroundColor(ve_color_t backgroundColor)

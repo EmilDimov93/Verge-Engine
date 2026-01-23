@@ -119,3 +119,7 @@ inline T clamp(T v, T lo, T hi)
     return (v < lo) ? lo : (v > hi) ? hi
                                     : v;
 }
+
+constexpr float AvoidZero(float x) {
+    return (x == 0.0f) ? FLT_TRUE_MIN : x;
+}

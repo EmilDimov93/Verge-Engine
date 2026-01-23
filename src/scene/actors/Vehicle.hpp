@@ -55,11 +55,11 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
 
 struct WheelState
 {
-    float grip;
+    float grip = 1.0f;
     float suspension = 0;
-    float spin;
+    float spin = 0;
 
-    // wear, heat
+    // wear, temperature
 };
 
 class Vehicle
@@ -81,7 +81,7 @@ public:
 private:
     void stallAssist();
     float calcFDriveMag();
-    void calcForces(const Environment &environment, float surfaceFriction);
+    void calcForces(const Environment &environment);
     void calcRpm();
     void steer();
     void shiftUp();

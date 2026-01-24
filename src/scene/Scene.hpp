@@ -21,6 +21,8 @@ public:
 
     Player& player(PlayerHandle handle);
     Vehicle& vehicle(VehicleHandle handle);
+    Prop& prop(PropHandle handle);
+    Trigger& trigger(TriggerHandle handle);
 
     DrawData getDrawData(PlayerHandle playerHandle);
 

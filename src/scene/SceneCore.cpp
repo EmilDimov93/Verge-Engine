@@ -49,6 +49,30 @@ Vehicle &Scene::vehicle(VehicleHandle handle)
     std::terminate();
 }
 
+Prop &Scene::prop(PropHandle handle)
+{
+    for(Prop& prop : props){
+        if(handle == prop.getHandle()){
+            return prop;
+        }
+    }
+
+    Log::add('S', 204);
+    std::terminate();
+}
+
+Trigger &Scene::trigger(TriggerHandle handle)
+{
+    for(Trigger& trigger : triggers){
+        if(handle == trigger.getHandle()){
+            return trigger;
+        }
+    }
+
+    Log::add('S', 205);
+    std::terminate();
+}
+
 void Scene::tick(ve_time_t frameTime)
 {
     dt = frameTime;

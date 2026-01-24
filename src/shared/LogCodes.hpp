@@ -88,6 +88,8 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'S', 201}, "Invalid mesh handle"},
     {{'S', 202}, "Invalid player handle"},
     {{'S', 203}, "Invalid vehicle handle"},
+    {{'S', 204}, "Invalid prop handle"},
+    {{'S', 205}, "Invalid trigger handle"},
 
     // Actors
 

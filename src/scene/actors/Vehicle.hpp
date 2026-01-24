@@ -78,6 +78,44 @@ public:
     WheelState blState;
     WheelState brState;
 
+    // Temporarily public
+    // Points of interest for collision checks(local)
+    glm::vec3 flPOI;
+    glm::vec3 frPOI;
+    glm::vec3 blPOI;
+    glm::vec3 brPOI;
+
+    glm::mat4 transformMat;
+
+    glm::vec3 getFLPOIWorld()
+    {
+        return transformMat * glm::vec4(flPOI, 1.0f);
+    }
+
+    glm::vec3 getFRPOIWorld()
+    {
+        return transformMat * glm::vec4(frPOI, 1.0f);
+    }
+
+    glm::vec3 getBLPOIWorld()
+    {
+        return transformMat * glm::vec4(blPOI, 1.0f);
+    }
+
+    glm::vec3 getBRPOIWorld()
+    {
+        return transformMat * glm::vec4(brPOI, 1.0f);
+    }
+
+    float getMaxClimb(){
+        // Temporary hardcode
+        return 0.2f;
+    }
+
+    void collideVelocityVector(){
+        std::cout << "Collision" << std::endl;
+    }
+
 private:
     void stallAssist();
     float calcFDriveMag();

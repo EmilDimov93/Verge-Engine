@@ -27,7 +27,8 @@ Player &Scene::player(PlayerHandle handle)
     {
         if (Player *player = dynamic_cast<Player *>(controller.get()))
         {
-            if(handle == player->getHandle()){
+            if (handle == player->getHandle())
+            {
                 return *player;
             }
         }
@@ -39,8 +40,10 @@ Player &Scene::player(PlayerHandle handle)
 
 Vehicle &Scene::vehicle(VehicleHandle handle)
 {
-    for(Vehicle& vehicle : vehicles){
-        if(handle == vehicle.getHandle()){
+    for (Vehicle &vehicle : vehicles)
+    {
+        if (handle == vehicle.getHandle())
+        {
             return vehicle;
         }
     }
@@ -51,8 +54,10 @@ Vehicle &Scene::vehicle(VehicleHandle handle)
 
 Prop &Scene::prop(PropHandle handle)
 {
-    for(Prop& prop : props){
-        if(handle == prop.getHandle()){
+    for (Prop &prop : props)
+    {
+        if (handle == prop.getHandle())
+        {
             return prop;
         }
     }
@@ -63,8 +68,10 @@ Prop &Scene::prop(PropHandle handle)
 
 Trigger &Scene::trigger(TriggerHandle handle)
 {
-    for(Trigger& trigger : triggers){
-        if(handle == trigger.getHandle()){
+    for (Trigger &trigger : triggers)
+    {
+        if (handle == trigger.getHandle())
+        {
             return trigger;
         }
     }
@@ -79,9 +86,14 @@ void Scene::tick(ve_time_t frameTime)
 
     for (Vehicle &vehicle : vehicles)
     {
-        // Temporary(testing)
-        // vehicle.setHeight(ground.sampleHeight(vehicle.getTransform().position.x, vehicle.getTransform().position.z));
-        // std::cout << vehicle.getTransform().rotation.yaw - std::atan2(vehicle.getVelocityVector().x, vehicle.getVelocityVector().z) << std::endl;
+        float totalMaxClimb = vehicle.getTransform().position.y + vehicle.getMaxClimb(); // Should be climb not step
+        if (totalMaxClimb < ground.sampleHeight(vehicle.getFLPOIWorld().x, vehicle.getFLPOIWorld().z) ||
+            totalMaxClimb < ground.sampleHeight(vehicle.getFRPOIWorld().x, vehicle.getFRPOIWorld().z) ||
+            totalMaxClimb < ground.sampleHeight(vehicle.getBLPOIWorld().x, vehicle.getBLPOIWorld().z) ||
+            totalMaxClimb < ground.sampleHeight(vehicle.getBRPOIWorld().x, vehicle.getBRPOIWorld().z))
+        {
+            vehicle.collideVelocityVector();
+        }
 
         VehicleInputState vis{};
         for (const std::unique_ptr<Controller> &controller : controllers)
@@ -119,7 +131,8 @@ void Scene::tick(ve_time_t frameTime)
 
     for (Prop &prop : props)
     {
-        if(prop.hasChanges()){
+        if (prop.hasChanges())
+        {
             setModelMat(prop.getMeshInstanceHandle(), prop.getModelMat());
             prop.markChangesSaved();
         }

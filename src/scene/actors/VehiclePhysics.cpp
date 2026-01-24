@@ -98,7 +98,7 @@ void Vehicle::calcForces(const Environment &environment)
         float maxBackLateralForceN = backFrictionCoefficient * backAxleNormalForceN;
 
         const float frontCorneringStiffnessNPerRad = 80000.0f;
-        const float backCorneringStiffnessNPerRad = 90000.0f;
+        const float backCorneringStiffnessNPerRad = 80000.0f;
 
         float frontLateralForceN = -frontCorneringStiffnessNPerRad * frontSlipAngleRad;
         float backLateralForceN = -backCorneringStiffnessNPerRad * backSlipAngleRad;
@@ -144,7 +144,7 @@ void Vehicle::calcRpm()
 
 void Vehicle::steer()
 {
-    const float k = 0.0025f;
+    const float k = 0.00025f;
     float speedFactor = 1.0f / (1.0f + k * speedMps * speedMps);
     speedFactor = clamp(speedFactor, 0.15f, 1.0f);
 
@@ -204,4 +204,10 @@ void Vehicle::updateTransform()
     transform.position.z += velocityMps.z * dt;
 
     transform.rotation.yaw += yawRateRadps * (float)dt;
+
+    transformMat = glm::mat4(1.0f);
+    transformMat = glm::translate(transformMat, glm::vec3{transform.position.x, transform.position.y, transform.position.z});
+    transformMat = glm::rotate(transformMat, (float)transform.rotation.roll, glm::vec3(0, 0, 1));
+    transformMat = glm::rotate(transformMat, (float)transform.rotation.yaw, glm::vec3(0, 1, 0));
+    transformMat = glm::rotate(transformMat, (float)transform.rotation.pitch, glm::vec3(1, 0, 0));
 }

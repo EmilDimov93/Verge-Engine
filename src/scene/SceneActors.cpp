@@ -88,6 +88,58 @@ VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Trans
                        addMeshInstance(info.wheelMeshHandle),
                        addMeshInstance(info.wheelMeshHandle));
 
+    float maxX = 0;
+    float minX = 0;
+    float maxY = 0;
+    float minY = 0;
+    float maxZ = 0;
+    float minZ = 0;
+    for (const Mesh &mesh : meshes)
+    {
+        if (info.bodyMeshHandle == mesh.getHandle())
+        {
+            bool firstInteration = true;
+
+            for (const Vertex &v : mesh.getVertices())
+            {
+                if (firstInteration)
+                {
+                    maxX = v.pos.x;
+                    minX = v.pos.x;
+                    maxY = v.pos.y;
+                    minY = v.pos.y;
+                    maxZ = v.pos.z;
+                    minZ = v.pos.z;
+                    firstInteration = false;
+                }
+
+                if (v.pos.x >= maxX)
+                    maxX = v.pos.x;
+                    
+                if (v.pos.x <= minX)
+                    minX = v.pos.x;
+                    
+                if (v.pos.y >= maxY)
+                    maxY = v.pos.y;
+                    
+                if (v.pos.y <= minY)
+                    minY = v.pos.y;
+
+                if (v.pos.z >= maxZ)
+                    maxZ = v.pos.z;
+
+                if (v.pos.z <= minZ)
+                    minZ = v.pos.z;
+            }
+        }
+    }
+
+    float vehicleHeightAvg = (maxY + minY) / 2;
+    newVehicle.flPOI = {maxX, vehicleHeightAvg, maxZ};
+    newVehicle.frPOI = {minX, vehicleHeightAvg, maxZ};
+    newVehicle.blPOI = {maxX, vehicleHeightAvg, minZ};
+    newVehicle.brPOI = {minX, vehicleHeightAvg, minZ};
+
     vehicles.push_back(newVehicle);
 
     return handle;

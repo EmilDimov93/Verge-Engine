@@ -13,7 +13,7 @@ public:
     {
         setupScene();
 
-        while (renderer.tick(scene.getDrawData(p1)))
+        while (renderer.tick(scene.getDrawData(player1)))
         {
             scene.tick(renderer.getFrameTime());
         }
@@ -23,7 +23,8 @@ private:
     Renderer renderer;
     Scene scene;
 
-    PlayerHandle p1;
+    PlayerHandle player1;
+    VehicleHandle car1;
 
     void setupScene()
     {
@@ -49,16 +50,16 @@ private:
         carInfo.brakingForce = 14700;
         carInfo.tireGrip = 1.5f;
         carInfo.camberRad = (PI / 180);
-        VehicleHandle car1 = scene.addVehicle(carInfo, {{17.0f, 3.0f, -100.0f}, {0, -PI / 4, 0}});
+        car1 = scene.addVehicle(carInfo, {{17.0f, 3.0f, -100.0f}, {0, -PI / 4, 0}});
 
         // Player
-        PlayerKeybinds p1Keybinds{};
-        p1Keybinds.throttle = VE_KEY_W;
-        p1Keybinds.brake = VE_KEY_S;
-        p1Keybinds.steerLeft = VE_KEY_A;
-        p1Keybinds.steerRight = VE_KEY_D;
+        PlayerKeybinds player1Keybinds{};
+        player1Keybinds.throttle = VE_KEY_W;
+        player1Keybinds.brake = VE_KEY_S;
+        player1Keybinds.steerLeft = VE_KEY_A;
+        player1Keybinds.steerRight = VE_KEY_D;
 
-        p1 = scene.addPlayer(car1, p1Keybinds, {renderer.getAspectRatio()});
+        player1 = scene.addPlayer(car1, player1Keybinds, {renderer.getAspectRatio()});
 
         // Prop
         scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});

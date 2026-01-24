@@ -17,30 +17,29 @@ public:
     constexpr Handle() = default;
     constexpr explicit Handle(uint64_t value) : value(value) {}
 
-    static constexpr uint64_t INVALID = 0;
-
     constexpr bool isValid() const { return value != INVALID; }
     constexpr uint64_t getValue() const { return value; }
 
     friend bool operator==(const Handle &, const Handle &) = default;
 
 private:
+    static constexpr uint64_t INVALID = 0;
     uint64_t value = INVALID;
 };
 
 struct MeshTag {};
 struct MeshInstanceTag {};
-struct VehicleTag {};
 struct PlayerTag {};
-struct TriggerTag {};
+struct VehicleTag {};
 struct PropTag {};
+struct TriggerTag {};
 
 using MeshHandle = Handle<MeshTag>;
 using MeshInstanceHandle = Handle<MeshInstanceTag>;
-using VehicleHandle = Handle<VehicleTag>;
 using PlayerHandle = Handle<PlayerTag>;
-using TriggerHandle = Handle<TriggerTag>;
+using VehicleHandle = Handle<VehicleTag>;
 using PropHandle = Handle<PropTag>;
+using TriggerHandle = Handle<TriggerTag>;
 
 #define INVALID_MESH_HANDLE MeshHandle{0}
 

@@ -41,7 +41,7 @@ MeshInstanceHandle Scene::addMeshInstance(MeshHandle meshHandle)
 {
     if (meshHandle == INVALID_MESH_HANDLE)
     {
-        Log::add('S', 200);
+        Log::add('S', 201);
     }
 
     bool foundMesh = false;
@@ -56,7 +56,7 @@ MeshInstanceHandle Scene::addMeshInstance(MeshHandle meshHandle)
 
     if (!foundMesh)
     {
-        Log::add('S', 200);
+        Log::add('S', 201);
     }
 
     MeshInstance newMeshInstance(HandleFactory<MeshInstanceHandle>::getNewHandle(), meshHandle, glm::mat4(1.0f));

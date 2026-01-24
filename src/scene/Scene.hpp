@@ -19,6 +19,9 @@ class Scene
 public:
     Scene(ve_color_t backgroundColor);
 
+    Player& player(PlayerHandle handle);
+    Vehicle& vehicle(VehicleHandle handle);
+
     DrawData getDrawData(PlayerHandle playerHandle);
 
     MeshHandle loadFile(const std::string &filePath);
@@ -28,8 +31,6 @@ public:
     VehicleHandle addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform = {});
     PropHandle addProp(MeshHandle meshHandle, Transform transform);
     TriggerHandle addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform = {});
-
-    void setModelMat(MeshInstanceHandle meshInstanceHandle, glm::mat4 newModel);
 
     void tick(ve_time_t dt);
 
@@ -50,9 +51,11 @@ private:
     std::vector<Mesh> meshes;
     std::vector<MeshInstance> meshInstances;
 
+    // Ground
     Ground ground;
     std::vector<Surface> surfaces;
 
+    // Actors
     std::vector<Vehicle> vehicles;
     std::vector<Prop> props;
     std::vector<Trigger> triggers;
@@ -66,6 +69,8 @@ private:
     MeshHandle loadGLTF(const std::string &filePath);
 
     void makeExampleGround();
+
+    void setModelMat(MeshInstanceHandle meshInstanceHandle, glm::mat4 newModel);
 
     MeshInstanceHandle addMeshInstance(MeshHandle meshHandle);
 };

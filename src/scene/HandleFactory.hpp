@@ -11,7 +11,7 @@ class HandleFactory{
 public:
     static HandleT getNewHandle(){
         if(last >= UINT64_MAX){
-            Log::add('S', 201);
+            Log::add('S', 200);
         }
 
         return HandleT{++last};

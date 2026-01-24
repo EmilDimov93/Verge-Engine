@@ -21,6 +21,34 @@ Scene::Scene(ve_color_t backgroundColor)
     surfaces.push_back({1.0f, {0.1f, 0.1f, 0.1f}});
 }
 
+Player &Scene::player(PlayerHandle handle)
+{
+    for (std::unique_ptr<Controller> &controller : controllers)
+    {
+        if (Player *player = dynamic_cast<Player *>(controller.get()))
+        {
+            if(handle == player->getHandle()){
+                return *player;
+            }
+        }
+    }
+
+    Log::add('S', 202);
+    std::terminate();
+}
+
+Vehicle &Scene::vehicle(VehicleHandle handle)
+{
+    for(Vehicle& vehicle : vehicles){
+        if(handle == vehicle.getHandle()){
+            return vehicle;
+        }
+    }
+
+    Log::add('S', 203);
+    std::terminate();
+}
+
 void Scene::tick(ve_time_t frameTime)
 {
     dt = frameTime;

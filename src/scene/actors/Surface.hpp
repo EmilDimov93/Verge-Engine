@@ -7,9 +7,7 @@
 
 #include "../../shared/definitions.hpp"
 
-#include <vector>
-
-struct VE_STRUCT_SURFACE_CREATE_INFO
+struct VE_STRUCT_SURFACE_TYPE_CREATE_INFO
 {
     float friction = 1.0f;
     glm::vec3 color = {0, 0, 0};
@@ -17,7 +15,7 @@ struct VE_STRUCT_SURFACE_CREATE_INFO
     float heightDistortion = 0;
 };
 
-struct Surface
+struct SurfaceType
 {
     float friction;
     glm::vec3 color;
@@ -26,13 +24,13 @@ struct Surface
     // Texture texture;
 };
 
-class Ground
+class Surface
 {
 public:
     uint32_t w = 0, h = 0;
 
     std::vector<float> heightMap;
-    std::vector<uint8_t> surfaceMap;
+    std::vector<uint8_t> surfaceTypeMap;
 
     // Rotation and scale not implemented
     Transform transform;
@@ -43,7 +41,7 @@ public:
         this->h = size.h;
 
         heightMap.resize(w * h);
-        surfaceMap.resize(w * h);
+        surfaceTypeMap.resize(w * h);
     }
 
     float sampleHeight(float x, float z) const // world coordinates
@@ -68,7 +66,7 @@ public:
         return avg;
     }
 
-    float sampleSurfaceIndex(float x, float z) const
+    float sampleSurfaceTypeIndex(float x, float z) const
     {
         if (x < transform.position.x - w / 2 || x > transform.position.x + w / 2 || z < transform.position.z - h / 2 || z > transform.position.z + h / 2)
         {
@@ -76,7 +74,7 @@ public:
             return 0;
         }
 
-        return getSurfaceAt(w / 2 + x - transform.position.x, h / 2 + z - transform.position.z);
+        return getSurfaceTypeAt(w / 2 + x - transform.position.x, h / 2 + z - transform.position.z);
     }
 
     float getHeightAt(uint32_t x, uint32_t y) const // grid coordinates
@@ -88,14 +86,14 @@ public:
         }
         return heightMap[size_t(y) * w + x];
     }
-    uint32_t getSurfaceAt(uint32_t x, uint32_t y) const // grid coordinates
+    uint32_t getSurfaceTypeAt(uint32_t x, uint32_t y) const // grid coordinates
     {
         if (x >= w || y >= h || x < 0 || y < 0)
         {
             Log::add('A', 191);
             return 0;
         }
-        return surfaceMap[size_t(y) * w + x];
+        return surfaceTypeMap[size_t(y) * w + x];
     }
 
     void setHeightAt(uint32_t x, uint32_t y, float value)
@@ -107,14 +105,14 @@ public:
         }
         heightMap[size_t(y) * w + x] = value;
     }
-    void setSurfaceAt(uint32_t x, uint32_t y, uint8_t surfaceIndex)
+    void setSurfaceTypeAt(uint32_t x, uint32_t y, uint8_t surfaceIndex)
     {
         if (x > w || y > h)
         {
             Log::add('A', 191);
             return;
         }
-        surfaceMap[size_t(y) * w + x] = surfaceIndex;
+        surfaceTypeMap[size_t(y) * w + x] = surfaceIndex;
     }
 
 private:

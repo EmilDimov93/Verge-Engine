@@ -75,10 +75,10 @@ private:
         scene.addTrigger(sTriggerType, {{-35.0f, 3.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
 
         // Ground
-        uint32_t grassSurfaceIndex = scene.addSurface({0.6f, {0, 0.5f, 0}, {0, 0.05f, 0}, 0.2f});
-        uint32_t asphaltSurfaceIndex = scene.addSurface({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
+        uint32_t grassSurfaceIndex = scene.addSurfaceType({0.6f, {0, 0.5f, 0}, {0, 0.05f, 0}, 0.2f});
+        uint32_t asphaltSurfaceIndex = scene.addSurfaceType({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
 
-        scene.buildGroundMesh({1000, 1000});
+        scene.addSurface({1000, 1000});
     }
 };
 

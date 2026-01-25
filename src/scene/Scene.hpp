@@ -5,7 +5,7 @@
 
 #include "Player.hpp"
 
-#include "actors/Ground.hpp"
+#include "actors/Surface.hpp"
 #include "actors/Vehicle.hpp"
 #include "actors/Prop.hpp"
 #include "actors/Trigger.hpp"
@@ -36,8 +36,8 @@ public:
 
     void tick(ve_time_t dt);
 
-    uint32_t addSurface(const VE_STRUCT_SURFACE_CREATE_INFO &info);
-    void buildGroundMesh(Size2 size, Transform transform = {});
+    uint32_t addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info);
+    void addSurface(Size2 size, Transform transform = {});
 
     void setAirDensity(float airDensity);
     void setGravity(float gravity);
@@ -53,9 +53,9 @@ private:
     std::vector<Mesh> meshes;
     std::vector<MeshInstance> meshInstances;
 
-    // Ground
-    Ground ground;
+    // Surface
     std::vector<Surface> surfaces;
+    std::vector<SurfaceType> surfaceTypes;
 
     // Actors
     std::vector<Vehicle> vehicles;
@@ -70,9 +70,10 @@ private:
     MeshHandle loadGLB(const std::string &filePath);
     MeshHandle loadGLTF(const std::string &filePath);
 
-    void makeExampleGround();
-
     void setModelMat(MeshInstanceHandle meshInstanceHandle, glm::mat4 newModel);
 
     MeshInstanceHandle addMeshInstance(MeshHandle meshHandle);
+
+    float sampleHeightAt(const Position3& point) const;
+    const SurfaceType& sampleSurfaceTypeAt(const Position3& point) const;
 };

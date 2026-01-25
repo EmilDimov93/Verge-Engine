@@ -18,7 +18,7 @@ Scene::Scene(ve_color_t backgroundColor)
     environment.backgroundColor = backgroundColor;
 
     // Default surface
-    surfaces.push_back({1.0f, {0.1f, 0.1f, 0.1f}});
+    surfaceTypes.push_back({1.0f, {0.1f, 0.1f, 0.1f}});
 }
 
 Player &Scene::player(PlayerHandle handle)
@@ -98,23 +98,23 @@ void Scene::tick(ve_time_t frameTime)
         }
 
         // Recalculate velocity vector
-        vehicle.tick(vis, environment, surfaces[ground.sampleSurfaceIndex(vehicle.getTransform().position.x, vehicle.getTransform().position.z)].friction, dt);
+        vehicle.tick(vis, environment, sampleSurfaceTypeAt({vehicle.getTransform().position.x, vehicle.getTransform().position.y, vehicle.getTransform().position.z}).friction, dt);
 
         // Collision Checks - Collide velocity vector with collision normal
         float totalMaxClimb = vehicle.getTransform().position.y + vehicle.getMaxClimb();
-        if (totalMaxClimb < ground.sampleHeight(vehicle.getFLPOIWorld().x, vehicle.getFLPOIWorld().z))
+        if (totalMaxClimb < surfaces[0].sampleHeight(vehicle.getFLPOIWorld().x, vehicle.getFLPOIWorld().z))
         {
             vehicle.collideVelocityVector(vehicle.getFLPOILocal());
         }
-        else if(totalMaxClimb < ground.sampleHeight(vehicle.getFRPOIWorld().x, vehicle.getFRPOIWorld().z))
+        else if (totalMaxClimb < surfaces[0].sampleHeight(vehicle.getFRPOIWorld().x, vehicle.getFRPOIWorld().z))
         {
             vehicle.collideVelocityVector(vehicle.getFRPOILocal());
         }
-        else if(totalMaxClimb < ground.sampleHeight(vehicle.getBLPOIWorld().x, vehicle.getBLPOIWorld().z))
+        else if (totalMaxClimb < surfaces[0].sampleHeight(vehicle.getBLPOIWorld().x, vehicle.getBLPOIWorld().z))
         {
             vehicle.collideVelocityVector(vehicle.getBLPOILocal());
         }
-        else if(totalMaxClimb < ground.sampleHeight(vehicle.getBRPOIWorld().x, vehicle.getBRPOIWorld().z))
+        else if (totalMaxClimb < surfaces[0].sampleHeight(vehicle.getBRPOIWorld().x, vehicle.getBRPOIWorld().z))
         {
             vehicle.collideVelocityVector(vehicle.getBRPOILocal());
         }
@@ -327,6 +327,47 @@ MeshHandle Scene::loadGLTF(const std::string &filePath)
 {
     Log::add('S', 100);
     return INVALID_MESH_HANDLE;
+}
+
+float Scene::sampleHeightAt(const Position3 &point) const
+{
+    // TODO
+    return 0;
+}
+
+const SurfaceType &Scene::sampleSurfaceTypeAt(const Position3 &point) const
+{
+    float highest;
+    uint32_t highestIndex = 0;
+    if (surfaces.size() == 0)
+    {
+        return surfaceTypes[0]; // Default surface type
+    }
+    else
+    {
+        highest = surfaces[0].sampleHeight(point.x, point.z);
+    }
+
+    uint32_t index = 0;
+    for (const Surface &surface : surfaces)
+    {
+        if (surface.transform.position.y + surface.sampleHeight(point.x, point.z) < point.y)
+        {
+            if (surface.transform.position.y + surface.sampleHeight(point.x, point.z) > highest)
+            {
+                highest = surface.transform.position.y + surface.sampleHeight(point.x, point.z);
+                highestIndex = index;
+            }
+        }
+        index++;
+    }
+
+    if (highest > point.y)
+    {
+        return surfaceTypes[0]; // Default surface type
+    }
+
+    return surfaceTypes[surfaces[highestIndex].sampleSurfaceTypeIndex(point.x, point.z)];
 }
 
 void Scene::setAirDensity(float airDensityKgpm3)

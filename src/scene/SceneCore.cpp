@@ -86,6 +86,7 @@ void Scene::tick(ve_time_t frameTime)
 
     for (Vehicle &vehicle : vehicles)
     {
+        // Get Controller input
         VehicleInputState vis{};
         for (const std::unique_ptr<Controller> &controller : controllers)
         {
@@ -96,8 +97,10 @@ void Scene::tick(ve_time_t frameTime)
             }
         }
 
+        // Recalculate velocity vector
         vehicle.tick(vis, environment, surfaces[ground.sampleSurfaceIndex(vehicle.getTransform().position.x, vehicle.getTransform().position.z)].friction, dt);
 
+        // Collision Checks - Collide velocity vector with collision normal
         float totalMaxClimb = vehicle.getTransform().position.y + vehicle.getMaxClimb();
         if (totalMaxClimb < ground.sampleHeight(vehicle.getFLPOIWorld().x, vehicle.getFLPOIWorld().z))
         {
@@ -116,6 +119,7 @@ void Scene::tick(ve_time_t frameTime)
             vehicle.collideVelocityVector(vehicle.getBRPOILocal());
         }
 
+        // Update transform with new velocity vector
         vehicle.updateTransform();
 
         setModelMat(vehicle.getBodyMeshInstanceHandle(), vehicle.getBodyMat());

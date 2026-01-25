@@ -196,18 +196,3 @@ void Vehicle::updateTransmission()
         }
     }
 }
-
-void Vehicle::updateTransform()
-{
-    transform.position.x += velocityMps.x * dt;
-    transform.position.y += velocityMps.y * dt;
-    transform.position.z += velocityMps.z * dt;
-
-    transform.rotation.yaw += yawRateRadps * (float)dt;
-
-    transformMat = glm::mat4(1.0f);
-    transformMat = glm::translate(transformMat, glm::vec3{transform.position.x, transform.position.y, transform.position.z});
-    transformMat = glm::rotate(transformMat, (float)transform.rotation.roll, glm::vec3(0, 0, 1));
-    transformMat = glm::rotate(transformMat, (float)transform.rotation.yaw, glm::vec3(0, 1, 0));
-    transformMat = glm::rotate(transformMat, (float)transform.rotation.pitch, glm::vec3(1, 0, 0));
-}

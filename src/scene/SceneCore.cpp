@@ -86,15 +86,6 @@ void Scene::tick(ve_time_t frameTime)
 
     for (Vehicle &vehicle : vehicles)
     {
-        float totalMaxClimb = vehicle.getTransform().position.y + vehicle.getMaxClimb(); // Should be climb not step
-        if (totalMaxClimb < ground.sampleHeight(vehicle.getFLPOIWorld().x, vehicle.getFLPOIWorld().z) ||
-            totalMaxClimb < ground.sampleHeight(vehicle.getFRPOIWorld().x, vehicle.getFRPOIWorld().z) ||
-            totalMaxClimb < ground.sampleHeight(vehicle.getBLPOIWorld().x, vehicle.getBLPOIWorld().z) ||
-            totalMaxClimb < ground.sampleHeight(vehicle.getBRPOIWorld().x, vehicle.getBRPOIWorld().z))
-        {
-            vehicle.collideVelocityVector();
-        }
-
         VehicleInputState vis{};
         for (const std::unique_ptr<Controller> &controller : controllers)
         {
@@ -106,6 +97,26 @@ void Scene::tick(ve_time_t frameTime)
         }
 
         vehicle.tick(vis, environment, surfaces[ground.sampleSurfaceIndex(vehicle.getTransform().position.x, vehicle.getTransform().position.z)].friction, dt);
+
+        float totalMaxClimb = vehicle.getTransform().position.y + vehicle.getMaxClimb();
+        if (totalMaxClimb < ground.sampleHeight(vehicle.getFLPOIWorld().x, vehicle.getFLPOIWorld().z))
+        {
+            vehicle.collideVelocityVector(vehicle.getFLPOILocal());
+        }
+        else if(totalMaxClimb < ground.sampleHeight(vehicle.getFRPOIWorld().x, vehicle.getFRPOIWorld().z))
+        {
+            vehicle.collideVelocityVector(vehicle.getFRPOILocal());
+        }
+        else if(totalMaxClimb < ground.sampleHeight(vehicle.getBLPOIWorld().x, vehicle.getBLPOIWorld().z))
+        {
+            vehicle.collideVelocityVector(vehicle.getBLPOILocal());
+        }
+        else if(totalMaxClimb < ground.sampleHeight(vehicle.getBRPOIWorld().x, vehicle.getBRPOIWorld().z))
+        {
+            vehicle.collideVelocityVector(vehicle.getBRPOILocal());
+        }
+
+        vehicle.updateTransform();
 
         setModelMat(vehicle.getBodyMeshInstanceHandle(), vehicle.getBodyMat());
 

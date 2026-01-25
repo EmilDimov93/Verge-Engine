@@ -107,14 +107,60 @@ public:
         return transformMat * glm::vec4(brPOI, 1.0f);
     }
 
-    float getMaxClimb(){
+    glm::vec3 getFLPOILocal()
+    {
+        return flPOI;
+    }
+
+    glm::vec3 getFRPOILocal()
+    {
+        return frPOI;
+    }
+
+    glm::vec3 getBLPOILocal()
+    {
+        return blPOI;
+    }
+
+    glm::vec3 getBRPOILocal()
+    {
+        return brPOI;
+    }
+
+    float getMaxClimb()
+    {
         // Temporary hardcode
         return 0.2f;
     }
 
-    void collideVelocityVector(){
-        std::cout << "Collision" << std::endl;
+    void collideVelocityVector(glm::vec3 localPOI)
+    {
+        glm::vec3 normalizedPOI = -localPOI;
+
+        // Ignore Y
+        normalizedPOI.y = 0.0f;
+
+        normalizedPOI = glm::normalize(normalizedPOI);
+
+        glm::mat4 R =
+            glm::rotate(glm::mat4(1.0f), (float)transform.rotation.yaw, glm::vec3(0, 1, 0)) *
+            glm::rotate(glm::mat4(1.0f), (float)transform.rotation.pitch, glm::vec3(1, 0, 0)) *
+            glm::rotate(glm::mat4(1.0f), (float)transform.rotation.roll, glm::vec3(0, 0, 1));
+
+        glm::vec3 collisionNormal = glm::normalize(glm::vec3(R * glm::vec4(normalizedPOI, 0.0f)));
+
+        float velocityAlongNormal = glm::dot(velocityMps, collisionNormal);
+        if (velocityAlongNormal > 0.0f)
+        {
+            collisionNormal = -collisionNormal;
+            velocityAlongNormal = -velocityAlongNormal;
+        }
+
+        if (velocityAlongNormal < 0.0f)
+            velocityMps -= collisionNormal * velocityAlongNormal;
     }
+
+    void updateTransform();
 
 private:
     void stallAssist();
@@ -125,7 +171,6 @@ private:
     void shiftUp();
     void shiftDown();
     void updateTransmission();
-    void updateTransform();
 
     const VehicleHandle handle;
 

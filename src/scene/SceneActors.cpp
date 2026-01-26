@@ -98,11 +98,11 @@ VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Trans
     {
         if (info.bodyMeshHandle == mesh.getHandle())
         {
-            bool firstInteration = true;
+            bool firstIteration = true;
 
             for (const Vertex &v : mesh.getVertices())
             {
-                if (firstInteration)
+                if (firstIteration)
                 {
                     maxX = v.pos.x;
                     minX = v.pos.x;
@@ -110,7 +110,7 @@ VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Trans
                     minY = v.pos.y;
                     maxZ = v.pos.z;
                     minZ = v.pos.z;
-                    firstInteration = false;
+                    firstIteration = false;
                 }
 
                 if (v.pos.x >= maxX)
@@ -131,6 +131,8 @@ VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Trans
                 if (v.pos.z <= minZ)
                     minZ = v.pos.z;
             }
+
+            break;
         }
     }
 

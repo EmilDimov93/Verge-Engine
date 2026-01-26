@@ -102,19 +102,19 @@ void Scene::tick(ve_time_t frameTime)
 
         // Collision Checks - Collide velocity vector with collision normal
         float totalMaxClimb = vehicle.getTransform().position.y + vehicle.getMaxClimb();
-        if (totalMaxClimb < surfaces[0].sampleHeight(vehicle.getFLPOIWorld().x, vehicle.getFLPOIWorld().z))
+        if (totalMaxClimb < sampleHeightAt({vehicle.getFLPOIWorld().x, vehicle.getFLPOIWorld().y, vehicle.getFLPOIWorld().z}))
         {
             vehicle.collideVelocityVector(vehicle.getFLPOILocal());
         }
-        else if (totalMaxClimb < surfaces[0].sampleHeight(vehicle.getFRPOIWorld().x, vehicle.getFRPOIWorld().z))
+        else if (totalMaxClimb < sampleHeightAt({vehicle.getFRPOIWorld().x, vehicle.getFRPOIWorld().y, vehicle.getFRPOIWorld().z}))
         {
             vehicle.collideVelocityVector(vehicle.getFRPOILocal());
         }
-        else if (totalMaxClimb < surfaces[0].sampleHeight(vehicle.getBLPOIWorld().x, vehicle.getBLPOIWorld().z))
+        else if (totalMaxClimb < sampleHeightAt({vehicle.getBLPOIWorld().x, vehicle.getBLPOIWorld().y, vehicle.getBLPOIWorld().z}))
         {
             vehicle.collideVelocityVector(vehicle.getBLPOILocal());
         }
-        else if (totalMaxClimb < surfaces[0].sampleHeight(vehicle.getBRPOIWorld().x, vehicle.getBRPOIWorld().z))
+        else if (totalMaxClimb < sampleHeightAt({vehicle.getBRPOIWorld().x, vehicle.getBRPOIWorld().y, vehicle.getBRPOIWorld().z}))
         {
             vehicle.collideVelocityVector(vehicle.getBRPOILocal());
         }

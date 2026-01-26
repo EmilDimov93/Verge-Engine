@@ -48,7 +48,6 @@ public:
     {
         if (x < transform.position.x - w / 2 || x > transform.position.x + w / 2 || z < transform.position.z - h / 2 || z > transform.position.z + h / 2)
         {
-            Log::add('A', 191);
             return 0;
         }
 
@@ -70,7 +69,6 @@ public:
     {
         if (x < transform.position.x - w / 2 || x > transform.position.x + w / 2 || z < transform.position.z - h / 2 || z > transform.position.z + h / 2)
         {
-            Log::add('A', 191);
             return 0;
         }
 
@@ -81,7 +79,6 @@ public:
     {
         if (x >= w || y >= h || x < 0 || y < 0)
         {
-            Log::add('A', 191);
             return 0;
         }
         return heightMap[size_t(y) * w + x];
@@ -90,7 +87,6 @@ public:
     {
         if (x >= w || y >= h || x < 0 || y < 0)
         {
-            Log::add('A', 191);
             return 0;
         }
         return surfaceTypeMap[size_t(y) * w + x];
@@ -100,7 +96,6 @@ public:
     {
         if (x > w - 1 || y > h - 1)
         {
-            Log::add('A', 191);
             return;
         }
         heightMap[size_t(y) * w + x] = value;
@@ -109,7 +104,6 @@ public:
     {
         if (x > w || y > h)
         {
-            Log::add('A', 191);
             return;
         }
         surfaceTypeMap[size_t(y) * w + x] = surfaceIndex;

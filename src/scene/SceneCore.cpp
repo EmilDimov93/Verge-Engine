@@ -335,7 +335,7 @@ float Scene::sampleHeightAt(const Position3 &point) const
     uint32_t highestIndex = 0;
     if (surfaces.size() == 0)
     {
-        return 0; // No surface
+        return FLOAT_MIN; // No surface
     }
     else
     {
@@ -358,7 +358,7 @@ float Scene::sampleHeightAt(const Position3 &point) const
 
     if (highest > point.y)
     {
-        return 0; // No valid surface
+        return FLOAT_MIN; // No valid surface
     }
 
     return highest;

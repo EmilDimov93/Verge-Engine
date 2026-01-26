@@ -8,6 +8,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <limits>
+
+constexpr float FLOAT_MIN = std::numeric_limits<float>::lowest();
+
 constexpr float PI = glm::radians(180.0f);
 
 template <typename Tag>

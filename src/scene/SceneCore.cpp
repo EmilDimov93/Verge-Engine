@@ -331,8 +331,37 @@ MeshHandle Scene::loadGLTF(const std::string &filePath)
 
 float Scene::sampleHeightAt(const Position3 &point) const
 {
-    // TODO
-    return 0;
+    float highest;
+    uint32_t highestIndex = 0;
+    if (surfaces.size() == 0)
+    {
+        return 0; // No surface
+    }
+    else
+    {
+        highest = surfaces[0].sampleHeight(point.x, point.z);
+    }
+
+    uint32_t index = 0;
+    for (const Surface &surface : surfaces)
+    {
+        if (surface.transform.position.y + surface.sampleHeight(point.x, point.z) < point.y)
+        {
+            if (surface.transform.position.y + surface.sampleHeight(point.x, point.z) > highest)
+            {
+                highest = surface.transform.position.y + surface.sampleHeight(point.x, point.z);
+                highestIndex = index;
+            }
+        }
+        index++;
+    }
+
+    if (highest > point.y)
+    {
+        return 0; // No valid surface
+    }
+
+    return highest;
 }
 
 const SurfaceType &Scene::sampleSurfaceTypeAt(const Position3 &point) const

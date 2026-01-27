@@ -30,7 +30,7 @@ public:
     uint32_t w = 0, h = 0;
 
     std::vector<float> heightMap;
-    std::vector<uint8_t> surfaceTypeMap;
+    std::vector<uint32_t> surfaceTypeMap;
 
     Position3 position;
 
@@ -43,7 +43,7 @@ public:
         surfaceTypeMap.resize(w * h);
     }
 
-    float sampleHeight(const Position3& pos) const // world coordinates
+    float sampleHeight(const Position3 &pos) const // world coordinates
     {
         if (pos.x < position.x - w / 2 || pos.x > position.x + w / 2 || pos.z < position.z - h / 2 || pos.z > position.z + h / 2)
         {
@@ -61,27 +61,30 @@ public:
 
         float avg = (getHeightAt(localXLower, localZLower) + getHeightAt(localXLower, localZUpper) + getHeightAt(localXUpper, localZLower) + getHeightAt(localXUpper, localZUpper)) / 4;
 
-        if(pos.y < avg){
+        if (pos.y < avg)
+        {
             return FLOAT_MIN;
         }
 
         return avg;
     }
 
-    float sampleSurfaceTypeIndex(const Position3& pos) const
+    float sampleSurfaceTypeIndex(const Position3 &pos) const
     {
         if (pos.x < position.x - w / 2 || pos.x > position.x + w / 2 || pos.z < position.z - h / 2 || pos.z > position.z + h / 2)
         {
             return 0;
         }
 
-        if(pos.y < position.y + getHeightAt(w / 2 + pos.x - position.x, h / 2 + pos.z - position.z)){
+        if (pos.y < position.y + getHeightAt(w / 2 + pos.x - position.x, h / 2 + pos.z - position.z))
+        {
             return 0;
         }
 
         return getSurfaceTypeAt(w / 2 + pos.x - position.x, h / 2 + pos.z - position.z);
     }
 
+private:
     float getHeightAt(uint32_t x, uint32_t y) const // grid coordinates
     {
         if (x >= w || y >= h || x < 0 || y < 0)
@@ -109,7 +112,7 @@ public:
         }
         heightMap[size_t(y) * w + x] = value;
     }
-    void setSurfaceTypeAt(uint32_t x, uint32_t y, uint8_t surfaceIndex)
+    void setSurfaceTypeAt(uint32_t x, uint32_t y, uint32_t surfaceIndex)
     {
         if (x > w || y > h)
         {
@@ -117,6 +120,4 @@ public:
         }
         surfaceTypeMap[size_t(y) * w + x] = surfaceIndex;
     }
-
-private:
 };

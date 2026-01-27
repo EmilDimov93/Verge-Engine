@@ -78,7 +78,39 @@ private:
         uint32_t grassSurfaceIndex = scene.addSurfaceType({0.6f, {0, 0.5f, 0}, {0, 0.05f, 0}, 0.2f});
         uint32_t asphaltSurfaceIndex = scene.addSurfaceType({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
 
-        scene.addSurface({1000, 1000});
+        uint32_t surfaceWidth = 1000;
+        uint32_t surfaceHeight = 1000;
+
+        std::vector<uint32_t> surfaceTypeMap;
+        surfaceTypeMap.resize(surfaceWidth * surfaceHeight);
+
+        std::vector<float> heightMap;
+        heightMap.resize(surfaceWidth * surfaceHeight);
+
+        for (uint32_t &tile : surfaceTypeMap)
+        {
+            tile = 1;
+        }
+
+        const int roadHalfWidth = 10;
+        const float curveStrength = 40.0f;
+        const float curveFrequency = 0.05f;
+
+        for (size_t i = 0; i < surfaceHeight; i++)
+        {
+            int centerX = static_cast<int>(surfaceWidth / 2 + std::cos(i * curveFrequency) * curveStrength);
+
+            for (int j = centerX - roadHalfWidth; j <= centerX + roadHalfWidth; j++)
+            {
+                if (j >= 0 && j < surfaceWidth)
+                {
+                    surfaceTypeMap[size_t(i) * surfaceWidth + j] = 2;
+                    heightMap[size_t(i) * surfaceWidth + j] = 3.0f;
+                }
+            }
+        }
+
+        scene.addSurface({1000, 1000}, surfaceTypeMap, heightMap);
     }
 };
 

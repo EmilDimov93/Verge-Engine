@@ -216,7 +216,7 @@ uint32_t Scene::addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info)
     return surfaces.size() - 1;
 }
 
-void Scene::addSurface(Size2 size, Position3 position)
+void Scene::addSurface(Size2 size, const std::vector<uint32_t>& surfaceTypeMap, const std::vector<float>& heightMap, Position3 position)
 {
     Surface newSurface;
 
@@ -224,35 +224,8 @@ void Scene::addSurface(Size2 size, Position3 position)
 
     newSurface.resize(size);
 
-    for (uint8_t &tile : newSurface.surfaceTypeMap)
-    {
-        tile = 0;
-    }
-
-    // Temporary
-    for (uint8_t &tile : newSurface.surfaceTypeMap)
-    {
-        tile = 1;
-    }
-
-    const int roadHalfWidth = 10;
-    const float curveStrength = 40.0f;
-    const float curveFrequency = 0.05f;
-
-    for (size_t i = 0; i < newSurface.h; i++)
-    {
-        int centerX = static_cast<int>(newSurface.w / 2 + std::cos(i * curveFrequency) * curveStrength);
-
-        for (int j = centerX - roadHalfWidth; j <= centerX + roadHalfWidth; j++)
-        {
-            if (j >= 0 && j < (int)newSurface.w)
-            {
-                newSurface.setSurfaceTypeAt(j, i, 2);
-                newSurface.setHeightAt(j, i, 3.0f);
-            }
-        }
-    }
-    // Temporary end
+    newSurface.surfaceTypeMap = surfaceTypeMap;
+    newSurface.heightMap = heightMap;
 
     std::vector<Vertex> meshVertices;
     std::vector<uint32_t> meshIndices;
@@ -261,7 +234,7 @@ void Scene::addSurface(Size2 size, Position3 position)
     {
         for (size_t j = 0; j < newSurface.w; j++)
         {
-            uint32_t surfaceTypeIndex = newSurface.getSurfaceTypeAt(j, i);
+            uint32_t surfaceTypeIndex = newSurface.surfaceTypeMap[i * newSurface.w + j];
             if (surfaceTypeIndex < 0 || surfaceTypeIndex >= surfaceTypes.size())
             {
                 Log::add('A', 190);

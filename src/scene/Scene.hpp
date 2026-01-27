@@ -37,7 +37,7 @@ public:
     void tick(ve_time_t dt);
 
     uint32_t addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info);
-    void addSurface(Size2 size, Transform transform = {});
+    void addSurface(Size2 size, Position3 position = {});
 
     void setAirDensity(float airDensity);
     void setGravity(float gravity);

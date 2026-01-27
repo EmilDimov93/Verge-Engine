@@ -216,11 +216,11 @@ uint32_t Scene::addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info)
     return surfaces.size() - 1;
 }
 
-void Scene::addSurface(Size2 size, Transform transform)
+void Scene::addSurface(Size2 size, Position3 position)
 {
     Surface newSurface;
 
-    newSurface.transform = transform;
+    newSurface.position = position;
 
     newSurface.resize(size);
 
@@ -310,5 +310,5 @@ void Scene::addSurface(Size2 size, Transform transform)
 
     MeshInstanceHandle newMeshInstanceHandle = addMeshInstance(newMeshHandle);
 
-    setModelMat(newMeshInstanceHandle, transformToMat(transform));
+    setModelMat(newMeshInstanceHandle, transformToMat({position}));
 }

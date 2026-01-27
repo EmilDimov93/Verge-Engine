@@ -339,17 +339,17 @@ float Scene::sampleHeightAt(const Position3 &point) const
     }
     else
     {
-        highest = surfaces[0].sampleHeight(point.x, point.z);
+        highest = surfaces[0].sampleHeight(point);
     }
 
     uint32_t index = 0;
     for (const Surface &surface : surfaces)
     {
-        if (surface.transform.position.y + surface.sampleHeight(point.x, point.z) < point.y)
+        if (surface.position.y + surface.sampleHeight(point) < point.y)
         {
-            if (surface.transform.position.y + surface.sampleHeight(point.x, point.z) > highest)
+            if (surface.position.y + surface.sampleHeight(point) > highest)
             {
-                highest = surface.transform.position.y + surface.sampleHeight(point.x, point.z);
+                highest = surface.position.y + surface.sampleHeight(point);
                 highestIndex = index;
             }
         }
@@ -374,17 +374,17 @@ const SurfaceType &Scene::sampleSurfaceTypeAt(const Position3 &point) const
     }
     else
     {
-        highest = surfaces[0].sampleHeight(point.x, point.z);
+        highest = surfaces[0].sampleHeight(point);
     }
 
     uint32_t index = 0;
     for (const Surface &surface : surfaces)
     {
-        if (surface.transform.position.y + surface.sampleHeight(point.x, point.z) < point.y)
+        if (surface.position.y + surface.sampleHeight(point) < point.y)
         {
-            if (surface.transform.position.y + surface.sampleHeight(point.x, point.z) > highest)
+            if (surface.position.y + surface.sampleHeight(point) > highest)
             {
-                highest = surface.transform.position.y + surface.sampleHeight(point.x, point.z);
+                highest = surface.position.y + surface.sampleHeight(point);
                 highestIndex = index;
             }
         }
@@ -396,7 +396,7 @@ const SurfaceType &Scene::sampleSurfaceTypeAt(const Position3 &point) const
         return surfaceTypes[0]; // Default surface type
     }
 
-    return surfaceTypes[surfaces[highestIndex].sampleSurfaceTypeIndex(point.x, point.z)];
+    return surfaceTypes[surfaces[highestIndex].sampleSurfaceTypeIndex(point)];
 }
 
 void Scene::setAirDensity(float airDensityKgpm3)

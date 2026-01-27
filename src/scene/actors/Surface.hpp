@@ -32,8 +32,7 @@ public:
     std::vector<float> heightMap;
     std::vector<uint8_t> surfaceTypeMap;
 
-    // Rotation and scale not implemented
-    Transform transform;
+    Position3 position;
 
     void resize(Size2 size)
     {
@@ -44,15 +43,15 @@ public:
         surfaceTypeMap.resize(w * h);
     }
 
-    float sampleHeight(float x, float z) const // world coordinates
+    float sampleHeight(const Position3& pos) const // world coordinates
     {
-        if (x < transform.position.x - w / 2 || x > transform.position.x + w / 2 || z < transform.position.z - h / 2 || z > transform.position.z + h / 2)
+        if (pos.x < position.x - w / 2 || pos.x > position.x + w / 2 || pos.z < position.z - h / 2 || pos.z > position.z + h / 2)
         {
-            return 0;
+            return FLOAT_MIN;
         }
 
-        float localX = w / 2 + x - transform.position.x;
-        float localZ = h / 2 + z - transform.position.z;
+        float localX = w / 2 + pos.x - position.x;
+        float localZ = h / 2 + pos.z - position.z;
 
         int localXLower = (int)localX;
         int localXUpper = localXLower + 1;
@@ -62,25 +61,34 @@ public:
 
         float avg = (getHeightAt(localXLower, localZLower) + getHeightAt(localXLower, localZUpper) + getHeightAt(localXUpper, localZLower) + getHeightAt(localXUpper, localZUpper)) / 4;
 
+        if(pos.y < avg){
+            return FLOAT_MIN;
+        }
+
         return avg;
     }
 
-    float sampleSurfaceTypeIndex(float x, float z) const
+    float sampleSurfaceTypeIndex(const Position3& pos) const
     {
-        if (x < transform.position.x - w / 2 || x > transform.position.x + w / 2 || z < transform.position.z - h / 2 || z > transform.position.z + h / 2)
+        if (pos.x < position.x - w / 2 || pos.x > position.x + w / 2 || pos.z < position.z - h / 2 || pos.z > position.z + h / 2)
         {
             return 0;
         }
 
-        return getSurfaceTypeAt(w / 2 + x - transform.position.x, h / 2 + z - transform.position.z);
+        if(pos.y < position.y + getHeightAt(w / 2 + pos.x - position.x, h / 2 + pos.z - position.z)){
+            return 0;
+        }
+
+        return getSurfaceTypeAt(w / 2 + pos.x - position.x, h / 2 + pos.z - position.z);
     }
 
     float getHeightAt(uint32_t x, uint32_t y) const // grid coordinates
     {
         if (x >= w || y >= h || x < 0 || y < 0)
         {
-            return 0;
+            return FLOAT_MIN;
         }
+
         return heightMap[size_t(y) * w + x];
     }
     uint32_t getSurfaceTypeAt(uint32_t x, uint32_t y) const // grid coordinates
@@ -89,6 +97,7 @@ public:
         {
             return 0;
         }
+
         return surfaceTypeMap[size_t(y) * w + x];
     }
 

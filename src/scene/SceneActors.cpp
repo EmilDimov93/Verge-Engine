@@ -69,7 +69,7 @@ MeshInstanceHandle Scene::addMeshInstance(MeshHandle meshHandle)
 PlayerHandle Scene::addPlayer(VehicleHandle vehicleHandle, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo)
 {
     PlayerHandle handle = HandleFactory<PlayerHandle>::getNewHandle();
-    
+
     controllers.push_back(std::make_unique<Player>(handle, vehicleHandle, keybinds, cameraInfo));
 
     return handle;
@@ -88,40 +88,27 @@ VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Trans
                        addMeshInstance(info.wheelMeshHandle),
                        addMeshInstance(info.wheelMeshHandle));
 
-    float maxX = 0;
-    float minX = 0;
-    float maxY = 0;
-    float minY = 0;
-    float maxZ = 0;
-    float minZ = 0;
+    float maxX = -std::numeric_limits<float>::infinity();
+    float minX = std::numeric_limits<float>::infinity();
+    float maxY = -std::numeric_limits<float>::infinity();
+    float minY = std::numeric_limits<float>::infinity();
+    float maxZ = -std::numeric_limits<float>::infinity();
+    float minZ = std::numeric_limits<float>::infinity();
     for (const Mesh &mesh : meshes)
     {
         if (info.bodyMeshHandle == mesh.getHandle())
         {
-            bool firstIteration = true;
-
             for (const Vertex &v : mesh.getVertices())
             {
-                if (firstIteration)
-                {
-                    maxX = v.pos.x;
-                    minX = v.pos.x;
-                    maxY = v.pos.y;
-                    minY = v.pos.y;
-                    maxZ = v.pos.z;
-                    minZ = v.pos.z;
-                    firstIteration = false;
-                }
-
                 if (v.pos.x >= maxX)
                     maxX = v.pos.x;
-                    
+
                 if (v.pos.x <= minX)
                     minX = v.pos.x;
-                    
+
                 if (v.pos.y >= maxY)
                     maxY = v.pos.y;
-                    
+
                 if (v.pos.y <= minY)
                     minY = v.pos.y;
 
@@ -216,7 +203,7 @@ uint32_t Scene::addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info)
     return surfaces.size() - 1;
 }
 
-void Scene::addSurface(Size2 size, const std::vector<uint32_t>& surfaceTypeMap, const std::vector<float>& heightMap, Position3 position)
+void Scene::addSurface(Size2 size, const std::vector<uint32_t> &surfaceTypeMap, const std::vector<float> &heightMap, Position3 position)
 {
     Surface newSurface;
 

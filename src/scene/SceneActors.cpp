@@ -100,22 +100,22 @@ VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Trans
         {
             for (const Vertex &v : mesh.getVertices())
             {
-                if (v.pos.x >= maxX)
+                if (v.pos.x > maxX)
                     maxX = v.pos.x;
 
-                if (v.pos.x <= minX)
+                if (v.pos.x < minX)
                     minX = v.pos.x;
 
-                if (v.pos.y >= maxY)
+                if (v.pos.y > maxY)
                     maxY = v.pos.y;
 
-                if (v.pos.y <= minY)
+                if (v.pos.y < minY)
                     minY = v.pos.y;
 
-                if (v.pos.z >= maxZ)
+                if (v.pos.z > maxZ)
                     maxZ = v.pos.z;
 
-                if (v.pos.z <= minZ)
+                if (v.pos.z < minZ)
                     minZ = v.pos.z;
             }
 

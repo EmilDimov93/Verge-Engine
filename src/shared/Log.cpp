@@ -9,7 +9,7 @@
 #include <fstream>
 #include <chrono>
 
-#define LOG_MESSAGE_LIMIT pow(10, 5)
+static constexpr size_t LOG_MESSAGE_LIMIT = 100000;
 
 #define IS_ENTRY_ERROR(num) (((num) / 100) % 10 == 2)
 
@@ -48,9 +48,14 @@ void Log::init(LogOutputMode mode)
 
 void Log::freeLogSpace()
 {
+    if (entries.empty()) return;
+
     // Remove non-error messages from the oldest quarter
-    for (size_t i = entries.size() / 4; i >= 0; i--)
+    const size_t limit = entries.size() / 4;
+
+    for (size_t i = limit + 1; i-- > 0; )
     {
+        if (i >= entries.size()) continue;
         if (!IS_ENTRY_ERROR(entries[i].number))
         {
             entries.erase(entries.begin() + i);
@@ -125,7 +130,7 @@ void Log::induceCrash()
 
 void Log::end()
 {
-    if (entries.back() != ErrorCode{'E', 200})
+    if (entries.empty() || entries.back() != ErrorCode{'E', 200})
         add('E', 001);
 
     if (outputMode == VE_LOG_OUTPUT_MODE_FILE || outputMode == VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE)

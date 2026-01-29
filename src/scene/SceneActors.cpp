@@ -22,7 +22,24 @@ DrawData Scene::getDrawData(PlayerHandle playerHandle)
     }
 
     Log::add('S', 202);
-    return DrawData{meshes, meshInstances, {0}, {0}, environment.backgroundColor};
+    std::terminate();
+}
+
+AudioData Scene::getAudioData(PlayerHandle playerHandle){
+    for (const std::unique_ptr<Controller> &controller : controllers)
+    {
+        if (const Player *player = dynamic_cast<const Player *>(controller.get()))
+        {
+            if (player->getHandle() == playerHandle)
+            {
+                AudioData audioData(player->getCameraPosition(), audios);
+                return audioData;
+            }
+        }
+    }
+
+    Log::add('S', 202);
+    std::terminate();
 }
 
 void Scene::setModelMat(MeshInstanceHandle meshInstanceHandle, glm::mat4 modelMat)
@@ -78,6 +95,16 @@ PlayerHandle Scene::addPlayer(VehicleHandle vehicleHandle, const PlayerKeybinds 
 VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform)
 {
     VehicleHandle handle = HandleFactory<VehicleHandle>::getNewHandle();
+
+    if(!info.engineAudioFileName.empty()){
+        VEAudio newAudio;
+        newAudio.vehicleHandle = handle;
+        newAudio.fileName = info.engineAudioFileName;
+        newAudio.position = transform.position;
+        newAudio.rpm = 0;
+
+        audios.push_back(newAudio);
+    }
 
     Vehicle newVehicle(handle,
                        transform,

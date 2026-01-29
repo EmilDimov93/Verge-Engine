@@ -10,6 +10,8 @@
 
 #include <limits>
 
+#include <vector>
+
 constexpr float FLOAT_MIN = std::numeric_limits<float>::lowest();
 
 constexpr float PI = glm::radians(180.0f);
@@ -126,3 +128,21 @@ inline T clamp(T v, T lo, T hi)
 constexpr float AvoidZero(float x) {
     return (x == 0.0f) ? FLT_TRUE_MIN : x;
 }
+
+struct VEAudio
+{
+    VehicleHandle vehicleHandle;
+    std::string fileName;
+    float rpm;
+    Position3 position;
+};
+
+struct AudioData
+{
+    Position3 playerPosition;
+    const std::vector<VEAudio>& audios;
+
+    AudioData(Position3 playerPosition,
+             const std::vector<VEAudio> &audios)
+        : playerPosition(playerPosition), audios(audios) {}
+};

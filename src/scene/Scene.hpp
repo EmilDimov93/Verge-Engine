@@ -26,6 +26,8 @@ public:
 
     DrawData getDrawData(PlayerHandle playerHandle);
 
+    AudioData getAudioData(PlayerHandle playerHandle);
+
     MeshHandle loadFile(const std::string &filePath);
 
     PlayerHandle addPlayer(VehicleHandle vehicleHandle, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo);
@@ -64,6 +66,9 @@ private:
 
     // Environment
     Environment environment;
+
+    // Audio
+    std::vector<VEAudio> audios;
 
     MeshHandle loadOBJ(const std::string &filePath);
     MeshHandle loadFBX(const std::string &filePath);

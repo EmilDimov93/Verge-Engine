@@ -72,6 +72,7 @@ private:
         carInfo.brakingForce = 14700;
         carInfo.tireGrip = 1.5f;
         carInfo.camberRad = (PI / 180);
+        carInfo.engineAudioFileName = "engineSound.mp3";
         car1 = scene.addVehicle(carInfo, {{50.0f, 0, -40.0f}, {0, -PI / 4, 0}});
 
         // Player

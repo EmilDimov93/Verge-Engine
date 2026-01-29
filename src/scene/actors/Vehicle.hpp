@@ -51,6 +51,8 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     float tireGrip = 1.0f;
     float idleRpm = 800.f;
     float camberRad = 0;
+
+    std::string engineAudioFileName;
 };
 
 struct WheelState

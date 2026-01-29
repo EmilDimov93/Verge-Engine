@@ -158,6 +158,11 @@ public:
         return camera.getViewMat();
     }
 
+    Position3 getCameraPosition() const
+    {
+        return camera.getPosition();
+    }
+
 private:
     const PlayerHandle handle;
 

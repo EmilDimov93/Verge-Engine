@@ -3,6 +3,7 @@
 
 #include "WindowManager.hpp"
 #include "VulkanManager.hpp"
+#include "AudioManager.hpp"
 #include "FPSManager.hpp"
 
 #include "../shared/Log.hpp"
@@ -20,7 +21,7 @@ class Renderer
 public:
     Renderer(const VE_STRUCT_RENDERER_CREATE_INFO &info = {});
 
-    bool tick(DrawData drawData);
+    bool tick(DrawData drawData, AudioData audioData);
 
     ~Renderer();
 
@@ -33,5 +34,6 @@ public:
 private:
     WindowManager window;
     VulkanManager vulkan;
+    AudioManager audio;
     FpsManager fps;
 };

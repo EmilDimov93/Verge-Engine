@@ -14,6 +14,7 @@ add_executable(VergeEngine
     src/renderer/Renderer.cpp
     src/renderer/WindowManager.cpp
     src/renderer/VulkanManager.cpp
+    src/renderer/AudioManager.cpp
     src/renderer/FpsManager.cpp
 
     src/scene/SceneCore.cpp

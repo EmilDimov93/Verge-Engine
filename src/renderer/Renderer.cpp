@@ -13,13 +13,15 @@ Renderer::Renderer(const VE_STRUCT_RENDERER_CREATE_INFO &info) : window(info.win
     fps.setTarget(info.targetFps);
 }
 
-bool Renderer::tick(DrawData drawData)
+bool Renderer::tick(DrawData drawData, AudioData audioData)
 {
     fps.sync();
 
     Input::refresh();
 
     vulkan.drawFrame(drawData);
+
+    audio.tick(audioData);
 
     return window.isOpen();
 }

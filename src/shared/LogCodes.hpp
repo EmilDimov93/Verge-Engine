@@ -79,6 +79,11 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'G', 200}, "GLFW initialization failed"},
     {{'G', 201}, "GLFW window creation failed"},
 
+    // Miniaudio
+    {{'M', 000}, "Miniaudio loaded successfully"},
+    {{'M', 100}, "Miniaudio failed to find audio file"},
+    {{'M', 200}, "Miniaudio initialization failed"},
+
     // Scene
     {{'S', 100}, "Unsupported file type"},
     {{'S', 101}, "File not found"},

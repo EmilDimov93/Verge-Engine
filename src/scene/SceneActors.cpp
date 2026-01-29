@@ -32,7 +32,7 @@ AudioData Scene::getAudioData(PlayerHandle playerHandle){
         {
             if (player->getHandle() == playerHandle)
             {
-                AudioData audioData(player->getCameraPosition(), audios);
+                AudioData audioData(player->getCameraPosition(), audioRequests);
                 return audioData;
             }
         }
@@ -96,16 +96,6 @@ VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Trans
 {
     VehicleHandle handle = HandleFactory<VehicleHandle>::getNewHandle();
 
-    if(!info.engineAudioFileName.empty()){
-        VEAudio newAudio;
-        newAudio.vehicleHandle = handle;
-        newAudio.fileName = info.engineAudioFileName;
-        newAudio.position = transform.position;
-        newAudio.rpm = 0;
-
-        audios.push_back(newAudio);
-    }
-
     Vehicle newVehicle(handle,
                        transform,
                        info,
@@ -114,6 +104,15 @@ VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Trans
                        addMeshInstance(info.wheelMeshHandle),
                        addMeshInstance(info.wheelMeshHandle),
                        addMeshInstance(info.wheelMeshHandle));
+
+    if(!info.engineAudioFileName.empty()){
+        VEAudioRequest newAudioRequest;
+        newAudioRequest.vehicleHandle = handle;
+        newAudioRequest.fileName = info.engineAudioFileName;
+        newAudioRequest.position = transform.position;
+
+        audioRequests.push_back(newAudioRequest);
+    }
 
     float maxX = -std::numeric_limits<float>::infinity();
     float minX = std::numeric_limits<float>::infinity();

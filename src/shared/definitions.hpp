@@ -129,20 +129,20 @@ constexpr float AvoidZero(float x) {
     return (x == 0.0f) ? FLT_TRUE_MIN : x;
 }
 
-struct VEAudio
+struct VEAudioRequest
 {
     VehicleHandle vehicleHandle;
     std::string fileName;
-    float rpm;
+    float pitch;
     Position3 position;
 };
 
 struct AudioData
 {
     Position3 playerPosition;
-    const std::vector<VEAudio>& audios;
+    const std::vector<VEAudioRequest>& audioRequests;
 
     AudioData(Position3 playerPosition,
-             const std::vector<VEAudio> &audios)
-        : playerPosition(playerPosition), audios(audios) {}
+             const std::vector<VEAudioRequest> &audioRequests)
+        : playerPosition(playerPosition), audioRequests(audioRequests) {}
 };

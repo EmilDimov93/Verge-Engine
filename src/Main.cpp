@@ -1,9 +1,6 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#define MINIAUDIO_IMPLEMENTATION
-#include "../ext/miniaudio/miniaudio.h"
-
 #include "renderer/Renderer.hpp"
 #include "scene/Scene.hpp"
 
@@ -16,29 +13,10 @@ public:
     {
         setupScene();
 
-        ma_engine miniaudio;
-        ma_engine_init(NULL, &miniaudio);
-
-        ma_sound sound;
-        ma_sound_init_from_file( &miniaudio, "engineSound.mp3", MA_SOUND_FLAG_STREAM, NULL, NULL, &sound);
-
-        ma_sound_set_looping(&sound, MA_TRUE);
-        ma_sound_start(&sound);
-
-        ma_sound_set_volume(&sound, 0.01f);
-        ma_sound_set_pitch(&sound, 1.0f);
-
-        ma_sound_set_pan(&sound, 0.0f);
-
-        while (renderer.tick(scene.getDrawData(player1)))
+        while (renderer.tick(scene.getDrawData(player1), scene.getAudioData(player1)))
         {
             scene.tick(renderer.getFrameTime());
-
-            ma_sound_set_pitch(&sound, 0.5f + scene.vehicle(car1).getRpm() / scene.vehicle(car1).getMaxRpm());
         }
-
-        ma_sound_uninit(&sound);
-        ma_engine_uninit(&miniaudio);
     }
 
 private:
@@ -81,6 +59,8 @@ private:
         player1Keybinds.brake = VE_KEY_S;
         player1Keybinds.steerLeft = VE_KEY_A;
         player1Keybinds.steerRight = VE_KEY_D;
+        player1Keybinds.shiftUp = VE_KEY_M;
+        player1Keybinds.shiftDown = VE_KEY_N;
 
         player1 = scene.addPlayer(car1, player1Keybinds, {renderer.getAspectRatio()});
 

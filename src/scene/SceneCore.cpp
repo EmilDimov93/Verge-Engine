@@ -130,6 +130,12 @@ void Scene::tick(ve_time_t frameTime)
         setModelMat(vehicle.getWheelBRMeshInstanceHandle(), vehicle.getWheelBRMat());
     }
 
+    for(VEAudioRequest& req : audioRequests){
+        Vehicle v = vehicle(req.vehicleHandle);
+        req.pitch = v.getRpm() / v.getMaxRpm();
+        req.position = v.getTransform().position;
+    }
+
     for (std::unique_ptr<Controller> &controller : controllers)
     {
         if (Player *player = dynamic_cast<Player *>(controller.get()))

@@ -100,6 +100,9 @@ void Scene::tick(ve_time_t frameTime)
         // Recalculate velocity vector
         vehicle.tick(vis, environment, sampleSurfaceTypeAt({vehicle.getTransform().position.x, vehicle.getTransform().position.y, vehicle.getTransform().position.z}).friction, dt);
 
+        // Update transform with new velocity vector
+        vehicle.updateTransform();
+
         // Collisions
         float totalMaxClimb = vehicle.getTransform().position.y + vehicle.getMaxClimb();
 
@@ -134,9 +137,6 @@ void Scene::tick(ve_time_t frameTime)
                 v.y = 0.0f;
             vehicle.setVelocityVector(v);
         }
-
-        // Update transform with new velocity vector
-        vehicle.updateTransform();
 
         setModelMat(vehicle.getBodyMeshInstanceHandle(), vehicle.getBodyMat());
 
@@ -354,8 +354,7 @@ MeshHandle Scene::loadGLTF(const std::string &filePath)
 
 float Scene::sampleHeightAt(const Position3 &point) const
 {
-    float highest;
-    uint32_t highestIndex = 0;
+    float highest = 0;
     if (surfaces.size() == 0)
     {
         return FLOAT_MIN; // No surface
@@ -365,7 +364,6 @@ float Scene::sampleHeightAt(const Position3 &point) const
         highest = surfaces[0].sampleHeight(point);
     }
 
-    uint32_t index = 0;
     for (const Surface &surface : surfaces)
     {
         if (surface.position.y + surface.sampleHeight(point) < point.y)
@@ -373,10 +371,8 @@ float Scene::sampleHeightAt(const Position3 &point) const
             if (surface.position.y + surface.sampleHeight(point) > highest)
             {
                 highest = surface.position.y + surface.sampleHeight(point);
-                highestIndex = index;
             }
         }
-        index++;
     }
 
     return highest;

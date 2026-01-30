@@ -95,9 +95,9 @@ private:
         std::vector<float> heightMap;
         heightMap.resize(surfaceWidth * surfaceHeight);
 
-        for (uint32_t &tile : surfaceTypeMap)
+        for (uint32_t &surfaceType : surfaceTypeMap)
         {
-            tile = grassSurfaceTypeIndex;
+            surfaceType = grassSurfaceTypeIndex;
         }
 
         const int roadHalfWidth = 10;
@@ -110,6 +110,7 @@ private:
 
             for (int j = centerX - roadHalfWidth; j <= centerX + roadHalfWidth; j++)
             {
+                surfaceTypeMap[size_t(i) * surfaceWidth + j] = asphaltSurfaceTypeIndex;
                 if (j >= 0 && j < surfaceWidth)
                 {
                     surfaceTypeMap[size_t(i) * surfaceWidth + j] = asphaltSurfaceTypeIndex;
@@ -118,7 +119,7 @@ private:
             }
         }
 
-        scene.addSurface({1000, 1000}, surfaceTypeMap, heightMap);
+        scene.addSurface({surfaceWidth, surfaceHeight}, surfaceTypeMap, heightMap);
     }
 };
 

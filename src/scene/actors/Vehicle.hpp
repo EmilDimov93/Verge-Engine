@@ -131,8 +131,8 @@ public:
 
     float getMaxClimb()
     {
-        // Temporary hardcode
-        return 0.2f;
+        // Temporary hardcode. Should be wheelRadius?
+        return 0.5f;
     }
 
     void collideVelocityVector(glm::vec3 localPOI);

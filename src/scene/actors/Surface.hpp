@@ -61,22 +61,12 @@ public:
 
         float avg = (getHeightAt(localXLower, localZLower) + getHeightAt(localXLower, localZUpper) + getHeightAt(localXUpper, localZLower) + getHeightAt(localXUpper, localZUpper)) / 4;
 
-        if (pos.y < avg)
-        {
-            return FLOAT_MIN;
-        }
-
         return avg;
     }
 
     float sampleSurfaceTypeIndex(const Position3 &pos) const
     {
         if (pos.x < position.x - w / 2 || pos.x > position.x + w / 2 || pos.z < position.z - h / 2 || pos.z > position.z + h / 2)
-        {
-            return 0;
-        }
-
-        if (pos.y < position.y + getHeightAt(w / 2 + pos.x - position.x, h / 2 + pos.z - position.z))
         {
             return 0;
         }

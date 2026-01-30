@@ -149,11 +149,11 @@ VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Trans
         }
     }
 
-    float vehicleHeightAvg = (maxY + minY) / 2;
-    newVehicle.flPOI = {maxX, vehicleHeightAvg, maxZ};
-    newVehicle.frPOI = {minX, vehicleHeightAvg, maxZ};
-    newVehicle.blPOI = {maxX, vehicleHeightAvg, minZ};
-    newVehicle.brPOI = {minX, vehicleHeightAvg, minZ};
+    float vehicleHeightMin = minY;
+    newVehicle.flPOI = {maxX, vehicleHeightMin, maxZ};
+    newVehicle.frPOI = {minX, vehicleHeightMin, maxZ};
+    newVehicle.blPOI = {maxX, vehicleHeightMin, minZ};
+    newVehicle.brPOI = {minX, vehicleHeightMin, minZ};
 
     vehicles.push_back(newVehicle);
 
@@ -226,7 +226,7 @@ uint32_t Scene::addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info)
 
     surfaceTypes.push_back(newSurfaceType);
 
-    return surfaces.size() - 1;
+    return surfaceTypes.size() - 1;
 }
 
 void Scene::addSurface(Size2 size, const std::vector<uint32_t> &surfaceTypeMap, const std::vector<float> &heightMap, Position3 position)

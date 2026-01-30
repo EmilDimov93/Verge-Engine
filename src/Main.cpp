@@ -7,7 +7,7 @@
 class VergeEngine
 {
 public:
-    VergeEngine() : renderer({"Example", {2560, 1600}}), scene({0.7f, 1.0f, 1.0f}) {}
+    VergeEngine() : renderer({"Example", {1200, 600}}), scene({0.7f, 1.0f, 1.0f}) {}
 
     void run()
     {
@@ -51,7 +51,7 @@ private:
         carInfo.tireGrip = 2.5f;
         carInfo.camberRad = (PI / 180);
         carInfo.engineAudioFileName = "4k.wav";
-        car1 = scene.addVehicle(carInfo, {{50.0f, 1.0f, -40.0f}, {0, -PI / 4, 0}});
+        car1 = scene.addVehicle(carInfo, {{50.0f, 0, -40.0f}, {0, -PI / 4, 0}});
         
         carInfo.engineAudioFileName = "6k.wav";
         VehicleHandle car2 = scene.addVehicle(carInfo, {{100.0f, 0, 0.0f}, {0, 5 * PI / 4, 0}});
@@ -83,8 +83,8 @@ private:
         scene.addTrigger(sTriggerType, {{-35.0f, 1.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
 
         // Ground
-        uint32_t grassSurfaceIndex = scene.addSurfaceType({0.6f, {0, 0.5f, 0}, {0, 0.05f, 0}, 0.2f});
-        uint32_t asphaltSurfaceIndex = scene.addSurfaceType({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
+        uint32_t grassSurfaceTypeIndex = scene.addSurfaceType({0.6f, {0, 0.5f, 0}, {0, 0.05f, 0}, 0.2f});
+        uint32_t asphaltSurfaceTypeIndex = scene.addSurfaceType({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
 
         uint32_t surfaceWidth = 1000;
         uint32_t surfaceHeight = 1000;
@@ -97,7 +97,7 @@ private:
 
         for (uint32_t &tile : surfaceTypeMap)
         {
-            tile = 1;
+            tile = grassSurfaceTypeIndex;
         }
 
         const int roadHalfWidth = 10;
@@ -112,8 +112,8 @@ private:
             {
                 if (j >= 0 && j < surfaceWidth)
                 {
-                    surfaceTypeMap[size_t(i) * surfaceWidth + j] = 2;
-                    heightMap[size_t(i) * surfaceWidth + j] = 1.0f;
+                    surfaceTypeMap[size_t(i) * surfaceWidth + j] = asphaltSurfaceTypeIndex;
+                    heightMap[size_t(i) * surfaceWidth + j] = 2.0f;
                 }
             }
         }

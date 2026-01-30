@@ -134,7 +134,7 @@ void Vehicle::calcForces(const Environment &environment)
 
     glm::vec3 FGravity(0.0f, -weightKg * environment.gravityMps2, 0.0f);
 
-    glm::vec3 FTotal = FDrive + FDrag + FRoll + FBrake + FLat + FSlope; // + FGravity;
+    glm::vec3 FTotal = FDrive + FDrag + FRoll + FBrake + FLat + FSlope + FGravity;
 
     glm::vec3 accel = FTotal / weightKg;
     velocityMps += accel * (float)dt;

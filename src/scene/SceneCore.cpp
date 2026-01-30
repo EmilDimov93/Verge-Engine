@@ -100,23 +100,39 @@ void Scene::tick(ve_time_t frameTime)
         // Recalculate velocity vector
         vehicle.tick(vis, environment, sampleSurfaceTypeAt({vehicle.getTransform().position.x, vehicle.getTransform().position.y, vehicle.getTransform().position.z}).friction, dt);
 
-        // Collision Checks - Collide velocity vector with collision normal
+        // Collisions
         float totalMaxClimb = vehicle.getTransform().position.y + vehicle.getMaxClimb();
-        if (totalMaxClimb < sampleHeightAt({vehicle.getFLPOIWorld().x, vehicle.getFLPOIWorld().y, vehicle.getFLPOIWorld().z}))
+
+        float surfaceHeightAtFLPOI = sampleHeightAt({vehicle.getFLPOIWorld().x, vehicle.getFLPOIWorld().y, vehicle.getFLPOIWorld().z});
+        float surfaceHeightAtFRPOI = sampleHeightAt({vehicle.getFRPOIWorld().x, vehicle.getFRPOIWorld().y, vehicle.getFRPOIWorld().z});
+        float surfaceHeightAtBLPOI = sampleHeightAt({vehicle.getBLPOIWorld().x, vehicle.getBLPOIWorld().y, vehicle.getBLPOIWorld().z});
+        float surfaceHeightAtBRPOI = sampleHeightAt({vehicle.getBRPOIWorld().x, vehicle.getBRPOIWorld().y, vehicle.getBRPOIWorld().z});
+
+        if (totalMaxClimb < surfaceHeightAtFLPOI)
         {
             vehicle.collideVelocityVector(vehicle.getFLPOILocal());
         }
-        else if (totalMaxClimb < sampleHeightAt({vehicle.getFRPOIWorld().x, vehicle.getFRPOIWorld().y, vehicle.getFRPOIWorld().z}))
+        else if (totalMaxClimb < surfaceHeightAtFRPOI)
         {
             vehicle.collideVelocityVector(vehicle.getFRPOILocal());
         }
-        else if (totalMaxClimb < sampleHeightAt({vehicle.getBLPOIWorld().x, vehicle.getBLPOIWorld().y, vehicle.getBLPOIWorld().z}))
+        else if (totalMaxClimb < surfaceHeightAtBLPOI)
         {
             vehicle.collideVelocityVector(vehicle.getBLPOILocal());
         }
-        else if (totalMaxClimb < sampleHeightAt({vehicle.getBRPOIWorld().x, vehicle.getBRPOIWorld().y, vehicle.getBRPOIWorld().z}))
+        else if (totalMaxClimb < surfaceHeightAtBRPOI)
         {
             vehicle.collideVelocityVector(vehicle.getBRPOILocal());
+        }
+
+        float heightAvg = (surfaceHeightAtFLPOI + surfaceHeightAtFRPOI + surfaceHeightAtBLPOI + surfaceHeightAtBRPOI) / 4;
+        
+        if(vehicle.getTransform().position.y < heightAvg){
+            vehicle.setHeight(heightAvg);
+            glm::vec3 v = vehicle.getVelocityVector();
+            if (v.y < 0.0f)
+                v.y = 0.0f;
+            vehicle.setVelocityVector(v);
         }
 
         // Update transform with new velocity vector
@@ -130,7 +146,8 @@ void Scene::tick(ve_time_t frameTime)
         setModelMat(vehicle.getWheelBRMeshInstanceHandle(), vehicle.getWheelBRMat());
     }
 
-    for(VEAudioRequest& req : audioRequests){
+    for (VEAudioRequest &req : audioRequests)
+    {
         Vehicle v = vehicle(req.vehicleHandle);
         req.pitch = v.getRpm() / v.getMaxRpm();
         req.position = v.getTransform().position;
@@ -362,11 +379,6 @@ float Scene::sampleHeightAt(const Position3 &point) const
         index++;
     }
 
-    if (highest > point.y)
-    {
-        return FLOAT_MIN; // No valid surface
-    }
-
     return highest;
 }
 
@@ -395,11 +407,6 @@ const SurfaceType &Scene::sampleSurfaceTypeAt(const Position3 &point) const
             }
         }
         index++;
-    }
-
-    if (highest > point.y)
-    {
-        return surfaceTypes[0]; // Default surface type
     }
 
     return surfaceTypes[surfaces[highestIndex].sampleSurfaceTypeIndex(point)];

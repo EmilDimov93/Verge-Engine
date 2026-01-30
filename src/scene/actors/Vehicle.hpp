@@ -141,6 +141,7 @@ public:
 
 private:
     void stallAssist();
+    void cruiseControl();
     float calcFDriveMag();
     void calcForces(const Environment &environment);
     void calcRpm();
@@ -189,6 +190,8 @@ private:
     float steeringAngleRad = 0.0f;
     float wheelSpin = 0.0f;
     float yawRateRadps = 0.0f;
+
+    float cruiseControlTargetMps = 0;
 
     glm::mat4 bodyMat;
 
@@ -271,4 +274,9 @@ public:
     void setGear(uint32_t value) { gear = value; }
     void setRpm(float value) { rpm = value; }
     void setVis(VehicleInputState value) { vis = value; }
+    void setCruiseControlTargetMps(float value) { cruiseControlTargetMps = value; }
+    void setCruiseControlTargetKmph(float value) { cruiseControlTargetMps = value / 3.6f; }
+
+    // Other
+    void stopCruiseControl() { cruiseControlTargetMps = 0; }
 };

@@ -321,6 +321,8 @@ void Vehicle::tick(VehicleInputState vis, Environment environment, float surface
 
     stallAssist();
 
+    cruiseControl();
+
     calcForces(environment);
 
     calcRpm();

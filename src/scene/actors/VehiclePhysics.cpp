@@ -20,6 +20,21 @@ void Vehicle::stallAssist()
     }
 }
 
+void Vehicle::cruiseControl()
+{
+    if(vis.brake != 0)
+        cruiseControlTargetMps = 0;
+
+    if(cruiseControlTargetMps == 0)
+        return;
+
+    if(speedMps < cruiseControlTargetMps)
+        vis.throttle = (vis.throttle == 0 ? 0.001f / dt : vis.throttle);
+    
+    else if(speedMps > cruiseControlTargetMps)
+        vis.brake = 1.0f;
+}
+
 float Vehicle::calcFDriveMag()
 {
     float engineAngularSpeed = (2 * PI * rpm) / 60;

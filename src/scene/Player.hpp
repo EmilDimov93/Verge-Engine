@@ -12,6 +12,7 @@ struct PlayerKeybinds
 {
     VEKeybind throttle;
     VEKeybind brake;
+    VEKeybind handbrake;
 
     VEKeybind steerAxis;
     VEKeybind steerLeft;
@@ -57,6 +58,15 @@ public:
                 vis.brake = 1.0f;
             else
                 vis.brake = 0.0f;
+        }
+
+        if(keybinds.handbrake.isAxis())
+        {
+            vis.handbrake = keybinds.handbrake.getAxisNormalized() > 0;
+        }
+        else
+        {
+            vis.handbrake = keybinds.handbrake.isDown();
         }
 
         vis.steer = -keybinds.steerAxis.getAxis();

@@ -7,7 +7,7 @@
 class VergeEngine
 {
 public:
-    VergeEngine() : renderer({"Example", {1200, 2000}}), scene({0.7f, 1.0f, 1.0f}) {}
+    VergeEngine() : renderer({"Example", {2560, 1600}}), scene({0.7f, 1.0f, 1.0f}) {}
 
     void run()
     {
@@ -48,22 +48,24 @@ private:
         carInfo.dragCoeff = 0.31f;
         carInfo.frontalAreaM2 = 2.3f;
         carInfo.brakingForce = 14700;
-        carInfo.tireGrip = 1.5f;
+        carInfo.tireGrip = 2.5f;
         carInfo.camberRad = (PI / 180);
         carInfo.engineAudioFileName = "4k.wav";
-        car1 = scene.addVehicle(carInfo, {{50.0f, 0, -40.0f}, {0, -PI / 4, 0}});
+        car1 = scene.addVehicle(carInfo, {{50.0f, 1.0f, -40.0f}, {0, -PI / 4, 0}});
         
         carInfo.engineAudioFileName = "6k.wav";
-        VehicleHandle car2 = scene.addVehicle(carInfo, {{50.0f, 0, 0.0f}, {0, PI / 4, 0}});
+        VehicleHandle car2 = scene.addVehicle(carInfo, {{100.0f, 0, 0.0f}, {0, 5 * PI / 4, 0}});
         
         // Player
         PlayerKeybinds player1Keybinds{};
-        player1Keybinds.throttle = VE_KEY_W;
-        player1Keybinds.brake = VE_KEY_S;
+        player1Keybinds.throttle = VE_GAMEPAD_AXIS_RT;
+        player1Keybinds.brake = VE_GAMEPAD_AXIS_LT;
+        player1Keybinds.handbrake = VE_GAMEPAD_BTN_RB;
+        player1Keybinds.steerAxis = VE_GAMEPAD_AXIS_LX;
         player1Keybinds.steerLeft = VE_KEY_A;
         player1Keybinds.steerRight = VE_KEY_D;
-        player1Keybinds.shiftUp = VE_KEY_M;
-        player1Keybinds.shiftDown = VE_KEY_N;
+        player1Keybinds.shiftUp = VE_GAMEPAD_BTN_B;
+        player1Keybinds.shiftDown = VE_GAMEPAD_BTN_X;
 
         player1 = scene.addPlayer(car1, player1Keybinds, {renderer.getAspectRatio()});
 
@@ -77,8 +79,8 @@ private:
         sTriggerType.hitboxSize = 10.0f;
         sTriggerType.isAutoDestroy = true;
 
-        scene.addTrigger(sTriggerType, {{35.0f, 3.0f, 0.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
-        scene.addTrigger(sTriggerType, {{-35.0f, 3.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
+        scene.addTrigger(sTriggerType, {{35.0f, 1.0f, 0.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
+        scene.addTrigger(sTriggerType, {{-35.0f, 1.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
 
         // Ground
         uint32_t grassSurfaceIndex = scene.addSurfaceType({0.6f, {0, 0.5f, 0}, {0, 0.05f, 0}, 0.2f});
@@ -111,7 +113,7 @@ private:
                 if (j >= 0 && j < surfaceWidth)
                 {
                     surfaceTypeMap[size_t(i) * surfaceWidth + j] = 2;
-                    heightMap[size_t(i) * surfaceWidth + j] = 3.0f;
+                    heightMap[size_t(i) * surfaceWidth + j] = 1.0f;
                 }
             }
         }

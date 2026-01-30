@@ -60,7 +60,7 @@ void Vehicle::calcForces(const Environment &environment)
         FDrag = -(velocityMps / glm::length(velocityMps)) * FDragMag;
     }
 
-    float FRollMag = SURFACE_ROLLING_COEFFICIENT * weightKg * environment.gravityMps2 * (speedMps == 0 ? 0 : 1);
+    float FRollMag = SURFACE_ROLLING_COEFFICIENT * weightKg * environment.gravityMps2 * (speedMps < 0.01f ? 0 : 1);
 
     glm::vec3 FRoll(0.0f);
     if (glm::length(velocityMps) > 0.01f)
@@ -68,7 +68,10 @@ void Vehicle::calcForces(const Environment &environment)
         FRoll = -(velocityMps / glm::length(velocityMps)) * FRollMag;
     }
 
-    float FBrakeMag = vis.brake * brakingForce;
+    float totalBrake = vis.brake + (vis.handbrake ? 1.0f : 0.0f);
+    if (totalBrake > 1.0f)
+        totalBrake = 1.0f;
+    float FBrakeMag = totalBrake * brakingForce;
 
     glm::vec3 FBrake(0.0f);
     {
@@ -89,6 +92,9 @@ void Vehicle::calcForces(const Environment &environment)
 
         float frontFrictionCoefficient = tireGrip * (flState.grip + frState.grip) / 2 * (1.0f + std::fabs(camberRad));
         float backFrictionCoefficient = tireGrip * (blState.grip + brState.grip) / 2 * (1.0f + std::fabs(camberRad));
+
+        const float handbrakeRearGripScale = 0.75f;
+        backFrictionCoefficient *= (1.0f - vis.handbrake * handbrakeRearGripScale);
 
         float totalNormalForceN = weightKg * environment.gravityMps2;
         float frontAxleNormalForceN = 0.5f * totalNormalForceN;

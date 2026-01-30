@@ -32,7 +32,7 @@ AudioData Scene::getAudioData(PlayerHandle playerHandle){
         {
             if (player->getHandle() == playerHandle)
             {
-                AudioData audioData(player->getCameraPosition(), audioRequests);
+                AudioData audioData(player->getCameraPosition(), player->getCameraYaw(), player->getVolume(), audioRequests);
                 return audioData;
             }
         }

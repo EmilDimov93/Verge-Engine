@@ -50,9 +50,12 @@ private:
         carInfo.brakingForce = 14700;
         carInfo.tireGrip = 1.5f;
         carInfo.camberRad = (PI / 180);
-        carInfo.engineAudioFileName = "engineSound.mp3";
+        carInfo.engineAudioFileName = "4k.wav";
         car1 = scene.addVehicle(carInfo, {{50.0f, 0, -40.0f}, {0, -PI / 4, 0}});
-
+        
+        carInfo.engineAudioFileName = "6k.wav";
+        VehicleHandle car2 = scene.addVehicle(carInfo, {{50.0f, 0, 0.0f}, {0, PI / 4, 0}});
+        
         // Player
         PlayerKeybinds player1Keybinds{};
         player1Keybinds.throttle = VE_KEY_W;

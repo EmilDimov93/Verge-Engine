@@ -33,12 +33,24 @@ private:
     uint64_t value = INVALID;
 };
 
-struct MeshTag {};
-struct MeshInstanceTag {};
-struct PlayerTag {};
-struct VehicleTag {};
-struct PropTag {};
-struct TriggerTag {};
+struct MeshTag
+{
+};
+struct MeshInstanceTag
+{
+};
+struct PlayerTag
+{
+};
+struct VehicleTag
+{
+};
+struct PropTag
+{
+};
+struct TriggerTag
+{
+};
 
 using MeshHandle = Handle<MeshTag>;
 using MeshInstanceHandle = Handle<MeshInstanceTag>;
@@ -125,7 +137,8 @@ inline T clamp(T v, T lo, T hi)
                                     : v;
 }
 
-constexpr float AvoidZero(float x) {
+constexpr float AvoidZero(float x)
+{
     return (x == 0.0f) ? FLT_TRUE_MIN : x;
 }
 
@@ -140,9 +153,13 @@ struct VEAudioRequest
 struct AudioData
 {
     Position3 playerPosition;
-    const std::vector<VEAudioRequest>& audioRequests;
+    float playerYawRad;
+    float volume;
+    const std::vector<VEAudioRequest> &audioRequests;
 
     AudioData(Position3 playerPosition,
-             const std::vector<VEAudioRequest> &audioRequests)
-        : playerPosition(playerPosition), audioRequests(audioRequests) {}
+              float playerYawRad,
+              float volume,
+              const std::vector<VEAudioRequest> &audioRequests)
+        : playerPosition(playerPosition), playerYawRad(playerYawRad), volume(volume), audioRequests(audioRequests) {}
 };

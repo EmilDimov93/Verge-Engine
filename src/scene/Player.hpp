@@ -125,7 +125,7 @@ public:
         cameraYaw += (targetYaw - cameraYaw) * cameraFollowDelay;
 
         glm::vec3 dir = glm::normalize(glm::vec3(vehiclePos.x, vehiclePos.y, vehiclePos.z) - camPos);
-        camera.rotate({glm::degrees(asin(dir.y)), glm::degrees(atan2(dir.z, dir.x)), 0});
+        camera.rotate({asin(dir.y), atan2(dir.z, dir.x), 0});
     }
 
     void setCameraFollowDistance(float distance)
@@ -163,6 +163,22 @@ public:
         return camera.getPosition();
     }
 
+    float getCameraYaw() const
+    {
+        return camera.getRotation().yaw;
+    }
+
+    float setVolume(float volume)
+    {
+        if(volume >= 0 && volume <= 1.0f)
+            this->volume = volume;
+    }
+
+    float getVolume() const
+    {
+        return volume;
+    }
+
 private:
     const PlayerHandle handle;
 
@@ -179,4 +195,6 @@ private:
     float cameraFollowDistance = 10.0f;
     float cameraFollowHeight = 3.0f;
     float cameraFollowDelay = 0.01f;
+
+    float volume = 1.0f;
 };

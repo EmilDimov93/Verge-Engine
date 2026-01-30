@@ -7,6 +7,8 @@
 
 #include "../shared/definitions.hpp"
 
+#include <deque>
+
 struct VEAudio
 {
     VehicleHandle vehicleHandle;
@@ -23,7 +25,10 @@ public:
     ~AudioManager();
 
 private:
-    std::vector<VEAudio> audios;
+    std::deque<VEAudio> audios;
 
     ma_engine miniaudio;
+
+    float volumeToGain(float volume) const;
+    float attenuation(float distance) const;
 };

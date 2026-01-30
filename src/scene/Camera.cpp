@@ -66,9 +66,9 @@ void Camera::rotate(Rotation3 newRotation)
 {
     rotation = newRotation;
 
-    forward.x = cos(glm::radians(rotation.yaw)) * cos(glm::radians(rotation.pitch));
-    forward.y = sin(glm::radians(rotation.pitch));
-    forward.z = sin(glm::radians(rotation.yaw)) * cos(glm::radians(rotation.pitch));
+    forward.x = cos(rotation.yaw) * cos(rotation.pitch);
+    forward.y = sin(rotation.pitch);
+    forward.z = sin(rotation.yaw) * cos(rotation.pitch);
     forward = glm::normalize(forward);
 }
 
@@ -78,9 +78,9 @@ void Camera::rotateDelta(Rotation3 delta)
     rotation.yaw += delta.yaw;
     rotation.roll += delta.roll;
 
-    forward.x = cos(glm::radians(rotation.yaw)) * cos(glm::radians(rotation.pitch));
-    forward.y = sin(glm::radians(rotation.pitch));
-    forward.z = sin(glm::radians(rotation.yaw)) * cos(glm::radians(rotation.pitch));
+    forward.x = cos(rotation.yaw) * cos(rotation.pitch);
+    forward.y = sin(rotation.pitch);
+    forward.z = sin(rotation.yaw) * cos(rotation.pitch);
     forward = glm::normalize(forward);
 }
 

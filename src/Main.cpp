@@ -54,16 +54,15 @@ private:
         car1 = scene.addVehicle(carInfo, {{50.0f, 0, -40.0f}, {0, -PI / 4, 0}});
         
         carInfo.engineAudioFileName = "6k.wav";
-        VehicleHandle car2 = scene.addVehicle(carInfo, {{100.0f, 0, 0.0f}, {0, 5 * PI / 4, 0}});
+        // VehicleHandle car2 = scene.addVehicle(carInfo, {{100.0f, 0, 0.0f}, {0, 5 * PI / 4, 0}});
         
         // Player
         PlayerKeybinds player1Keybinds{};
         player1Keybinds.throttle = VE_GAMEPAD_AXIS_RT;
         player1Keybinds.brake = VE_GAMEPAD_AXIS_LT;
         player1Keybinds.handbrake = VE_GAMEPAD_BTN_RB;
-        player1Keybinds.steerAxis = VE_GAMEPAD_AXIS_LX;
-        player1Keybinds.steerLeft = VE_KEY_A;
-        player1Keybinds.steerRight = VE_KEY_D;
+        player1Keybinds.steerLeft = VE_GAMEPAD_AXIS_LX_POS;
+        player1Keybinds.steerRight = VE_GAMEPAD_AXIS_LX_NEG;
         player1Keybinds.shiftUp = VE_GAMEPAD_BTN_B;
         player1Keybinds.shiftDown = VE_GAMEPAD_BTN_X;
 
@@ -83,7 +82,7 @@ private:
         scene.addTrigger(sTriggerType, {{-35.0f, 1.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
 
         // Ground
-        uint32_t grassSurfaceTypeIndex = scene.addSurfaceType({0.6f, {0, 0.5f, 0}, {0, 0.05f, 0}, 0.2f});
+        uint32_t grassSurfaceTypeIndex = scene.addSurfaceType({0.6f, {0, 0.5f, 0}, {0, 0.05f, 0}, 0.1f});
         uint32_t asphaltSurfaceTypeIndex = scene.addSurfaceType({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
 
         uint32_t surfaceWidth = 1000;

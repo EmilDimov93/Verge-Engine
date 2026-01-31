@@ -14,7 +14,6 @@ struct PlayerKeybinds
     VEKeybind brake;
     VEKeybind handbrake;
 
-    VEKeybind steerAxis;
     VEKeybind steerLeft;
     VEKeybind steerRight;
 
@@ -38,7 +37,7 @@ public:
 
         if (keybinds.throttle.isAxis())
         {
-            vis.throttle = keybinds.throttle.getAxisNormalized();
+            vis.throttle = keybinds.throttle.getAxis();
         }
         else
         {
@@ -50,7 +49,7 @@ public:
 
         if (keybinds.brake.isAxis())
         {
-            vis.brake = keybinds.brake.getAxisNormalized();
+            vis.brake = keybinds.brake.getAxis();
         }
         else
         {
@@ -62,24 +61,17 @@ public:
 
         if(keybinds.handbrake.isAxis())
         {
-            vis.handbrake = keybinds.handbrake.getAxisNormalized() > 0;
+            vis.handbrake = keybinds.handbrake.getAxis() > 0;
         }
         else
         {
             vis.handbrake = keybinds.handbrake.isDown();
         }
 
-        vis.steer = -keybinds.steerAxis.getAxis();
+        float rightSteerValue = keybinds.steerRight.isAxis() ? keybinds.steerRight.getAxis() : (keybinds.steerRight.isDown() ? 1.0f : 0.0f);
+        float leftSteerValue = keybinds.steerLeft.isAxis() ? keybinds.steerLeft.getAxis() : (keybinds.steerLeft .isDown()  ? 1.0f : 0.0f);
 
-        if (keybinds.steerLeft.isDown() && keybinds.steerRight.isUp())
-        {
-            vis.steer = 1.0f;
-        }
-
-        if (keybinds.steerRight.isDown() && keybinds.steerLeft.isUp())
-        {
-            vis.steer = -1.0f;
-        }
+        vis.steer = rightSteerValue - leftSteerValue;
 
         if (!keybinds.shiftUp.isAxis() && !keybinds.shiftDown.isAxis())
         {

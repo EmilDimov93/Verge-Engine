@@ -36,7 +36,7 @@ void Input::init(GLFWwindow *windowRef)
         gamepadBtnStates[i] = KEY_STATE_UP;
 
     for (size_t i = 0; i < VE_GAMEPAD_AXIS_COUNT; i++)
-        gamepadAxes[i] = 0.0f;
+        gamepadAxes[i] = -1.0f;
 
     gamepadConnected = false;
     gamepadId = GLFW_JOYSTICK_1;
@@ -104,8 +104,49 @@ void Input::refresh()
             }
         }
 
-        for (int i = 0; i < VE_GAMEPAD_AXIS_COUNT; i++)
-            gamepadAxes[i] = fabs(state.axes[i]) < AXIS_DEAD_ZONE ? 0.0f : state.axes[i];
+        float lx = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
+        float ly = state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
+
+        if (fabsf(lx) < AXIS_DEAD_ZONE)
+            lx = 0.0f;
+        if (fabsf(ly) < AXIS_DEAD_ZONE)
+            ly = 0.0f;
+
+        gamepadAxes[VE_GAMEPAD_AXIS_LX_POS] = (lx > 0.0f) ? lx : 0.0f;
+        gamepadAxes[VE_GAMEPAD_AXIS_LX_NEG] = (lx < 0.0f) ? -lx : 0.0f;
+        gamepadAxes[VE_GAMEPAD_AXIS_LY_POS] = (ly > 0.0f) ? ly : 0.0f;
+        gamepadAxes[VE_GAMEPAD_AXIS_LY_NEG] = (ly < 0.0f) ? -ly : 0.0f;
+
+        float rx = state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X];
+        float ry = state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y];
+
+        if (fabsf(rx) < AXIS_DEAD_ZONE)
+            rx = 0.0f;
+        if (fabsf(ry) < AXIS_DEAD_ZONE)
+            ry = 0.0f;
+
+        gamepadAxes[VE_GAMEPAD_AXIS_RX_POS] = (rx > 0.0f) ? rx : 0.0f;
+        gamepadAxes[VE_GAMEPAD_AXIS_RX_NEG] = (rx < 0.0f) ? -rx : 0.0f;
+        gamepadAxes[VE_GAMEPAD_AXIS_RY_POS] = (ry > 0.0f) ? ry : 0.0f;
+        gamepadAxes[VE_GAMEPAD_AXIS_RY_NEG] = (ry < 0.0f) ? -ry : 0.0f;
+
+        float lt = state.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER];
+        float rt = state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER];
+
+        lt = (lt + 1.0f) * 0.5f;
+        if (lt < 0.0f)
+            lt = 0.0f;
+        if (lt > 1.0f)
+            lt = 1.0f;
+
+        rt = (rt + 1.0f) * 0.5f;
+        if (rt < 0.0f)
+            rt = 0.0f;
+        if (rt > 1.0f)
+            rt = 1.0f;
+
+        gamepadAxes[VE_GAMEPAD_AXIS_LT] = lt;
+        gamepadAxes[VE_GAMEPAD_AXIS_RT] = rt;
     }
     else
     {
@@ -284,10 +325,10 @@ float Input::getAxis(VEGamepadAxis axis)
 {
     if (!gamepadConnected || axis == VE_GAMEPAD_AXIS_UNKNOWN)
         return 0.0f;
-    if (axis >= VE_MOUSE_BTN_COUNT || axis < 0)
+    if (axis >= VE_GAMEPAD_AXIS_COUNT || axis < 0)
     {
         Log::add('G', 101);
-        return false;
+        return 0.0f;
     }
 
     return gamepadAxes[axis];

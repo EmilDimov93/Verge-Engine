@@ -15,14 +15,10 @@ typedef enum
     KEY_STATE_RELEASED
 } KeyState;
 
-#define VE_KEY_COUNT GLFW_KEY_LAST + 1
-#define VE_MOUSE_BTN_COUNT GLFW_MOUSE_BUTTON_LAST + 1
-#define VE_GAMEPAD_BTN_COUNT GLFW_GAMEPAD_BUTTON_LAST + 1
-#define VE_GAMEPAD_AXIS_COUNT GLFW_GAMEPAD_AXIS_LAST + 1
-
 typedef enum
 {
     VE_KEY_UNKNOWN = -1,
+
     VE_KEY_A = GLFW_KEY_A,
     VE_KEY_B = GLFW_KEY_B,
     VE_KEY_C = GLFW_KEY_C,
@@ -93,12 +89,15 @@ typedef enum
     VE_KEY_LEFT_ALT = GLFW_KEY_LEFT_ALT,
     VE_KEY_RIGHT_ALT = GLFW_KEY_RIGHT_ALT,
     VE_KEY_RIGHT_SUPER = GLFW_KEY_RIGHT_SUPER,
-    VE_KEY_MENU = GLFW_KEY_MENU
+    VE_KEY_MENU = GLFW_KEY_MENU,
+
+    VE_KEY_COUNT
 } VEKey;
 
 typedef enum
 {
     VE_MOUSE_BTN_UNKNOWN = -1,
+
     VE_MOUSE_BTN_LEFT = GLFW_MOUSE_BUTTON_1,
     VE_MOUSE_BTN_RIGHT = GLFW_MOUSE_BUTTON_2,
     VE_MOUSE_BTN_MIDDLE = GLFW_MOUSE_BUTTON_3,
@@ -106,12 +105,15 @@ typedef enum
     VE_MOUSE_BTN_5 = GLFW_MOUSE_BUTTON_5,
     VE_MOUSE_BTN_6 = GLFW_MOUSE_BUTTON_6,
     VE_MOUSE_BTN_7 = GLFW_MOUSE_BUTTON_7,
-    VE_MOUSE_BTN_8 = GLFW_MOUSE_BUTTON_8
+    VE_MOUSE_BTN_8 = GLFW_MOUSE_BUTTON_8,
+
+    VE_MOUSE_BTN_COUNT
 } VEMouseBtn;
 
 typedef enum
 {
     VE_GAMEPAD_BTN_UNKNOWN = -1,
+
     VE_GAMEPAD_BTN_A = GLFW_GAMEPAD_BUTTON_A,
     VE_GAMEPAD_BTN_B = GLFW_GAMEPAD_BUTTON_B,
     VE_GAMEPAD_BTN_X = GLFW_GAMEPAD_BUTTON_X,
@@ -126,18 +128,27 @@ typedef enum
     VE_GAMEPAD_BTN_DPAD_UP = GLFW_GAMEPAD_BUTTON_DPAD_UP,
     VE_GAMEPAD_BTN_DPAD_RIGHT = GLFW_GAMEPAD_BUTTON_DPAD_RIGHT,
     VE_GAMEPAD_BTN_DPAD_DOWN = GLFW_GAMEPAD_BUTTON_DPAD_DOWN,
-    VE_GAMEPAD_BTN_DPAD_LEFT = GLFW_GAMEPAD_BUTTON_DPAD_LEFT
+    VE_GAMEPAD_BTN_DPAD_LEFT = GLFW_GAMEPAD_BUTTON_DPAD_LEFT,
+
+    VE_GAMEPAD_BTN_COUNT
 } VEGamepadBtn;
 
 typedef enum
 {
     VE_GAMEPAD_AXIS_UNKNOWN = -1,
-    VE_GAMEPAD_AXIS_LX = GLFW_GAMEPAD_AXIS_LEFT_X,
-    VE_GAMEPAD_AXIS_LY = GLFW_GAMEPAD_AXIS_LEFT_Y,
-    VE_GAMEPAD_AXIS_RX = GLFW_GAMEPAD_AXIS_RIGHT_X,
-    VE_GAMEPAD_AXIS_RY = GLFW_GAMEPAD_AXIS_RIGHT_Y,
-    VE_GAMEPAD_AXIS_LT = GLFW_GAMEPAD_AXIS_LEFT_TRIGGER,
-    VE_GAMEPAD_AXIS_RT = GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER
+
+    VE_GAMEPAD_AXIS_LX_POS,
+    VE_GAMEPAD_AXIS_LX_NEG,
+    VE_GAMEPAD_AXIS_LY_POS,
+    VE_GAMEPAD_AXIS_LY_NEG,
+    VE_GAMEPAD_AXIS_RX_POS,
+    VE_GAMEPAD_AXIS_RX_NEG,
+    VE_GAMEPAD_AXIS_RY_POS,
+    VE_GAMEPAD_AXIS_RY_NEG,
+    VE_GAMEPAD_AXIS_LT,
+    VE_GAMEPAD_AXIS_RT,
+
+    VE_GAMEPAD_AXIS_COUNT
 } VEGamepadAxis;
 
 class Input
@@ -212,7 +223,8 @@ struct VEKeybind
 
     bool isDown() const
     {
-        if(key == VE_KEY_UNKNOWN) return false;
+        if (key == VE_KEY_UNKNOWN)
+            return false;
         switch (keyType)
         {
         case VE_KEY_TYPE_KEYBOARD:
@@ -228,7 +240,8 @@ struct VEKeybind
 
     bool isUp() const
     {
-        if(key == VE_KEY_UNKNOWN) return true;
+        if (key == VE_KEY_UNKNOWN)
+            return true;
         switch (keyType)
         {
         case VE_KEY_TYPE_KEYBOARD:
@@ -244,7 +257,8 @@ struct VEKeybind
 
     bool isPressed() const
     {
-        if(key == VE_KEY_UNKNOWN) return false;
+        if (key == VE_KEY_UNKNOWN)
+            return false;
         switch (keyType)
         {
         case VE_KEY_TYPE_KEYBOARD:
@@ -260,7 +274,8 @@ struct VEKeybind
 
     bool isReleased() const
     {
-        if(key == VE_KEY_UNKNOWN) return false;
+        if (key == VE_KEY_UNKNOWN)
+            return false;
         switch (keyType)
         {
         case VE_KEY_TYPE_KEYBOARD:
@@ -278,14 +293,6 @@ struct VEKeybind
     {
         if (keyType == VE_KEY_TYPE_GAMEPAD_AXIS)
             return Input::getAxis((VEGamepadAxis)key);
-        else
-            return 0;
-    }
-
-    float getAxisNormalized() const
-    {
-        if (keyType == VE_KEY_TYPE_GAMEPAD_AXIS)
-            return (Input::getAxis((VEGamepadAxis)key) + 1.0f) * 0.5f;
         else
             return 0;
     }

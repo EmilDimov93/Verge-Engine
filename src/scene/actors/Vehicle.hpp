@@ -144,7 +144,6 @@ private:
     void cruiseControl();
     float calcFDriveMag();
     void calcForces(const Environment &environment);
-    void calcRpm();
     void steer();
     void shiftUp();
     void shiftDown();
@@ -184,6 +183,7 @@ private:
     glm::vec3 velocityMps = glm::vec3(0.0f);
 
     float speedMps = 0.0f;
+    float forwardSpeedMps = 0.0f;
     uint32_t gear = 1;
     float rpm = 0.0f;
 
@@ -278,5 +278,6 @@ public:
     void setCruiseControlTargetKmph(float value) { cruiseControlTargetMps = value / 3.6f; }
 
     // Other
+    void start();
     void stopCruiseControl() { cruiseControlTargetMps = 0; }
 };

@@ -325,11 +325,9 @@ void Vehicle::tick(VehicleInputState vis, Environment environment, float surface
 
     calcForces(environment);
 
-    calcRpm();
-
     updateTransmission();
 
     wheelSpin = std::fmod(wheelSpin + speedMps * dt / wheelRadiusM, 2.0f * PI);
 
-    // std::cout << std::round(speedMps * 3.6f) << " km/h, " << std::round(rpm) << " rpm, " << gear << " gear" << std::endl;
+    std::cout << std::round(speedMps * 3.6f) << " km/h, " << std::round(rpm) << " rpm, " << gear << " gear" << std::endl;
 }

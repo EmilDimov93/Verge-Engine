@@ -4,9 +4,22 @@
 #include "Vehicle.hpp"
 
 #define TORQUE_CONVERSION_CONSTANT 5252
+#define RADPS_TO_RPM_CONVERSION_FACTOR 60.0f / (2.0f * PI)
 
 #define BASELINE_TORQUE_FACTOR 0.9f
 #define SURFACE_ROLLING_COEFFICIENT 0.015f
+
+#define ENGINE_INERTIA 0.1f
+#define ENGINE_FRICTION_COEFF 0.0012f
+
+void Vehicle::start()
+{
+    const float maxStarterSpeed = 300.0f;
+    if(rpm > maxStarterSpeed){
+        // Starter damage
+    }
+    rpm = maxStarterSpeed;
+}
 
 void Vehicle::stallAssist()
 {
@@ -14,40 +27,50 @@ void Vehicle::stallAssist()
     {
         vis.throttle = 0.0f;
     }
-    else if (rpm < idleRpm && vis.throttle < 0.0001f / dt)
+    else if (rpm < idleRpm && vis.throttle < 0.001f / dt)
     {
-        vis.throttle = 0.0001f / dt;
+        vis.throttle = 0.001f / dt;
     }
 }
 
 void Vehicle::cruiseControl()
 {
-    if(vis.brake != 0)
+    if (vis.brake != 0)
         cruiseControlTargetMps = 0;
 
-    if(cruiseControlTargetMps == 0)
+    if (cruiseControlTargetMps == 0)
         return;
 
-    if(speedMps < cruiseControlTargetMps)
+    if (forwardSpeedMps < cruiseControlTargetMps)
         vis.throttle = (vis.throttle == 0 ? 0.001f / dt : vis.throttle);
-    
-    else if(speedMps > cruiseControlTargetMps)
+
+    else if (forwardSpeedMps > cruiseControlTargetMps)
         vis.brake = 1.0f;
 }
 
 float Vehicle::calcFDriveMag()
 {
-    float engineAngularSpeed = (2 * PI * rpm) / 60;
+    const float maxEngineTorque = 400.0f;
 
-    float powerW = powerKw * 1000;
+    float rpmNorm = rpm / maxRpm;
+    float torqueCurve = rpmNorm * (1.0f - rpmNorm) * 4.0f;
+    float engineTorque = maxEngineTorque * torqueCurve * vis.throttle;
 
-    float powerAtCurrRPM = powerW * vis.throttle;
+    {
+        float frictionTorque = ENGINE_FRICTION_COEFF * rpm;
+        float angularAccel = (engineTorque - frictionTorque) / ENGINE_INERTIA;
+        rpm += angularAccel * dt * RADPS_TO_RPM_CONVERSION_FACTOR;
+    }
 
-    float torqueCurveFactor = BASELINE_TORQUE_FACTOR + (1.0f - BASELINE_TORQUE_FACTOR) * (1.0f - rpm / maxRpm);
+    {
+        float wheelRpm = (fabs(forwardSpeedMps) / wheelRadiusM) * RADPS_TO_RPM_CONVERSION_FACTOR;
 
-    float engineTorque = (powerAtCurrRPM * torqueCurveFactor) / std::max(engineAngularSpeed, 1.0f);
+        float connectedClutchRpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
 
-    float wheelTorque = engineTorque * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
+        rpm = (1.0f - vis.clutch) * rpm + vis.clutch * connectedClutchRpm;
+    }
+
+    float wheelTorque = vis.clutch * engineTorque * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
 
     return wheelTorque / wheelRadiusM;
 }
@@ -75,7 +98,7 @@ void Vehicle::calcForces(const Environment &environment)
         FDrag = -(velocityMps / glm::length(velocityMps)) * FDragMag;
     }
 
-    float FRollMag = SURFACE_ROLLING_COEFFICIENT * weightKg * environment.gravityMps2 * (speedMps < 0.01f ? 0 : 1);
+    float FRollMag = SURFACE_ROLLING_COEFFICIENT * weightKg * environment.gravityMps2 * (forwardSpeedMps < 0.01f ? 0 : 1);
 
     glm::vec3 FRoll(0.0f);
     if (glm::length(velocityMps) > 0.01f)
@@ -155,18 +178,13 @@ void Vehicle::calcForces(const Environment &environment)
     velocityMps += accel * (float)dt;
 
     speedMps = glm::length(velocityMps);
-}
-
-void Vehicle::calcRpm()
-{
-    float wheelRpm = (speedMps / wheelRadiusM) * (60.0f / (2.0f * PI));
-    rpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
+    forwardSpeedMps = glm::dot(velocityMps, forward);
 }
 
 void Vehicle::steer()
 {
     const float k = 0.00025f;
-    float speedFactor = 1.0f / (1.0f + k * speedMps * speedMps);
+    float speedFactor = 1.0f / (1.0f + k * forwardSpeedMps * forwardSpeedMps);
     speedFactor = clamp(speedFactor, 0.15f, 1.0f);
 
     float target = vis.steer * maxSteeringAngleRad * speedFactor;
@@ -194,9 +212,12 @@ void Vehicle::shiftDown()
 
 void Vehicle::updateTransmission()
 {
+    if(vis.clutch == 0.0f)
+        return;
+    
     if (transmissionType == VE_TRANSMISSION_TYPE_AUTOMATIC)
     {
-        if (rpm >= maxRpm)
+        if (rpm >= maxRpm - 100)
         {
             shiftUp();
         }

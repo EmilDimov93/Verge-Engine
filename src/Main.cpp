@@ -16,6 +16,10 @@ public:
         while (renderer.tick(scene.getDrawData(player1), scene.getAudioData(player1)))
         {
             scene.tick(renderer.getFrameTime());
+
+            if(Input::isPressed(VE_GAMEPAD_BTN_A)){
+                scene.vehicle(car1).start();
+            }
         }
     }
 
@@ -53,14 +57,12 @@ private:
         carInfo.engineAudioFileName = "4k.wav";
         car1 = scene.addVehicle(carInfo, {{50.0f, 0, -40.0f}, {0, -PI / 4, 0}});
         
-        carInfo.engineAudioFileName = "6k.wav";
-        // VehicleHandle car2 = scene.addVehicle(carInfo, {{100.0f, 0, 0.0f}, {0, 5 * PI / 4, 0}});
-        
         // Player
         PlayerKeybinds player1Keybinds{};
         player1Keybinds.throttle = VE_GAMEPAD_AXIS_RT;
-        player1Keybinds.brake = VE_GAMEPAD_AXIS_LT;
+        player1Keybinds.brake = VE_GAMEPAD_BTN_LB;
         player1Keybinds.handbrake = VE_GAMEPAD_BTN_RB;
+        player1Keybinds.clutch = VE_GAMEPAD_AXIS_LT;
         player1Keybinds.steerLeft = VE_GAMEPAD_AXIS_LX_POS;
         player1Keybinds.steerRight = VE_GAMEPAD_AXIS_LX_NEG;
         player1Keybinds.shiftUp = VE_GAMEPAD_BTN_B;

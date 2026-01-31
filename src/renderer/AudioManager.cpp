@@ -53,7 +53,7 @@ void AudioManager::tick(AudioData audioData)
 
                 float gain = volumeToGain(audioData.volume) * attenuation(distance);
 
-                ma_sound_set_volume(&audio.sound, gain);
+                ma_sound_set_volume(&audio.sound, req.pitch == 0 ? 0 : gain); // If req.pitch == 0 => Engine RPM = 0
 
                 float fx = cosf(audioData.playerYawRad);
                 float fz = sinf(audioData.playerYawRad);
@@ -65,6 +65,8 @@ void AudioManager::tick(AudioData audioData)
                 pan = clamp(pan, -1.0f, 1.0f);
 
                 ma_sound_set_pan(&audio.sound, pan);
+
+                break;
             }
         }
 

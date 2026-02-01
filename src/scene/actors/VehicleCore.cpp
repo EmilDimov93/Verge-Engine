@@ -5,8 +5,6 @@
 
 #include "../../shared/Log.hpp"
 
-#define HP_TO_KW_CONVERSION_FACTOR 0.7457f
-
 Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceHandle bodyMeshInstanceHandle, MeshInstanceHandle wheelFLMeshInstanceHandle, MeshInstanceHandle wheelFRMeshInstanceHandle, MeshInstanceHandle wheelBLMeshInstanceHandle, MeshInstanceHandle wheelBRMeshInstanceHandle)
     : handle(handle)
 {
@@ -18,26 +16,12 @@ Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHI
 
     wheelOffset = info.wheelOffset;
 
-    if (info.power > 0)
-    {
-        switch (info.powerUnit)
-        {
-        case VE_POWER_UNIT_KILOWATTS:
-            powerKw = info.power;
-            break;
-        case VE_POWER_UNIT_HORSEPOWER:
-            powerKw = HP_TO_KW_CONVERSION_FACTOR * info.power;
-            break;
-        default:
-            Log::add('A', 102);
-            powerKw = info.power;
-            break;
-        }
+    if(info.peakTorqueNm > 0){
+        peakTorqueNm = info.peakTorqueNm;
     }
-    else
-    {
-        Log::add('A', 103);
-        powerKw = 100;
+    else{
+        Log::add('A', 102);
+        peakTorqueNm = 300;
     }
 
     if (info.weightKg > 0)
@@ -329,5 +313,5 @@ void Vehicle::tick(VehicleInputState vis, Environment environment, float surface
 
     wheelSpin = std::fmod(wheelSpin + speedMps * dt / wheelRadiusM, 2.0f * PI);
 
-    std::cout << std::round(speedMps * 3.6f) << " km/h, " << std::round(rpm) << " rpm, " << gear << " gear" << std::endl;
+    std::cout << std::round(forwardSpeedMps * 3.6f) << " km/h, " << std::round(rpm) << " rpm, " << gear << " gear" << std::endl;
 }

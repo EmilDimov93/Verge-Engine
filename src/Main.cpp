@@ -37,13 +37,12 @@ private:
         carInfo.bodyMeshHandle = scene.loadFile("models/car.obj");
         carInfo.wheelMeshHandle = scene.loadFile("models/wheel.obj");
         carInfo.wheelOffset = {1.05f, 0.5f, 1.8f};
-        carInfo.power = 390;
-        carInfo.powerUnit = VE_POWER_UNIT_HORSEPOWER;
+        carInfo.peakTorqueNm = 280;
         carInfo.weightKg = 1540;
         carInfo.maxRpm = 7000;
         carInfo.idleRpm = 800;
         carInfo.gearCount = 8;
-        carInfo.transmissionType = VE_TRANSMISSION_TYPE_AUTOMATIC;
+        carInfo.transmissionType = VE_TRANSMISSION_TYPE_MANUAL;
         float ratios[8] = {5.519f, 3.184f, 2.050f, 1.492f, 1.235f, 1.000f, 0.801f, 0.673f};
         carInfo.pGearRatios = ratios;
         carInfo.finalDriveRatio = 3.2f;

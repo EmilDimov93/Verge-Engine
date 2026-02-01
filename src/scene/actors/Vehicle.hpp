@@ -11,14 +11,6 @@
 
 #include <vector>
 
-#define KW_TO_HP_CONSTANT 1.341022f
-
-enum VEPowerUnit
-{
-    VE_POWER_UNIT_KILOWATTS,
-    VE_POWER_UNIT_HORSEPOWER
-};
-
 enum VETransmissionType
 {
     VE_TRANSMISSION_TYPE_MANUAL,
@@ -32,8 +24,7 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
 
     Position3 wheelOffset = {0, 0, 0};
 
-    uint32_t power = 100;
-    VEPowerUnit powerUnit = VE_POWER_UNIT_KILOWATTS;
+    uint32_t peakTorqueNm = 300;
 
     float weightKg = 1200.f;
     uint32_t gearCount = 5;
@@ -142,6 +133,7 @@ public:
 private:
     void stallAssist();
     void cruiseControl();
+    float getTorque();
     float calcFDriveMag();
     void calcForces(const Environment &environment);
     void steer();
@@ -159,7 +151,7 @@ private:
 
     Position3 wheelOffset;
 
-    uint32_t powerKw;
+    uint32_t peakTorqueNm;
     float weightKg;
     uint32_t gearCount;
     uint32_t maxRpm;
@@ -213,8 +205,7 @@ public:
     MeshInstanceHandle getWheelBLMeshInstanceHandle() const { return wheelBLMeshInstanceHandle; };
     MeshInstanceHandle getWheelBRMeshInstanceHandle() const { return wheelBRMeshInstanceHandle; };
     Position3 getWheelOffset() const { return wheelOffset; }
-    uint32_t getPowerKw() const { return powerKw; }
-    uint32_t getPowerHp() const { return static_cast<uint32_t>(powerKw * KW_TO_HP_CONSTANT); }
+    uint32_t getPeakTorqueNm() const { return peakTorqueNm; }
     float getWeightKg() const { return weightKg; }
     uint32_t getGearCount() const { return gearCount; }
     uint32_t getMaxRpm() const { return maxRpm; }
@@ -245,8 +236,7 @@ public:
 
     // Setters
     void setWheelOffset(Position3 value) { wheelOffset = value; }
-    void setPowerKw(uint32_t value) { powerKw = value; }
-    void setPowerHp(uint32_t value) { powerKw = static_cast<uint32_t>(value / KW_TO_HP_CONSTANT); }
+    void setPeakTorqueNm(uint32_t value) { peakTorqueNm = value; }
     void setWeightKg(float value) { weightKg = value; }
     void setGearCount(uint32_t value) { gearCount = value; }
     void setMaxRpm(uint32_t value) { maxRpm = value; }

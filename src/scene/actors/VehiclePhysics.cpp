@@ -48,13 +48,17 @@ void Vehicle::cruiseControl()
         vis.brake = 1.0f;
 }
 
-float Vehicle::calcFDriveMag()
+float Vehicle::getTorque()
 {
-    const float maxEngineTorque = 400.0f;
-
     float rpmNorm = rpm / maxRpm;
     float torqueCurve = rpmNorm * (1.0f - rpmNorm) * 4.0f;
-    float engineTorque = maxEngineTorque * torqueCurve * vis.throttle;
+
+    return peakTorqueNm * torqueCurve;
+}
+
+float Vehicle::calcFDriveMag()
+{
+    float engineTorque = getTorque() * vis.throttle;
 
     {
         float frictionTorque = ENGINE_FRICTION_COEFF * rpm;
@@ -217,7 +221,8 @@ void Vehicle::updateTransmission()
     
     if (transmissionType == VE_TRANSMISSION_TYPE_AUTOMATIC)
     {
-        if (rpm >= maxRpm - 100)
+        // Temporary(unstable)
+        if (rpm >= maxRpm - 500)
         {
             shiftUp();
         }

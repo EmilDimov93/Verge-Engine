@@ -101,8 +101,8 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     // Vehicle
     // {'A', 100} removed
     // {'A', 101} removed
-    {{'A', 102}, "Vehicle: invalid power unit. Using default KILOWATTS"},
-    {{'A', 103}, "Vehicle: invalid power. Using default value"},
+    {{'A', 102}, "Vehicle: invalid peak torque. Using default value"},
+    // {'A', 103} removed
     {{'A', 104}, "Vehicle: invalid weight. Using default value"},
     {{'A', 105}, "Vehicle: invalid gear count. Using default value"},
     {{'A', 106}, "Vehicle: invalid idle RPM. Using default value"},

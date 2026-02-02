@@ -69,7 +69,7 @@ public:
             vis.handbrake = keybinds.handbrake.isDown();
         }
 
-        vis.clutch = keybinds.clutch.isAxis() ? fabs(keybinds.clutch.getAxis() - 1.0f) : (keybinds.clutch.isDown() ? 0.0f : 1.0f);
+        vis.clutch = keybinds.clutch.isAxis() ? keybinds.clutch.getAxis() : (keybinds.clutch.isDown() ? 1.0f : 0.0f);
 
         float rightSteerValue = keybinds.steerRight.isAxis() ? keybinds.steerRight.getAxis() : (keybinds.steerRight.isDown() ? 1.0f : 0.0f);
         float leftSteerValue = keybinds.steerLeft.isAxis() ? keybinds.steerLeft.getAxis() : (keybinds.steerLeft .isDown()  ? 1.0f : 0.0f);

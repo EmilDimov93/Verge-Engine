@@ -50,7 +50,7 @@ void Vehicle::cruiseControl()
 
 float Vehicle::getTorque()
 {
-    float rpmNorm = rpm / maxRpm;
+    float rpmNorm = rpm / (maxRpm + maxRpm / 4);
     float torqueCurve = rpmNorm * (1.0f - rpmNorm) * 4.0f;
 
     return peakTorqueNm * torqueCurve;
@@ -71,10 +71,10 @@ float Vehicle::calcFDriveMag()
 
         float connectedClutchRpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
 
-        rpm = (1.0f - vis.clutch) * rpm + vis.clutch * connectedClutchRpm;
+        rpm = vis.clutch * rpm + (1.0f - vis.clutch) * connectedClutchRpm;
     }
 
-    float wheelTorque = vis.clutch * engineTorque * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
+    float wheelTorque = (1.0f - vis.clutch) * engineTorque * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
 
     return wheelTorque / wheelRadiusM;
 }
@@ -216,7 +216,7 @@ void Vehicle::shiftDown()
 
 void Vehicle::updateTransmission()
 {
-    if(vis.clutch == 0.0f)
+    if(vis.clutch == 1.0f)
         return;
     
     if (transmissionType == VE_TRANSMISSION_TYPE_AUTOMATIC)

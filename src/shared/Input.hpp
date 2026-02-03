@@ -216,6 +216,25 @@ struct VEKeybind
     VEKeybind(VEGamepadBtn _key) : key((uint32_t)_key), keyType(VE_KEY_TYPE_GAMEPAD_BTN) {}
     VEKeybind(VEGamepadAxis _key) : key((uint32_t)_key), keyType(VE_KEY_TYPE_GAMEPAD_AXIS) {}
 
+    float getValue() const
+    {
+        if (key == VE_KEY_UNKNOWN)
+            return 0.0f;
+        switch (keyType)
+        {
+        case VE_KEY_TYPE_KEYBOARD:
+            return Input::isDown((VEKey)key)? 1.0f : 0.0f;
+        case VE_KEY_TYPE_MOUSE:
+            return Input::isDown((VEMouseBtn)key)? 1.0f : 0.0f;
+        case VE_KEY_TYPE_GAMEPAD_BTN:
+            return Input::isDown((VEGamepadBtn)key)? 1.0f : 0.0f;
+        case VE_KEY_TYPE_GAMEPAD_AXIS:
+            return Input::getAxis((VEGamepadAxis)key);
+        default:
+            return 0.0f;
+        }
+    }
+
     bool isAxis() const
     {
         return keyType == VE_KEY_TYPE_GAMEPAD_AXIS;

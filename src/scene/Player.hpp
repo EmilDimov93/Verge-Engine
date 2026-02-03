@@ -36,45 +36,15 @@ public:
     {
         VehicleInputState vis{};
 
-        if (keybinds.throttle.isAxis())
-        {
-            vis.throttle = keybinds.throttle.getAxis();
-        }
-        else
-        {
-            if (keybinds.throttle.isDown())
-                vis.throttle = 1.0f;
-            else
-                vis.throttle = 0.0f;
-        }
+        vis.throttle = keybinds.throttle.getValue();
 
-        if (keybinds.brake.isAxis())
-        {
-            vis.brake = keybinds.brake.getAxis();
-        }
-        else
-        {
-            if (keybinds.brake.isDown())
-                vis.brake = 1.0f;
-            else
-                vis.brake = 0.0f;
-        }
+        vis.brake = keybinds.brake.getValue();
 
-        if(keybinds.handbrake.isAxis())
-        {
-            vis.handbrake = keybinds.handbrake.getAxis() > 0;
-        }
-        else
-        {
-            vis.handbrake = keybinds.handbrake.isDown();
-        }
+        vis.handbrake = keybinds.handbrake.getValue() > 0;
 
-        vis.clutch = keybinds.clutch.isAxis() ? keybinds.clutch.getAxis() : (keybinds.clutch.isDown() ? 1.0f : 0.0f);
+        vis.clutch = keybinds.clutch.getValue();
 
-        float rightSteerValue = keybinds.steerRight.isAxis() ? keybinds.steerRight.getAxis() : (keybinds.steerRight.isDown() ? 1.0f : 0.0f);
-        float leftSteerValue = keybinds.steerLeft.isAxis() ? keybinds.steerLeft.getAxis() : (keybinds.steerLeft .isDown()  ? 1.0f : 0.0f);
-
-        vis.steer = rightSteerValue - leftSteerValue;
+        vis.steer = keybinds.steerRight.getValue() - keybinds.steerLeft.getValue();
 
         if (!keybinds.shiftUp.isAxis() && !keybinds.shiftDown.isAxis())
         {

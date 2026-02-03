@@ -17,7 +17,7 @@ public:
         {
             scene.tick(renderer.getFrameTime());
 
-            if(Input::isPressed(VE_GAMEPAD_BTN_A)){
+            if(Input::isDown(VE_GAMEPAD_BTN_A)){
                 scene.vehicle(car1).start();
             }
         }

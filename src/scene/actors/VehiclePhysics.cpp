@@ -15,10 +15,12 @@
 void Vehicle::start()
 {
     const float maxStarterSpeed = 300.0f;
-    if(rpm > maxStarterSpeed){
+    if(rpm > 2 * maxStarterSpeed){
         // Starter damage
     }
-    rpm = maxStarterSpeed;
+    if(rpm < maxStarterSpeed){
+        rpm += dt;
+    }
 }
 
 void Vehicle::stallAssist()

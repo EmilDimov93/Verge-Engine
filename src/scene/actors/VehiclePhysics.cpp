@@ -15,12 +15,9 @@
 void Vehicle::start()
 {
     const float maxStarterSpeed = 300.0f;
-    if(rpm > 2 * maxStarterSpeed){
-        // Starter damage
-    }
-    if(rpm < maxStarterSpeed){
-        rpm += dt;
-    }
+
+    if (rpm < maxStarterSpeed)
+        rpm = maxStarterSpeed;
 }
 
 void Vehicle::stallAssist()
@@ -29,9 +26,12 @@ void Vehicle::stallAssist()
     {
         vis.throttle = 0.0f;
     }
-    else if (rpm < idleRpm && vis.throttle < 0.001f / dt)
+    else if (rpm < idleRpm)
     {
-        vis.throttle = 0.001f / dt;
+        vis.clutch = 1.0f;
+        const float minThrottle = 0.0001f * (idleRpm - rpm) / dt;
+        if(vis.throttle < minThrottle)
+            vis.throttle = minThrottle;
     }
 }
 
@@ -60,23 +60,19 @@ float Vehicle::getTorque()
 
 float Vehicle::calcFDriveMag()
 {
-    float engineTorque = getTorque() * vis.throttle;
+    float engineTorqueNm = getTorque() * vis.throttle;
 
-    {
-        float frictionTorque = ENGINE_FRICTION_COEFF * rpm;
-        float angularAccel = (engineTorque - frictionTorque) / ENGINE_INERTIA;
-        rpm += angularAccel * dt * RADPS_TO_RPM_CONVERSION_FACTOR;
-    }
+    float frictionTorqueNm = ENGINE_FRICTION_COEFF * rpm;
+    float angularAccel = (engineTorqueNm - frictionTorqueNm) / ENGINE_INERTIA;
+    rpm += angularAccel * dt * RADPS_TO_RPM_CONVERSION_FACTOR;
 
-    {
-        float wheelRpm = (fabs(forwardSpeedMps) / wheelRadiusM) * RADPS_TO_RPM_CONVERSION_FACTOR;
+    float wheelRpm = (fabs(forwardSpeedMps) / wheelRadiusM) * RADPS_TO_RPM_CONVERSION_FACTOR;
 
-        float connectedClutchRpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
+    float connectedClutchRpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
 
-        rpm = vis.clutch * rpm + (1.0f - vis.clutch) * connectedClutchRpm;
-    }
+    rpm = vis.clutch * rpm + (1.0f - vis.clutch) * (connectedClutchRpm + rpm) / 2;
 
-    float wheelTorque = (1.0f - vis.clutch) * engineTorque * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
+    float wheelTorque = (1.0f - vis.clutch) * engineTorqueNm * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
 
     return wheelTorque / wheelRadiusM;
 }
@@ -218,11 +214,11 @@ void Vehicle::shiftDown()
 
 void Vehicle::updateTransmission()
 {
-    if(vis.clutch == 1.0f)
-        return;
-    
     if (transmissionType == VE_TRANSMISSION_TYPE_AUTOMATIC)
     {
+        if (vis.clutch == 1.0f)
+            return;
+        
         // Temporary(unstable)
         if (rpm >= maxRpm - 500)
         {

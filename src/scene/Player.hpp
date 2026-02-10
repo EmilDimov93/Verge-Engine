@@ -44,7 +44,7 @@ public:
 
         vis.clutch = keybinds.clutch.getValue();
 
-        vis.steer = keybinds.steerRight.getValue() - keybinds.steerLeft.getValue();
+        vis.steer = keybinds.steerLeft.getValue() - keybinds.steerRight.getValue();
 
         if (!keybinds.shiftUp.isAxis() && !keybinds.shiftDown.isAxis())
         {

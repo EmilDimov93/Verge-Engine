@@ -17,7 +17,7 @@ public:
         {
             scene.tick(renderer.getFrameTime());
 
-            if(Input::isDown(VE_GAMEPAD_BTN_A)){
+            if(Input::isDown(VE_KEY_Q) || Input::isDown(VE_GAMEPAD_BTN_A)){
                 scene.vehicle(car1).start();
             }
         }
@@ -42,7 +42,7 @@ private:
         carInfo.maxRpm = 7000;
         carInfo.idleRpm = 800;
         carInfo.gearCount = 8;
-        carInfo.transmissionType = VE_TRANSMISSION_TYPE_MANUAL;
+        carInfo.transmissionType = VE_TRANSMISSION_TYPE_AUTOMATIC;
         float ratios[8] = {5.519f, 3.184f, 2.050f, 1.492f, 1.235f, 1.000f, 0.801f, 0.673f};
         carInfo.pGearRatios = ratios;
         carInfo.finalDriveRatio = 3.2f;
@@ -58,16 +58,26 @@ private:
         
         // Player
         PlayerKeybinds player1Keybinds{};
-        player1Keybinds.throttle = VE_GAMEPAD_AXIS_RT;
+        /*player1Keybinds.throttle = VE_GAMEPAD_AXIS_RT;
         player1Keybinds.brake = VE_GAMEPAD_BTN_LB;
         player1Keybinds.handbrake = VE_GAMEPAD_BTN_RB;
         player1Keybinds.clutch = VE_GAMEPAD_AXIS_LT;
-        player1Keybinds.steerLeft = VE_GAMEPAD_AXIS_LX_POS;
-        player1Keybinds.steerRight = VE_GAMEPAD_AXIS_LX_NEG;
+        player1Keybinds.steerLeft = VE_GAMEPAD_AXIS_LX_NEG;
+        player1Keybinds.steerRight = VE_GAMEPAD_AXIS_LX_POS;
         player1Keybinds.shiftUp = VE_GAMEPAD_BTN_B;
-        player1Keybinds.shiftDown = VE_GAMEPAD_BTN_X;
+        player1Keybinds.shiftDown = VE_GAMEPAD_BTN_X;*/
+        player1Keybinds.throttle = VE_KEY_W;
+        player1Keybinds.brake = VE_KEY_S;
+        player1Keybinds.handbrake = VE_KEY_SPACE;
+        player1Keybinds.clutch = VE_KEY_E;
+        player1Keybinds.steerLeft = VE_KEY_A;
+        player1Keybinds.steerRight = VE_KEY_D;
+        player1Keybinds.shiftUp = VE_MOUSE_BTN_RIGHT;
+        player1Keybinds.shiftDown = VE_MOUSE_BTN_LEFT;
 
         player1 = scene.addPlayer(car1, player1Keybinds, {renderer.getAspectRatio()});
+
+        scene.vehicle(car1).setCruiseControlTargetKmph(100.0f);
 
         // Prop
         scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});

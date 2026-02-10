@@ -44,10 +44,13 @@ void Vehicle::cruiseControl()
         return;
 
     if (forwardSpeedMps < cruiseControlTargetMps)
-        vis.throttle = (vis.throttle == 0 ? 0.001f / dt : vis.throttle);
+        vis.throttle = (vis.throttle == 0 ? 0.01f * (cruiseControlTargetMps - forwardSpeedMps) / dt : vis.throttle);
 
     else if (forwardSpeedMps > cruiseControlTargetMps)
         vis.brake = 1.0f;
+
+    if(vis.throttle > 1.0f)
+        vis.throttle = 1.0f;
 }
 
 float Vehicle::getTorque()

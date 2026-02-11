@@ -154,6 +154,11 @@ public:
         return volume;
     }
 
+    void setRenderDistance(float renderDistance){
+        if(renderDistance >= 0)
+            camera.setZFar(renderDistance);
+    }
+
 private:
     const PlayerHandle handle;
 

@@ -93,3 +93,8 @@ Rotation3 Camera::getRotation() const
 {
     return rotation;
 }
+
+void Camera::setZFar(float zFar)
+{
+    this->zFar = zFar;
+}

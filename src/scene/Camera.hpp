@@ -30,6 +30,8 @@ public:
     Position3 getPosition() const;
     Rotation3 getRotation() const;
 
+    void setZFar(float zFar);
+
 private:
     Position3 position;
     Rotation3 rotation = {0, PI / 2, 0};

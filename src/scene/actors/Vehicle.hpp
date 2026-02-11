@@ -17,6 +17,13 @@ enum VETransmissionType
     VE_TRANSMISSION_TYPE_AUTOMATIC
 };
 
+enum VEDrivetrainType
+{
+    VE_DRIVETRAIN_TYPE_AWD,
+    VE_DRIVETRAIN_TYPE_FWD,
+    VE_DRIVETRAIN_TYPE_RWD
+};
+
 struct VE_STRUCT_VEHICLE_CREATE_INFO
 {
     MeshHandle bodyMeshHandle = INVALID_MESH_HANDLE;
@@ -42,6 +49,8 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     float tireGrip = 1.0f;
     float idleRpm = 800.f;
     float camberRad = 0;
+
+    VEDrivetrainType drivetrainType = VE_DRIVETRAIN_TYPE_AWD;
 
     std::string engineAudioFileName;
 };
@@ -167,6 +176,8 @@ private:
     float maxSteeringAngleRad;
     float tireGrip;
     float camberRad;
+
+    VEDrivetrainType drivetrainType;
 
     // Runtime
     VehicleInputState vis;

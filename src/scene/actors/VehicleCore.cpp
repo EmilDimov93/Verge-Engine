@@ -66,6 +66,8 @@ Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHI
 
     transmissionType = info.transmissionType;
 
+    drivetrainType = info.drivetrainType;
+
     if (info.brakingForce >= 0)
     {
         brakingForce = info.brakingForce;

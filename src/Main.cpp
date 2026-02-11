@@ -53,6 +53,7 @@ private:
         carInfo.brakingForce = 14700;
         carInfo.tireGrip = 2.5f;
         carInfo.camberRad = (PI / 180);
+        carInfo.drivetrainType = VE_DRIVETRAIN_TYPE_FWD;
         carInfo.engineAudioFileName = "4k.wav";
         car1 = scene.addVehicle(carInfo, {{50.0f, 0, -40.0f}, {0, -PI / 4, 0}});
         

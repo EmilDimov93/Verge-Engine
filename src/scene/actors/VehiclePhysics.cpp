@@ -82,7 +82,7 @@ float Vehicle::calcFDriveMag()
 
 void Vehicle::calcForces(const Environment &environment)
 {
-    glm::mat4 R =
+    const glm::mat4 R =
         glm::rotate(glm::mat4(1.0f), (float)transform.rotation.yaw, glm::vec3(0, 1, 0)) *
         glm::rotate(glm::mat4(1.0f), (float)transform.rotation.pitch, glm::vec3(1, 0, 0)) *
         glm::rotate(glm::mat4(1.0f), (float)transform.rotation.roll, glm::vec3(0, 0, 1));

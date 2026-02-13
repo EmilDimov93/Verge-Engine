@@ -155,11 +155,13 @@ struct AudioData
     Position3 playerPosition;
     float playerYawRad;
     float volume;
-    const std::vector<VEAudioRequest> &audioRequests;
+    const std::vector<VEAudioRequest> &engineAudioRequests;
+    const std::vector<VEAudioRequest> &oneShotAudioRequests;
 
     AudioData(Position3 playerPosition,
               float playerYawRad,
               float volume,
-              const std::vector<VEAudioRequest> &audioRequests)
-        : playerPosition(playerPosition), playerYawRad(playerYawRad), volume(volume), audioRequests(audioRequests) {}
+              const std::vector<VEAudioRequest> &engineAudioRequests,
+              const std::vector<VEAudioRequest> &oneShotAudioRequests)
+        : playerPosition(playerPosition), playerYawRad(playerYawRad), volume(volume), engineAudioRequests(engineAudioRequests), oneShotAudioRequests(oneShotAudioRequests) {}
 };

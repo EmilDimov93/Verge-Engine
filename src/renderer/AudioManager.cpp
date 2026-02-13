@@ -34,7 +34,38 @@ float AudioManager::volumeToGain(float volume) const
 
 void AudioManager::tick(AudioData audioData)
 {
-    for (const VEAudioRequest &req : audioData.audioRequests)
+    for (const VEAudioRequest &req : audioData.oneShotAudioRequests)
+    {
+        ma_sound sound{};
+        ma_result playResult = ma_engine_play_sound(&miniaudio, "sample.mp3", NULL);
+
+        /*
+        ma_sound_set_pitch(&sound, req.pitch);
+
+        float dx = req.position.x - audioData.playerPosition.x;
+        float dy = req.position.y - audioData.playerPosition.y;
+        float dz = req.position.z - audioData.playerPosition.z;
+
+        float distance = std::sqrt(dx * dx + dy * dy + dz * dz);
+
+        float gain = volumeToGain(audioData.volume) * attenuation(distance);
+
+        ma_sound_set_volume(&sound, gain);
+
+        float fx = cosf(audioData.playerYawRad);
+        float fz = sinf(audioData.playerYawRad);
+
+        float cross = fx * dz - fz * dx;
+
+        float distanceXZ = std::sqrt(dx * dx + dz * dz);
+        float pan = (distanceXZ > 1e-6f) ? (cross / distanceXZ) : 0.0f;
+        pan = clamp(pan, -1.0f, 1.0f);
+
+        ma_sound_set_pan(&sound, pan);
+        */
+    }
+
+    for (const VEAudioRequest &req : audioData.engineAudioRequests)
     {
         bool foundAudio = false;
         for (VEAudio &audio : audios)
@@ -60,7 +91,7 @@ void AudioManager::tick(AudioData audioData)
 
                 float cross = fx * dz - fz * dx;
 
-                float distanceXZ = std::sqrt(dx*dx + dz*dz);
+                float distanceXZ = std::sqrt(dx * dx + dz * dz);
                 float pan = (distanceXZ > 1e-6f) ? (cross / distanceXZ) : 0.0f;
                 pan = clamp(pan, -1.0f, 1.0f);
 
@@ -91,7 +122,7 @@ void AudioManager::tick(AudioData audioData)
             ma_sound_start(&audios.back().sound);
 
             ma_sound_set_volume(&audios.back().sound, 1.0f);
-            ma_sound_set_pitch(&audios.back().sound, 1.0f);
+            ma_sound_set_pitch(&audios.back().sound, req.pitch);
         }
     }
 }

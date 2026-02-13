@@ -68,7 +68,10 @@ private:
     Environment environment;
 
     // Audio
-    std::vector<VEAudioRequest> audioRequests;
+    std::vector<VEAudioRequest> engineAudioRequests;
+    public: // Temporary
+    std::vector<VEAudioRequest> oneShotAudioRequests;
+    private: // Temporary
 
     MeshHandle loadOBJ(const std::string &filePath);
     MeshHandle loadFBX(const std::string &filePath);

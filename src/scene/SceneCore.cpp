@@ -82,6 +82,8 @@ Trigger &Scene::trigger(TriggerHandle handle)
 
 void Scene::tick(ve_time_t frameTime)
 {
+    oneShotAudioRequests.clear();
+
     dt = frameTime;
 
     for (Vehicle &vehicle : vehicles)
@@ -146,7 +148,7 @@ void Scene::tick(ve_time_t frameTime)
         setModelMat(vehicle.getWheelBRMeshInstanceHandle(), vehicle.getWheelBRMat());
     }
 
-    for (VEAudioRequest &req : audioRequests)
+    for (VEAudioRequest &req : engineAudioRequests)
     {
         Vehicle v = vehicle(req.vehicleHandle);
         req.pitch = v.getRpm() / v.getMaxRpm();

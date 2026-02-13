@@ -17,7 +17,18 @@ public:
         {
             scene.tick(renderer.getFrameTime());
 
-            if(Input::isDown(VE_KEY_Q) || Input::isDown(VE_GAMEPAD_BTN_A)){
+            if (Input::isPressed(VE_KEY_L))
+            {
+                VEAudioRequest sampleAudio;
+                sampleAudio.fileName = "sample.mp3";
+                sampleAudio.position = {0, 0, 0};
+                sampleAudio.pitch = 1.0f;
+
+                scene.oneShotAudioRequests.push_back(sampleAudio);
+            }
+
+            if (Input::isDown(VE_KEY_Q) || Input::isDown(VE_GAMEPAD_BTN_A))
+            {
                 scene.vehicle(car1).start();
             }
         }
@@ -56,7 +67,7 @@ private:
         carInfo.drivetrainType = VE_DRIVETRAIN_TYPE_FWD;
         carInfo.engineAudioFileName = "4k.wav";
         car1 = scene.addVehicle(carInfo, {{50.0f, 0, -40.0f}, {0, -PI / 4, 0}});
-        
+
         // Player
         PlayerKeybinds player1Keybinds{};
         /*player1Keybinds.throttle = VE_GAMEPAD_AXIS_RT;

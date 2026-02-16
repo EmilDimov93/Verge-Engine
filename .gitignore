@@ -2,7 +2,6 @@
 build/
 logo/
 early_dev/
-ext/soloud
 desktop.ini
 git.ps1
 conventions.md

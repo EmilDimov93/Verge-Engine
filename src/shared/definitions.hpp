@@ -142,11 +142,19 @@ constexpr float AvoidZero(float x)
     return (x == 0.0f) ? FLT_TRUE_MIN : x;
 }
 
-struct VEAudioRequest
+struct VEEngineAudioRequest
 {
     VehicleHandle vehicleHandle;
     std::string fileName;
     float pitch;
+    Position3 position;
+};
+
+struct VEAudioRequest
+{
+    std::string fileName;
+    float pitch;
+    bool is3D;
     Position3 position;
 };
 
@@ -155,13 +163,13 @@ struct AudioData
     Position3 playerPosition;
     float playerYawRad;
     float volume;
-    const std::vector<VEAudioRequest> &engineAudioRequests;
+    const std::vector<VEEngineAudioRequest> &engineAudioRequests;
     const std::vector<VEAudioRequest> &oneShotAudioRequests;
 
     AudioData(Position3 playerPosition,
               float playerYawRad,
               float volume,
-              const std::vector<VEAudioRequest> &engineAudioRequests,
+              const std::vector<VEEngineAudioRequest> &engineAudioRequests,
               const std::vector<VEAudioRequest> &oneShotAudioRequests)
         : playerPosition(playerPosition), playerYawRad(playerYawRad), volume(volume), engineAudioRequests(engineAudioRequests), oneShotAudioRequests(oneShotAudioRequests) {}
 };

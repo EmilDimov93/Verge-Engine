@@ -3,16 +3,23 @@
 
 #pragma once
 
-#include "../../ext/miniaudio/miniaudio.h"
-
 #include "../shared/definitions.hpp"
+
+#include "../../ext/miniaudio/miniaudio.h"
 
 #include <deque>
 
-struct VEAudio
+struct VEEngineAudio
 {
     VehicleHandle vehicleHandle;
     ma_sound sound;
+};
+
+struct VEAudio
+{
+    ma_sound sound;
+    bool is3D;
+    Position3 position;
 };
 
 class AudioManager
@@ -25,7 +32,8 @@ public:
     ~AudioManager();
 
 private:
-    std::deque<VEAudio> audios;
+    std::deque<VEEngineAudio> engineAudios;
+    std::deque<VEAudio> oneShotAudios;
 
     ma_engine miniaudio;
 

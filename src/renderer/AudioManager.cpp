@@ -36,39 +36,68 @@ void AudioManager::tick(AudioData audioData)
 {
     for (const VEAudioRequest &req : audioData.oneShotAudioRequests)
     {
-        ma_sound sound{};
-        ma_result playResult = ma_engine_play_sound(&miniaudio, "sample.mp3", NULL);
+        oneShotAudios.emplace_back();
+        oneShotAudios.back().is3D = req.is3D;
+        oneShotAudios.back().position = req.position;
 
-        /*
-        ma_sound_set_pitch(&sound, req.pitch);
+        ma_result res = ma_sound_init_from_file(&miniaudio, req.fileName.c_str(), MA_SOUND_FLAG_STREAM, NULL, NULL, &oneShotAudios.back().sound);
+        if (res != MA_SUCCESS)
+        {
+            if (!req.fileName.empty())
+                Log::add('M', 100);
 
-        float dx = req.position.x - audioData.playerPosition.x;
-        float dy = req.position.y - audioData.playerPosition.y;
-        float dz = req.position.z - audioData.playerPosition.z;
+            oneShotAudios.pop_back();
 
-        float distance = std::sqrt(dx * dx + dy * dy + dz * dz);
+            continue;
+        }
 
-        float gain = volumeToGain(audioData.volume) * attenuation(distance);
-
-        ma_sound_set_volume(&sound, gain);
-
-        float fx = cosf(audioData.playerYawRad);
-        float fz = sinf(audioData.playerYawRad);
-
-        float cross = fx * dz - fz * dx;
-
-        float distanceXZ = std::sqrt(dx * dx + dz * dz);
-        float pan = (distanceXZ > 1e-6f) ? (cross / distanceXZ) : 0.0f;
-        pan = clamp(pan, -1.0f, 1.0f);
-
-        ma_sound_set_pan(&sound, pan);
-        */
+        ma_sound_start(&oneShotAudios.back().sound);
+        ma_sound_set_pitch(&oneShotAudios.back().sound, req.pitch);
     }
 
-    for (const VEAudioRequest &req : audioData.engineAudioRequests)
+    for (auto iterator = oneShotAudios.begin(); iterator != oneShotAudios.end();)
+    {
+        VEAudio &audio = *iterator;
+
+        if (!ma_sound_is_playing(&audio.sound))
+        {
+            ma_sound_uninit(&audio.sound);
+            iterator = oneShotAudios.erase(iterator);
+        }
+        else
+        {
+            if (audio.is3D)
+            {
+                float dx = audio.position.x - audioData.playerPosition.x;
+                float dy = audio.position.y - audioData.playerPosition.y;
+                float dz = audio.position.z - audioData.playerPosition.z;
+
+                float distance = std::sqrt(dx * dx + dy * dy + dz * dz);
+
+                float gain = volumeToGain(audioData.volume) * attenuation(distance);
+
+                ma_sound_set_volume(&audio.sound, gain);
+
+                float fx = cosf(audioData.playerYawRad);
+                float fz = sinf(audioData.playerYawRad);
+
+                float cross = fx * dz - fz * dx;
+
+                float distanceXZ = std::sqrt(dx * dx + dz * dz);
+                float pan = (distanceXZ > 1e-6f) ? (cross / distanceXZ) : 0.0f;
+                pan = clamp(pan, -1.0f, 1.0f);
+
+                ma_sound_set_pan(&audio.sound, pan);
+            }
+
+            ++iterator;
+        }
+    }
+
+    for (const VEEngineAudioRequest &req : audioData.engineAudioRequests)
     {
         bool foundAudio = false;
-        for (VEAudio &audio : audios)
+        for (VEEngineAudio &audio : engineAudios)
         {
             if (req.vehicleHandle == audio.vehicleHandle)
             {
@@ -103,33 +132,37 @@ void AudioManager::tick(AudioData audioData)
 
         if (!foundAudio)
         {
-            VEAudio newAudio;
+            VEEngineAudio newAudio;
             newAudio.vehicleHandle = req.vehicleHandle;
-            audios.push_back(newAudio);
+            engineAudios.push_back(newAudio);
 
-            ma_result res = ma_sound_init_from_file(&miniaudio, req.fileName.c_str(), MA_SOUND_FLAG_STREAM, NULL, NULL, &audios.back().sound);
+            ma_result res = ma_sound_init_from_file(&miniaudio, req.fileName.c_str(), MA_SOUND_FLAG_STREAM, NULL, NULL, &engineAudios.back().sound);
             if (res != MA_SUCCESS)
             {
                 if (!req.fileName.empty())
                     Log::add('M', 100);
 
-                audios.pop_back();
+                engineAudios.pop_back();
 
                 continue;
             }
 
-            ma_sound_set_looping(&audios.back().sound, MA_TRUE);
-            ma_sound_start(&audios.back().sound);
+            ma_sound_set_looping(&engineAudios.back().sound, MA_TRUE);
+            ma_sound_start(&engineAudios.back().sound);
 
-            ma_sound_set_volume(&audios.back().sound, 1.0f);
-            ma_sound_set_pitch(&audios.back().sound, req.pitch);
+            ma_sound_set_volume(&engineAudios.back().sound, 1.0f);
+            ma_sound_set_pitch(&engineAudios.back().sound, req.pitch);
         }
     }
 }
 
 AudioManager::~AudioManager()
 {
-    for (VEAudio &audio : audios)
+    for (VEEngineAudio &audio : engineAudios)
+    {
+        ma_sound_uninit(&audio.sound);
+    }
+    for (VEAudio &audio : oneShotAudios)
     {
         ma_sound_uninit(&audio.sound);
     }

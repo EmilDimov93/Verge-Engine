@@ -45,6 +45,9 @@ public:
     void setGravity(float gravity);
     void setBackgroundColor(ve_color_t backgroundColor);
 
+    void playAudio2D(std::string fileName, float pitch);
+    void playAudio3D(std::string fileName, float pitch, Position3 position);
+
 private:
     ve_time_t dt;
 
@@ -68,10 +71,8 @@ private:
     Environment environment;
 
     // Audio
-    std::vector<VEAudioRequest> engineAudioRequests;
-    public: // Temporary
+    std::vector<VEEngineAudioRequest> engineAudioRequests;
     std::vector<VEAudioRequest> oneShotAudioRequests;
-    private: // Temporary
 
     MeshHandle loadOBJ(const std::string &filePath);
     MeshHandle loadFBX(const std::string &filePath);

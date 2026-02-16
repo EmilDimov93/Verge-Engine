@@ -108,7 +108,7 @@ VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Trans
 
     if (!info.engineAudioFileName.empty())
     {
-        VEAudioRequest newAudioRequest;
+        VEEngineAudioRequest newAudioRequest;
         newAudioRequest.vehicleHandle = handle;
         newAudioRequest.fileName = info.engineAudioFileName;
         newAudioRequest.position = transform.position;

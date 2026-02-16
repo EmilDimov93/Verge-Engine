@@ -19,12 +19,7 @@ public:
 
             if (Input::isPressed(VE_KEY_L))
             {
-                VEAudioRequest sampleAudio;
-                sampleAudio.fileName = "sample.mp3";
-                sampleAudio.position = {0, 0, 0};
-                sampleAudio.pitch = 1.0f;
-
-                scene.oneShotAudioRequests.push_back(sampleAudio);
+                scene.playAudio2D("sample.mp3", 1.0f);
             }
 
             if (Input::isDown(VE_KEY_Q) || Input::isDown(VE_GAMEPAD_BTN_A))

@@ -131,8 +131,9 @@ void Scene::tick(ve_time_t frameTime)
         }
 
         float heightAvg = (surfaceHeightAtFLPOI + surfaceHeightAtFRPOI + surfaceHeightAtBLPOI + surfaceHeightAtBRPOI) / 4;
-        
-        if(vehicle.getTransform().position.y < heightAvg){
+
+        if (vehicle.getTransform().position.y < heightAvg)
+        {
             vehicle.setHeight(heightAvg);
             glm::vec3 v = vehicle.getVelocityVector();
             if (v.y < 0.0f)
@@ -148,7 +149,7 @@ void Scene::tick(ve_time_t frameTime)
         setModelMat(vehicle.getWheelBRMeshInstanceHandle(), vehicle.getWheelBRMat());
     }
 
-    for (VEAudioRequest &req : engineAudioRequests)
+    for (VEEngineAudioRequest &req : engineAudioRequests)
     {
         Vehicle v = vehicle(req.vehicleHandle);
         req.pitch = v.getRpm() / v.getMaxRpm();
@@ -423,4 +424,14 @@ void Scene::setGravity(float gravityMps2)
 void Scene::setBackgroundColor(ve_color_t backgroundColor)
 {
     environment.backgroundColor = backgroundColor;
+}
+
+void Scene::playAudio2D(std::string fileName, float pitch)
+{
+    oneShotAudioRequests.emplace_back(VEAudioRequest{fileName, pitch, false, {}});
+}
+
+void Scene::playAudio3D(std::string fileName, float pitch, Position3 position)
+{
+    oneShotAudioRequests.emplace_back(VEAudioRequest{fileName, pitch, true, position});
 }

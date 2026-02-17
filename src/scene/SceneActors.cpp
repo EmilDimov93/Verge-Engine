@@ -33,7 +33,7 @@ AudioData Scene::getAudioData(PlayerHandle playerHandle)
         {
             if (player->getHandle() == playerHandle)
             {
-                AudioData audioData(player->getCameraPosition(), player->getCameraYaw(), player->getVolume(), engineAudioRequests, oneShotAudioRequests);
+                AudioData audioData(player->getCameraPosition(), player->getCameraYaw(), player->getVolume(), engineAudioRequests, layeredEngineAudioRequests, oneShotAudioRequests);
                 return audioData;
             }
         }
@@ -114,6 +114,18 @@ VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Trans
         newAudioRequest.position = transform.position;
 
         engineAudioRequests.push_back(newAudioRequest);
+    }
+    
+    if (info.layeredEngineAudioFileNames)
+    {
+        VELayeredEngineAudioRequest newAudioRequest;
+        newAudioRequest.vehicleHandle = handle;
+        newAudioRequest.position = transform.position;
+
+        // Error if sizeof(layeredEngineAudioFileNames) < info.gearCount
+        newAudioRequest.fileNames.assign(info.layeredEngineAudioFileNames, info.layeredEngineAudioFileNames + info.gearCount);
+
+        layeredEngineAudioRequests.push_back(newAudioRequest);
     }
 
     float maxX = -std::numeric_limits<float>::infinity();

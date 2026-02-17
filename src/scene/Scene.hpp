@@ -72,6 +72,7 @@ private:
 
     // Audio
     std::vector<VEEngineAudioRequest> engineAudioRequests;
+    std::vector<VELayeredEngineAudioRequest> layeredEngineAudioRequests;
     std::vector<VEAudioRequest> oneShotAudioRequests;
 
     MeshHandle loadOBJ(const std::string &filePath);

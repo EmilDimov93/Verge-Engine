@@ -61,6 +61,8 @@ private:
         carInfo.camberRad = (PI / 180);
         carInfo.drivetrainType = VE_DRIVETRAIN_TYPE_FWD;
         carInfo.engineAudioFileName = "4k.wav";
+        std::string layeredEngineAudioFileNames[8] = {"4k.wav", "4k.wav", "4k.wav", "4k.wav", "4k.wav", "4k.wav", "4k.wav", "4k.wav"};
+        carInfo.layeredEngineAudioFileNames = layeredEngineAudioFileNames;
         car1 = scene.addVehicle(carInfo, {{50.0f, 0, -40.0f}, {0, -PI / 4, 0}});
 
         // Player

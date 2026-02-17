@@ -53,6 +53,7 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     VEDrivetrainType drivetrainType = VE_DRIVETRAIN_TYPE_AWD;
 
     std::string engineAudioFileName;
+    std::string *layeredEngineAudioFileNames;
 };
 
 struct WheelState

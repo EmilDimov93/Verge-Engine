@@ -34,6 +34,10 @@ float AudioManager::volumeToGain(float volume) const
 
 void AudioManager::tick(AudioData audioData)
 {
+    for(const VELayeredEngineAudioRequest &req : audioData.layeredEngineAudioRequests){
+        // Not implemented
+    }
+
     for (const VEAudioRequest &req : audioData.oneShotAudioRequests)
     {
         oneShotAudios.emplace_back();
@@ -150,7 +154,7 @@ void AudioManager::tick(AudioData audioData)
             ma_sound_set_looping(&engineAudios.back().sound, MA_TRUE);
             ma_sound_start(&engineAudios.back().sound);
 
-            ma_sound_set_volume(&engineAudios.back().sound, 1.0f);
+            ma_sound_set_volume(&engineAudios.back().sound, 0.0f);
             ma_sound_set_pitch(&engineAudios.back().sound, req.pitch);
         }
     }

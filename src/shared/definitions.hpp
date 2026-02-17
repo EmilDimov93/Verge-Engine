@@ -150,6 +150,14 @@ struct VEEngineAudioRequest
     Position3 position;
 };
 
+struct VELayeredEngineAudioRequest
+{
+    VehicleHandle vehicleHandle;
+    std::vector<std::string> fileNames;
+    float pitch;
+    Position3 position;
+};
+
 struct VEAudioRequest
 {
     std::string fileName;
@@ -164,12 +172,14 @@ struct AudioData
     float playerYawRad;
     float volume;
     const std::vector<VEEngineAudioRequest> &engineAudioRequests;
+    const std::vector<VELayeredEngineAudioRequest> &layeredEngineAudioRequests;
     const std::vector<VEAudioRequest> &oneShotAudioRequests;
 
     AudioData(Position3 playerPosition,
               float playerYawRad,
               float volume,
               const std::vector<VEEngineAudioRequest> &engineAudioRequests,
+              const std::vector<VELayeredEngineAudioRequest> &layeredEngineAudioRequests,
               const std::vector<VEAudioRequest> &oneShotAudioRequests)
-        : playerPosition(playerPosition), playerYawRad(playerYawRad), volume(volume), engineAudioRequests(engineAudioRequests), oneShotAudioRequests(oneShotAudioRequests) {}
+        : playerPosition(playerPosition), playerYawRad(playerYawRad), volume(volume), engineAudioRequests(engineAudioRequests), layeredEngineAudioRequests(layeredEngineAudioRequests), oneShotAudioRequests(oneShotAudioRequests) {}
 };

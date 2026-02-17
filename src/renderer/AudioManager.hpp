@@ -15,6 +15,12 @@ struct VEEngineAudio
     ma_sound sound;
 };
 
+struct VELayeredEngineAudio
+{
+    VehicleHandle vehicleHandle;
+    std::vector<ma_sound> sounds;
+};
+
 struct VEAudio
 {
     ma_sound sound;

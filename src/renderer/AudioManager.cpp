@@ -34,8 +34,76 @@ float AudioManager::volumeToGain(float volume) const
 
 void AudioManager::tick(AudioData audioData)
 {
-    for(const VELayeredEngineAudioRequest &req : audioData.layeredEngineAudioRequests){
-        // Not implemented
+    for (const VELayeredEngineAudioRequest &req : audioData.layeredEngineAudioRequests)
+    {
+        bool foundAudio = false;
+        for (VELayeredEngineAudio &audio : layeredEngineAudios)
+        {
+            if (req.vehicleHandle == audio.vehicleHandle)
+            {
+                foundAudio = true;
+
+                float dx = req.position.x - audioData.playerPosition.x;
+                float dy = req.position.y - audioData.playerPosition.y;
+                float dz = req.position.z - audioData.playerPosition.z;
+
+                float distance = std::sqrt(dx * dx + dy * dy + dz * dz);
+
+                float gain = volumeToGain(audioData.volume) * attenuation(distance);
+
+                float fx = cosf(audioData.playerYawRad);
+                float fz = sinf(audioData.playerYawRad);
+
+                float cross = fx * dz - fz * dx;
+
+                float distanceXZ = std::sqrt(dx * dx + dz * dz);
+                float pan = (distanceXZ > 1e-6f) ? (cross / distanceXZ) : 0.0f;
+                pan = clamp(pan, -1.0f, 1.0f);
+
+                for (VEEngineAudioFile2 &file : audio.audioFiles)
+                {
+                    ma_sound_set_pitch(&file.sound, req.rpm / file.rpm);
+
+                    ma_sound_set_volume(&file.sound, req.rpm == 0 ? 0 : gain);
+
+                    ma_sound_set_pan(&file.sound, pan);
+                }
+
+                break;
+            }
+        }
+
+        if (!foundAudio)
+        {
+            VELayeredEngineAudio newAudio;
+            newAudio.vehicleHandle = req.vehicleHandle;
+            layeredEngineAudios.push_back(newAudio);
+
+            layeredEngineAudios.back().audioFiles.resize(req.audioFiles.size());
+
+            size_t i = 0;
+            for (const VEEngineAudioFile &file : req.audioFiles)
+            {
+                layeredEngineAudios.back().audioFiles[i].rpm = file.rpm;
+                ma_result res = ma_sound_init_from_file(&miniaudio, file.fileName.c_str(), MA_SOUND_FLAG_STREAM, NULL, NULL, &layeredEngineAudios.back().audioFiles[i].sound);
+                if (res != MA_SUCCESS)
+                {
+                    if (file.fileName.empty())
+                        Log::add('M', 100);
+
+                    engineAudios.pop_back();
+
+                    continue;
+                }
+                ma_sound_set_looping(&layeredEngineAudios.back().audioFiles[i].sound, MA_TRUE);
+                ma_sound_start(&layeredEngineAudios.back().audioFiles[i].sound);
+
+                ma_sound_set_volume(&layeredEngineAudios.back().audioFiles[i].sound, 0.0f);
+                ma_sound_set_pitch(&layeredEngineAudios.back().audioFiles[i].sound, 0.0f);
+
+                i++;
+            }
+        }
     }
 
     for (const VEAudioRequest &req : audioData.oneShotAudioRequests)
@@ -47,7 +115,7 @@ void AudioManager::tick(AudioData audioData)
         ma_result res = ma_sound_init_from_file(&miniaudio, req.fileName.c_str(), MA_SOUND_FLAG_STREAM, NULL, NULL, &oneShotAudios.back().sound);
         if (res != MA_SUCCESS)
         {
-            if (!req.fileName.empty())
+            if (req.fileName.empty())
                 Log::add('M', 100);
 
             oneShotAudios.pop_back();
@@ -143,7 +211,7 @@ void AudioManager::tick(AudioData audioData)
             ma_result res = ma_sound_init_from_file(&miniaudio, req.fileName.c_str(), MA_SOUND_FLAG_STREAM, NULL, NULL, &engineAudios.back().sound);
             if (res != MA_SUCCESS)
             {
-                if (!req.fileName.empty())
+                if (req.fileName.empty())
                     Log::add('M', 100);
 
                 engineAudios.pop_back();

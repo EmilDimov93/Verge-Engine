@@ -1,6 +1,8 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
+#define STB_IMAGE_IMPLEMENTATION
+
 #include "renderer/Renderer.hpp"
 #include "scene/Scene.hpp"
 
@@ -60,9 +62,9 @@ private:
         carInfo.tireGrip = 2.5f;
         carInfo.camberRad = (PI / 180);
         carInfo.drivetrainType = VE_DRIVETRAIN_TYPE_FWD;
-        carInfo.engineAudioFileName = "4k.wav";
-        std::string layeredEngineAudioFileNames[8] = {"4k.wav", "4k.wav", "4k.wav", "4k.wav", "4k.wav", "4k.wav", "4k.wav", "4k.wav"};
-        carInfo.layeredEngineAudioFileNames = layeredEngineAudioFileNames;
+        // carInfo.engineAudioFileName = "4k.wav";
+        // Temporary(testing)
+        carInfo.layeredEngineAudioFiles = {{"4k.wav", 1000}, {"4k.wav", 2000}, {"4k.wav", 3000}, {"4k.wav", 4000}, {"4k.wav", 5000}, {"4k.wav", 6000}, {"4k.wav", 7000}};
         car1 = scene.addVehicle(carInfo, {{50.0f, 0, -40.0f}, {0, -PI / 4, 0}});
 
         // Player

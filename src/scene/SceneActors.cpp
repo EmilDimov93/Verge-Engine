@@ -116,14 +116,12 @@ VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Trans
         engineAudioRequests.push_back(newAudioRequest);
     }
     
-    if (info.layeredEngineAudioFileNames)
+    if (!info.layeredEngineAudioFiles.empty())
     {
         VELayeredEngineAudioRequest newAudioRequest;
         newAudioRequest.vehicleHandle = handle;
         newAudioRequest.position = transform.position;
-
-        // Error if sizeof(layeredEngineAudioFileNames) < info.gearCount
-        newAudioRequest.fileNames.assign(info.layeredEngineAudioFileNames, info.layeredEngineAudioFileNames + info.gearCount);
+        newAudioRequest.audioFiles = info.layeredEngineAudioFiles;
 
         layeredEngineAudioRequests.push_back(newAudioRequest);
     }

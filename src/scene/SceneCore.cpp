@@ -156,6 +156,14 @@ void Scene::tick(ve_time_t frameTime)
         req.position = v.getTransform().position;
     }
 
+    for (VELayeredEngineAudioRequest &req : layeredEngineAudioRequests)
+    {
+        Vehicle v = vehicle(req.vehicleHandle);
+        req.rpm = v.getRpm();
+        req.maxRpm = v.getMaxRpm();
+        req.position = v.getTransform().position;
+    }
+
     for (std::unique_ptr<Controller> &controller : controllers)
     {
         if (Player *player = dynamic_cast<Player *>(controller.get()))

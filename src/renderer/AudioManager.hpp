@@ -15,10 +15,16 @@ struct VEEngineAudio
     ma_sound sound;
 };
 
+struct VEEngineAudioFile2
+{
+    ma_sound sound;
+    float rpm;
+};
+
 struct VELayeredEngineAudio
 {
     VehicleHandle vehicleHandle;
-    std::vector<ma_sound> sounds;
+    std::vector<VEEngineAudioFile2> audioFiles;
 };
 
 struct VEAudio
@@ -39,6 +45,7 @@ public:
 
 private:
     std::deque<VEEngineAudio> engineAudios;
+    std::deque<VELayeredEngineAudio> layeredEngineAudios;
     std::deque<VEAudio> oneShotAudios;
 
     ma_engine miniaudio;

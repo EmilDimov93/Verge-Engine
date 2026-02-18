@@ -150,11 +150,18 @@ struct VEEngineAudioRequest
     Position3 position;
 };
 
+struct VEEngineAudioFile
+{
+    std::string fileName;
+    float rpm;
+};
+
 struct VELayeredEngineAudioRequest
 {
     VehicleHandle vehicleHandle;
-    std::vector<std::string> fileNames;
-    float pitch;
+    std::vector<VEEngineAudioFile> audioFiles;
+    float rpm;
+    float maxRpm;
     Position3 position;
 };
 

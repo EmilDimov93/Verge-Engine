@@ -62,9 +62,9 @@ private:
         carInfo.tireGrip = 2.5f;
         carInfo.camberRad = (PI / 180);
         carInfo.drivetrainType = VE_DRIVETRAIN_TYPE_FWD;
-        // carInfo.engineAudioFileName = "4k.wav";
+        carInfo.engineAudioFileName = "4k.wav";
         // Temporary(testing)
-        carInfo.layeredEngineAudioFiles = {{"4k.wav", 1000}, {"4k.wav", 2000}, {"4k.wav", 3000}, {"4k.wav", 4000}, {"4k.wav", 5000}, {"4k.wav", 6000}, {"4k.wav", 7000}};
+        // carInfo.layeredEngineAudioFiles = {{"4k.wav", 1000}, {"4k.wav", 2000}, {"4k.wav", 3000}, {"4k.wav", 4000}, {"4k.wav", 5000}, {"4k.wav", 6000}, {"4k.wav", 7000}};
         car1 = scene.addVehicle(carInfo, {{50.0f, 0, -40.0f}, {0, -PI / 4, 0}});
 
         // Player
@@ -87,8 +87,6 @@ private:
         player1Keybinds.shiftDown = VE_MOUSE_BTN_LEFT;
 
         player1 = scene.addPlayer(car1, player1Keybinds, {renderer.getAspectRatio()});
-
-        scene.vehicle(car1).setCruiseControlTargetKmph(100.0f);
 
         // Prop
         scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});

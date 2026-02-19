@@ -43,10 +43,12 @@ void Vehicle::cruiseControl()
     if (cruiseControlTargetMps == 0)
         return;
 
-    if (forwardSpeedMps < cruiseControlTargetMps)
-        vis.throttle = (vis.throttle == 0 ? 0.01f * (cruiseControlTargetMps - forwardSpeedMps) / dt : vis.throttle);
+    if (forwardSpeedMps < cruiseControlTargetMps){
+        float minThrottle = 0.01f * (cruiseControlTargetMps - forwardSpeedMps) / dt;
+        vis.throttle = (minThrottle < vis.throttle ? vis.throttle : minThrottle);
+    }
 
-    else if (forwardSpeedMps > cruiseControlTargetMps)
+    else if (forwardSpeedMps > cruiseControlTargetMps && vis.throttle == 0)
         vis.brake = 1.0f;
 
     if(vis.throttle > 1.0f)

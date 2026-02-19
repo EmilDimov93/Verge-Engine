@@ -6,6 +6,8 @@
 #include "../shared/Mesh.hpp"
 #include "../shared/definitions.hpp"
 
+#include "../../ext/stb_image/stb_image.h"
+
 #include <vulkan/vulkan.h>
 #include <vector>
 
@@ -46,8 +48,8 @@ private:
     std::vector<MeshGPU> MeshGPUs;
     void createVertexBuffer(MeshGPU &MeshGPU, const std::vector<Vertex> &vertices);
     void createIndexBuffer(MeshGPU &MeshGPU, const std::vector<uint32_t> &indices);
-    void initMeshGPU(const Mesh& mesh);
-    void updateMeshGPU(MeshGPU& MeshGPU, const Mesh& mesh);
+    void initMeshGPU(const Mesh &mesh);
+    void updateMeshGPU(MeshGPU &MeshGPU, const Mesh &mesh);
 
     int currentFrame = 0;
 
@@ -88,6 +90,9 @@ private:
     std::vector<VkBuffer> modelDUniformBuffer;
     std::vector<VkDeviceMemory> modelDUniformBufferMemory;
 
+    std::vector<VkImage> textureImages;
+    std::vector<VkDeviceMemory> textureImageMemory;
+
     VkPipeline graphicsPipeline = VK_NULL_HANDLE;
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 
@@ -126,4 +131,8 @@ private:
 
     VkShaderModule createShaderModule(const std::vector<char> &code);
     int rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
+
+    stbi_uc *loadTextureFile(std::string fileName, int *width, int *height, VkDeviceSize *imageSize);
+    int createTexture(std::string fileName);
+    VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory * imageMemory);
 };

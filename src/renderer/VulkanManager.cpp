@@ -166,6 +166,64 @@ stbi_uc *VulkanManager::loadTextureFile(std::string fileName, int *width, int *h
     return image;
 }
 
+VkResult copyImageBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkImage image, uint32_t width, uint32_t height)
+{
+    VkCommandBufferAllocateInfo allocInfo = {
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+        .commandPool = transferCommandPool,
+        .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        .commandBufferCount = 1};
+
+    VkCommandBuffer transferCommandBuffer;
+
+    VkResult res = vkAllocateCommandBuffers(device, &allocInfo, &transferCommandBuffer);
+    if (res != VK_SUCCESS)
+        return res;
+
+    VkCommandBufferBeginInfo beginInfo = {
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+        .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+    };
+
+    res = vkBeginCommandBuffer(transferCommandBuffer, &beginInfo);
+    if (res != VK_SUCCESS)
+        return res;
+
+    VkBufferImageCopy imageRegion = {};
+    imageRegion.bufferOffset = 0;
+    imageRegion.bufferRowLength = 0;
+    imageRegion.bufferImageHeight = 0;
+    imageRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    imageRegion.imageSubresource.mipLevel = 0;
+    imageRegion.imageSubresource.baseArrayLayer = 0;
+    imageRegion.imageSubresource.layerCount = 1;
+    imageRegion.imageOffset = {0, 0, 0};
+    imageRegion.imageExtent = {width, height, 1};
+
+    vkCmdCopyBufferToImage(transferCommandBuffer, srcBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageRegion);
+
+    res = vkEndCommandBuffer(transferCommandBuffer);
+    if (res != VK_SUCCESS)
+        return res;
+
+    VkSubmitInfo submitInfo = {
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .commandBufferCount = 1,
+        .pCommandBuffers = &transferCommandBuffer};
+
+    res = vkQueueSubmit(transferQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    if (res != VK_SUCCESS)
+        return res;
+
+    res = vkQueueWaitIdle(transferQueue);
+    if (res != VK_SUCCESS)
+        return res;
+
+    vkFreeCommandBuffers(device, transferCommandPool, 1, &transferCommandBuffer);
+
+    return VK_SUCCESS;
+}
+
 int VulkanManager::createTexture(std::string fileName)
 {
     int width, height;
@@ -778,7 +836,7 @@ void VulkanManager::createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags buf
     vkCheck(vkBindBufferMemory(device, *buffer, *bufferMemory, 0), {'V', 218});
 }
 
-VkResult copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBufer, VkBuffer dstBuffer, VkDeviceSize bufferSize)
+VkResult copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize)
 {
     VkResult res;
 
@@ -808,7 +866,7 @@ VkResult copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transf
         .dstOffset = 0,
         .size = bufferSize};
 
-    vkCmdCopyBuffer(transferCommandBuffer, srcBufer, dstBuffer, 1, &bufferCopyRegion);
+    vkCmdCopyBuffer(transferCommandBuffer, srcBuffer, dstBuffer, 1, &bufferCopyRegion);
 
     res = vkEndCommandBuffer(transferCommandBuffer);
     if (res != VK_SUCCESS)

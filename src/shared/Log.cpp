@@ -17,7 +17,7 @@ std::vector<ErrorCode> Log::entries;
 size_t Log::newMessageCount = 0;
 bool Log::hasNewMessagesFlag = false;
 size_t Log::clearedEntriesCount = 0;
-LogOutputMode Log::outputMode = VE_LOG_OUTPUT_MODE_NONE;
+LogOutputMode Log::outputMode = VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE;
 
 const std::map<std::pair<char, uint16_t>, std::string> ErrorCode::messages = LOG_MESSAGES;
 

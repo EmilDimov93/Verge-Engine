@@ -306,7 +306,7 @@ VkResult transitionImageLayout(VkDevice device, VkQueue queue, VkCommandPool com
     return VK_SUCCESS;
 }
 
-int VulkanManager::createTexture(std::string fileName)
+int VulkanManager::createTextureImage(std::string fileName)
 {
     int width, height;
     VkDeviceSize imageSize;
@@ -342,6 +342,31 @@ int VulkanManager::createTexture(std::string fileName)
     vkFreeMemory(device, imageStagingBufferMemory, nullptr);
 
     return textureImages.size() - 1;
+}
+
+int VulkanManager::createTexture(std::string fileName)
+{
+    int textureImageLoc = createTextureImage(fileName);
+
+    VkImageView imageView;
+    VkImageViewCreateInfo imageViewCreateInfo{};
+    imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    imageViewCreateInfo.image = textureImages[textureImageLoc];
+    imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    imageViewCreateInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+    imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+    imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+    imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+    imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+    imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+    imageViewCreateInfo.subresourceRange.levelCount = 1;
+    imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+    imageViewCreateInfo.subresourceRange.layerCount = 1;
+    vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &imageView), {'V', 205});
+    textureImageViews.push_back(imageView);
+
+    return 0;
 }
 
 VkImage VulkanManager::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory *imageMemory)
@@ -1287,6 +1312,9 @@ VulkanManager::~VulkanManager()
 
     for (VkDeviceMemory &imageMemory : textureImageMemory)
         vkFreeMemory(device, imageMemory, nullptr);
+
+    for (VkImageView &imageView : textureImageViews)
+        vkDestroyImageView(device, imageView, nullptr);
 
     for (MeshGPU &meshGPU : MeshGPUs)
     {

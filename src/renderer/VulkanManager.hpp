@@ -92,6 +92,7 @@ private:
 
     std::vector<VkImage> textureImages;
     std::vector<VkDeviceMemory> textureImageMemory;
+    std::vector<VkImageView> textureImageViews;
 
     VkPipeline graphicsPipeline = VK_NULL_HANDLE;
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
@@ -133,6 +134,7 @@ private:
     int rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
 
     stbi_uc *loadTextureFile(std::string fileName, int *width, int *height, VkDeviceSize *imageSize);
+    int createTextureImage(std::string fileName);
     int createTexture(std::string fileName);
     VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory * imageMemory);
 };

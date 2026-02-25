@@ -90,6 +90,7 @@ private:
     std::vector<VkBuffer> modelDUniformBuffer;
     std::vector<VkDeviceMemory> modelDUniformBufferMemory;
 
+    VkSampler textureSampler;
     std::vector<VkImage> textureImages;
     std::vector<VkDeviceMemory> textureImageMemory;
     std::vector<VkImageView> textureImageViews;
@@ -119,6 +120,7 @@ private:
     void createFramebuffers();
     void createCommandPool();
     void createCommandBuffers();
+    void createTextureSampler();
     void createSemaphores();
     void createUniformBuffers();
     void createDescriptorPool();

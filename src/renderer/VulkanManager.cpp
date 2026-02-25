@@ -28,6 +28,7 @@ VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize)
     createFramebuffers();
     createCommandPool();
     createCommandBuffers();
+    createTextureSampler();
     createUniformBuffers();
     createDescriptorPool();
     createDescriptorSets();
@@ -161,7 +162,7 @@ stbi_uc *VulkanManager::loadTextureFile(std::string fileName, int *width, int *h
 
     stbi_uc *image = stbi_load(fileName.c_str(), width, height, &channelCount, STBI_rgb_alpha);
 
-    if(!image)
+    if (!image)
         Log::add('V', 225); // Should be warning?
 
     *imageSize = (*width) * (*height) * STBI_rgb_alpha;
@@ -266,14 +267,15 @@ VkResult transitionImageLayout(VkDevice device, VkQueue queue, VkCommandPool com
     VkPipelineStageFlags srcStage;
     VkPipelineStageFlags dstStage;
 
-    if(oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL){
+    if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+    {
         imageMemoryBarrier.srcAccessMask = 0;
         imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
         srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
         dstStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
     }
-    else if(oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+    else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
     {
         imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
@@ -281,7 +283,7 @@ VkResult transitionImageLayout(VkDevice device, VkQueue queue, VkCommandPool com
         srcStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
         dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
     }
-    
+
     vkCmdPipelineBarrier(commandBuffer, srcStage, dstStage, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 
     res = vkEndCommandBuffer(commandBuffer);
@@ -401,6 +403,27 @@ VkImage VulkanManager::createImage(uint32_t width, uint32_t height, VkFormat for
     vkBindImageMemory(device, image, *imageMemory, 0);
 
     return image;
+}
+
+void VulkanManager::createTextureSampler()
+{
+    VkSamplerCreateInfo samplerCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+        .magFilter = VK_FILTER_LINEAR,
+        .minFilter = VK_FILTER_LINEAR,
+        .mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR,
+        .addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT,
+        .addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT,
+        .addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT,
+        .mipLodBias = 0.0f,
+        .anisotropyEnable = VK_TRUE,
+        .maxAnisotropy = 16,
+        .minLod = 0.0f,
+        .maxLod = 0.0f,
+        .borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK,
+        .unnormalizedCoordinates = VK_FALSE};
+
+    vkCheck(vkCreateSampler(device, &samplerCreateInfo, nullptr, &textureSampler), {'V', 226});
 }
 
 void VulkanManager::pickPhysicalDevice()
@@ -1306,6 +1329,9 @@ VulkanManager::~VulkanManager()
 {
     if (device != VK_NULL_HANDLE)
         vkCheck(vkDeviceWaitIdle(device), {'V', 235});
+
+    if (textureSampler)
+        vkDestroySampler(device, textureSampler, nullptr);
 
     for (VkImage &image : textureImages)
         vkDestroyImage(device, image, nullptr);

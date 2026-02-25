@@ -76,9 +76,9 @@ void VulkanManager::createSurface(GLFWwindow *window)
 int VulkanManager::rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface)
 {
     VkPhysicalDeviceProperties props;
-    VkPhysicalDeviceFeatures feats;
+    VkPhysicalDeviceFeatures features;
     vkGetPhysicalDeviceProperties(device, &props);
-    vkGetPhysicalDeviceFeatures(device, &feats);
+    vkGetPhysicalDeviceFeatures(device, &features);
 
     int score = 0;
 
@@ -89,7 +89,9 @@ int VulkanManager::rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface)
 
     score += props.limits.maxImageDimension2D;
 
-    if (!feats.geometryShader)
+    bool supportsRequiredExtentions = features.samplerAnisotropy && features.geometryShader;
+
+    if (!supportsRequiredExtentions)
     {
         return 0;
     }
@@ -110,7 +112,10 @@ int VulkanManager::rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface)
         }
 
         VkBool32 presentationSupport = false;
-        vkCheck(vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentationSupport), {'V', 214});
+        if (vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentationSupport) != VK_SUCCESS)
+        {
+            Log::add('V', 214);
+        }
 
         if (queueFamily.queueCount > 0 && presentationSupport)
         {
@@ -123,12 +128,6 @@ int VulkanManager::rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface)
         }
 
         i++;
-    }
-
-    bool supportsRequiredExtentions = true;
-    if (!supportsRequiredExtentions)
-    {
-        return 0;
     }
 
     if (graphicsFamily < 0 || presentationFamily < 0)
@@ -483,6 +482,7 @@ void VulkanManager::createLogicalDevice()
 
     const char *deviceExtensions[] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
     VkPhysicalDeviceFeatures deviceFeatures = {};
+    deviceFeatures.samplerAnisotropy = VK_TRUE;
     VkDeviceCreateInfo deviceCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
         .queueCreateInfoCount = 1,

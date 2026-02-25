@@ -133,7 +133,7 @@ private:
     void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat);
 
     VkShaderModule createShaderModule(const std::vector<char> &code);
-    int rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
+    static int rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
 
     stbi_uc *loadTextureFile(std::string fileName, int *width, int *height, VkDeviceSize *imageSize);
     int createTextureImage(std::string fileName);

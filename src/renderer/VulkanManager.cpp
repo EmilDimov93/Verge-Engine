@@ -73,7 +73,7 @@ void VulkanManager::createSurface(GLFWwindow *window)
     vkCheck(glfwCreateWindowSurface(instance, window, nullptr, &surface), {'V', 201});
 }
 
-int VulkanManager::rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface)
+uint32_t VulkanManager::rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface)
 {
     VkPhysicalDeviceProperties props;
     VkPhysicalDeviceFeatures features;
@@ -307,7 +307,7 @@ VkResult transitionImageLayout(VkDevice device, VkQueue queue, VkCommandPool com
     return VK_SUCCESS;
 }
 
-int VulkanManager::createTextureImage(std::string fileName)
+size_t VulkanManager::createTextureImage(std::string fileName)
 {
     int width, height;
     VkDeviceSize imageSize;
@@ -345,9 +345,9 @@ int VulkanManager::createTextureImage(std::string fileName)
     return textureImages.size() - 1;
 }
 
-int VulkanManager::createTexture(std::string fileName)
+size_t VulkanManager::createTexture(std::string fileName)
 {
-    int textureImageLoc = createTextureImage(fileName);
+    size_t textureImageLoc = createTextureImage(fileName);
 
     VkImageView imageView;
     VkImageViewCreateInfo imageViewCreateInfo{};

@@ -85,6 +85,8 @@ private:
         player1Keybinds.steerRight = VE_KEY_D;
         player1Keybinds.shiftUp = VE_MOUSE_BTN_RIGHT;
         player1Keybinds.shiftDown = VE_MOUSE_BTN_LEFT;
+        player1Keybinds.moveCameraLeft = VE_KEY_LEFT;
+        player1Keybinds.moveCameraRight = VE_KEY_RIGHT;
 
         player1 = scene.addPlayer(car1, player1Keybinds, {renderer.getAspectRatio()});
 

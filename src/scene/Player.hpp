@@ -20,6 +20,11 @@ struct PlayerKeybinds
 
     VEKeybind shiftUp;
     VEKeybind shiftDown;
+
+    VEKeybind moveCameraLeft;
+    VEKeybind moveCameraRight;
+    VEKeybind moveCameraUp;
+    VEKeybind moveCameraDown;
 };
 
 class Player : public Controller
@@ -82,13 +87,6 @@ public:
             return;
 
         float currCameraHeight = cameraFollowHeight;
-        
-        // Move camera when ground is obstructing view
-        /*if(ground.sampleHeight(camera.getPosition().x, camera.getPosition().z) >= currCameraHeight){
-            currCameraHeight += ground.sampleHeight(camera.getPosition().x, camera.getPosition().z);
-        }*/
-
-        float targetYaw = atan2(vehicleVelocityVector.x, vehicleVelocityVector.z) - PI;
 
         Position3 vehiclePos = vehicleTransform.position;
 
@@ -97,7 +95,11 @@ public:
         camPos = glm::mix(camPos, targetCamPos, 1.0f - std::exp(-float(dt) * 10.0f));
         camera.move({camPos.x, camPos.y, camPos.z});
 
-        cameraYaw += (targetYaw - cameraYaw) * cameraFollowDelay;
+        float targetYaw = atan2(vehicleVelocityVector.x, vehicleVelocityVector.z) - PI;
+        if (glm::length(vehicleVelocityVector) < 1.0f)
+            targetYaw = cameraYaw;
+
+        cameraYaw += wrapRadToPi(targetYaw - cameraYaw) * cameraFollowDelay + (keybinds.moveCameraRight.getValue() - keybinds.moveCameraLeft.getValue()) * PI * dt;
 
         glm::vec3 dir = glm::normalize(glm::vec3(vehiclePos.x, vehiclePos.y, vehiclePos.z) - camPos);
         camera.rotate({asin(dir.y), atan2(dir.z, dir.x), 0});
@@ -145,7 +147,7 @@ public:
 
     float setVolume(float volume)
     {
-        if(volume >= 0 && volume <= 1.0f)
+        if (volume >= 0 && volume <= 1.0f)
             this->volume = volume;
     }
 
@@ -154,8 +156,9 @@ public:
         return volume;
     }
 
-    void setRenderDistance(float renderDistance){
-        if(renderDistance >= 0)
+    void setRenderDistance(float renderDistance)
+    {
+        if (renderDistance >= 0)
             camera.setZFar(renderDistance);
     }
 
@@ -177,4 +180,12 @@ private:
     float cameraFollowDelay = 0.01f;
 
     float volume = 1.0f;
+
+    float wrapRadToPi(float angleRad)
+    {
+        angleRad = std::fmod(angleRad + PI, 2.0f * PI);
+        if (angleRad < 0.0f)
+            angleRad += 2.0f * PI;
+        return angleRad - PI;
+    }
 };

@@ -190,13 +190,17 @@ void Vehicle::calcForces(const Environment &environment)
 
 void Vehicle::steer()
 {
-    const float k = 0.00025f;
-    float speedFactor = 1.0f / (1.0f + k * forwardSpeedMps * forwardSpeedMps);
+    const float linearAttenuationCoefficient = 0.1f;
+    const float quadraticAttenuationCoefficient  = 0.00025f;
+    const float steerSpeed = 10.0f;
+    float speedFactor = 1.0f / (1.0f + linearAttenuationCoefficient * forwardSpeedMps + quadraticAttenuationCoefficient * forwardSpeedMps * forwardSpeedMps);
     speedFactor = clamp(speedFactor, 0.15f, 1.0f);
 
     float target = vis.steer * maxSteeringAngleRad * speedFactor;
 
-    steeringAngleRad += target - steeringAngleRad;
+    steeringAngleRad = steeringAngleRad + (target - steeringAngleRad) * steerSpeed * dt;
+    if(steeringAngleRad > maxSteeringAngleRad)
+        steeringAngleRad = maxSteeringAngleRad;
 }
 
 void Vehicle::shiftUp()

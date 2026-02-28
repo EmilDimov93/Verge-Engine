@@ -91,7 +91,7 @@ public:
         Position3 vehiclePos = vehicleTransform.position;
 
         camPos = {camera.getPosition().x, camera.getPosition().y, camera.getPosition().z};
-        glm::vec3 targetCamPos = {vehiclePos.x + sin(cameraYaw) * cameraFollowDistance, vehiclePos.y + currCameraHeight, vehiclePos.z + cos(cameraYaw) * cameraFollowDistance};
+        glm::vec3 targetCamPos = {vehiclePos.x + sin(cameraYaw) * cameraFollowDistance, vehiclePos.y + sin(cameraPitch) * cameraFollowDistance + currCameraHeight, vehiclePos.z + cos(cameraYaw) * cos(cameraPitch) * cameraFollowDistance};
         camPos = glm::mix(camPos, targetCamPos, 1.0f - std::exp(-float(dt) * 10.0f));
         camera.move({camPos.x, camPos.y, camPos.z});
 
@@ -100,6 +100,10 @@ public:
             targetYaw = cameraYaw;
 
         cameraYaw += wrapRadToPi(targetYaw - cameraYaw) * cameraFollowDelay + (keybinds.moveCameraRight.getValue() - keybinds.moveCameraLeft.getValue()) * PI * dt;
+
+        cameraPitch += (keybinds.moveCameraUp.getValue() - keybinds.moveCameraDown.getValue()) * PI * dt;
+
+        cameraPitch = clamp(cameraPitch, minCameraPitch, maxCameraPitch);
 
         glm::vec3 dir = glm::normalize(glm::vec3(vehiclePos.x, vehiclePos.y, vehiclePos.z) - camPos);
         camera.rotate({asin(dir.y), atan2(dir.z, dir.x), 0});
@@ -171,6 +175,7 @@ private:
 
     PlayerKeybinds keybinds;
 
+    float cameraPitch = 0.0f;
     float cameraYaw = -PI;
     glm::vec3 camPos;
 
@@ -178,6 +183,9 @@ private:
     float cameraFollowDistance = 10.0f;
     float cameraFollowHeight = 3.0f;
     float cameraFollowDelay = 0.01f;
+
+    float minCameraPitch = -1.2f;
+    float maxCameraPitch = 0.6f;
 
     float volume = 1.0f;
 

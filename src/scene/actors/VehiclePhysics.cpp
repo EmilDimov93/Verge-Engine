@@ -199,8 +199,11 @@ void Vehicle::steer()
     float target = vis.steer * maxSteeringAngleRad * speedFactor;
 
     steeringAngleRad = steeringAngleRad + (target - steeringAngleRad) * steerSpeed * dt;
+    
     if(steeringAngleRad > maxSteeringAngleRad)
         steeringAngleRad = maxSteeringAngleRad;
+    if(steeringAngleRad < -maxSteeringAngleRad)
+        steeringAngleRad = -maxSteeringAngleRad;
 }
 
 void Vehicle::shiftUp()

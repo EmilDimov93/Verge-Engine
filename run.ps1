@@ -20,7 +20,13 @@ Usage:
 - Open PowerShell in the repo root
 - Run: ./run.ps1
 
+If you want to compile the SPIR-V shaders add the -compileShaders flag
+
 #>
+
+param(
+    [switch] $compileShaders
+)
 
 $glslang = "$env:VULKAN_SDK\Bin\glslangValidator.exe"
 $config = "Release"
@@ -38,15 +44,19 @@ if (-not (Test-Path -Path "build")) {
     Set-Location ..
 }
 
-New-Item -ItemType Directory -Force -Path "build/$config/shaders" | Out-Null
+if($compileShaders){
+    Write-Host "Compiling shaders..." -ForegroundColor Blue
 
-& $glslang -V "src/renderer/shaders/shader.vert" -o "build/$config/shaders/vert.spv"
-if ($LASTEXITCODE -ne 0) { exit 1 }
+    New-Item -ItemType Directory -Force -Path "build/$config/shaders" | Out-Null
 
-& $glslang -V "src/renderer/shaders/shader.frag" -o "build/$config/shaders/frag.spv"
-if ($LASTEXITCODE -ne 0) { exit 1 }
+    & $glslang -V "src/renderer/shaders/shader.vert" -o "build/$config/shaders/vert.spv"
+    if ($LASTEXITCODE -ne 0) { exit 1 }
 
-Write-Host "Shaders compiled" -ForegroundColor Blue
+    & $glslang -V "src/renderer/shaders/shader.frag" -o "build/$config/shaders/frag.spv"
+    if ($LASTEXITCODE -ne 0) { exit 1 }
+
+    Write-Host "Shaders compiled" -ForegroundColor Blue
+}
 
 Write-Host "Building..." -ForegroundColor Blue
 $buildOutput = cmake --build build --config $config 2>&1

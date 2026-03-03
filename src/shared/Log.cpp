@@ -35,14 +35,6 @@ void Log::init(LogOutputMode mode)
 {
     outputMode = mode;
 
-    if (mode == VE_LOG_OUTPUT_MODE_CONSOLE || mode == VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE)
-    {
-        for (std::string message : getNewMessages())
-        {
-            std::cout << "LOG: " << message << std::endl;
-        }
-    }
-
     Log::add('E', 000);
 }
 

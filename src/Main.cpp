@@ -21,7 +21,7 @@ public:
 
             if (Input::isPressed(VE_KEY_L))
             {
-                scene.playAudio2D("sample.mp3", 1.0f);
+                scene.playAudio("sample.mp3", 1.0f);
             }
 
             if (Input::isDown(VE_KEY_Q) || Input::isDown(VE_GAMEPAD_BTN_A))

@@ -434,7 +434,7 @@ void Scene::setBackgroundColor(ve_color_t backgroundColor)
     environment.backgroundColor = backgroundColor;
 }
 
-void Scene::playAudio2D(std::string fileName, float pitch)
+void Scene::playAudio(std::string fileName, float pitch)
 {
     oneShotAudioRequests.emplace_back(VEAudioRequest{fileName, pitch, false, {}});
 }

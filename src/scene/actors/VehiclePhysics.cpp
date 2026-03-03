@@ -32,7 +32,10 @@ void Vehicle::stallAssist()
         if(rpm < idleRpm / 2)
             vis.clutch = 1.0f;
 
-        const float minThrottle = 0.0001f * (idleRpm - rpm) / dt;
+        float minThrottle = 0.0001f * (idleRpm - rpm) / dt;
+        if(minThrottle > 1.0f)
+            minThrottle = 1.0f;
+        
         if(vis.throttle < minThrottle)
             vis.throttle = minThrottle;
     }
@@ -48,6 +51,10 @@ void Vehicle::cruiseControl()
 
     if (forwardSpeedMps < cruiseControlTargetMps){
         float minThrottle = 0.01f * (cruiseControlTargetMps - forwardSpeedMps) / dt;
+        
+        if(minThrottle > 1.0f)
+            minThrottle = 1.0f;
+
         vis.throttle = (minThrottle < vis.throttle ? vis.throttle : minThrottle);
     }
 

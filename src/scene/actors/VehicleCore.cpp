@@ -227,7 +227,7 @@ glm::mat4 Vehicle::getWheelBLMat() const
     wheelMat = glm::rotate(wheelMat, camberRad, glm::vec3(0, 0, 1));
 
     // Spin
-    wheelMat = glm::rotate(wheelMat, wheelSpin, glm::vec3(1.0f, 0, 0));
+    wheelMat = glm::rotate(wheelMat, vis.handbrake ? 0.0f : wheelSpin, glm::vec3(1.0f, 0, 0));
 
     return wheelMat;
 }
@@ -243,7 +243,7 @@ glm::mat4 Vehicle::getWheelBRMat() const
     wheelMat = glm::rotate(wheelMat, camberRad, glm::vec3(0, 0, 1));
 
     // Spin
-    wheelMat = glm::rotate(wheelMat, wheelSpin, glm::vec3(-1.0f, 0, 0));
+    wheelMat = glm::rotate(wheelMat, vis.handbrake ? 0.0f : wheelSpin, glm::vec3(-1.0f, 0, 0));
 
     return wheelMat;
 }

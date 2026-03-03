@@ -5,6 +5,7 @@
 
 #define TORQUE_CONVERSION_CONSTANT 5252
 #define RADPS_TO_RPM_CONVERSION_FACTOR 60.0f / (2.0f * PI)
+#define RPM_TO_RADPS_CONVERSION_FACTOR 2.0f * PI / 60.0f
 
 #define BASELINE_TORQUE_FACTOR 0.9f
 #define SURFACE_ROLLING_COEFFICIENT 0.015f
@@ -28,7 +29,9 @@ void Vehicle::stallAssist()
     }
     else if (rpm < idleRpm)
     {
-        vis.clutch = 1.0f;
+        if(rpm < idleRpm / 2)
+            vis.clutch = 1.0f;
+
         const float minThrottle = 0.0001f * (idleRpm - rpm) / dt;
         if(vis.throttle < minThrottle)
             vis.throttle = minThrottle;
@@ -65,21 +68,24 @@ float Vehicle::getTorque()
 
 float Vehicle::calcFDriveMag()
 {
-    float engineTorqueNm = getTorque() * vis.throttle;
+    const float clutchEngagement = (1.0f - vis.clutch);
 
-    float frictionTorqueNm = ENGINE_FRICTION_COEFF * rpm;
-    float angularAccel = (engineTorqueNm - frictionTorqueNm) / ENGINE_INERTIA;
+    const float engineTorqueNm = getTorque() * vis.throttle;
+
+    const float frictionTorqueNm = ENGINE_FRICTION_COEFF * rpm * RPM_TO_RADPS_CONVERSION_FACTOR;
+
+    const float angularAccel = (engineTorqueNm - frictionTorqueNm) / ENGINE_INERTIA;
+
+    const float wheelRpm = (fabs(forwardSpeedMps) / wheelRadiusM) * RADPS_TO_RPM_CONVERSION_FACTOR;
+    const float connectedClutchRpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
+
+    rpm = vis.clutch * rpm + clutchEngagement * connectedClutchRpm;
+
     rpm += angularAccel * dt * RADPS_TO_RPM_CONVERSION_FACTOR;
 
-    float wheelRpm = (fabs(forwardSpeedMps) / wheelRadiusM) * RADPS_TO_RPM_CONVERSION_FACTOR;
+    const float wheelTorqueNm = clutchEngagement * engineTorqueNm * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
 
-    float connectedClutchRpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
-
-    rpm = vis.clutch * rpm + (1.0f - vis.clutch) * (connectedClutchRpm + rpm) / 2;
-
-    float wheelTorque = (1.0f - vis.clutch) * engineTorqueNm * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
-
-    return wheelTorque / wheelRadiusM;
+    return wheelTorqueNm / wheelRadiusM;
 }
 
 void Vehicle::calcForces(const Environment &environment)

@@ -45,7 +45,7 @@ public:
 
         vis.brake = keybinds.brake.getValue();
 
-        vis.handbrake = keybinds.handbrake.getValue() > 0;
+        vis.handbrake = keybinds.handbrake.getValue();
 
         vis.clutch = keybinds.clutch.getValue();
 

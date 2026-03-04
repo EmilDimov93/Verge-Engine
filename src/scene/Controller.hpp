@@ -8,7 +8,7 @@
 struct VehicleInputState{
     float throttle = 0;
     float brake = 0;
-    bool handbrake = false;
+    float handbrake = 0;
     float clutch = 0;
 
     float steer = 0;

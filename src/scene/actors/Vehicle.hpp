@@ -189,6 +189,7 @@ private:
     float speedMps = 0.0f;
     float forwardSpeedMps = 0.0f;
     uint32_t gear = 1;
+    bool isNeutral = true;
     float rpm = 0.0f;
 
     float steeringAngleRad = 0.0f;

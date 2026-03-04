@@ -305,15 +305,15 @@ void Vehicle::tick(VehicleInputState vis, Environment environment, float surface
 
     steer();
 
+    updateTransmission();
+
     stallAssist();
 
     cruiseControl();
 
     calcForces(environment);
 
-    updateTransmission();
-
     wheelSpin = std::fmod(wheelSpin + forwardSpeedMps * dt / wheelRadiusM, 2.0f * PI);
 
-    // std::cout << (std::round(forwardSpeedMps * 3.6f) > 1.0f ? std::round(forwardSpeedMps * 3.6f) : 0.0f) << " km/h | " << std::round(rpm) << " rpm | " << gear << " gear" << std::endl;
+    std::cout << (std::round(forwardSpeedMps * 3.6f) > 1.0f ? std::round(forwardSpeedMps * 3.6f) : 0.0f) << " km/h | " << std::round(rpm) << " rpm | " << (isNeutral ? "N" : std::to_string(gear)) << " gear" << std::endl;
 }

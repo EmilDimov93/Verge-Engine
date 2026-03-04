@@ -29,14 +29,13 @@ void Vehicle::stallAssist()
     }
     else if (rpm < idleRpm)
     {
-        if(rpm < idleRpm / 2)
-            vis.clutch = 1.0f;
+        if(rpm < idleRpm)
+            isNeutral = true;
 
         float minThrottle = 0.0001f * (idleRpm - rpm) / dt;
-        if(minThrottle > 1.0f)
-            minThrottle = 1.0f;
-        
-        if(vis.throttle < minThrottle)
+        clamp01(minThrottle);
+
+        if (vis.throttle < minThrottle)
             vis.throttle = minThrottle;
     }
 }
@@ -49,11 +48,11 @@ void Vehicle::cruiseControl()
     if (cruiseControlTargetMps == 0)
         return;
 
-    if (forwardSpeedMps < cruiseControlTargetMps){
+    if (forwardSpeedMps < cruiseControlTargetMps)
+    {
         float minThrottle = 0.01f * (cruiseControlTargetMps - forwardSpeedMps) / dt;
-        
-        if(minThrottle > 1.0f)
-            minThrottle = 1.0f;
+
+        clamp01(minThrottle);
 
         vis.throttle = (minThrottle < vis.throttle ? vis.throttle : minThrottle);
     }
@@ -61,8 +60,7 @@ void Vehicle::cruiseControl()
     else if (forwardSpeedMps > cruiseControlTargetMps && vis.throttle == 0)
         vis.brake = 1.0f;
 
-    if(vis.throttle > 1.0f)
-        vis.throttle = 1.0f;
+    clamp01(vis.throttle);
 }
 
 float Vehicle::getTorque()
@@ -75,7 +73,7 @@ float Vehicle::getTorque()
 
 float Vehicle::calcFDriveMag()
 {
-    const float clutchEngagement = (1.0f - vis.clutch);
+    const float drivetrainEngagement = isNeutral ? 0.0f : (1.0f - vis.clutch);
 
     const float engineTorqueNm = getTorque() * vis.throttle;
 
@@ -84,13 +82,19 @@ float Vehicle::calcFDriveMag()
     const float angularAccel = (engineTorqueNm - frictionTorqueNm) / ENGINE_INERTIA;
 
     const float wheelRpm = (fabs(forwardSpeedMps) / wheelRadiusM) * RADPS_TO_RPM_CONVERSION_FACTOR;
-    const float connectedClutchRpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
+    const float engagedDrivetrainRpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
 
-    rpm = vis.clutch * rpm + clutchEngagement * connectedClutchRpm;
+    float rpmInterpolationFactor = (1.0f - drivetrainEngagement) + 0.9f * vis.throttle;
+    clamp01(rpmInterpolationFactor);
+    
+    rpm = rpmInterpolationFactor * rpm + (1.0f - rpmInterpolationFactor) * engagedDrivetrainRpm;
+
+    if(rpm < 0)
+        rpm = 0;
 
     rpm += angularAccel * dt * RADPS_TO_RPM_CONVERSION_FACTOR;
 
-    const float wheelTorqueNm = clutchEngagement * engineTorqueNm * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
+    const float wheelTorqueNm = drivetrainEngagement * engineTorqueNm * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
 
     return wheelTorqueNm / wheelRadiusM;
 }
@@ -126,9 +130,8 @@ void Vehicle::calcForces(const Environment &environment)
         FRoll = -(velocityMps / glm::length(velocityMps)) * FRollMag;
     }
 
-    float totalBrake = vis.brake + (vis.handbrake ? 1.0f : 0.0f);
-    if (totalBrake > 1.0f)
-        totalBrake = 1.0f;
+    float totalBrake = vis.brake + vis.handbrake;
+    clamp01(totalBrake);
     float FBrakeMag = totalBrake * brakingForce;
 
     glm::vec3 FBrake(0.0f);
@@ -204,7 +207,7 @@ void Vehicle::calcForces(const Environment &environment)
 void Vehicle::steer()
 {
     const float linearAttenuationCoefficient = 0.1f;
-    const float quadraticAttenuationCoefficient  = 0.00025f;
+    const float quadraticAttenuationCoefficient = 0.00025f;
     const float steerSpeed = 10.0f;
     float speedFactor = 1.0f / (1.0f + linearAttenuationCoefficient * forwardSpeedMps + quadraticAttenuationCoefficient * forwardSpeedMps * forwardSpeedMps);
     speedFactor = clamp(speedFactor, 0.15f, 1.0f);
@@ -212,11 +215,8 @@ void Vehicle::steer()
     float target = vis.steer * maxSteeringAngleRad * speedFactor;
 
     steeringAngleRad = steeringAngleRad + (target - steeringAngleRad) * steerSpeed * dt;
-    
-    if(steeringAngleRad > maxSteeringAngleRad)
-        steeringAngleRad = maxSteeringAngleRad;
-    if(steeringAngleRad < -maxSteeringAngleRad)
-        steeringAngleRad = -maxSteeringAngleRad;
+
+    clamp(steeringAngleRad, -maxSteeringAngleRad, maxSteeringAngleRad);
 }
 
 void Vehicle::shiftUp()
@@ -225,6 +225,11 @@ void Vehicle::shiftUp()
     {
         rpm = rpm * gearRatios[gear] / gearRatios[gear - 1];
         gear++;
+    }
+    if (isNeutral)
+    {
+        gear = 1;
+        isNeutral = false;
     }
 }
 
@@ -235,6 +240,10 @@ void Vehicle::shiftDown()
         rpm = rpm * gearRatios[gear - 2] / gearRatios[gear - 1];
         gear--;
     }
+    else if (gear == 1)
+    {
+        isNeutral = true;
+    }
 }
 
 void Vehicle::updateTransmission()
@@ -243,7 +252,14 @@ void Vehicle::updateTransmission()
     {
         if (vis.clutch == 1.0f)
             return;
-        
+
+        if (isNeutral){
+            if(vis.throttle == 0.0f)
+                return;
+            else
+                isNeutral = false;
+        }
+
         // Temporary(unstable)
         if (rpm >= maxRpm - 500)
         {

@@ -36,6 +36,11 @@ void Vehicle::stallAssist()
         if (vis.throttle < minThrottle)
             vis.throttle = minThrottle;
     }
+
+    if (forwardSpeedMps * 3.6f < 3.0f && vis.clutch == 0.0f)
+    {
+        vis.clutch = 1.0f - (0.1f + fabs(forwardSpeedMps) * 3.6f / 10.0f);
+    }
 }
 
 void Vehicle::cruiseControl()
@@ -67,12 +72,6 @@ float Vehicle::getTorque()
 
 float Vehicle::calcFDriveMag()
 {
-    // Clutch assist
-    if (forwardSpeedMps * 3.6f < 3.0f && vis.clutch == 0.0f)
-    {
-        vis.clutch = 1.0f - (0.1f + fabs(forwardSpeedMps) * 3.6f / 10.0f);
-    }
-
     const float drivetrainEngagement = isNeutral ? 0.0f : (1.0f - vis.clutch);
 
     const float gearRatio = gearRatios[gear - 1];
@@ -265,7 +264,7 @@ void Vehicle::updateTransmission()
         }
 
         // Temporary(unstable)
-        if (rpm >= maxRpm - 500)
+        if (rpm >= maxRpm - 500 && rpm * RPM_TO_RADPS_CONVERSION_FACTOR <= fabs(forwardSpeedMps) * gearRatios[gear - 1] * finalDriveRatio / wheelRadiusM)
         {
             shiftUp();
         }

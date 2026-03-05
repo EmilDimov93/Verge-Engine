@@ -166,6 +166,16 @@ public:
             camera.setZFar(renderDistance);
     }
 
+    void setMinCameraPitch(float minCameraPitch)
+    {
+        this->minCameraPitch = minCameraPitch;
+    }
+
+    void setMaxCameraPitch(float maxCameraPitch)
+    {
+        this->maxCameraPitch = maxCameraPitch;
+    }
+
 private:
     const PlayerHandle handle;
 

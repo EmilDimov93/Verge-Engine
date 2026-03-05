@@ -313,7 +313,5 @@ void Vehicle::tick(VehicleInputState vis, Environment environment, float surface
 
     calcForces(environment);
 
-    wheelSpin = std::fmod(wheelSpin + wheelRpm * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
-
-    std::cout << (std::round(forwardSpeedMps * 3.6f) > 1.0f ? std::round(forwardSpeedMps * 3.6f) : 0.0f) << " km/h | " << std::round(rpm) << " rpm | " << (isNeutral ? "N" : std::to_string(gear)) << " gear" << std::endl;
+    // std::cout << (std::round(forwardSpeedMps * 3.6f) > 1.0f ? std::round(forwardSpeedMps * 3.6f) : 0.0f) << " km/h | " << std::round(rpm) << " rpm | " << (isNeutral ? "N" : std::to_string(gear)) << " gear" << std::endl;
 }

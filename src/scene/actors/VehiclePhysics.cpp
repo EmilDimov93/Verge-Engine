@@ -5,7 +5,6 @@
 
 #define TORQUE_CONVERSION_CONSTANT 5252
 #define RADPS_TO_RPM_CONVERSION_FACTOR 60.0f / (2.0f * PI)
-#define RPM_TO_RADPS_CONVERSION_FACTOR 2.0f * PI / 60.0f
 
 #define BASELINE_TORQUE_FACTOR 0.9f
 #define SURFACE_ROLLING_COEFFICIENT 0.015f
@@ -29,11 +28,10 @@ void Vehicle::stallAssist()
     }
     else if (rpm < idleRpm)
     {
-        if(rpm < idleRpm)
+        if (rpm < idleRpm / 2)
             isNeutral = true;
 
-        float minThrottle = 0.0001f * (idleRpm - rpm) / dt;
-        clamp01(minThrottle);
+        float minThrottle = clamp01(0.0001f * (idleRpm - rpm) / dt);
 
         if (vis.throttle < minThrottle)
             vis.throttle = minThrottle;
@@ -50,17 +48,13 @@ void Vehicle::cruiseControl()
 
     if (forwardSpeedMps < cruiseControlTargetMps)
     {
-        float minThrottle = 0.01f * (cruiseControlTargetMps - forwardSpeedMps) / dt;
-
-        clamp01(minThrottle);
+        float minThrottle = clamp01(0.01f * (cruiseControlTargetMps - forwardSpeedMps) / dt);
 
         vis.throttle = (minThrottle < vis.throttle ? vis.throttle : minThrottle);
     }
 
     else if (forwardSpeedMps > cruiseControlTargetMps && vis.throttle == 0)
         vis.brake = 1.0f;
-
-    clamp01(vis.throttle);
 }
 
 float Vehicle::getTorque()
@@ -73,28 +67,39 @@ float Vehicle::getTorque()
 
 float Vehicle::calcFDriveMag()
 {
+    // Clutch assist
+    if (forwardSpeedMps * 3.6f < 3.0f && vis.clutch == 0.0f)
+    {
+        vis.clutch = 1.0f - (0.1f + fabs(forwardSpeedMps) * 3.6f / 10.0f);
+    }
+
     const float drivetrainEngagement = isNeutral ? 0.0f : (1.0f - vis.clutch);
 
-    const float engineTorqueNm = getTorque() * vis.throttle;
+    const float gearRatio = gearRatios[gear - 1];
 
+    wheelRpm = drivetrainEngagement * rpm / (gearRatio * finalDriveRatio) + (1.0f - drivetrainEngagement) * (fabs(forwardSpeedMps) * RADPS_TO_RPM_CONVERSION_FACTOR / wheelRadiusM);
+    const float engagedDrivetrainRpm = wheelRpm * gearRatio * finalDriveRatio;
+
+    const float clutchSlipRadPerSec = rpm * RPM_TO_RADPS_CONVERSION_FACTOR - fabs(forwardSpeedMps) * gearRatio * finalDriveRatio / wheelRadiusM;
+
+    const float engineTorqueNm = getTorque() * vis.throttle;
     const float frictionTorqueNm = ENGINE_FRICTION_COEFF * rpm * RPM_TO_RADPS_CONVERSION_FACTOR;
 
-    const float angularAccel = (engineTorqueNm - frictionTorqueNm) / ENGINE_INERTIA;
+    const float clutchStiffnessNmPerRadPerSec = 40.0f;
+    const float clutchCapacityNmAtFullEngagement = 600.0f;
+    const float clutchTorqueCapacityNm = drivetrainEngagement * clutchCapacityNmAtFullEngagement;
 
-    const float wheelRpm = (fabs(forwardSpeedMps) / wheelRadiusM) * RADPS_TO_RPM_CONVERSION_FACTOR;
-    const float engagedDrivetrainRpm = wheelRpm * gearRatios[gear - 1] * finalDriveRatio;
+    float clutchTorqueNm = clutchStiffnessNmPerRadPerSec * clutchSlipRadPerSec;
+    clutchTorqueNm = clamp(clutchTorqueNm, -clutchTorqueCapacityNm, clutchTorqueCapacityNm);
 
-    float rpmInterpolationFactor = (1.0f - drivetrainEngagement) + 0.9f * vis.throttle;
-    clamp01(rpmInterpolationFactor);
-    
-    rpm = rpmInterpolationFactor * rpm + (1.0f - rpmInterpolationFactor) * engagedDrivetrainRpm;
-
-    if(rpm < 0)
-        rpm = 0;
+    const float angularAccel = (engineTorqueNm - frictionTorqueNm - clutchTorqueNm) / ENGINE_INERTIA;
 
     rpm += angularAccel * dt * RADPS_TO_RPM_CONVERSION_FACTOR;
 
-    const float wheelTorqueNm = drivetrainEngagement * engineTorqueNm * gearRatios[gear - 1] * finalDriveRatio * drivetrainEfficiency;
+    if (rpm < 0)
+        rpm = 0;
+
+    const float wheelTorqueNm = clutchTorqueNm * gearRatio * finalDriveRatio * drivetrainEfficiency;
 
     return wheelTorqueNm / wheelRadiusM;
 }
@@ -130,9 +135,7 @@ void Vehicle::calcForces(const Environment &environment)
         FRoll = -(velocityMps / glm::length(velocityMps)) * FRollMag;
     }
 
-    float totalBrake = vis.brake + vis.handbrake;
-    clamp01(totalBrake);
-    float FBrakeMag = totalBrake * brakingForce;
+    float FBrakeMag = clamp01(vis.brake + vis.handbrake) * brakingForce;
 
     glm::vec3 FBrake(0.0f);
     {
@@ -253,8 +256,9 @@ void Vehicle::updateTransmission()
         if (vis.clutch == 1.0f)
             return;
 
-        if (isNeutral){
-            if(vis.throttle == 0.0f)
+        if (isNeutral)
+        {
+            if (vis.throttle == 0.0f)
                 return;
             else
                 isNeutral = false;
@@ -265,7 +269,7 @@ void Vehicle::updateTransmission()
         {
             shiftUp();
         }
-        else if (gear > 1 && idleRpm + (maxRpm - idleRpm) * 9 / 10 >= rpm * gearRatios[gear - 2] / gearRatios[gear - 1])
+        else if (gear > 1 && idleRpm + (maxRpm - idleRpm) * 7 / 10 >= rpm * gearRatios[gear - 2] / gearRatios[gear - 1])
         {
             shiftDown();
         }

@@ -137,9 +137,9 @@ inline T clamp(T v, T lo, T hi)
 }
 
 template <typename T>
-inline void clamp01(T& v)
+inline T clamp01(T v)
 {
-    v = (v < T(0)) ? T(0) : (v > T(1)) ? T(1) : v;
+    return (v < T(0)) ? T(0) : (v > T(1)) ? T(1) : v;
 }
 
 constexpr float AvoidZero(float x)

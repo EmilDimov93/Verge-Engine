@@ -11,6 +11,8 @@
 
 #include <vector>
 
+#define RPM_TO_RADPS_CONVERSION_FACTOR 2.0f * PI / 60.0f
+
 enum VETransmissionType
 {
     VE_TRANSMISSION_TYPE_MANUAL,
@@ -191,6 +193,7 @@ private:
     uint32_t gear = 1;
     bool isNeutral = true;
     float rpm = 0.0f;
+    float wheelRpm = 0.0f;
 
     float steeringAngleRad = 0.0f;
     float wheelSpin = 0.0f;

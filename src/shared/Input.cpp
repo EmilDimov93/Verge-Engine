@@ -301,16 +301,11 @@ float Input::getAxis(VEControllerAxis axis)
     {
         case VE_AXIS_DIRECTION_NONE:
             return (controllerAxes[axis.index] + 1.0f) / 2;
-            break;
         case VE_AXIS_DIRECTION_POSITIVE:
             return clamp01(controllerAxes[axis.index]);
-            break;
         case VE_AXIS_DIRECTION_NEGATIVE:
             return clamp01(-controllerAxes[axis.index]);
-            break;
-        default:
-            break;
     }
 
-    return controllerAxes[axis.index];
+    return 0.0f;
 }

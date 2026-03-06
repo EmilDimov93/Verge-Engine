@@ -21,6 +21,8 @@ struct PlayerKeybinds
     VEKeybind shiftUp;
     VEKeybind shiftDown;
 
+    VEKeybind startEngine;
+
     VEKeybind moveCameraLeft;
     VEKeybind moveCameraRight;
     VEKeybind moveCameraUp;
@@ -62,6 +64,8 @@ public:
                 vis.shiftDown = true;
             }
         }
+
+        vis.starter = keybinds.startEngine.getValue() > 0.0f;
 
         return vis;
     }

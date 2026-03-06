@@ -10,7 +10,7 @@
 #define ENGINE_INERTIA 0.1f
 #define ENGINE_FRICTION_COEFF 0.0012f
 
-void Vehicle::start()
+void Vehicle::activateStarter()
 {
     const float maxStarterSpeed = 300.0f;
 

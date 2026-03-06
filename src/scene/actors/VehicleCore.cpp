@@ -298,6 +298,9 @@ void Vehicle::tick(VehicleInputState vis, Environment environment, float surface
 
     this->vis = vis;
 
+    if(vis.starter)
+        activateStarter();
+
     flState.grip = surfaceFriction;
     frState.grip = surfaceFriction;
     blState.grip = surfaceFriction;

@@ -153,6 +153,8 @@ private:
     void shiftDown();
     void updateTransmission();
 
+    void activateStarter();
+
     const VehicleHandle handle;
 
     MeshInstanceHandle bodyMeshInstanceHandle;
@@ -284,6 +286,5 @@ public:
     void setCruiseControlTargetKmph(float value) { cruiseControlTargetMps = value / 3.6f; }
 
     // Other
-    void start();
     void stopCruiseControl() { cruiseControlTargetMps = 0; }
 };

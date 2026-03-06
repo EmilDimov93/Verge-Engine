@@ -23,11 +23,6 @@ public:
             {
                 scene.playAudio("sample.mp3", 1.0f);
             }
-
-            if (Input::isDown(VE_KEY_Q))
-            {
-                scene.vehicle(car1).start();
-            }
         }
     }
 
@@ -68,29 +63,30 @@ private:
         car1 = scene.addVehicle(carInfo, {{50.0f, 0, -40.0f}, {0, -PI / 4, 0}});
 
         // Player
-        PlayerKeybinds player1Keybinds{};
-        /*player1Keybinds.throttle = VE_CONTROLLER_AXIS_RT;
-        player1Keybinds.brake = VE_CONTROLLER_AXIS_LT;
-        player1Keybinds.handbrake = VE_CONTROLLER_BTN_RB;
-        player1Keybinds.clutch = VE_CONTROLLER_BTN_LB;
-        player1Keybinds.steerLeft = VE_CONTROLLER_AXIS_LX_NEGATIVE;
-        player1Keybinds.steerRight = VE_CONTROLLER_AXIS_LX_POSITIVE;
-        player1Keybinds.shiftUp = VE_CONTROLLER_BTN_X;
-        player1Keybinds.shiftDown = VE_CONTROLLER_BTN_Y;*/
-        player1Keybinds.throttle = VE_KEY_W;
-        player1Keybinds.brake = VE_KEY_S;
-        player1Keybinds.handbrake = VE_KEY_SPACE;
-        player1Keybinds.clutch = VE_KEY_E;
-        player1Keybinds.steerLeft = VE_KEY_A;
-        player1Keybinds.steerRight = VE_KEY_D;
-        player1Keybinds.shiftUp = VE_MOUSE_BTN_RIGHT;
-        player1Keybinds.shiftDown = VE_MOUSE_BTN_LEFT;
-        player1Keybinds.moveCameraLeft = VE_KEY_LEFT;
-        player1Keybinds.moveCameraRight = VE_KEY_RIGHT;
-        player1Keybinds.moveCameraUp = VE_KEY_UP;
-        player1Keybinds.moveCameraDown = VE_KEY_DOWN;
+        PlayerKeybinds p1Keybinds{};
+        /*p1Keybinds.throttle = VE_CONTROLLER_AXIS_RT;
+        p1Keybinds.brake = VE_CONTROLLER_AXIS_LT;
+        p1Keybinds.handbrake = VE_CONTROLLER_BTN_RB;
+        p1Keybinds.clutch = VE_CONTROLLER_BTN_LB;
+        p1Keybinds.steerLeft = VE_CONTROLLER_AXIS_LX_NEGATIVE;
+        p1Keybinds.steerRight = VE_CONTROLLER_AXIS_LX_POSITIVE;
+        p1Keybinds.shiftUp = VE_CONTROLLER_BTN_X;
+        p1Keybinds.shiftDown = VE_CONTROLLER_BTN_Y;*/
+        p1Keybinds.throttle = VE_KEY_W;
+        p1Keybinds.brake = VE_KEY_S;
+        p1Keybinds.handbrake = VE_KEY_SPACE;
+        p1Keybinds.clutch = VE_KEY_E;
+        p1Keybinds.steerLeft = VE_KEY_A;
+        p1Keybinds.steerRight = VE_KEY_D;
+        p1Keybinds.shiftUp = VE_MOUSE_BTN_RIGHT;
+        p1Keybinds.shiftDown = VE_MOUSE_BTN_LEFT;
+        p1Keybinds.startEngine = VE_KEY_Q;
+        p1Keybinds.moveCameraLeft = VE_KEY_LEFT;
+        p1Keybinds.moveCameraRight = VE_KEY_RIGHT;
+        p1Keybinds.moveCameraUp = VE_KEY_UP;
+        p1Keybinds.moveCameraDown = VE_KEY_DOWN;
 
-        player1 = scene.addPlayer(car1, player1Keybinds, {renderer.getAspectRatio()});
+        player1 = scene.addPlayer(car1, p1Keybinds, {renderer.getAspectRatio()});
 
         // Prop
         scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});

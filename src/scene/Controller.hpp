@@ -15,6 +15,8 @@ struct VehicleInputState{
 
     bool shiftUp = false;
     bool shiftDown = false;
+
+    bool starter = false;
 };
 
 class Controller{

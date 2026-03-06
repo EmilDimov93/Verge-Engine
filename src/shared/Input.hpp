@@ -7,15 +7,15 @@
 
 #include <GLFW/glfw3.h>
 
-typedef enum
+enum KeyState
 {
     KEY_STATE_DOWN,
     KEY_STATE_UP,
     KEY_STATE_PRESSED,
     KEY_STATE_RELEASED
-} KeyState;
+};
 
-typedef enum
+enum VEKey
 {
     VE_KEY_UNKNOWN = -1,
 
@@ -92,9 +92,9 @@ typedef enum
     VE_KEY_MENU = GLFW_KEY_MENU,
 
     VE_KEY_COUNT
-} VEKey;
+};
 
-typedef enum
+enum VEMouseBtn
 {
     VE_MOUSE_BTN_UNKNOWN = -1,
 
@@ -108,15 +108,15 @@ typedef enum
     VE_MOUSE_BTN_8 = GLFW_MOUSE_BUTTON_8,
 
     VE_MOUSE_BTN_COUNT
-} VEMouseBtn;
+};
 
-typedef enum
+enum VEAxisMapping
 {
     VE_AXIS_MAPPING_FULL,
     VE_AXIS_MAPPING_FULL_INVERTED,
     VE_AXIS_MAPPING_POSITIVE_HALF,
     VE_AXIS_MAPPING_NEGATIVE_HALF
-} VEAxisMapping;
+};
 
 using VEControllerBtn = uint32_t;
 
@@ -152,6 +152,7 @@ public:
 
     // Controller
     static void setController(uint8_t id);
+    static void setAxisDeadZone(float deadZone);
 
     static bool isDown(VEControllerBtn btn);
     static bool isUp(VEControllerBtn btn);
@@ -171,6 +172,8 @@ private:
 
     static std::vector<KeyState> controllerBtnStates;
     static std::vector<float> controllerAxes;
+
+    static float axisDeadZone;
 
     static GLFWwindow *window;
 };

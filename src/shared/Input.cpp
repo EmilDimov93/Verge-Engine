@@ -5,8 +5,6 @@
 
 #include "Log.hpp"
 
-#define AXIS_DEAD_ZONE 0.001f
-
 KeyState Input::mouseBtnStates[VE_MOUSE_BTN_COUNT] = {};
 KeyState Input::keyStates[VE_KEY_COUNT] = {};
 
@@ -17,6 +15,8 @@ bool Input::controllerConnected = false;
 
 std::vector<KeyState> Input::controllerBtnStates;
 std::vector<float> Input::controllerAxes;
+
+float Input::axisDeadZone = 0.001f;
 
 GLFWwindow *Input::window = nullptr;
 
@@ -132,6 +132,11 @@ void Input::refresh()
 void Input::setController(uint8_t id)
 {
     controllerId = id;
+}
+
+void Input::setAxisDeadZone(float deadZone)
+{
+    axisDeadZone = deadZone;
 }
 
 bool Input::isDown(VEKey key)
@@ -297,16 +302,26 @@ float Input::getAxis(VEControllerAxis axis)
         return 0.0f;
     }
 
+    float axisValue = controllerAxes[axis.index];
+
+    // Dead zone rescaling
+    if (fabs(axisValue) < axisDeadZone)
+        axisValue = 0.0f;
+    else if (axisValue > 0.0f)
+        axisValue = (axisValue - axisDeadZone) / (1.0f - axisDeadZone);
+    else
+        axisValue = (axisValue + axisDeadZone) / (1.0f - axisDeadZone);
+
     switch(axis.mapping)
     {
         case VE_AXIS_MAPPING_FULL:
-            return (controllerAxes[axis.index] + 1.0f) / 2;
+            return (axisValue + 1.0f) / 2;
         case VE_AXIS_MAPPING_FULL_INVERTED:
-            return 1.0f - (controllerAxes[axis.index] + 1.0f) / 2;
+            return 1.0f - (axisValue + 1.0f) / 2;
         case VE_AXIS_MAPPING_POSITIVE_HALF:
-            return clamp01(controllerAxes[axis.index]);
+            return clamp01(axisValue);
         case VE_AXIS_MAPPING_NEGATIVE_HALF:
-            return clamp01(-controllerAxes[axis.index]);
+            return clamp01(-axisValue);
     }
 
     return 0.0f;

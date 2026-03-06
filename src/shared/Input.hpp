@@ -112,21 +112,22 @@ typedef enum
 
 typedef enum
 {
-    VE_AXIS_DIRECTION_NONE,
-    VE_AXIS_DIRECTION_POSITIVE,
-    VE_AXIS_DIRECTION_NEGATIVE
-} VEAxisDirection;
+    VE_AXIS_MAPPING_FULL,
+    VE_AXIS_MAPPING_FULL_INVERTED,
+    VE_AXIS_MAPPING_POSITIVE_HALF,
+    VE_AXIS_MAPPING_NEGATIVE_HALF
+} VEAxisMapping;
 
 using VEControllerBtn = uint32_t;
 
 struct VEControllerAxis
 {
     uint32_t index;
-    VEAxisDirection direction;
+    VEAxisMapping mapping;
 };
 
 constexpr VEControllerBtn VE_CONTROLLER_BTN_UNKNOWN = UINT32_MAX;
-constexpr VEControllerAxis VE_CONTROLLER_AXIS_UNKNOWN = {UINT32_MAX, VE_AXIS_DIRECTION_NONE};
+constexpr VEControllerAxis VE_CONTROLLER_AXIS_UNKNOWN = {UINT32_MAX, VE_AXIS_MAPPING_FULL};
 
 class Input
 {
@@ -185,14 +186,14 @@ enum VEKeyType
 struct VEKeybind
 {
     uint32_t key;
-    VEAxisDirection axisDirection;
+    VEAxisMapping axisMapping;
     VEKeyType keyType;
 
-    VEKeybind() : key((uint32_t)VE_KEY_UNKNOWN), axisDirection(VE_AXIS_DIRECTION_NONE), keyType(VE_KEY_TYPE_KEYBOARD) {}
-    VEKeybind(VEKey key) : key((uint32_t)key), axisDirection(VE_AXIS_DIRECTION_NONE), keyType(VE_KEY_TYPE_KEYBOARD) {}
-    VEKeybind(VEMouseBtn key) : key((uint32_t)key), axisDirection(VE_AXIS_DIRECTION_NONE), keyType(VE_KEY_TYPE_MOUSE) {}
-    VEKeybind(VEControllerBtn key) : key((uint32_t)key), axisDirection(VE_AXIS_DIRECTION_NONE), keyType(VE_KEY_TYPE_CONTROLLER_BTN) {}
-    VEKeybind(VEControllerAxis key) : key((uint32_t)key.index), axisDirection(key.direction), keyType(VE_KEY_TYPE_CONTROLLER_AXIS) {}
+    VEKeybind() : key((uint32_t)VE_KEY_UNKNOWN), axisMapping(VE_AXIS_MAPPING_FULL), keyType(VE_KEY_TYPE_KEYBOARD) {}
+    VEKeybind(VEKey key) : key((uint32_t)key), axisMapping(VE_AXIS_MAPPING_FULL), keyType(VE_KEY_TYPE_KEYBOARD) {}
+    VEKeybind(VEMouseBtn key) : key((uint32_t)key), axisMapping(VE_AXIS_MAPPING_FULL), keyType(VE_KEY_TYPE_MOUSE) {}
+    VEKeybind(VEControllerBtn key) : key((uint32_t)key), axisMapping(VE_AXIS_MAPPING_FULL), keyType(VE_KEY_TYPE_CONTROLLER_BTN) {}
+    VEKeybind(VEControllerAxis key) : key((uint32_t)key.index), axisMapping(key.mapping), keyType(VE_KEY_TYPE_CONTROLLER_AXIS) {}
 
     float getValue() const
     {
@@ -207,7 +208,7 @@ struct VEKeybind
         case VE_KEY_TYPE_CONTROLLER_BTN:
             return Input::isDown((VEControllerBtn)key) ? 1.0f : 0.0f;
         case VE_KEY_TYPE_CONTROLLER_AXIS:
-            return Input::getAxis(VEControllerAxis(key, axisDirection));
+            return Input::getAxis(VEControllerAxis(key, axisMapping));
         default:
             return 0.0f;
         }
@@ -289,43 +290,43 @@ struct VEKeybind
     float getAxis() const
     {
         if (keyType == VE_KEY_TYPE_CONTROLLER_AXIS)
-            return Input::getAxis(VEControllerAxis(key, axisDirection));
+            return Input::getAxis(VEControllerAxis(key, axisMapping));
         else
             return 0;
     }
 };
 
-constexpr VEControllerAxis VE_CONTROLLER_LX_FULL = {GLFW_GAMEPAD_AXIS_LEFT_X, VE_AXIS_DIRECTION_NONE};
-constexpr VEControllerAxis VE_CONTROLLER_LX_POSITIVE = {GLFW_GAMEPAD_AXIS_LEFT_X, VE_AXIS_DIRECTION_POSITIVE};
-constexpr VEControllerAxis VE_CONTROLLER_LX_NEGATIVE = {GLFW_GAMEPAD_AXIS_LEFT_X, VE_AXIS_DIRECTION_NEGATIVE};
+constexpr VEControllerAxis VE_CONTROLLER_AXIS_LX_FULL = {GLFW_GAMEPAD_AXIS_LEFT_X, VE_AXIS_MAPPING_FULL};
+constexpr VEControllerAxis VE_CONTROLLER_AXIS_LX_POSITIVE = {GLFW_GAMEPAD_AXIS_LEFT_X, VE_AXIS_MAPPING_POSITIVE_HALF};
+constexpr VEControllerAxis VE_CONTROLLER_AXIS_LX_NEGATIVE = {GLFW_GAMEPAD_AXIS_LEFT_X, VE_AXIS_MAPPING_NEGATIVE_HALF};
 
-constexpr VEControllerAxis VE_CONTROLLER_LY_FULL = {GLFW_GAMEPAD_AXIS_LEFT_Y, VE_AXIS_DIRECTION_NONE};
-constexpr VEControllerAxis VE_CONTROLLER_LY_POSITIVE = {GLFW_GAMEPAD_AXIS_LEFT_Y, VE_AXIS_DIRECTION_POSITIVE};
-constexpr VEControllerAxis VE_CONTROLLER_LY_NEGATIVE = {GLFW_GAMEPAD_AXIS_LEFT_Y, VE_AXIS_DIRECTION_NEGATIVE};
+constexpr VEControllerAxis VE_CONTROLLER_AXIS_LY_FULL = {GLFW_GAMEPAD_AXIS_LEFT_Y, VE_AXIS_MAPPING_FULL};
+constexpr VEControllerAxis VE_CONTROLLER_AXIS_LY_POSITIVE = {GLFW_GAMEPAD_AXIS_LEFT_Y, VE_AXIS_MAPPING_POSITIVE_HALF};
+constexpr VEControllerAxis VE_CONTROLLER_AXIS_LY_NEGATIVE = {GLFW_GAMEPAD_AXIS_LEFT_Y, VE_AXIS_MAPPING_NEGATIVE_HALF};
 
-constexpr VEControllerAxis VE_CONTROLLER_RX_FULL = {GLFW_GAMEPAD_AXIS_RIGHT_X, VE_AXIS_DIRECTION_NONE};
-constexpr VEControllerAxis VE_CONTROLLER_RX_POSITIVE = {GLFW_GAMEPAD_AXIS_RIGHT_X, VE_AXIS_DIRECTION_POSITIVE};
-constexpr VEControllerAxis VE_CONTROLLER_RX_NEGATIVE = {GLFW_GAMEPAD_AXIS_RIGHT_X, VE_AXIS_DIRECTION_NEGATIVE};
+constexpr VEControllerAxis VE_CONTROLLER_AXIS_RX_FULL = {GLFW_GAMEPAD_AXIS_RIGHT_X, VE_AXIS_MAPPING_FULL};
+constexpr VEControllerAxis VE_CONTROLLER_AXIS_RX_POSITIVE = {GLFW_GAMEPAD_AXIS_RIGHT_X, VE_AXIS_MAPPING_POSITIVE_HALF};
+constexpr VEControllerAxis VE_CONTROLLER_AXIS_RX_NEGATIVE = {GLFW_GAMEPAD_AXIS_RIGHT_X, VE_AXIS_MAPPING_NEGATIVE_HALF};
 
-constexpr VEControllerAxis VE_CONTROLLER_RY_FULL = {GLFW_GAMEPAD_AXIS_RIGHT_Y, VE_AXIS_DIRECTION_NONE};
-constexpr VEControllerAxis VE_CONTROLLER_RY_POSITIVE = {GLFW_GAMEPAD_AXIS_RIGHT_Y, VE_AXIS_DIRECTION_POSITIVE};
-constexpr VEControllerAxis VE_CONTROLLER_RY_NEGATIVE = {GLFW_GAMEPAD_AXIS_RIGHT_Y, VE_AXIS_DIRECTION_NEGATIVE};
+constexpr VEControllerAxis VE_CONTROLLER_AXIS_RY_FULL = {GLFW_GAMEPAD_AXIS_RIGHT_Y, VE_AXIS_MAPPING_FULL};
+constexpr VEControllerAxis VE_CONTROLLER_AXIS_RY_POSITIVE = {GLFW_GAMEPAD_AXIS_RIGHT_Y, VE_AXIS_MAPPING_POSITIVE_HALF};
+constexpr VEControllerAxis VE_CONTROLLER_AXIS_RY_NEGATIVE = {GLFW_GAMEPAD_AXIS_RIGHT_Y, VE_AXIS_MAPPING_NEGATIVE_HALF};
 
-constexpr VEControllerAxis VE_CONTROLLER_LT = {GLFW_GAMEPAD_AXIS_LEFT_TRIGGER, VE_AXIS_DIRECTION_NONE};
-constexpr VEControllerAxis VE_CONTROLLER_RT = {GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, VE_AXIS_DIRECTION_NONE};
+constexpr VEControllerAxis VE_CONTROLLER_AXIS_LT = {GLFW_GAMEPAD_AXIS_LEFT_TRIGGER, VE_AXIS_MAPPING_FULL};
+constexpr VEControllerAxis VE_CONTROLLER_AXIS_RT = {GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, VE_AXIS_MAPPING_FULL};
 
-constexpr VEControllerBtn VE_CONTROLLER_A = GLFW_GAMEPAD_BUTTON_A;
-constexpr VEControllerBtn VE_CONTROLLER_B = GLFW_GAMEPAD_BUTTON_B;
-constexpr VEControllerBtn VE_CONTROLLER_X = GLFW_GAMEPAD_BUTTON_X;
-constexpr VEControllerBtn VE_CONTROLLER_Y = GLFW_GAMEPAD_BUTTON_Y;
-constexpr VEControllerBtn VE_CONTROLLER_LB = GLFW_GAMEPAD_BUTTON_LEFT_BUMPER;
-constexpr VEControllerBtn VE_CONTROLLER_RB = GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER;
-constexpr VEControllerBtn VE_CONTROLLER_BACK = GLFW_GAMEPAD_BUTTON_BACK;
-constexpr VEControllerBtn VE_CONTROLLER_START = GLFW_GAMEPAD_BUTTON_START;
-constexpr VEControllerBtn VE_CONTROLLER_GUIDE = GLFW_GAMEPAD_BUTTON_GUIDE;
-constexpr VEControllerBtn VE_CONTROLLER_LS = GLFW_GAMEPAD_BUTTON_LEFT_THUMB;
-constexpr VEControllerBtn VE_CONTROLLER_RS = GLFW_GAMEPAD_BUTTON_RIGHT_THUMB;
-constexpr VEControllerBtn VE_CONTROLLER_DPAD_UP = GLFW_GAMEPAD_BUTTON_DPAD_UP;
-constexpr VEControllerBtn VE_CONTROLLER_DPAD_RIGHT = GLFW_GAMEPAD_BUTTON_DPAD_RIGHT;
-constexpr VEControllerBtn VE_CONTROLLER_DPAD_DOWN = GLFW_GAMEPAD_BUTTON_DPAD_DOWN;
-constexpr VEControllerBtn VE_CONTROLLER_DPAD_LEFT = GLFW_GAMEPAD_BUTTON_DPAD_LEFT;
+constexpr VEControllerBtn VE_CONTROLLER_BTN_A = GLFW_GAMEPAD_BUTTON_A;
+constexpr VEControllerBtn VE_CONTROLLER_BTN_B = GLFW_GAMEPAD_BUTTON_B;
+constexpr VEControllerBtn VE_CONTROLLER_BTN_X = GLFW_GAMEPAD_BUTTON_X;
+constexpr VEControllerBtn VE_CONTROLLER_BTN_Y = GLFW_GAMEPAD_BUTTON_Y;
+constexpr VEControllerBtn VE_CONTROLLER_BTN_LB = GLFW_GAMEPAD_BUTTON_LEFT_BUMPER;
+constexpr VEControllerBtn VE_CONTROLLER_BTN_RB = GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER;
+constexpr VEControllerBtn VE_CONTROLLER_BTN_BACK = GLFW_GAMEPAD_BUTTON_BACK;
+constexpr VEControllerBtn VE_CONTROLLER_BTN_START = GLFW_GAMEPAD_BUTTON_START;
+constexpr VEControllerBtn VE_CONTROLLER_BTN_GUIDE = GLFW_GAMEPAD_BUTTON_GUIDE;
+constexpr VEControllerBtn VE_CONTROLLER_BTN_LS = GLFW_GAMEPAD_BUTTON_LEFT_THUMB;
+constexpr VEControllerBtn VE_CONTROLLER_BTN_RS = GLFW_GAMEPAD_BUTTON_RIGHT_THUMB;
+constexpr VEControllerBtn VE_CONTROLLER_BTN_DPAD_UP = GLFW_GAMEPAD_BUTTON_DPAD_UP;
+constexpr VEControllerBtn VE_CONTROLLER_BTN_DPAD_RIGHT = GLFW_GAMEPAD_BUTTON_DPAD_RIGHT;
+constexpr VEControllerBtn VE_CONTROLLER_BTN_DPAD_DOWN = GLFW_GAMEPAD_BUTTON_DPAD_DOWN;
+constexpr VEControllerBtn VE_CONTROLLER_BTN_DPAD_LEFT = GLFW_GAMEPAD_BUTTON_DPAD_LEFT;

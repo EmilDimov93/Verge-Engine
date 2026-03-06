@@ -297,13 +297,15 @@ float Input::getAxis(VEControllerAxis axis)
         return 0.0f;
     }
 
-    switch(axis.direction)
+    switch(axis.mapping)
     {
-        case VE_AXIS_DIRECTION_NONE:
+        case VE_AXIS_MAPPING_FULL:
             return (controllerAxes[axis.index] + 1.0f) / 2;
-        case VE_AXIS_DIRECTION_POSITIVE:
+        case VE_AXIS_MAPPING_FULL_INVERTED:
+            return 1.0f - (controllerAxes[axis.index] + 1.0f) / 2;
+        case VE_AXIS_MAPPING_POSITIVE_HALF:
             return clamp01(controllerAxes[axis.index]);
-        case VE_AXIS_DIRECTION_NEGATIVE:
+        case VE_AXIS_MAPPING_NEGATIVE_HALF:
             return clamp01(-controllerAxes[axis.index]);
     }
 

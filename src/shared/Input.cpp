@@ -12,11 +12,11 @@ KeyState Input::keyStates[VE_KEY_COUNT] = {};
 
 Position2 Input::mousePosition = {0, 0};
 
-int Input::gamepadId = GLFW_JOYSTICK_1;
-bool Input::gamepadConnected = false;
+int Input::controllerId = GLFW_JOYSTICK_1;
+bool Input::controllerConnected = false;
 
-KeyState Input::gamepadBtnStates[VE_GAMEPAD_BTN_COUNT] = {};
-float Input::gamepadAxes[VE_GAMEPAD_AXIS_COUNT] = {};
+std::vector<KeyState> Input::controllerBtnStates;
+std::vector<float> Input::controllerAxes;
 
 GLFWwindow *Input::window = nullptr;
 
@@ -32,14 +32,8 @@ void Input::init(GLFWwindow *windowRef)
 
     mousePosition = {0, 0};
 
-    for (size_t i = 0; i < VE_GAMEPAD_BTN_COUNT; i++)
-        gamepadBtnStates[i] = KEY_STATE_UP;
-
-    for (size_t i = 0; i < VE_GAMEPAD_AXIS_COUNT; i++)
-        gamepadAxes[i] = -1.0f;
-
-    gamepadConnected = false;
-    gamepadId = GLFW_JOYSTICK_1;
+    controllerConnected = false;
+    controllerId = GLFW_JOYSTICK_1;
 }
 
 void Input::refresh()
@@ -82,90 +76,62 @@ void Input::refresh()
 
     glfwGetCursorPos(window, &mousePosition.x, &mousePosition.y);
 
-    gamepadConnected = glfwJoystickPresent(gamepadId) && glfwJoystickIsGamepad(gamepadId);
+    controllerConnected = glfwJoystickPresent(controllerId);
 
-    GLFWgamepadstate state{};
-    if (gamepadConnected && glfwGetGamepadState(gamepadId, &state))
+    if(controllerConnected)
     {
-        for (int i = 0; i < VE_GAMEPAD_BTN_COUNT; i++)
-        {
-            bool isDownNow = state.buttons[i] == GLFW_PRESS;
+        int axisCount = 0;
+        const float *axisValues = glfwGetJoystickAxes(controllerId, &axisCount);
 
-            switch (gamepadBtnStates[i])
+        if(controllerAxes.size() != axisCount)
+            controllerAxes.resize(axisCount);
+        
+        for(int i = 0; i < axisCount; i++)
+        {
+            controllerAxes[i] = axisValues[i];
+        }
+        
+        int buttonCount = 0;
+        const unsigned char *buttonStates = glfwGetJoystickButtons(controllerId, &buttonCount);
+
+        if(controllerBtnStates.size() != buttonCount)
+            controllerBtnStates.resize(buttonCount);
+
+        for(int i = 0; i < buttonCount; i++)
+        {
+            bool isDownNow = buttonStates[i] == GLFW_PRESS;
+
+            switch (controllerBtnStates[i])
             {
             case KEY_STATE_UP:
             case KEY_STATE_RELEASED:
-                gamepadBtnStates[i] = isDownNow ? KEY_STATE_PRESSED : KEY_STATE_UP;
+                controllerBtnStates[i] = isDownNow ? KEY_STATE_PRESSED : KEY_STATE_UP;
                 break;
             case KEY_STATE_DOWN:
             case KEY_STATE_PRESSED:
-                gamepadBtnStates[i] = isDownNow ? KEY_STATE_DOWN : KEY_STATE_RELEASED;
+                controllerBtnStates[i] = isDownNow ? KEY_STATE_DOWN : KEY_STATE_RELEASED;
                 break;
             }
         }
-
-        float lx = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
-        float ly = state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
-
-        if (fabsf(lx) < AXIS_DEAD_ZONE)
-            lx = 0.0f;
-        if (fabsf(ly) < AXIS_DEAD_ZONE)
-            ly = 0.0f;
-
-        gamepadAxes[VE_GAMEPAD_AXIS_LX_POS] = (lx > 0.0f) ? lx : 0.0f;
-        gamepadAxes[VE_GAMEPAD_AXIS_LX_NEG] = (lx < 0.0f) ? -lx : 0.0f;
-        gamepadAxes[VE_GAMEPAD_AXIS_LY_POS] = (ly > 0.0f) ? ly : 0.0f;
-        gamepadAxes[VE_GAMEPAD_AXIS_LY_NEG] = (ly < 0.0f) ? -ly : 0.0f;
-
-        float rx = state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X];
-        float ry = state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y];
-
-        if (fabsf(rx) < AXIS_DEAD_ZONE)
-            rx = 0.0f;
-        if (fabsf(ry) < AXIS_DEAD_ZONE)
-            ry = 0.0f;
-
-        gamepadAxes[VE_GAMEPAD_AXIS_RX_POS] = (rx > 0.0f) ? rx : 0.0f;
-        gamepadAxes[VE_GAMEPAD_AXIS_RX_NEG] = (rx < 0.0f) ? -rx : 0.0f;
-        gamepadAxes[VE_GAMEPAD_AXIS_RY_POS] = (ry > 0.0f) ? ry : 0.0f;
-        gamepadAxes[VE_GAMEPAD_AXIS_RY_NEG] = (ry < 0.0f) ? -ry : 0.0f;
-
-        float lt = state.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER];
-        float rt = state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER];
-
-        lt = (lt + 1.0f) * 0.5f;
-        if (lt < 0.0f)
-            lt = 0.0f;
-        if (lt > 1.0f)
-            lt = 1.0f;
-
-        rt = (rt + 1.0f) * 0.5f;
-        if (rt < 0.0f)
-            rt = 0.0f;
-        if (rt > 1.0f)
-            rt = 1.0f;
-
-        gamepadAxes[VE_GAMEPAD_AXIS_LT] = lt;
-        gamepadAxes[VE_GAMEPAD_AXIS_RT] = rt;
     }
     else
     {
-        for (int i = 0; i < VE_GAMEPAD_BTN_COUNT; i++)
+        for (int i = 0; i < controllerBtnStates.size(); i++)
         {
-            if (gamepadBtnStates[i] == KEY_STATE_DOWN || gamepadBtnStates[i] == KEY_STATE_PRESSED)
-                gamepadBtnStates[i] = KEY_STATE_RELEASED;
+            if (controllerBtnStates[i] == KEY_STATE_DOWN || controllerBtnStates[i] == KEY_STATE_PRESSED)
+                controllerBtnStates[i] = KEY_STATE_RELEASED;
             else
-                gamepadBtnStates[i] = KEY_STATE_UP;
+                controllerBtnStates[i] = KEY_STATE_UP;
         }
 
-        for (int i = 0; i < VE_GAMEPAD_AXIS_COUNT; i++)
-            gamepadAxes[i] = 0.0f;
+        for (int i = 0; i < controllerAxes.size(); i++)
+            controllerAxes[i] = 0.0f;
     }
 }
 
-void Input::setGamepad(uint8_t id)
+void Input::setController(uint8_t id)
 {
-    gamepadId = id;
+    controllerId = id;
 }
 
 bool Input::isDown(VEKey key)
@@ -269,67 +235,82 @@ Position2 Input::getMousePos()
     return mousePosition;
 }
 
-bool Input::isDown(VEGamepadBtn btn)
+bool Input::isDown(VEControllerBtn btn)
 {
-    if (!gamepadConnected || btn == VE_GAMEPAD_BTN_UNKNOWN)
+    if (!controllerConnected || btn == VE_CONTROLLER_BTN_UNKNOWN)
         return false;
-    if (btn >= VE_MOUSE_BTN_COUNT || btn < 0)
+    if (btn >= controllerBtnStates.size() || btn < 0)
     {
         Log::add('G', 101);
         return false;
     }
 
-    return gamepadBtnStates[btn] == KEY_STATE_DOWN || gamepadBtnStates[btn] == KEY_STATE_PRESSED;
+    return controllerBtnStates[btn] == KEY_STATE_DOWN || controllerBtnStates[btn] == KEY_STATE_PRESSED;
 }
 
-bool Input::isUp(VEGamepadBtn btn)
+bool Input::isUp(VEControllerBtn btn)
 {
-    if (!gamepadConnected || btn == VE_GAMEPAD_BTN_UNKNOWN)
-        return true;
-    if (btn >= VE_MOUSE_BTN_COUNT || btn < 0)
+    if (!controllerConnected || btn == VE_CONTROLLER_BTN_UNKNOWN)
+        return false;
+    if (btn >= controllerBtnStates.size() || btn < 0)
     {
         Log::add('G', 101);
         return false;
     }
 
-    return gamepadBtnStates[btn] == KEY_STATE_UP || gamepadBtnStates[btn] == KEY_STATE_RELEASED;
+    return controllerBtnStates[btn] == KEY_STATE_UP || controllerBtnStates[btn] == KEY_STATE_RELEASED;
 }
 
-bool Input::isPressed(VEGamepadBtn btn)
+bool Input::isPressed(VEControllerBtn btn)
 {
-    if (!gamepadConnected || btn == VE_GAMEPAD_BTN_UNKNOWN)
+    if (!controllerConnected || btn == VE_CONTROLLER_BTN_UNKNOWN)
         return false;
-    if (btn >= VE_MOUSE_BTN_COUNT || btn < 0)
+    if (btn >= controllerBtnStates.size() || btn < 0)
     {
         Log::add('G', 101);
         return false;
     }
 
-    return gamepadBtnStates[btn] == KEY_STATE_PRESSED;
+    return controllerBtnStates[btn] == KEY_STATE_PRESSED;
 }
 
-bool Input::isReleased(VEGamepadBtn btn)
+bool Input::isReleased(VEControllerBtn btn)
 {
-    if (!gamepadConnected || btn == VE_GAMEPAD_BTN_UNKNOWN)
+    if (!controllerConnected || btn == VE_CONTROLLER_BTN_UNKNOWN)
         return false;
-    if (btn >= VE_MOUSE_BTN_COUNT || btn < 0)
+    if (btn >= controllerBtnStates.size() || btn < 0)
     {
         Log::add('G', 101);
         return false;
     }
 
-    return gamepadBtnStates[btn] == KEY_STATE_RELEASED;
+    return controllerBtnStates[btn] == KEY_STATE_RELEASED;
 }
 
-float Input::getAxis(VEGamepadAxis axis)
+float Input::getAxis(VEControllerAxis axis)
 {
-    if (!gamepadConnected || axis == VE_GAMEPAD_AXIS_UNKNOWN)
+    if (!controllerConnected || axis.index == VE_CONTROLLER_AXIS_UNKNOWN.index)
         return 0.0f;
-    if (axis >= VE_GAMEPAD_AXIS_COUNT || axis < 0)
+    if (axis.index >= controllerAxes.size() || axis.index < 0)
     {
         Log::add('G', 101);
         return 0.0f;
     }
 
-    return gamepadAxes[axis];
+    switch(axis.direction)
+    {
+        case VE_AXIS_DIRECTION_NONE:
+            return (controllerAxes[axis.index] + 1.0f) / 2;
+            break;
+        case VE_AXIS_DIRECTION_POSITIVE:
+            return clamp01(controllerAxes[axis.index]);
+            break;
+        case VE_AXIS_DIRECTION_NEGATIVE:
+            return clamp01(-controllerAxes[axis.index]);
+            break;
+        default:
+            break;
+    }
+
+    return controllerAxes[axis.index];
 }

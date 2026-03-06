@@ -112,44 +112,21 @@ typedef enum
 
 typedef enum
 {
-    VE_GAMEPAD_BTN_UNKNOWN = -1,
+    VE_AXIS_DIRECTION_NONE,
+    VE_AXIS_DIRECTION_POSITIVE,
+    VE_AXIS_DIRECTION_NEGATIVE
+} VEAxisDirection;
 
-    VE_GAMEPAD_BTN_A = GLFW_GAMEPAD_BUTTON_A,
-    VE_GAMEPAD_BTN_B = GLFW_GAMEPAD_BUTTON_B,
-    VE_GAMEPAD_BTN_X = GLFW_GAMEPAD_BUTTON_X,
-    VE_GAMEPAD_BTN_Y = GLFW_GAMEPAD_BUTTON_Y,
-    VE_GAMEPAD_BTN_LB = GLFW_GAMEPAD_BUTTON_LEFT_BUMPER,
-    VE_GAMEPAD_BTN_RB = GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER,
-    VE_GAMEPAD_BTN_BACK = GLFW_GAMEPAD_BUTTON_BACK,
-    VE_GAMEPAD_BTN_START = GLFW_GAMEPAD_BUTTON_START,
-    VE_GAMEPAD_BTN_GUIDE = GLFW_GAMEPAD_BUTTON_GUIDE,
-    VE_GAMEPAD_BTN_LS = GLFW_GAMEPAD_BUTTON_LEFT_THUMB,
-    VE_GAMEPAD_BTN_RS = GLFW_GAMEPAD_BUTTON_RIGHT_THUMB,
-    VE_GAMEPAD_BTN_DPAD_UP = GLFW_GAMEPAD_BUTTON_DPAD_UP,
-    VE_GAMEPAD_BTN_DPAD_RIGHT = GLFW_GAMEPAD_BUTTON_DPAD_RIGHT,
-    VE_GAMEPAD_BTN_DPAD_DOWN = GLFW_GAMEPAD_BUTTON_DPAD_DOWN,
-    VE_GAMEPAD_BTN_DPAD_LEFT = GLFW_GAMEPAD_BUTTON_DPAD_LEFT,
+using VEControllerBtn = uint32_t;
 
-    VE_GAMEPAD_BTN_COUNT
-} VEGamepadBtn;
-
-typedef enum
+struct VEControllerAxis
 {
-    VE_GAMEPAD_AXIS_UNKNOWN = -1,
+    uint32_t index;
+    VEAxisDirection direction;
+};
 
-    VE_GAMEPAD_AXIS_LX_POS,
-    VE_GAMEPAD_AXIS_LX_NEG,
-    VE_GAMEPAD_AXIS_LY_POS,
-    VE_GAMEPAD_AXIS_LY_NEG,
-    VE_GAMEPAD_AXIS_RX_POS,
-    VE_GAMEPAD_AXIS_RX_NEG,
-    VE_GAMEPAD_AXIS_RY_POS,
-    VE_GAMEPAD_AXIS_RY_NEG,
-    VE_GAMEPAD_AXIS_LT,
-    VE_GAMEPAD_AXIS_RT,
-
-    VE_GAMEPAD_AXIS_COUNT
-} VEGamepadAxis;
+constexpr VEControllerBtn VE_CONTROLLER_BTN_UNKNOWN = UINT32_MAX;
+constexpr VEControllerAxis VE_CONTROLLER_AXIS_UNKNOWN = {UINT32_MAX, VE_AXIS_DIRECTION_NONE};
 
 class Input
 {
@@ -172,27 +149,27 @@ public:
 
     static Position2 getMousePos();
 
-    // Gamepad
-    static void setGamepad(uint8_t id);
+    // Controller
+    static void setController(uint8_t id);
 
-    static bool isDown(VEGamepadBtn btn);
-    static bool isUp(VEGamepadBtn btn);
-    static bool isPressed(VEGamepadBtn btn);
-    static bool isReleased(VEGamepadBtn btn);
+    static bool isDown(VEControllerBtn btn);
+    static bool isUp(VEControllerBtn btn);
+    static bool isPressed(VEControllerBtn btn);
+    static bool isReleased(VEControllerBtn btn);
 
-    static float getAxis(VEGamepadAxis axis);
+    static float getAxis(VEControllerAxis axis);
 
 private:
     static KeyState keyStates[VE_KEY_COUNT];
     static KeyState mouseBtnStates[VE_MOUSE_BTN_COUNT];
 
-    static int gamepadId;
-    static bool gamepadConnected;
-
-    static KeyState gamepadBtnStates[VE_GAMEPAD_BTN_COUNT];
-    static float gamepadAxes[VE_GAMEPAD_AXIS_COUNT];
-
     static Position2 mousePosition;
+
+    static int controllerId;
+    static bool controllerConnected;
+
+    static std::vector<KeyState> controllerBtnStates;
+    static std::vector<float> controllerAxes;
 
     static GLFWwindow *window;
 };
@@ -201,20 +178,21 @@ enum VEKeyType
 {
     VE_KEY_TYPE_KEYBOARD,
     VE_KEY_TYPE_MOUSE,
-    VE_KEY_TYPE_GAMEPAD_BTN,
-    VE_KEY_TYPE_GAMEPAD_AXIS
+    VE_KEY_TYPE_CONTROLLER_BTN,
+    VE_KEY_TYPE_CONTROLLER_AXIS
 };
 
 struct VEKeybind
 {
     uint32_t key;
+    VEAxisDirection axisDirection;
     VEKeyType keyType;
 
-    VEKeybind() : key((uint32_t)VE_KEY_UNKNOWN), keyType(VE_KEY_TYPE_KEYBOARD) {}
-    VEKeybind(VEKey _key) : key((uint32_t)_key), keyType(VE_KEY_TYPE_KEYBOARD) {}
-    VEKeybind(VEMouseBtn _key) : key((uint32_t)_key), keyType(VE_KEY_TYPE_MOUSE) {}
-    VEKeybind(VEGamepadBtn _key) : key((uint32_t)_key), keyType(VE_KEY_TYPE_GAMEPAD_BTN) {}
-    VEKeybind(VEGamepadAxis _key) : key((uint32_t)_key), keyType(VE_KEY_TYPE_GAMEPAD_AXIS) {}
+    VEKeybind() : key((uint32_t)VE_KEY_UNKNOWN), axisDirection(VE_AXIS_DIRECTION_NONE), keyType(VE_KEY_TYPE_KEYBOARD) {}
+    VEKeybind(VEKey key) : key((uint32_t)key), axisDirection(VE_AXIS_DIRECTION_NONE), keyType(VE_KEY_TYPE_KEYBOARD) {}
+    VEKeybind(VEMouseBtn key) : key((uint32_t)key), axisDirection(VE_AXIS_DIRECTION_NONE), keyType(VE_KEY_TYPE_MOUSE) {}
+    VEKeybind(VEControllerBtn key) : key((uint32_t)key), axisDirection(VE_AXIS_DIRECTION_NONE), keyType(VE_KEY_TYPE_CONTROLLER_BTN) {}
+    VEKeybind(VEControllerAxis key) : key((uint32_t)key.index), axisDirection(key.direction), keyType(VE_KEY_TYPE_CONTROLLER_AXIS) {}
 
     float getValue() const
     {
@@ -223,13 +201,13 @@ struct VEKeybind
         switch (keyType)
         {
         case VE_KEY_TYPE_KEYBOARD:
-            return Input::isDown((VEKey)key)? 1.0f : 0.0f;
+            return Input::isDown((VEKey)key) ? 1.0f : 0.0f;
         case VE_KEY_TYPE_MOUSE:
-            return Input::isDown((VEMouseBtn)key)? 1.0f : 0.0f;
-        case VE_KEY_TYPE_GAMEPAD_BTN:
-            return Input::isDown((VEGamepadBtn)key)? 1.0f : 0.0f;
-        case VE_KEY_TYPE_GAMEPAD_AXIS:
-            return Input::getAxis((VEGamepadAxis)key);
+            return Input::isDown((VEMouseBtn)key) ? 1.0f : 0.0f;
+        case VE_KEY_TYPE_CONTROLLER_BTN:
+            return Input::isDown((VEControllerBtn)key) ? 1.0f : 0.0f;
+        case VE_KEY_TYPE_CONTROLLER_AXIS:
+            return Input::getAxis((VEControllerAxis)key);
         default:
             return 0.0f;
         }
@@ -237,7 +215,7 @@ struct VEKeybind
 
     bool isAxis() const
     {
-        return keyType == VE_KEY_TYPE_GAMEPAD_AXIS;
+        return keyType == VE_KEY_TYPE_CONTROLLER_AXIS;
     }
 
     bool isDown() const
@@ -250,8 +228,8 @@ struct VEKeybind
             return Input::isDown((VEKey)key);
         case VE_KEY_TYPE_MOUSE:
             return Input::isDown((VEMouseBtn)key);
-        case VE_KEY_TYPE_GAMEPAD_BTN:
-            return Input::isDown((VEGamepadBtn)key);
+        case VE_KEY_TYPE_CONTROLLER_BTN:
+            return Input::isDown((VEControllerBtn)key);
         default:
             return false;
         }
@@ -267,8 +245,8 @@ struct VEKeybind
             return Input::isUp((VEKey)key);
         case VE_KEY_TYPE_MOUSE:
             return Input::isUp((VEMouseBtn)key);
-        case VE_KEY_TYPE_GAMEPAD_BTN:
-            return Input::isUp((VEGamepadBtn)key);
+        case VE_KEY_TYPE_CONTROLLER_BTN:
+            return Input::isUp((VEControllerBtn)key);
         default:
             return true;
         }
@@ -284,8 +262,8 @@ struct VEKeybind
             return Input::isPressed((VEKey)key);
         case VE_KEY_TYPE_MOUSE:
             return Input::isPressed((VEMouseBtn)key);
-        case VE_KEY_TYPE_GAMEPAD_BTN:
-            return Input::isPressed((VEGamepadBtn)key);
+        case VE_KEY_TYPE_CONTROLLER_BTN:
+            return Input::isPressed((VEControllerBtn)key);
         default:
             return false;
         }
@@ -301,8 +279,8 @@ struct VEKeybind
             return Input::isReleased((VEKey)key);
         case VE_KEY_TYPE_MOUSE:
             return Input::isReleased((VEMouseBtn)key);
-        case VE_KEY_TYPE_GAMEPAD_BTN:
-            return Input::isReleased((VEGamepadBtn)key);
+        case VE_KEY_TYPE_CONTROLLER_BTN:
+            return Input::isReleased((VEControllerBtn)key);
         default:
             return false;
         }
@@ -310,8 +288,8 @@ struct VEKeybind
 
     float getAxis() const
     {
-        if (keyType == VE_KEY_TYPE_GAMEPAD_AXIS)
-            return Input::getAxis((VEGamepadAxis)key);
+        if (keyType == VE_KEY_TYPE_CONTROLLER_AXIS)
+            return Input::getAxis(VEControllerAxis(key, axisDirection));
         else
             return 0;
     }

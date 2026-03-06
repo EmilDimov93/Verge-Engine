@@ -24,7 +24,7 @@ public:
                 scene.playAudio("sample.mp3", 1.0f);
             }
 
-            if (Input::isDown(VE_KEY_Q) || Input::isDown(VE_GAMEPAD_BTN_A))
+            if (Input::isDown(VE_KEY_Q))
             {
                 scene.vehicle(car1).start();
             }
@@ -77,11 +77,11 @@ private:
         player1Keybinds.steerRight = VE_GAMEPAD_AXIS_LX_POS;
         player1Keybinds.shiftUp = VE_GAMEPAD_BTN_B;
         player1Keybinds.shiftDown = VE_GAMEPAD_BTN_X;*/
-        player1Keybinds.throttle = VE_KEY_W;
+        player1Keybinds.throttle = VEControllerAxis{GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, VE_AXIS_DIRECTION_NONE};
         player1Keybinds.brake = VE_KEY_S;
         player1Keybinds.handbrake = VE_KEY_SPACE;
         player1Keybinds.clutch = VE_KEY_E;
-        player1Keybinds.steerLeft = VE_KEY_A;
+        player1Keybinds.steerLeft = VEControllerBtn{0};
         player1Keybinds.steerRight = VE_KEY_D;
         player1Keybinds.shiftUp = VE_MOUSE_BTN_RIGHT;
         player1Keybinds.shiftDown = VE_MOUSE_BTN_LEFT;

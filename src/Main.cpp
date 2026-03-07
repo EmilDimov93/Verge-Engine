@@ -1,8 +1,6 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#define STB_IMAGE_IMPLEMENTATION
-
 #include "renderer/Renderer.hpp"
 #include "scene/Scene.hpp"
 
@@ -71,7 +69,12 @@ private:
         p1Keybinds.steerLeft = VE_CONTROLLER_AXIS_LX_NEGATIVE;
         p1Keybinds.steerRight = VE_CONTROLLER_AXIS_LX_POSITIVE;
         p1Keybinds.shiftUp = VE_CONTROLLER_BTN_X;
-        p1Keybinds.shiftDown = VE_CONTROLLER_BTN_Y;*/
+        p1Keybinds.shiftDown = VE_CONTROLLER_BTN_Y;
+        p1Keybinds.startEngine = VE_CONTROLLER_BTN_A;
+        p1Keybinds.moveCameraLeft = VE_CONTROLLER_AXIS_RX_NEGATIVE;
+        p1Keybinds.moveCameraRight = VE_CONTROLLER_AXIS_RX_POSITIVE;
+        p1Keybinds.moveCameraUp = VE_CONTROLLER_AXIS_RY_POSITIVE;
+        p1Keybinds.moveCameraDown = VE_CONTROLLER_AXIS_RY_NEGATIVE;*/
         p1Keybinds.throttle = VE_KEY_W;
         p1Keybinds.brake = VE_KEY_S;
         p1Keybinds.handbrake = VE_KEY_SPACE;

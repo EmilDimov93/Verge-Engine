@@ -35,7 +35,7 @@ void Vehicle::stallAssist()
             vis.throttle = minThrottle;
     }
 
-    if (forwardSpeedMps * 3.6f < 3.0f && vis.clutch == 0.0f)
+    if (transmissionType != VE_TRANSMISSION_TYPE_MANUAL_WITH_CLUTCH && forwardSpeedMps * 3.6f < 3.0f && vis.clutch == 0.0f)
     {
         vis.clutch = 1.0f - (0.1f + fabs(forwardSpeedMps) * 3.6f / 10.0f);
     }

@@ -4,6 +4,7 @@
 #include "WindowManager.hpp"
 #include "VulkanManager.hpp"
 #include "AudioManager.hpp"
+#include "Input.hpp"
 #include "FPSManager.hpp"
 
 #include "../shared/Log.hpp"
@@ -16,12 +17,36 @@ struct VE_STRUCT_RENDERER_CREATE_INFO
     uint16_t targetFps = VE_DEFAULT_FPS;
 };
 
+struct VehicleKeybinds
+{
+    VEKeybind throttle;
+    VEKeybind brake;
+    VEKeybind handbrake;
+    VEKeybind clutch;
+
+    VEKeybind steerLeft;
+    VEKeybind steerRight;
+
+    VEKeybind shiftUp;
+    VEKeybind shiftDown;
+
+    VEKeybind startEngine;
+
+    VEKeybind moveCameraLeft;
+    VEKeybind moveCameraRight;
+    VEKeybind moveCameraUp;
+    VEKeybind moveCameraDown;
+};
+
 class Renderer
 {
 public:
     Renderer(const VE_STRUCT_RENDERER_CREATE_INFO &info = {});
 
     bool tick(DrawData drawData, AudioData audioData);
+
+    VehicleInputState getVIS();
+    void setVehicleKeybinds(const VehicleKeybinds &keybinds);
 
     ~Renderer();
 
@@ -36,4 +61,8 @@ private:
     VulkanManager vulkan;
     AudioManager audio;
     FpsManager fps;
+
+    float volume;
+
+    VehicleKeybinds keybinds;
 };

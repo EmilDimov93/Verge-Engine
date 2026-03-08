@@ -6,67 +6,22 @@
 #include "Controller.hpp"
 
 #include "Camera.hpp"
-#include "../shared/Input.hpp"
-
-struct PlayerKeybinds
-{
-    VEKeybind throttle;
-    VEKeybind brake;
-    VEKeybind handbrake;
-    VEKeybind clutch;
-
-    VEKeybind steerLeft;
-    VEKeybind steerRight;
-
-    VEKeybind shiftUp;
-    VEKeybind shiftDown;
-
-    VEKeybind startEngine;
-
-    VEKeybind moveCameraLeft;
-    VEKeybind moveCameraRight;
-    VEKeybind moveCameraUp;
-    VEKeybind moveCameraDown;
-};
 
 class Player : public Controller
 {
 public:
-    Player(PlayerHandle handle, VehicleHandle vehicleHandle, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo)
+    Player(PlayerHandle handle, VehicleHandle vehicleHandle, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo)
         : handle(handle), camera(cameraInfo)
     {
         this->vehicleHandle = vehicleHandle;
-        this->keybinds = keybinds;
+    }
+
+    void setVIS(const VehicleInputState &vis){
+        this->vis = vis;
     }
 
     VehicleInputState getVehicleInputState() const override
     {
-        VehicleInputState vis{};
-
-        vis.throttle = keybinds.throttle.getValue();
-
-        vis.brake = keybinds.brake.getValue();
-
-        vis.handbrake = keybinds.handbrake.getValue();
-
-        vis.clutch = keybinds.clutch.getValue();
-
-        vis.steer = keybinds.steerLeft.getValue() - keybinds.steerRight.getValue();
-
-        if (!keybinds.shiftUp.isAxis() && !keybinds.shiftDown.isAxis())
-        {
-            if (keybinds.shiftUp.isPressed())
-            {
-                vis.shiftUp = true;
-            }
-            if (keybinds.shiftDown.isPressed())
-            {
-                vis.shiftDown = true;
-            }
-        }
-
-        vis.starter = keybinds.startEngine.getValue() > 0.0f;
-
         return vis;
     }
 
@@ -103,10 +58,10 @@ public:
         if (glm::length(vehicleVelocityVector) < 1.0f)
             targetYaw = cameraYaw;
 
-        cameraYaw += wrapRadToPi(targetYaw - cameraYaw) * cameraFollowDelay + (keybinds.moveCameraRight.getValue() - keybinds.moveCameraLeft.getValue()) * PI * dt;
-
-        cameraPitch += (keybinds.moveCameraUp.getValue() - keybinds.moveCameraDown.getValue()) * PI * dt;
-
+        // Temporary: camera movement disabled
+        cameraYaw += wrapRadToPi(targetYaw - cameraYaw) * cameraFollowDelay;// + (keybinds.moveCameraRight.getValue() - keybinds.moveCameraLeft.getValue()) * PI * dt;
+        //cameraPitch += (keybinds.moveCameraUp.getValue() - keybinds.moveCameraDown.getValue()) * PI * dt;
+        
         cameraPitch = clamp(cameraPitch, minCameraPitch, maxCameraPitch);
 
         glm::vec3 dir = glm::normalize(glm::vec3(vehiclePos.x, vehiclePos.y, vehiclePos.z) - camPos);
@@ -187,7 +142,7 @@ private:
 
     Camera camera;
 
-    PlayerKeybinds keybinds;
+    VehicleInputState vis;
 
     float cameraPitch = 0.0f;
     float cameraYaw = -PI;

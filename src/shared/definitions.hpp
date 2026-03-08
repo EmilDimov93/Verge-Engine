@@ -195,3 +195,17 @@ struct AudioData
               const std::vector<VEAudioRequest> &oneShotAudioRequests)
         : playerPosition(playerPosition), playerYawRad(playerYawRad), volume(volume), engineAudioRequests(engineAudioRequests), layeredEngineAudioRequests(layeredEngineAudioRequests), oneShotAudioRequests(oneShotAudioRequests) {}
 };
+
+struct VehicleInputState{
+    float throttle = 0;
+    float brake = 0;
+    float handbrake = 0;
+    float clutch = 0;
+
+    float steer = 0;
+
+    bool shiftUp = false;
+    bool shiftDown = false;
+
+    bool starter = false;
+};

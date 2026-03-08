@@ -80,11 +80,15 @@ Trigger &Scene::trigger(TriggerHandle handle)
     std::terminate();
 }
 
-void Scene::tick(ve_time_t frameTime)
+void Scene::tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputState>> inputData)
 {
     oneShotAudioRequests.clear();
 
-    dt = frameTime;
+    this->dt = dt;
+
+    for(const auto &vis : inputData){
+        player(vis.first).setVIS(vis.second);
+    }
 
     for (Vehicle &vehicle : vehicles)
     {

@@ -3,7 +3,6 @@
 
 #include "Renderer.hpp"
 
-#include "../shared/Input.hpp"
 #include "../shared/Log.hpp"
 
 Renderer::Renderer(const VE_STRUCT_RENDERER_CREATE_INFO &info) : window(info.windowSize, info.projectName), vulkan(window.getReference(), window.getSize())
@@ -24,6 +23,42 @@ bool Renderer::tick(DrawData drawData, AudioData audioData)
     audio.tick(audioData);
 
     return window.isOpen();
+}
+
+VehicleInputState Renderer::getVIS()
+{
+    VehicleInputState vis{};
+
+    vis.throttle = keybinds.throttle.getValue();
+
+    vis.brake = keybinds.brake.getValue();
+
+    vis.handbrake = keybinds.handbrake.getValue();
+
+    vis.clutch = keybinds.clutch.getValue();
+
+    vis.steer = keybinds.steerLeft.getValue() - keybinds.steerRight.getValue();
+
+    if (!keybinds.shiftUp.isAxis() && !keybinds.shiftDown.isAxis())
+    {
+        if (keybinds.shiftUp.isPressed())
+        {
+            vis.shiftUp = true;
+        }
+        if (keybinds.shiftDown.isPressed())
+        {
+            vis.shiftDown = true;
+        }
+    }
+
+    vis.starter = keybinds.startEngine.getValue() > 0.0f;
+
+    return vis;
+}
+
+void Renderer::setVehicleKeybinds(const VehicleKeybinds &keybinds)
+{
+    this->keybinds = keybinds;
 }
 
 Renderer::~Renderer()

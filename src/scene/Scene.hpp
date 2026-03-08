@@ -30,13 +30,13 @@ public:
 
     MeshHandle loadFile(const std::string &filePath);
 
-    PlayerHandle addPlayer(VehicleHandle vehicleHandle, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo);
+    PlayerHandle addPlayer(VehicleHandle vehicleHandle, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo);
 
     VehicleHandle addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform = {});
     PropHandle addProp(MeshHandle meshHandle, Transform transform);
     TriggerHandle addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform = {});
 
-    void tick(ve_time_t dt);
+    void tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputState>> inputData);
 
     uint32_t addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info);
     void addSurface(Size2 size, const std::vector<uint32_t>& surfaceTypeMap, const std::vector<float>& heightMap, Position3 position = {});

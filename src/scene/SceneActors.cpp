@@ -84,11 +84,11 @@ MeshInstanceHandle Scene::addMeshInstance(MeshHandle meshHandle)
     return newMeshInstance.handle;
 }
 
-PlayerHandle Scene::addPlayer(VehicleHandle vehicleHandle, const PlayerKeybinds &keybinds, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo)
+PlayerHandle Scene::addPlayer(VehicleHandle vehicleHandle, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo)
 {
     PlayerHandle handle = HandleFactory<PlayerHandle>::getNewHandle();
 
-    controllers.push_back(std::make_unique<Player>(handle, vehicleHandle, keybinds, cameraInfo));
+    controllers.push_back(std::make_unique<Player>(handle, vehicleHandle, cameraInfo));
 
     return handle;
 }

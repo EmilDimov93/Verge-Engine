@@ -9,12 +9,12 @@ add_executable(VergeEngine
     src/Main.cpp
     
     src/shared/Log.cpp
-    src/shared/Input.cpp
 
     src/renderer/Renderer.cpp
     src/renderer/WindowManager.cpp
     src/renderer/VulkanManager.cpp
     src/renderer/AudioManager.cpp
+    src/renderer/Input.cpp
     src/renderer/FpsManager.cpp
 
     src/scene/SceneCore.cpp

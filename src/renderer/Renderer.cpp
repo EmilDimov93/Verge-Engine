@@ -20,7 +20,7 @@ bool Renderer::tick(DrawData drawData, AudioData audioData)
 
     vulkan.drawFrame(drawData);
 
-    audio.tick(audioData);
+    audio.tick(audioData, volume);
 
     return window.isOpen();
 }
@@ -84,4 +84,15 @@ void Renderer::setTargetFps(uint16_t target)
 float Renderer::getAspectRatio()
 {
     return window.getAspectRatio();
+}
+
+void Renderer::setVolume(float volume)
+{
+    if (volume >= 0 && volume <= 1.0f)
+        this->volume = volume;
+}
+
+float Renderer::getVolume() const
+{
+    return volume;
 }

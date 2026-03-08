@@ -7,16 +7,19 @@
 #include "../shared/definitions.hpp"
 
 template <typename HandleT>
-class HandleFactory{
+class HandleFactory
+{
 public:
-    static HandleT getNewHandle(){
-        if(last >= UINT64_MAX){
+    static HandleT getNewHandle()
+    {
+        if (last >= UINT64_MAX)
+        {
             Log::add('S', 200);
         }
 
         return HandleT{++last};
     }
-    
+
 private:
     static inline uint64_t last = 0;
 };

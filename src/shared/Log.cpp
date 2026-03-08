@@ -40,14 +40,16 @@ void Log::init(LogOutputMode mode)
 
 void Log::freeLogSpace()
 {
-    if (entries.empty()) return;
+    if (entries.empty())
+        return;
 
     // Remove non-error messages from the oldest quarter
     const size_t limit = entries.size() / 4;
 
-    for (size_t i = limit + 1; i-- > 0; )
+    for (size_t i = limit + 1; i-- > 0;)
     {
-        if (i >= entries.size()) continue;
+        if (i >= entries.size())
+            continue;
         if (!IS_ENTRY_ERROR(entries[i].number))
         {
             entries.erase(entries.begin() + i);

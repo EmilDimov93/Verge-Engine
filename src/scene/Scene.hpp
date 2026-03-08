@@ -19,10 +19,10 @@ class Scene
 public:
     Scene(ve_color_t backgroundColor);
 
-    Player& player(PlayerHandle handle);
-    Vehicle& vehicle(VehicleHandle handle);
-    Prop& prop(PropHandle handle);
-    Trigger& trigger(TriggerHandle handle);
+    Player &player(PlayerHandle handle);
+    Vehicle &vehicle(VehicleHandle handle);
+    Prop &prop(PropHandle handle);
+    Trigger &trigger(TriggerHandle handle);
 
     DrawData getDrawData(PlayerHandle playerHandle);
 
@@ -39,7 +39,7 @@ public:
     void tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputState>> inputData);
 
     uint32_t addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info);
-    void addSurface(Size2 size, const std::vector<uint32_t>& surfaceTypeMap, const std::vector<float>& heightMap, Position3 position = {});
+    void addSurface(Size2 size, const std::vector<uint32_t> &surfaceTypeMap, const std::vector<float> &heightMap, Position3 position = {});
 
     void setAirDensity(float airDensity);
     void setGravity(float gravity);
@@ -84,6 +84,6 @@ private:
 
     MeshInstanceHandle addMeshInstance(MeshHandle meshHandle);
 
-    float sampleHeightAt(const Position3& point) const;
-    const SurfaceType& sampleSurfaceTypeAt(const Position3& point) const;
+    float sampleHeightAt(const Position3 &point) const;
+    const SurfaceType &sampleSurfaceTypeAt(const Position3 &point) const;
 };

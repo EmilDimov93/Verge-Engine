@@ -5,7 +5,8 @@
 
 #include "../shared/definitions.hpp"
 
-class Controller{
+class Controller
+{
 public:
     virtual VehicleInputState getVehicleInputState() const = 0;
     virtual VehicleHandle getVehicleHandle() const = 0;

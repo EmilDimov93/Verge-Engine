@@ -39,7 +39,7 @@ class AudioManager
 public:
     AudioManager();
 
-    void tick(AudioData audioData);
+    void tick(AudioData audioData, float volume);
 
     ~AudioManager();
 

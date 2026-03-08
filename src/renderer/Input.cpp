@@ -78,26 +78,26 @@ void Input::refresh()
 
     controllerConnected = glfwJoystickPresent(controllerId);
 
-    if(controllerConnected)
+    if (controllerConnected)
     {
         int axisCount = 0;
         const float *axisValues = glfwGetJoystickAxes(controllerId, &axisCount);
 
-        if(controllerAxes.size() != axisCount)
+        if (controllerAxes.size() != axisCount)
             controllerAxes.resize(axisCount);
-        
-        for(int i = 0; i < axisCount; i++)
+
+        for (int i = 0; i < axisCount; i++)
         {
             controllerAxes[i] = axisValues[i];
         }
-        
+
         int buttonCount = 0;
         const unsigned char *buttonStates = glfwGetJoystickButtons(controllerId, &buttonCount);
 
-        if(controllerBtnStates.size() != buttonCount)
+        if (controllerBtnStates.size() != buttonCount)
             controllerBtnStates.resize(buttonCount);
 
-        for(int i = 0; i < buttonCount; i++)
+        for (int i = 0; i < buttonCount; i++)
         {
             bool isDownNow = buttonStates[i] == GLFW_PRESS;
 
@@ -312,16 +312,16 @@ float Input::getAxis(VEControllerAxis axis)
     else
         axisValue = (axisValue + axisDeadZone) / (1.0f - axisDeadZone);
 
-    switch(axis.mapping)
+    switch (axis.mapping)
     {
-        case VE_AXIS_MAPPING_FULL:
-            return (axisValue + 1.0f) / 2;
-        case VE_AXIS_MAPPING_FULL_INVERTED:
-            return 1.0f - (axisValue + 1.0f) / 2;
-        case VE_AXIS_MAPPING_POSITIVE_HALF:
-            return clamp01(axisValue);
-        case VE_AXIS_MAPPING_NEGATIVE_HALF:
-            return clamp01(-axisValue);
+    case VE_AXIS_MAPPING_FULL:
+        return (axisValue + 1.0f) / 2;
+    case VE_AXIS_MAPPING_FULL_INVERTED:
+        return 1.0f - (axisValue + 1.0f) / 2;
+    case VE_AXIS_MAPPING_POSITIVE_HALF:
+        return clamp01(axisValue);
+    case VE_AXIS_MAPPING_NEGATIVE_HALF:
+        return clamp01(-axisValue);
     }
 
     return 0.0f;

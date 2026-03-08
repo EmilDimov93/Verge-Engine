@@ -33,7 +33,7 @@ AudioData Scene::getAudioData(PlayerHandle playerHandle)
         {
             if (player->getHandle() == playerHandle)
             {
-                AudioData audioData(player->getCameraPosition(), player->getCameraYaw(), player->getVolume(), engineAudioRequests, layeredEngineAudioRequests, oneShotAudioRequests);
+                AudioData audioData(player->getCameraPosition(), player->getCameraYaw(), engineAudioRequests, layeredEngineAudioRequests, oneShotAudioRequests);
                 return audioData;
             }
         }
@@ -115,7 +115,7 @@ VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Trans
 
         engineAudioRequests.push_back(newAudioRequest);
     }
-    
+
     if (!info.layeredEngineAudioFiles.empty())
     {
         VELayeredEngineAudioRequest newAudioRequest;

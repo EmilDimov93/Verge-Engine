@@ -133,13 +133,15 @@ inline glm::mat4 transformToMat(const Transform &transform)
 template <typename T>
 inline T clamp(T v, T lo, T hi)
 {
-    return (v < lo) ? lo : (v > hi) ? hi : v;
+    return (v < lo) ? lo : (v > hi) ? hi
+                                    : v;
 }
 
 template <typename T>
 inline T clamp01(T v)
 {
-    return (v < T(0)) ? T(0) : (v > T(1)) ? T(1) : v;
+    return (v < T(0)) ? T(0) : (v > T(1)) ? T(1)
+                                          : v;
 }
 
 constexpr float AvoidZero(float x)
@@ -182,21 +184,20 @@ struct AudioData
 {
     Position3 playerPosition;
     float playerYawRad;
-    float volume;
     const std::vector<VEEngineAudioRequest> &engineAudioRequests;
     const std::vector<VELayeredEngineAudioRequest> &layeredEngineAudioRequests;
     const std::vector<VEAudioRequest> &oneShotAudioRequests;
 
     AudioData(Position3 playerPosition,
               float playerYawRad,
-              float volume,
               const std::vector<VEEngineAudioRequest> &engineAudioRequests,
               const std::vector<VELayeredEngineAudioRequest> &layeredEngineAudioRequests,
               const std::vector<VEAudioRequest> &oneShotAudioRequests)
-        : playerPosition(playerPosition), playerYawRad(playerYawRad), volume(volume), engineAudioRequests(engineAudioRequests), layeredEngineAudioRequests(layeredEngineAudioRequests), oneShotAudioRequests(oneShotAudioRequests) {}
+        : playerPosition(playerPosition), playerYawRad(playerYawRad), engineAudioRequests(engineAudioRequests), layeredEngineAudioRequests(layeredEngineAudioRequests), oneShotAudioRequests(oneShotAudioRequests) {}
 };
 
-struct VehicleInputState{
+struct VehicleInputState
+{
     float throttle = 0;
     float brake = 0;
     float handbrake = 0;
@@ -209,3 +210,11 @@ struct VehicleInputState{
 
     bool starter = false;
 };
+
+inline float wrapRadToPi(float angleRad)
+{
+    angleRad = std::fmod(angleRad + PI, 2.0f * PI);
+    if (angleRad < 0.0f)
+        angleRad += 2.0f * PI;
+    return angleRad - PI;
+}

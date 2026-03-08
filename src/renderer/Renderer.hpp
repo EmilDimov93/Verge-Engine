@@ -56,13 +56,16 @@ public:
 
     float getAspectRatio();
 
+    float getVolume() const;
+    void setVolume(float volume);
+
 private:
     WindowManager window;
     VulkanManager vulkan;
     AudioManager audio;
     FpsManager fps;
 
-    float volume;
+    float volume = 1.0f;
 
     VehicleKeybinds keybinds;
 };

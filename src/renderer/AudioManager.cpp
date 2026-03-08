@@ -32,7 +32,7 @@ float AudioManager::volumeToGain(float volume) const
     return std::pow(10.0f, dB / 20.0f);
 }
 
-void AudioManager::tick(AudioData audioData)
+void AudioManager::tick(AudioData audioData, float volume)
 {
     for (const VELayeredEngineAudioRequest &req : audioData.layeredEngineAudioRequests)
     {
@@ -49,7 +49,7 @@ void AudioManager::tick(AudioData audioData)
 
                 float distance = std::sqrt(dx * dx + dy * dy + dz * dz);
 
-                float gain = volumeToGain(audioData.volume) * attenuation(distance);
+                float gain = volumeToGain(volume) * attenuation(distance);
 
                 float fx = cosf(audioData.playerYawRad);
                 float fz = sinf(audioData.playerYawRad);
@@ -125,6 +125,7 @@ void AudioManager::tick(AudioData audioData)
 
         ma_sound_start(&oneShotAudios.back().sound);
         ma_sound_set_pitch(&oneShotAudios.back().sound, req.pitch);
+        ma_sound_set_volume(&oneShotAudios.back().sound, volume);
     }
 
     for (auto iterator = oneShotAudios.begin(); iterator != oneShotAudios.end();)
@@ -146,7 +147,7 @@ void AudioManager::tick(AudioData audioData)
 
                 float distance = std::sqrt(dx * dx + dy * dy + dz * dz);
 
-                float gain = volumeToGain(audioData.volume) * attenuation(distance);
+                float gain = volumeToGain(volume) * attenuation(distance);
 
                 ma_sound_set_volume(&audio.sound, gain);
 
@@ -183,7 +184,7 @@ void AudioManager::tick(AudioData audioData)
 
                 float distance = std::sqrt(dx * dx + dy * dy + dz * dz);
 
-                float gain = volumeToGain(audioData.volume) * attenuation(distance);
+                float gain = volumeToGain(volume) * attenuation(distance);
 
                 ma_sound_set_volume(&audio.sound, req.pitch == 0 ? 0 : gain); // If req.pitch == 0 => Engine RPM = 0
 

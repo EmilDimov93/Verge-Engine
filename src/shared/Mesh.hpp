@@ -30,8 +30,8 @@ public:
 
     MeshHandle getHandle() const { return handle; }
     uint64_t getVersion() const { return version; };
-    const std::vector<Vertex>& getVertices() const { return vertices; }
-    const std::vector<uint32_t>& getIndices() const { return indices; }
+    const std::vector<Vertex> &getVertices() const { return vertices; }
+    const std::vector<uint32_t> &getIndices() const { return indices; }
 
 private:
     const MeshHandle handle;
@@ -51,7 +51,7 @@ struct MeshInstance
     glm::mat4 modelMat;
 
     MeshInstance(MeshInstanceHandle handle, MeshHandle meshHandle, glm::mat4 modelMat)
-    : handle(handle), meshHandle(meshHandle), modelMat(modelMat) { }
+        : handle(handle), meshHandle(meshHandle), modelMat(modelMat) {}
 };
 
 struct DrawData

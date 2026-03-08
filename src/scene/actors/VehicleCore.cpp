@@ -16,10 +16,12 @@ Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHI
 
     wheelOffset = info.wheelOffset;
 
-    if(info.peakTorqueNm > 0){
+    if (info.peakTorqueNm > 0)
+    {
         peakTorqueNm = info.peakTorqueNm;
     }
-    else{
+    else
+    {
         Log::add('A', 102);
         peakTorqueNm = 300;
     }
@@ -298,7 +300,7 @@ void Vehicle::tick(VehicleInputState vis, Environment environment, float surface
 
     this->vis = vis;
 
-    if(vis.starter)
+    if (vis.starter)
         activateStarter();
 
     flState.grip = surfaceFriction;

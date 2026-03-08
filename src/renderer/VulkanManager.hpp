@@ -138,5 +138,5 @@ private:
     stbi_uc *loadTextureFile(std::string fileName, int *width, int *height, VkDeviceSize *imageSize);
     size_t createTextureImage(std::string fileName);
     size_t createTexture(std::string fileName);
-    VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory * imageMemory);
+    VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory *imageMemory);
 };

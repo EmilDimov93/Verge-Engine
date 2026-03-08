@@ -6,7 +6,7 @@
 #include "../../shared/Log.hpp"
 
 Prop::Prop(PropHandle handle, MeshInstanceHandle meshInstanceHandle, Transform transform)
-: handle(handle)
+    : handle(handle)
 {
     this->meshInstanceHandle = meshInstanceHandle;
 

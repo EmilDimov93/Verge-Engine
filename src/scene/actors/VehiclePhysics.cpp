@@ -26,7 +26,7 @@ void Vehicle::stallAssist()
     }
     else if (rpm < idleRpm)
     {
-        if (rpm < idleRpm / 2)
+        if (rpm < idleRpm)
             isNeutral = true;
 
         float minThrottle = clamp01(0.0001f * (idleRpm - rpm) / dt);
@@ -35,9 +35,14 @@ void Vehicle::stallAssist()
             vis.throttle = minThrottle;
     }
 
-    if (transmissionType != VE_TRANSMISSION_TYPE_MANUAL_WITH_CLUTCH && forwardSpeedMps * 3.6f < 3.0f && vis.clutch == 0.0f)
+    const float maxBackwardAssistSpeedMps = 5.0f / 3.6f;
+    const float maxForwardAssistSpeedMps = 3.0f / 3.6f;
+    if (transmissionType != VE_TRANSMISSION_TYPE_MANUAL_WITH_CLUTCH && 
+        forwardSpeedMps > -maxBackwardAssistSpeedMps && 
+        forwardSpeedMps < maxForwardAssistSpeedMps && 
+        vis.clutch == 0.0f)
     {
-        vis.clutch = 1.0f - (0.1f + fabs(forwardSpeedMps) * 3.6f / 10.0f);
+        vis.clutch = 1.0f - (0.1f + (forwardSpeedMps + maxBackwardAssistSpeedMps) * 3.6f / 10.0f);
     }
 }
 
@@ -79,16 +84,16 @@ float Vehicle::calcFDriveMag()
         wheelSpin = std::fmod(wheelSpin + wheelRpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
     }
 
-    const float clutchSlipRadps = rpm * RPM_TO_RADPS_CONVERSION_FACTOR - fabs(forwardSpeedMps) * gearRatio * finalDriveRatio / wheelRadiusM;
+    const float clutchSlipRadps = rpm * RPM_TO_RADPS_CONVERSION_FACTOR - forwardSpeedMps * gearRatio * finalDriveRatio / wheelRadiusM;
 
     const float engineTorqueNm = getTorque() * vis.throttle;
     const float frictionTorqueNm = ENGINE_FRICTION_COEFF * rpm * RPM_TO_RADPS_CONVERSION_FACTOR;
 
-    const float clutchStiffnessNmPerRadps = 40.0f;
+    const float clutchStiffnessNmPerRadps = 12.0f;
     const float clutchCapacityNmAtFullEngagement = 500.0f;
     const float clutchTorqueCapacityNm = drivetrainEngagement * clutchCapacityNmAtFullEngagement;
 
-    float clutchTorqueNm = clamp(clutchStiffnessNmPerRadps * clutchSlipRadps, -clutchTorqueCapacityNm, clutchTorqueCapacityNm);
+    const float clutchTorqueNm = clamp(clutchStiffnessNmPerRadps * clutchSlipRadps, -clutchTorqueCapacityNm, clutchTorqueCapacityNm);
 
     const float angularAccelRadps = (engineTorqueNm - frictionTorqueNm - clutchTorqueNm) / ENGINE_INERTIA;
 

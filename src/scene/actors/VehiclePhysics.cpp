@@ -172,10 +172,12 @@ void Vehicle::calcForces(const Environment &environment)
         float backLateralForceN = -backCorneringStiffnessNPerRad * backSlipAngleRad;
 
         frontLateralForceN = maxFrontLateralForceN * std::tanh(frontLateralForceN / AvoidZero(maxFrontLateralForceN));
-
         backLateralForceN = maxBackLateralForceN * std::tanh(backLateralForceN / AvoidZero(maxBackLateralForceN));
 
-        FLat = right * (frontLateralForceN + backLateralForceN);
+        glm::vec3 frontRight = glm::normalize(right * std::cos(steeringAngleRad) - forward * std::sin(steeringAngleRad));
+        glm::vec3 frontLateralForce = frontRight * frontLateralForceN;
+        glm::vec3 backLateralForce = right * backLateralForceN;
+        FLat = frontLateralForce + backLateralForce;
 
         float yawMomentNm = centerOfGravity * (frontLateralForceN - backLateralForceN);
 

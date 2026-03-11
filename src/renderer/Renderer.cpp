@@ -61,7 +61,7 @@ VehicleInputState Renderer::getVIS()
     vis.clutch = keybinds.clutch.isAxis() ? keybinds.clutch.getValue()
                                               : smoothValue(keybinds.clutch.getValue(), vis.clutch, clutchSmoothing, dt);
 
-    vis.steer = (keybinds.steerRight.isAxis() && keybinds.steerRight.isAxis()) ? keybinds.steerLeft.getValue() - keybinds.steerRight.getValue()
+    vis.steer = (keybinds.steerRight.isAxis() && keybinds.steerLeft.isAxis()) ? keybinds.steerLeft.getValue() - keybinds.steerRight.getValue()
                                               : smoothValue(keybinds.steerLeft.getValue() - keybinds.steerRight.getValue(), vis.steer, steerSmoothing, dt);
 
     if (!keybinds.shiftUp.isAxis() && !keybinds.shiftDown.isAxis())

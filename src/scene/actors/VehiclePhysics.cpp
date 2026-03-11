@@ -216,13 +216,10 @@ void Vehicle::steer()
 {
     const float linearAttenuationCoefficient = 0.1f;
     const float quadraticAttenuationCoefficient = 0.00025f;
-    const float steerSpeed = 10.0f;
     float speedFactor = 1.0f / (1.0f + linearAttenuationCoefficient * forwardSpeedMps + quadraticAttenuationCoefficient * forwardSpeedMps * forwardSpeedMps);
     speedFactor = clamp(speedFactor, 0.15f, 1.0f);
-
-    float target = vis.steer * maxSteeringAngleRad * speedFactor;
-
-    steeringAngleRad = steeringAngleRad + (target - steeringAngleRad) * steerSpeed * dt;
+    
+    steeringAngleRad = vis.steer * maxSteeringAngleRad * speedFactor;
 
     clamp(steeringAngleRad, -maxSteeringAngleRad, maxSteeringAngleRad);
 }

@@ -14,13 +14,13 @@ class WindowManager
 public:
     WindowManager(Size2 size, std::string projectName);
 
-    GLFWwindow *getReference();
+    GLFWwindow *getReference() const;
 
-    Size2 getSize();
+    Size2 getSize() const;
 
-    bool isOpen();
+    bool isOpen() const;
 
-    float getAspectRatio();
+    float getAspectRatio() const;
 
     ~WindowManager();
 

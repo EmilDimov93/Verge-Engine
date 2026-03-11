@@ -9,7 +9,7 @@
 #include <fstream>
 #include <chrono>
 
-static constexpr size_t LOG_MESSAGE_LIMIT = 100000;
+static constexpr size_t LOG_MESSAGE_LIMIT = 1e5;
 
 #define IS_ENTRY_ERROR(num) (((num) / 100) % 10 == 2)
 

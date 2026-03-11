@@ -25,19 +25,44 @@ bool Renderer::tick(DrawData drawData, AudioData audioData)
     return window.isOpen();
 }
 
+float smoothValue(float newValue, float oldValue, float smoothingFactor, float dt)
+{
+    if (smoothingFactor <= 0.0f)
+        return newValue;
+
+    float interpolationSpeed = (1.0f - smoothingFactor) * 10.0f;
+
+    float bigger = newValue > oldValue ? newValue : oldValue;
+    float smaller = newValue < oldValue ? newValue : oldValue;
+
+    const float inputEpsilon = 1e-5f;
+
+    float res = clamp(oldValue + (newValue - oldValue) * interpolationSpeed * dt, smaller, bigger);
+
+    if(fabs(res) < inputEpsilon)
+        res = 0.0f;
+
+    return res;
+}
+
 VehicleInputState Renderer::getVIS()
 {
-    VehicleInputState vis{};
+    float dt = fps.getFrameTime();
 
-    vis.throttle = keybinds.throttle.getValue();
+    vis.throttle = keybinds.throttle.isAxis() ? keybinds.throttle.getValue()
+                                              : smoothValue(keybinds.throttle.getValue(), vis.throttle, throttleSmoothing, dt);
 
-    vis.brake = keybinds.brake.getValue();
+    vis.brake = keybinds.brake.isAxis() ? keybinds.brake.getValue()
+                                              : smoothValue(keybinds.brake.getValue(), vis.brake, brakeSmoothing, dt);
 
-    vis.handbrake = keybinds.handbrake.getValue();
+    vis.handbrake = keybinds.handbrake.isAxis() ? keybinds.handbrake.getValue()
+                                              : smoothValue(keybinds.handbrake.getValue(), vis.handbrake, handbrakeSmoothing, dt);
 
-    vis.clutch = keybinds.clutch.getValue();
+    vis.clutch = keybinds.clutch.isAxis() ? keybinds.clutch.getValue()
+                                              : smoothValue(keybinds.clutch.getValue(), vis.clutch, clutchSmoothing, dt);
 
-    vis.steer = keybinds.steerLeft.getValue() - keybinds.steerRight.getValue();
+    vis.steer = (keybinds.steerRight.isAxis() && keybinds.steerRight.isAxis()) ? keybinds.steerLeft.getValue() - keybinds.steerRight.getValue()
+                                              : smoothValue(keybinds.steerLeft.getValue() - keybinds.steerRight.getValue(), vis.steer, steerSmoothing, dt);
 
     if (!keybinds.shiftUp.isAxis() && !keybinds.shiftDown.isAxis())
     {
@@ -81,7 +106,7 @@ void Renderer::setTargetFps(uint16_t target)
     fps.setTarget(target);
 }
 
-float Renderer::getAspectRatio()
+float Renderer::getAspectRatio() const
 {
     return window.getAspectRatio();
 }

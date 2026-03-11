@@ -39,22 +39,22 @@ WindowManager::WindowManager(Size2 size, std::string projectName)
     Log::add('G', 000);
 }
 
-GLFWwindow *WindowManager::getReference()
+GLFWwindow *WindowManager::getReference() const
 {
     return window;
 }
 
-Size2 WindowManager::getSize()
+Size2 WindowManager::getSize() const
 {
     return size;
 }
 
-bool WindowManager::isOpen()
+bool WindowManager::isOpen() const
 {
     return !glfwWindowShouldClose(window);
 }
 
-float WindowManager::getAspectRatio()
+float WindowManager::getAspectRatio() const
 {
     if (!isInitialized)
     {

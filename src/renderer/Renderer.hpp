@@ -54,10 +54,19 @@ public:
     uint32_t getFps() const;
     void setTargetFps(uint16_t target);
 
-    float getAspectRatio();
+    float getAspectRatio() const;
 
     float getVolume() const;
     void setVolume(float volume);
+
+    // Input smoothing for non-axis keybinds
+    // 0 -> no smoothing (instant response)
+    // 1 -> maximum smoothing
+    float throttleSmoothing = 0.5f;
+    float brakeSmoothing = 0.5f;
+    float handbrakeSmoothing = 0.0f;
+    float clutchSmoothing = 0.5f;
+    float steerSmoothing = 0.5f;
 
 private:
     WindowManager window;
@@ -68,4 +77,5 @@ private:
     float volume = 1.0f;
 
     VehicleKeybinds keybinds;
+    VehicleInputState vis;
 };

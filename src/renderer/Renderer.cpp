@@ -39,44 +39,95 @@ float smoothValue(float newValue, float oldValue, float smoothingFactor, float d
 
     float res = clamp(oldValue + (newValue - oldValue) * interpolationSpeed * dt, smaller, bigger);
 
-    if(fabsf(res) < inputEpsilon)
+    if (fabsf(res) < inputEpsilon)
         res = 0.0f;
 
     return res;
+}
+
+float getMaxAbsKeybindValue(const VEKeybind keybindArray[VE_KEYBIND_COUNT], bool &isAxis)
+{
+    float maxValue = 0.0f;
+    isAxis = false;
+
+    for (int keybindIndex = 0; keybindIndex < VE_KEYBIND_COUNT; keybindIndex++)
+    {
+        float currValue = keybindArray[keybindIndex].getValue();
+        if (fabsf(currValue) > fabsf(maxValue))
+        {
+            maxValue = currValue;
+            isAxis = keybindArray[keybindIndex].isAxis();
+        }
+    }
+
+    return maxValue;
 }
 
 VehicleInputState Renderer::getVIS()
 {
     float dt = fps.getFrameTime();
 
-    vis.throttle = keybinds.throttle.isAxis() ? keybinds.throttle.getValue()
-                                              : smoothValue(keybinds.throttle.getValue(), vis.throttle, throttleSmoothing, dt);
-
-    vis.brake = keybinds.brake.isAxis() ? keybinds.brake.getValue()
-                                              : smoothValue(keybinds.brake.getValue(), vis.brake, brakeSmoothing, dt);
-
-    vis.handbrake = keybinds.handbrake.isAxis() ? keybinds.handbrake.getValue()
-                                              : smoothValue(keybinds.handbrake.getValue(), vis.handbrake, handbrakeSmoothing, dt);
-
-    vis.clutch = keybinds.clutch.isAxis() ? keybinds.clutch.getValue()
-                                              : smoothValue(keybinds.clutch.getValue(), vis.clutch, clutchSmoothing, dt);
-
-    vis.steer = (keybinds.steerRight.isAxis() && keybinds.steerLeft.isAxis()) ? keybinds.steerLeft.getValue() - keybinds.steerRight.getValue()
-                                              : smoothValue(keybinds.steerLeft.getValue() - keybinds.steerRight.getValue(), vis.steer, steerSmoothing, dt);
-
-    if (!keybinds.shiftUp.isAxis() && !keybinds.shiftDown.isAxis())
     {
-        if (keybinds.shiftUp.isPressed())
+        bool isThrottleAxis = false;
+        float throttle = getMaxAbsKeybindValue(keybinds.throttle, isThrottleAxis);
+
+        vis.throttle = isThrottleAxis ? throttle : smoothValue(throttle, vis.throttle, throttleSmoothing, dt);
+    }
+
+    {
+        bool isBrakeAxis = false;
+        float brake = getMaxAbsKeybindValue(keybinds.brake, isBrakeAxis);
+
+        vis.brake = isBrakeAxis ? brake : smoothValue(brake, vis.brake, brakeSmoothing, dt);
+    }
+
+    {
+        bool isHandbrakeAxis = false;
+        float handbrake = getMaxAbsKeybindValue(keybinds.handbrake, isHandbrakeAxis);
+
+        vis.handbrake = isHandbrakeAxis ? handbrake : smoothValue(handbrake, vis.handbrake, handbrakeSmoothing, dt);
+    }
+
+    {
+        bool isClutchAxis = false;
+        float clutch = getMaxAbsKeybindValue(keybinds.clutch, isClutchAxis);
+
+        vis.clutch = isClutchAxis ? clutch : smoothValue(clutch, vis.clutch, clutchSmoothing, dt);
+    }
+
+    {
+        bool isSteerLeftAxis = false;
+        float steerLeft = getMaxAbsKeybindValue(keybinds.steerLeft, isSteerLeftAxis);
+
+        bool isSteerRightAxis = false;
+        float steerRight = getMaxAbsKeybindValue(keybinds.steerRight, isSteerRightAxis);
+
+        vis.steer = (isSteerLeftAxis || isSteerRightAxis) ? steerLeft - steerRight : smoothValue(steerLeft - steerRight, vis.steer, steerSmoothing, dt);
+    }
+
+    {
+        vis.shiftUp = false;
+        vis.shiftDown = false;
+
+        bool isShiftUpAxis = false;
+        float shiftUp = getMaxAbsKeybindValue(keybinds.shiftUp, isShiftUpAxis);
+
+        bool isShiftDownAxis = false;
+        float shiftDown = getMaxAbsKeybindValue(keybinds.shiftDown, isShiftDownAxis);
+
+        if (!isShiftUpAxis && !isShiftDownAxis)
         {
-            vis.shiftUp = true;
-        }
-        if (keybinds.shiftDown.isPressed())
-        {
-            vis.shiftDown = true;
+            vis.shiftUp = shiftUp > 0.0f;
+            vis.shiftDown = shiftDown > 0.0f;
         }
     }
 
-    vis.starter = keybinds.startEngine.getValue() > 0.0f;
+    {
+        bool isStartEngineAxis = false;
+        float startEngine = getMaxAbsKeybindValue(keybinds.startEngine, isStartEngineAxis);
+
+        vis.starter = startEngine > 0.0f;
+    }
 
     return vis;
 }

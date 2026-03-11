@@ -9,6 +9,8 @@
 
 #include "../shared/Log.hpp"
 
+#define VE_KEYBIND_COUNT 2
+
 struct VE_STRUCT_RENDERER_CREATE_INFO
 {
     std::string projectName = "Verge Engine Program";
@@ -19,23 +21,23 @@ struct VE_STRUCT_RENDERER_CREATE_INFO
 
 struct VehicleKeybinds
 {
-    VEKeybind throttle;
-    VEKeybind brake;
-    VEKeybind handbrake;
-    VEKeybind clutch;
+    VEKeybind throttle[VE_KEYBIND_COUNT];
+    VEKeybind brake[VE_KEYBIND_COUNT];
+    VEKeybind handbrake[VE_KEYBIND_COUNT];
+    VEKeybind clutch[VE_KEYBIND_COUNT];
 
-    VEKeybind steerLeft;
-    VEKeybind steerRight;
+    VEKeybind steerLeft[VE_KEYBIND_COUNT];
+    VEKeybind steerRight[VE_KEYBIND_COUNT];
 
-    VEKeybind shiftUp;
-    VEKeybind shiftDown;
+    VEKeybind shiftUp[VE_KEYBIND_COUNT];
+    VEKeybind shiftDown[VE_KEYBIND_COUNT];
 
-    VEKeybind startEngine;
+    VEKeybind startEngine[VE_KEYBIND_COUNT];
 
-    VEKeybind moveCameraLeft;
-    VEKeybind moveCameraRight;
-    VEKeybind moveCameraUp;
-    VEKeybind moveCameraDown;
+    VEKeybind moveCameraLeft[VE_KEYBIND_COUNT];
+    VEKeybind moveCameraRight[VE_KEYBIND_COUNT];
+    VEKeybind moveCameraUp[VE_KEYBIND_COUNT];
+    VEKeybind moveCameraDown[VE_KEYBIND_COUNT];
 };
 
 class Renderer

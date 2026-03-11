@@ -36,32 +36,34 @@ private:
     void setupRenderer()
     {
         VehicleKeybinds keybinds{};
-        /*keybinds.throttle = VE_CONTROLLER_AXIS_RT;
-        keybinds.brake = VE_CONTROLLER_AXIS_LT;
-        keybinds.handbrake = VE_CONTROLLER_BTN_RB;
-        keybinds.clutch = VE_CONTROLLER_BTN_LB;
-        keybinds.steerLeft = VE_CONTROLLER_AXIS_LX_NEGATIVE;
-        keybinds.steerRight = VE_CONTROLLER_AXIS_LX_POSITIVE;
-        keybinds.shiftUp = VE_CONTROLLER_BTN_X;
-        keybinds.shiftDown = VE_CONTROLLER_BTN_Y;
-        keybinds.startEngine = VE_CONTROLLER_BTN_A;
-        keybinds.moveCameraLeft = VE_CONTROLLER_AXIS_RX_NEGATIVE;
-        keybinds.moveCameraRight = VE_CONTROLLER_AXIS_RX_POSITIVE;
-        keybinds.moveCameraUp = VE_CONTROLLER_AXIS_RY_POSITIVE;
-        keybinds.moveCameraDown = VE_CONTROLLER_AXIS_RY_NEGATIVE;*/
-        keybinds.throttle = VE_KEY_W;
-        keybinds.brake = VE_KEY_S;
-        keybinds.handbrake = VE_KEY_SPACE;
-        keybinds.clutch = VE_KEY_E;
-        keybinds.steerLeft = VE_KEY_A;
-        keybinds.steerRight = VE_KEY_D;
-        keybinds.shiftUp = VE_MOUSE_BTN_RIGHT;
-        keybinds.shiftDown = VE_MOUSE_BTN_LEFT;
-        keybinds.startEngine = VE_KEY_Q;
-        keybinds.moveCameraLeft = VE_KEY_LEFT;
-        keybinds.moveCameraRight = VE_KEY_RIGHT;
-        keybinds.moveCameraUp = VE_KEY_UP;
-        keybinds.moveCameraDown = VE_KEY_DOWN;
+
+        keybinds.throttle[0] = VE_KEY_W;
+        keybinds.brake[0] = VE_KEY_S;
+        keybinds.handbrake[0] = VE_KEY_SPACE;
+        keybinds.clutch[0] = VE_KEY_E;
+        keybinds.steerLeft[0] = VE_KEY_A;
+        keybinds.steerRight[0] = VE_KEY_D;
+        keybinds.shiftUp[0] = VE_MOUSE_BTN_RIGHT;
+        keybinds.shiftDown[0] = VE_MOUSE_BTN_LEFT;
+        keybinds.startEngine[0] = VE_KEY_Q;
+        keybinds.moveCameraLeft[0] = VE_KEY_LEFT;
+        keybinds.moveCameraRight[0] = VE_KEY_RIGHT;
+        keybinds.moveCameraUp[0] = VE_KEY_UP;
+        keybinds.moveCameraDown[0] = VE_KEY_DOWN;
+
+        keybinds.throttle[1] = VE_CONTROLLER_AXIS_RT;
+        keybinds.brake[1] = VE_CONTROLLER_AXIS_LT;
+        keybinds.handbrake[1] = VE_CONTROLLER_BTN_RB;
+        keybinds.clutch[1] = VE_CONTROLLER_BTN_LB;
+        keybinds.steerLeft[1] = VE_CONTROLLER_AXIS_LX_NEGATIVE;
+        keybinds.steerRight[1] = VE_CONTROLLER_AXIS_LX_POSITIVE;
+        keybinds.shiftUp[1] = VE_CONTROLLER_BTN_X;
+        keybinds.shiftDown[1] = VE_CONTROLLER_BTN_Y;
+        keybinds.startEngine[1] = VE_CONTROLLER_BTN_A;
+        keybinds.moveCameraLeft[1] = VE_CONTROLLER_AXIS_RX_NEGATIVE;
+        keybinds.moveCameraRight[1] = VE_CONTROLLER_AXIS_RX_POSITIVE;
+        keybinds.moveCameraUp[1] = VE_CONTROLLER_AXIS_RY_POSITIVE;
+        keybinds.moveCameraDown[1] = VE_CONTROLLER_AXIS_RY_NEGATIVE;
 
         renderer.setVehicleKeybinds(keybinds);
     }

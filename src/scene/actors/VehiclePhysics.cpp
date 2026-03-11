@@ -26,9 +26,6 @@ void Vehicle::stallAssist()
     }
     else if (rpm < idleRpm)
     {
-        if (rpm < idleRpm)
-            isNeutral = true;
-
         float minThrottle = clamp01(0.0001f * (idleRpm - rpm) / dt);
 
         if (vis.throttle < minThrottle)
@@ -37,9 +34,9 @@ void Vehicle::stallAssist()
 
     const float maxBackwardAssistSpeedMps = 5.0f / 3.6f;
     const float maxForwardAssistSpeedMps = 3.0f / 3.6f;
-    if (transmissionType != VE_TRANSMISSION_TYPE_MANUAL_WITH_CLUTCH && 
-        forwardSpeedMps > -maxBackwardAssistSpeedMps && 
-        forwardSpeedMps < maxForwardAssistSpeedMps && 
+    if (transmissionType != VE_TRANSMISSION_TYPE_MANUAL_WITH_CLUTCH &&
+        forwardSpeedMps > -maxBackwardAssistSpeedMps &&
+        forwardSpeedMps < maxForwardAssistSpeedMps &&
         vis.clutch == 0.0f)
     {
         vis.clutch = 1.0f - (0.1f + (forwardSpeedMps + maxBackwardAssistSpeedMps) * 3.6f / 10.0f);
@@ -255,7 +252,7 @@ void Vehicle::updateTransmission()
 {
     if (transmissionType == VE_TRANSMISSION_TYPE_AUTOMATIC)
     {
-        if (vis.clutch == 1.0f)
+        if (vis.clutch > 0.5f)
             return;
 
         if (isNeutral)
@@ -266,12 +263,17 @@ void Vehicle::updateTransmission()
                 isNeutral = false;
         }
 
-        // Temporary(unstable)
-        if (rpm >= maxRpm - 500 && rpm * RPM_TO_RADPS_CONVERSION_FACTOR <= fabsf(forwardSpeedMps) * gearRatios[gear - 1] * finalDriveRatio / wheelRadiusM)
+        // Sport transmission:
+        // Shift Up when max RPM is reached and there is no wheel spin
+        // Shift Down when lower gear RPM is less than max RPM or shift to Neutral when rpm is less than idle RPM
+        const float shiftUpOverspeedToleranceRadps = 30.0f;
+        if ((rpm > maxRpm) &&
+            (rpm * RPM_TO_RADPS_CONVERSION_FACTOR <= fabsf(forwardSpeedMps) * gearRatios[gear - 1] * finalDriveRatio / wheelRadiusM + shiftUpOverspeedToleranceRadps))
         {
             shiftUp();
         }
-        else if (gear > 1 && idleRpm + (maxRpm - idleRpm) * 7 / 10 >= rpm * gearRatios[gear - 2] / gearRatios[gear - 1])
+        else if ((gear > 1 && rpm * gearRatios[gear - 2] / gearRatios[gear - 1] < maxRpm) ||
+                 (gear == 1 && rpm < idleRpm && (vis.brake > 0.0f || vis.handbrake > 0.0f || forwardSpeedMps < 0.0f)))
         {
             shiftDown();
         }

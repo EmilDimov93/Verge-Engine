@@ -305,7 +305,7 @@ float Input::getAxis(VEControllerAxis axis)
     float axisValue = controllerAxes[axis.index];
 
     // Dead zone rescaling
-    if (fabs(axisValue) < axisDeadZone)
+    if (fabsf(axisValue) < axisDeadZone)
         axisValue = 0.0f;
     else if (axisValue > 0.0f)
         axisValue = (axisValue - axisDeadZone) / (1.0f - axisDeadZone);

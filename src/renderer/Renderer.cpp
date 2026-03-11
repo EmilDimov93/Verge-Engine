@@ -39,7 +39,7 @@ float smoothValue(float newValue, float oldValue, float smoothingFactor, float d
 
     float res = clamp(oldValue + (newValue - oldValue) * interpolationSpeed * dt, smaller, bigger);
 
-    if(fabs(res) < inputEpsilon)
+    if(fabsf(res) < inputEpsilon)
         res = 0.0f;
 
     return res;

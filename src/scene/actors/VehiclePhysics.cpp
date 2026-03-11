@@ -80,7 +80,7 @@ float Vehicle::calcFDriveMag()
     const float gearRatio = gearRatios[gear - 1];
 
     {
-        wheelRpm = drivetrainEngagement * rpm / (gearRatio * finalDriveRatio) + (1.0f - drivetrainEngagement) * (fabs(forwardSpeedMps) * RADPS_TO_RPM_CONVERSION_FACTOR / wheelRadiusM);
+        wheelRpm = drivetrainEngagement * rpm / (gearRatio * finalDriveRatio) + (1.0f - drivetrainEngagement) * (fabsf(forwardSpeedMps) * RADPS_TO_RPM_CONVERSION_FACTOR / wheelRadiusM);
         wheelSpin = std::fmod(wheelSpin + wheelRpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
     }
 
@@ -157,8 +157,8 @@ void Vehicle::calcForces(const Environment &environment)
 
         float backSlipAngleRad = std::atan2(lateralSpeedMps - centerOfGravity * yawRateRadps, forwardSpeedMps);
 
-        float frontFrictionCoefficient = tireGrip * (flState.grip + frState.grip) / 2 * (1.0f + std::fabs(camberRad));
-        float backFrictionCoefficient = tireGrip * (blState.grip + brState.grip) / 2 * (1.0f + std::fabs(camberRad));
+        float frontFrictionCoefficient = tireGrip * (flState.grip + frState.grip) / 2 * (1.0f + fabsf(camberRad));
+        float backFrictionCoefficient = tireGrip * (blState.grip + brState.grip) / 2 * (1.0f + fabsf(camberRad));
 
         const float handbrakeRearGripScale = 0.75f;
         backFrictionCoefficient *= (1.0f - vis.handbrake * handbrakeRearGripScale);
@@ -218,7 +218,7 @@ void Vehicle::steer()
     const float quadraticAttenuationCoefficient = 0.00025f;
     float speedFactor = 1.0f / (1.0f + linearAttenuationCoefficient * forwardSpeedMps + quadraticAttenuationCoefficient * forwardSpeedMps * forwardSpeedMps);
     speedFactor = clamp(speedFactor, 0.15f, 1.0f);
-    
+
     steeringAngleRad = vis.steer * maxSteeringAngleRad * speedFactor;
 
     clamp(steeringAngleRad, -maxSteeringAngleRad, maxSteeringAngleRad);
@@ -267,7 +267,7 @@ void Vehicle::updateTransmission()
         }
 
         // Temporary(unstable)
-        if (rpm >= maxRpm - 500 && rpm * RPM_TO_RADPS_CONVERSION_FACTOR <= fabs(forwardSpeedMps) * gearRatios[gear - 1] * finalDriveRatio / wheelRadiusM)
+        if (rpm >= maxRpm - 500 && rpm * RPM_TO_RADPS_CONVERSION_FACTOR <= fabsf(forwardSpeedMps) * gearRatios[gear - 1] * finalDriveRatio / wheelRadiusM)
         {
             shiftUp();
         }

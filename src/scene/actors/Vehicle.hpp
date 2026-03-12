@@ -62,8 +62,9 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
 struct WheelState
 {
     float grip = 1.0f;
-    float suspension = 0;
-    float spin = 0;
+    float suspension = 0.0f;
+    float rpm = 0.0f;
+    float spin = 0.0f;
 
     // wear, temperature
 };
@@ -135,8 +136,7 @@ public:
 
     float getMaxClimb()
     {
-        // Temporary hardcode. Should be wheelRadius?
-        return 0.5f;
+        return wheelRadiusM;
     }
 
     void collideVelocityVector(glm::vec3 localPOI);
@@ -199,7 +199,6 @@ private:
     float wheelRpm = 0.0f;
 
     float steeringAngleRad = 0.0f;
-    float wheelSpin = 0.0f;
     float yawRateRadps = 0.0f;
 
     float cruiseControlTargetMps = 0;

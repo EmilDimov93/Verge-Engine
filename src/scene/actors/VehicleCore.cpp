@@ -195,7 +195,7 @@ glm::mat4 Vehicle::getWheelFLMat() const
     wheelMat = glm::rotate(wheelMat, camberRad, glm::vec3(0, 0, 1));
 
     // Spin
-    wheelMat = glm::rotate(wheelMat, wheelSpin, glm::vec3(1.0f, 0, 0));
+    wheelMat = glm::rotate(wheelMat, flState.spin, glm::vec3(1.0f, 0, 0));
 
     return wheelMat;
 }
@@ -205,7 +205,7 @@ glm::mat4 Vehicle::getWheelFRMat() const
     glm::mat4 wheelMat =
         bodyMat *
         glm::translate(glm::mat4(1.0f), glm::vec3(-wheelOffset.x, wheelOffset.y + frState.suspension, wheelOffset.z)) /*Offset & Suspension*/ *
-        glm::rotate(glm::mat4(1.0f), PI, glm::vec3(0, 1, 0)) /*Flip*/;
+        glm::rotate(glm::mat4(1.0f), PI, glm::vec3(0, 1, 0)) /*Invert*/;
 
     // Steer
     wheelMat = glm::rotate(wheelMat, steeringAngleRad, glm::vec3(0, 1.0f, 0));
@@ -214,7 +214,7 @@ glm::mat4 Vehicle::getWheelFRMat() const
     wheelMat = glm::rotate(wheelMat, camberRad, glm::vec3(0, 0, 1));
 
     // Spin
-    wheelMat = glm::rotate(wheelMat, wheelSpin, glm::vec3(-1.0f, 0, 0));
+    wheelMat = glm::rotate(wheelMat, frState.spin, glm::vec3(-1.0f, 0, 0));
 
     return wheelMat;
 }
@@ -229,7 +229,7 @@ glm::mat4 Vehicle::getWheelBLMat() const
     wheelMat = glm::rotate(wheelMat, camberRad, glm::vec3(0, 0, 1));
 
     // Spin
-    wheelMat = glm::rotate(wheelMat, vis.handbrake ? 0.0f : wheelSpin, glm::vec3(1.0f, 0, 0));
+    wheelMat = glm::rotate(wheelMat, blState.spin, glm::vec3(1.0f, 0, 0));
 
     return wheelMat;
 }
@@ -239,13 +239,13 @@ glm::mat4 Vehicle::getWheelBRMat() const
     glm::mat4 wheelMat =
         bodyMat *
         glm::translate(glm::mat4(1.0f), glm::vec3(-wheelOffset.x, wheelOffset.y + brState.suspension, -wheelOffset.z)) /*Offset & Suspension*/ *
-        glm::rotate(glm::mat4(1.0f), PI, glm::vec3(0, 1, 0)) /*Flip*/;
+        glm::rotate(glm::mat4(1.0f), PI, glm::vec3(0, 1, 0)) /*Invert*/;
 
     // Camber
     wheelMat = glm::rotate(wheelMat, camberRad, glm::vec3(0, 0, 1));
 
     // Spin
-    wheelMat = glm::rotate(wheelMat, vis.handbrake ? 0.0f : wheelSpin, glm::vec3(-1.0f, 0, 0));
+    wheelMat = glm::rotate(wheelMat, brState.spin, glm::vec3(-1.0f, 0, 0));
 
     return wheelMat;
 }

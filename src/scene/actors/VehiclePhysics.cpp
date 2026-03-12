@@ -75,10 +75,24 @@ float Vehicle::calcFDriveMag()
     const float drivetrainEngagement = isNeutral ? 0.0f : (1.0f - vis.clutch);
 
     const float gearRatio = gearRatios[gear - 1];
-
     {
         wheelRpm = drivetrainEngagement * rpm / (gearRatio * finalDriveRatio) + (1.0f - drivetrainEngagement) * (fabsf(forwardSpeedMps) * RADPS_TO_RPM_CONVERSION_FACTOR / wheelRadiusM);
-        wheelSpin = std::fmod(wheelSpin + wheelRpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
+
+        const bool isFrontPowered = (drivetrainType == VE_DRIVETRAIN_TYPE_AWD) || drivetrainType == VE_DRIVETRAIN_TYPE_FWD;
+        const bool isBackPowered = (drivetrainType == VE_DRIVETRAIN_TYPE_AWD) || drivetrainType == VE_DRIVETRAIN_TYPE_RWD;
+
+        const float poweredWheelRpm = wheelRpm;
+        const float nonPoweredWheelRpm = (fabsf(forwardSpeedMps) * RADPS_TO_RPM_CONVERSION_FACTOR / wheelRadiusM);
+
+        flState.rpm = (1.0f - vis.brake) * (isFrontPowered ? poweredWheelRpm : nonPoweredWheelRpm);
+        frState.rpm = (1.0f - vis.brake) * (isFrontPowered ? poweredWheelRpm : nonPoweredWheelRpm);
+        blState.rpm = clamp01(1.0f - vis.brake - vis.handbrake) * (isBackPowered ? poweredWheelRpm : nonPoweredWheelRpm);
+        brState.rpm = clamp01(1.0f - vis.brake - vis.handbrake) * (isBackPowered ? poweredWheelRpm : nonPoweredWheelRpm);
+
+        flState.spin = std::fmod(flState.spin + flState.rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
+        frState.spin = std::fmod(frState.spin + frState.rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
+        blState.spin = std::fmod(blState.spin + blState.rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
+        brState.spin = std::fmod(brState.spin + brState.rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
     }
 
     const float clutchSlipRadps = rpm * RPM_TO_RADPS_CONVERSION_FACTOR - forwardSpeedMps * gearRatio * finalDriveRatio / wheelRadiusM;
@@ -167,8 +181,8 @@ void Vehicle::calcForces(const Environment &environment)
         float maxFrontLateralForceN = frontFrictionCoefficient * frontAxleNormalForceN;
         float maxBackLateralForceN = backFrictionCoefficient * backAxleNormalForceN;
 
-        const float frontCorneringStiffnessNPerRad = 80000.0f;
-        const float backCorneringStiffnessNPerRad = 80000.0f;
+        const float frontCorneringStiffnessNPerRad = 200000.0f;
+        const float backCorneringStiffnessNPerRad = 200000.0f;
 
         float frontLateralForceN = -frontCorneringStiffnessNPerRad * frontSlipAngleRad;
         float backLateralForceN = -backCorneringStiffnessNPerRad * backSlipAngleRad;

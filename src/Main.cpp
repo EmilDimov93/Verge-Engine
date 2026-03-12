@@ -145,7 +145,7 @@ private:
                 if (j >= 0 && j < surfaceWidth)
                 {
                     surfaceTypeMap[size_t(i) * surfaceWidth + j] = asphaltSurfaceTypeIndex;
-                    heightMap[size_t(i) * surfaceWidth + j] = 2.0f;
+                    heightMap[size_t(i) * surfaceWidth + j] = 0.6f;
                 }
             }
         }

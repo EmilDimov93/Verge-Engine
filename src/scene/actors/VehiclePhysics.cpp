@@ -162,17 +162,19 @@ void Vehicle::calcForces(const Environment &environment)
         float forwardSpeedMps = glm::dot(velocityMps, forward);
         float lateralSpeedMps = glm::dot(velocityMps, right);
 
-        float centerOfGravity = wheelOffset.z / 2;
+        float centerOfGravity = wheelOffset.z;
 
         float frontSlipAngleRad = std::atan2(lateralSpeedMps + centerOfGravity * yawRateRadps, forwardSpeedMps) - steeringAngleRad;
 
         float backSlipAngleRad = std::atan2(lateralSpeedMps - centerOfGravity * yawRateRadps, forwardSpeedMps);
 
-        float frontFrictionCoefficient = tireGrip * (flState.grip + frState.grip) / 2 * (1.0f + fabsf(camberRad));
-        float backFrictionCoefficient = tireGrip * (blState.grip + brState.grip) / 2 * (1.0f + fabsf(camberRad));
+        float vehicleWheelRpm = (forwardSpeedMps / wheelRadiusM) * RADPS_TO_RPM_CONVERSION_FACTOR;
 
-        const float handbrakeRearGripScale = 0.75f;
-        backFrictionCoefficient *= (1.0f - vis.handbrake * handbrakeRearGripScale);
+        float frontSlipRpm = clamp01(1.0f - clamp(fabsf(flState.rpm - vehicleWheelRpm), 0.0f, 100.0f) / 100.0f);
+        float backSlipRpm = clamp01(1.0f - clamp(fabsf(blState.rpm - vehicleWheelRpm), 0.0f, 100.0f) / 100.0f);
+
+        float frontFrictionCoefficient = tireGrip * (flState.grip + frState.grip) / 2 * AvoidZero(frontSlipRpm) * (1.0f + fabsf(camberRad));
+        float backFrictionCoefficient = tireGrip * (blState.grip + brState.grip) / 2 * AvoidZero(backSlipRpm) * (1.0f + fabsf(camberRad));
 
         float totalNormalForceN = weightKg * environment.gravityMps2;
         float frontAxleNormalForceN = 0.5f * totalNormalForceN;

@@ -11,6 +11,8 @@ public:
 
     void run()
     {
+        renderer.setTargetFps(240);
+
         setupScene();
 
         setupRenderer();
@@ -89,7 +91,7 @@ private:
         carInfo.dragCoeff = 0.31f;
         carInfo.frontalAreaM2 = 2.3f;
         carInfo.brakingForce = 14700;
-        carInfo.tireGrip = 2.5f;
+        carInfo.tireGrip = 1.0f;
         carInfo.camberRad = (PI / 180);
         carInfo.drivetrainType = VE_DRIVETRAIN_TYPE_FWD;
         carInfo.engineAudioFileName = "4k.wav";

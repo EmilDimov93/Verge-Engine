@@ -170,11 +170,11 @@ void Vehicle::calcForces(const Environment &environment)
 
         float vehicleWheelRpm = (forwardSpeedMps / wheelRadiusM) * RADPS_TO_RPM_CONVERSION_FACTOR;
 
-        float frontSlipRpm = clamp01(1.0f - clamp(fabsf(flState.rpm - vehicleWheelRpm), 0.0f, 100.0f) / 100.0f);
-        float backSlipRpm = clamp01(1.0f - clamp(fabsf(blState.rpm - vehicleWheelRpm), 0.0f, 100.0f) / 100.0f);
+        float frontSlipRpm = clamp01(1.0f - clamp((fabsf(flState.rpm - vehicleWheelRpm) + fabsf(frState.rpm - vehicleWheelRpm)) / 2, 0.0f, (float)maxRpm) / (float)maxRpm);
+        float backSlipRpm = clamp01(1.0f - clamp((fabsf(blState.rpm - vehicleWheelRpm) + fabsf(brState.rpm - vehicleWheelRpm)) / 2, 0.0f, (float)maxRpm) / (float)maxRpm);
 
-        float frontFrictionCoefficient = tireGrip * (flState.grip + frState.grip) / 2 * AvoidZero(frontSlipRpm) * (1.0f + fabsf(camberRad));
-        float backFrictionCoefficient = tireGrip * (blState.grip + brState.grip) / 2 * AvoidZero(backSlipRpm) * (1.0f + fabsf(camberRad));
+        float frontFrictionCoefficient = tireGrip * (flState.grip + frState.grip) / 2 * frontSlipRpm * (1.0f + fabsf(camberRad));
+        float backFrictionCoefficient = tireGrip * (blState.grip + brState.grip) / 2 * backSlipRpm * (1.0f + fabsf(camberRad));
 
         float totalNormalForceN = weightKg * environment.gravityMps2;
         float frontAxleNormalForceN = 0.5f * totalNormalForceN;
@@ -231,6 +231,9 @@ void Vehicle::steer()
     const float quadraticAttenuationCoefficient = 0.00025f;
     float speedFactor = 1.0f / (1.0f + linearAttenuationCoefficient * forwardSpeedMps + quadraticAttenuationCoefficient * forwardSpeedMps * forwardSpeedMps);
     speedFactor = clamp(speedFactor, 0.15f, 1.0f);
+
+    // Temporary: disabled speed factor
+    speedFactor = 1.0f;
 
     steeringAngleRad = vis.steer * maxSteeringAngleRad * speedFactor;
 

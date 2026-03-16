@@ -88,7 +88,7 @@ void Scene::tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputS
 
     for (const auto &vis : inputData)
     {
-        player(vis.first).setVIS(vis.second);
+        player(vis.first).setVehicleInputState(vis.second);
     }
 
     for (Vehicle &vehicle : vehicles)

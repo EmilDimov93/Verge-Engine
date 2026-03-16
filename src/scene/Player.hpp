@@ -15,12 +15,10 @@ public:
     {
     }
 
-    void setVIS(const VehicleInputState &vis);
-
+    void setVehicleInputState(const VehicleInputState &vis);
     VehicleInputState getVehicleInputState() const override;
 
     void setVehicleHandle(VehicleHandle vehicleHandle);
-
     VehicleHandle getVehicleHandle() const override;
 
     PlayerHandle getHandle() const;

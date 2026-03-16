@@ -129,6 +129,34 @@ VehicleInputState Renderer::getVIS()
         vis.starter = startEngine > 0.0f;
     }
 
+    {
+        bool isMoveCameraLeftAxis = false;
+        float moveCameraLeft = getMaxAbsKeybindValue(keybinds.moveCameraLeft, isMoveCameraLeftAxis);
+
+        vis.moveCameraLeft = isMoveCameraLeftAxis ? moveCameraLeft : smoothValue(moveCameraLeft, vis.moveCameraLeft, cameraMovementSmoothing, dt);
+    }
+
+    {
+        bool isMoveCameraRightAxis = false;
+        float moveCameraRight = getMaxAbsKeybindValue(keybinds.moveCameraRight, isMoveCameraRightAxis);
+
+        vis.moveCameraRight = isMoveCameraRightAxis ? moveCameraRight : smoothValue(moveCameraRight, vis.moveCameraRight, cameraMovementSmoothing, dt);
+    }
+
+    {
+        bool isMoveCameraUpAxis = false;
+        float moveCameraUp = getMaxAbsKeybindValue(keybinds.moveCameraUp, isMoveCameraUpAxis);
+
+        vis.moveCameraUp = isMoveCameraUpAxis ? moveCameraUp : smoothValue(moveCameraUp, vis.moveCameraUp, cameraMovementSmoothing, dt);
+    }
+
+    {
+        bool isMoveCameraDownAxis = false;
+        float moveCameraDown = getMaxAbsKeybindValue(keybinds.moveCameraDown, isMoveCameraDownAxis);
+
+        vis.moveCameraDown = isMoveCameraDownAxis ? moveCameraDown : smoothValue(moveCameraDown, vis.moveCameraDown, cameraMovementSmoothing, dt);
+    }
+
     return vis;
 }
 

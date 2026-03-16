@@ -3,7 +3,7 @@
 
 #include "Player.hpp"
 
-void Player::setVIS(const VehicleInputState &vis)
+void Player::setVehicleInputState(const VehicleInputState &vis)
 {
     this->vis = vis;
 }
@@ -46,9 +46,8 @@ void Player::updateCamera(ve_time_t dt, Transform vehicleTransform, glm::vec3 ve
     if (glm::length(vehicleVelocityVector) < 1.0f)
         targetYaw = cameraYaw;
 
-    // Temporary: camera movement disabled
-    cameraYaw += wrapRadToPi(targetYaw - cameraYaw) * cameraFollowDelay; // + (keybinds.moveCameraRight.getValue() - keybinds.moveCameraLeft.getValue()) * PI * dt;
-    // cameraPitch += (keybinds.moveCameraUp.getValue() - keybinds.moveCameraDown.getValue()) * PI * dt;
+    cameraYaw += wrapRadToPi(targetYaw - cameraYaw) * cameraFollowDelay + (vis.moveCameraRight - vis.moveCameraLeft) * PI * dt;
+    cameraPitch += (vis.moveCameraUp - vis.moveCameraDown) * PI * dt;
 
     cameraPitch = clamp(cameraPitch, minCameraPitch, maxCameraPitch);
 

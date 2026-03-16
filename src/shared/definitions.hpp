@@ -198,17 +198,22 @@ struct AudioData
 
 struct VehicleInputState
 {
-    float throttle = 0;
-    float brake = 0;
-    float handbrake = 0;
-    float clutch = 0;
+    float throttle = 0.0f;
+    float brake = 0.0f;
+    float handbrake = 0.0f;
+    float clutch = 0.0f;
 
-    float steer = 0;
+    float steer = 0.0f;
 
     bool shiftUp = false;
     bool shiftDown = false;
 
     bool starter = false;
+
+    float moveCameraLeft = 0.0f;
+    float moveCameraRight = 0.0f;
+    float moveCameraUp = 0.0f;
+    float moveCameraDown = 0.0f;
 };
 
 inline float wrapRadToPi(float angleRad)

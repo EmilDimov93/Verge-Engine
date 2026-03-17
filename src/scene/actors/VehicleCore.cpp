@@ -277,6 +277,16 @@ void Vehicle::collideVelocityVector(glm::vec3 localPOI)
         velocityMps -= collisionNormal * velocityAlongNormal;
 }
 
+void Vehicle::printState()
+{
+    std::cout << (std::round(forwardSpeedMps * 3.6f) > 1.0f ? std::round(forwardSpeedMps * 3.6f) : 0.0f) << " km/h | " << std::round(rpm) << " rpm | " << (isNeutral ? "N" : std::to_string(gear)) << " gear" << std::endl;
+}
+
+void Vehicle::printVIS()
+{
+    printf("%.2ft %.2fb %.2fc %.2fs\n", vis.throttle, vis.brake, vis.clutch, vis.steer);
+}
+
 void Vehicle::updateTransform()
 {
     transform.position.x += velocityMps.x * dt;
@@ -320,5 +330,6 @@ void Vehicle::tick(VehicleInputState vis, Environment environment, float surface
 
     calcTireTemperatures(environment);
 
-    // std::cout << (std::round(forwardSpeedMps * 3.6f) > 1.0f ? std::round(forwardSpeedMps * 3.6f) : 0.0f) << " km/h | " << std::round(rpm) << " rpm | " << (isNeutral ? "N" : std::to_string(gear)) << " gear" << std::endl;
+    // printState();
+    printVIS();
 }

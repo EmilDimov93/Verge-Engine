@@ -122,6 +122,9 @@ private:
 
     void activateStarter();
 
+    void printState();
+    void printVIS();
+
     const VehicleHandle handle;
 
     MeshInstanceHandle bodyMeshInstanceHandle;

@@ -10,6 +10,7 @@
 #include "../../shared/definitions.hpp"
 
 #include <vector>
+#include <array>
 
 #define RPM_TO_RADPS_CONVERSION_FACTOR 2.0f * PI / 60.0f
 
@@ -79,59 +80,21 @@ public:
     // Temporary(testing)
     void setHeight(float h) { transform.position.y = h; }
 
-    // Temporarily public
-    WheelState flState;
-    WheelState frState;
-    WheelState blState;
-    WheelState brState;
-
-    // Temporarily public
-    // Points of interest for collision checks(local)
-    glm::vec3 flPOI;
-    glm::vec3 frPOI;
-    glm::vec3 blPOI;
-    glm::vec3 brPOI;
+    static constexpr size_t CollisionPointCount = 4;
+    std::array<glm::vec3, CollisionPointCount> collisionPoints;
 
     glm::mat4 transformMat;
 
-    glm::vec3 getFLPOIWorld()
+    glm::vec3 getCollisionPointWorld(uint32_t index)
     {
-        return transformMat * glm::vec4(flPOI, 1.0f);
+        assert(index < collisionPoints.size());
+        return transformMat * glm::vec4(collisionPoints[index], 1.0f);
     }
 
-    glm::vec3 getFRPOIWorld()
+    glm::vec3 getCollisionPointLocal(uint32_t index)
     {
-        return transformMat * glm::vec4(frPOI, 1.0f);
-    }
-
-    glm::vec3 getBLPOIWorld()
-    {
-        return transformMat * glm::vec4(blPOI, 1.0f);
-    }
-
-    glm::vec3 getBRPOIWorld()
-    {
-        return transformMat * glm::vec4(brPOI, 1.0f);
-    }
-
-    glm::vec3 getFLPOILocal()
-    {
-        return flPOI;
-    }
-
-    glm::vec3 getFRPOILocal()
-    {
-        return frPOI;
-    }
-
-    glm::vec3 getBLPOILocal()
-    {
-        return blPOI;
-    }
-
-    glm::vec3 getBRPOILocal()
-    {
-        return brPOI;
+        assert(index < collisionPoints.size());
+        return collisionPoints[index];
     }
 
     float getMaxClimb()
@@ -202,6 +165,11 @@ private:
     float yawRateRadps = 0.0f;
 
     float cruiseControlTargetMps = 0;
+
+    WheelState flState;
+    WheelState frState;
+    WheelState blState;
+    WheelState brState;
 
     glm::mat4 bodyMat;
 

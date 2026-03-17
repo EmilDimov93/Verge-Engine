@@ -86,4 +86,6 @@ private:
 
     float sampleHeightAt(const Position3 &point) const;
     const SurfaceType &sampleSurfaceTypeAt(const Position3 &point) const;
+    float sampleHeightAt(const glm::vec3 &point) const;
+    const SurfaceType &sampleSurfaceTypeAt(const glm::vec3 &point) const;
 };

@@ -82,8 +82,6 @@ Trigger &Scene::trigger(TriggerHandle handle)
 
 void Scene::tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputState>> inputData)
 {
-    oneShotAudioRequests.clear();
-
     this->dt = dt;
 
     for (const auto &vis : inputData)
@@ -105,7 +103,7 @@ void Scene::tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputS
         }
 
         // Recalculate velocity vector
-        vehicle.tick(vis, environment, sampleSurfaceTypeAt({vehicle.getTransform().position.x, vehicle.getTransform().position.y, vehicle.getTransform().position.z}).friction, dt);
+        vehicle.tick(vis, environment, sampleSurfaceTypeAt(vehicle.getTransform().position).friction, dt);
 
         // Update transform with new velocity vector
         vehicle.updateTransform();
@@ -113,29 +111,20 @@ void Scene::tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputS
         // Collisions
         float totalMaxClimb = vehicle.getTransform().position.y + vehicle.getMaxClimb();
 
-        float surfaceHeightAtFLPOI = sampleHeightAt({vehicle.getFLPOIWorld().x, vehicle.getFLPOIWorld().y, vehicle.getFLPOIWorld().z});
-        float surfaceHeightAtFRPOI = sampleHeightAt({vehicle.getFRPOIWorld().x, vehicle.getFRPOIWorld().y, vehicle.getFRPOIWorld().z});
-        float surfaceHeightAtBLPOI = sampleHeightAt({vehicle.getBLPOIWorld().x, vehicle.getBLPOIWorld().y, vehicle.getBLPOIWorld().z});
-        float surfaceHeightAtBRPOI = sampleHeightAt({vehicle.getBRPOIWorld().x, vehicle.getBRPOIWorld().y, vehicle.getBRPOIWorld().z});
+        std::array<float, Vehicle::CollisionPointCount> surfaceHeightAtCollisionPoints;
+        float heightAvg = 0.0f;
+        for (size_t i = 0; i < Vehicle::CollisionPointCount; i++)
+        {
+            surfaceHeightAtCollisionPoints[i] = sampleHeightAt(vehicle.getCollisionPointWorld(i));
+            heightAvg += surfaceHeightAtCollisionPoints[i];
 
-        if (totalMaxClimb < surfaceHeightAtFLPOI)
-        {
-            vehicle.collideVelocityVector(vehicle.getFLPOILocal());
-        }
-        else if (totalMaxClimb < surfaceHeightAtFRPOI)
-        {
-            vehicle.collideVelocityVector(vehicle.getFRPOILocal());
-        }
-        else if (totalMaxClimb < surfaceHeightAtBLPOI)
-        {
-            vehicle.collideVelocityVector(vehicle.getBLPOILocal());
-        }
-        else if (totalMaxClimb < surfaceHeightAtBRPOI)
-        {
-            vehicle.collideVelocityVector(vehicle.getBRPOILocal());
+            if (totalMaxClimb < surfaceHeightAtCollisionPoints[i])
+            {
+                vehicle.collideVelocityVector(vehicle.getCollisionPointLocal(i));
+            }
         }
 
-        float heightAvg = (surfaceHeightAtFLPOI + surfaceHeightAtFRPOI + surfaceHeightAtBLPOI + surfaceHeightAtBRPOI) / 4;
+        heightAvg /= Vehicle::CollisionPointCount;
 
         if (vehicle.getTransform().position.y < heightAvg)
         {
@@ -154,19 +143,24 @@ void Scene::tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputS
         setModelMat(vehicle.getWheelBRMeshInstanceHandle(), vehicle.getWheelBRMat());
     }
 
-    for (VEEngineAudioRequest &req : engineAudioRequests)
+    // Audio
     {
-        Vehicle v = vehicle(req.vehicleHandle);
-        req.pitch = v.getRpm() / v.getMaxRpm();
-        req.position = v.getTransform().position;
-    }
+        oneShotAudioRequests.clear();
 
-    for (VELayeredEngineAudioRequest &req : layeredEngineAudioRequests)
-    {
-        Vehicle v = vehicle(req.vehicleHandle);
-        req.rpm = v.getRpm();
-        req.maxRpm = v.getMaxRpm();
-        req.position = v.getTransform().position;
+        for (VEEngineAudioRequest &req : engineAudioRequests)
+        {
+            Vehicle v = vehicle(req.vehicleHandle);
+            req.pitch = v.getRpm() / v.getMaxRpm();
+            req.position = v.getTransform().position;
+        }
+
+        for (VELayeredEngineAudioRequest &req : layeredEngineAudioRequests)
+        {
+            Vehicle v = vehicle(req.vehicleHandle);
+            req.rpm = v.getRpm();
+            req.maxRpm = v.getMaxRpm();
+            req.position = v.getTransform().position;
+        }
     }
 
     for (std::unique_ptr<Controller> &controller : controllers)
@@ -423,6 +417,10 @@ const SurfaceType &Scene::sampleSurfaceTypeAt(const Position3 &point) const
 
     return surfaceTypes[surfaces[highestIndex].sampleSurfaceTypeIndex(point)];
 }
+
+float Scene::sampleHeightAt(const glm::vec3 &pos) const { return sampleHeightAt(Position3(pos.x, pos.y, pos.z)); }
+
+const SurfaceType &Scene::sampleSurfaceTypeAt(const glm::vec3 &pos) const { return sampleSurfaceTypeAt(Position3(pos.x, pos.y, pos.z)); }
 
 void Scene::setAirDensity(float airDensityKgpm3)
 {

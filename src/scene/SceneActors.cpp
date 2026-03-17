@@ -161,11 +161,11 @@ VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Trans
         }
     }
 
-    float vehicleHeightMin = minY;
-    newVehicle.flPOI = {maxX, vehicleHeightMin, maxZ};
-    newVehicle.frPOI = {minX, vehicleHeightMin, maxZ};
-    newVehicle.blPOI = {maxX, vehicleHeightMin, minZ};
-    newVehicle.brPOI = {minX, vehicleHeightMin, minZ};
+    // Collision points for each corner of the vehicle at the minimum height
+    newVehicle.collisionPoints[0] = {maxX, minY, maxZ};
+    newVehicle.collisionPoints[1] = {minX, minY, maxZ};
+    newVehicle.collisionPoints[2] = {maxX, minY, minZ};
+    newVehicle.collisionPoints[3] = {minX, minY, minZ};
 
     vehicles.push_back(newVehicle);
 

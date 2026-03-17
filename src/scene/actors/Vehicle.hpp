@@ -67,7 +67,9 @@ struct WheelState
     float rpm = 0.0f;
     float spin = 0.0f;
 
-    // wear, temperature
+    float temperatureK = 0.0f;
+
+    float wear = 0.0f; // Not implemented
 };
 
 class Vehicle
@@ -116,6 +118,7 @@ private:
     void shiftUp();
     void shiftDown();
     void updateTransmission();
+    void calcTireTemperatures(const Environment &environment);
 
     void activateStarter();
 

@@ -5,6 +5,11 @@
 
 #include "../shared/definitions.hpp"
 
+inline float KelvinToCelsius(float kelvin)
+{
+    return kelvin - 273.15f;
+}
+
 struct Environment
 {
     ve_color_t backgroundColor;

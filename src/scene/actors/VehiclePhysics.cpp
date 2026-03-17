@@ -174,7 +174,7 @@ void Vehicle::calcForces(const Environment &environment)
         float backSlipFactor = clamp01(1.0f - clamp((fabsf(blState.rpm - vehicleWheelRpm) + fabsf(brState.rpm - vehicleWheelRpm)) / 2, 0.0f, (float)maxRpm) / (float)maxRpm);
 
         // Temporary: disabled slip factor
-        float frontFrictionCoefficient = tireGrip * (flState.grip + frState.grip) / 2 * /*frontSlipFactor **/(1.0f + fabsf(camberRad));
+        float frontFrictionCoefficient = tireGrip * (flState.grip + frState.grip) / 2 * /*frontSlipFactor **/ (1.0f + fabsf(camberRad));
         float backFrictionCoefficient = tireGrip * (blState.grip + brState.grip) / 2 * /*backSlipFactor **/ (1.0f + fabsf(camberRad));
 
         float totalNormalForceN = weightKg * environment.gravityMps2;
@@ -309,4 +309,29 @@ void Vehicle::updateTransmission()
             shiftDown();
         }
     }
+}
+
+void Vehicle::calcTireTemperatures(const Environment &environment)
+{
+    float frontSlip = fabsf(flState.rpm - ((forwardSpeedMps / wheelRadiusM) * RADPS_TO_RPM_CONVERSION_FACTOR));
+    float backSlip = fabsf(blState.rpm - ((forwardSpeedMps / wheelRadiusM) * RADPS_TO_RPM_CONVERSION_FACTOR));
+
+    if (flState.temperatureK < environment.temperatureK)
+        flState.temperatureK = environment.temperatureK;
+    if (frState.temperatureK < environment.temperatureK)
+        frState.temperatureK = environment.temperatureK;
+    if (blState.temperatureK < environment.temperatureK)
+        blState.temperatureK = environment.temperatureK;
+    if (brState.temperatureK < environment.temperatureK)
+        brState.temperatureK = environment.temperatureK;
+
+    float heatingCoefficient = 2e-5f;
+    float coolingCoefficient = 2e-2f;
+
+    float tireCooling = coolingCoefficient * (flState.temperatureK - environment.temperatureK);
+
+    flState.temperatureK += dt * (heatingCoefficient * flState.grip * std::fabsf(frontSlip) * std::fabsf(flState.rpm) - tireCooling);
+    frState.temperatureK += dt * (heatingCoefficient * frState.grip * std::fabsf(frontSlip) * std::fabsf(frState.rpm) - tireCooling);
+    blState.temperatureK += dt * (heatingCoefficient * blState.grip * std::fabsf(backSlip) * std::fabsf(blState.rpm) - tireCooling);
+    brState.temperatureK += dt * (heatingCoefficient * brState.grip * std::fabsf(backSlip) * std::fabsf(brState.rpm) - tireCooling);
 }

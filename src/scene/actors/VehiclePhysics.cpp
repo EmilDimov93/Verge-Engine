@@ -95,7 +95,7 @@ float Vehicle::calcFDriveMag()
         brState.spin = std::fmod(brState.spin + brState.rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
     }
 
-    const float clutchSlipRadps = rpm * RPM_TO_RADPS_CONVERSION_FACTOR - forwardSpeedMps * gearRatio * finalDriveRatio / wheelRadiusM;
+    const float clutchSlipRadps = rpm * RPM_TO_RADPS_CONVERSION_FACTOR - fabsf(forwardSpeedMps) * gearRatio * finalDriveRatio / wheelRadiusM;
 
     const float engineTorqueNm = getTorque() * vis.throttle;
     const float frictionTorqueNm = ENGINE_FRICTION_COEFF * rpm * RPM_TO_RADPS_CONVERSION_FACTOR;
@@ -115,7 +115,7 @@ float Vehicle::calcFDriveMag()
 
     const float wheelTorqueNm = clutchTorqueNm * gearRatio * finalDriveRatio * drivetrainEfficiency;
 
-    return wheelTorqueNm / wheelRadiusM;
+    return (gear == 0 ? -1 : 1) * wheelTorqueNm / wheelRadiusM;
 }
 
 void Vehicle::calcForces(const Environment &environment)

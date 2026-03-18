@@ -32,14 +32,22 @@ void Vehicle::stallAssist()
             vis.throttle = minThrottle;
     }
 
+    if(transmissionType == VE_TRANSMISSION_TYPE_AUTOMATIC && gear == 0)
+    {
+        float temp = vis.brake;
+        vis.brake = vis.throttle;
+        vis.throttle = temp;
+    }
+
     const float maxBackwardAssistSpeedMps = 5.0f / 3.6f;
-    const float maxForwardAssistSpeedMps = 3.0f / 3.6f;
+    const float maxForwardAssistSpeedMps = 5.0f / 3.6f;
     if (transmissionType != VE_TRANSMISSION_TYPE_MANUAL_WITH_CLUTCH &&
         forwardSpeedMps > -maxBackwardAssistSpeedMps &&
         forwardSpeedMps < maxForwardAssistSpeedMps &&
         vis.clutch == 0.0f)
     {
-        vis.clutch = 1.0f - (0.1f + (forwardSpeedMps + maxBackwardAssistSpeedMps) * 3.6f / 10.0f);
+        vis.clutch = 1.0f - (0.1f + ((gear == 0 ? -1 : 1) * forwardSpeedMps + maxBackwardAssistSpeedMps) * 3.6f / 10.0f);
+        vis.clutch = clamp(vis.clutch, 0.0f, 1.0f);
     }
 }
 
@@ -243,15 +251,22 @@ void Vehicle::steer()
 
 void Vehicle::shiftUp()
 {
-    if (gear <= gearCount)
-    {
-        rpm = rpm * gearRatios[gear + 1] / gearRatios[gear];
-        gear++;
-    }
     if (isNeutral)
     {
         gear = 1;
         isNeutral = false;
+        return;
+    }
+    if (gear == 0)
+    {
+        gear = 1;
+        isNeutral = true;
+        return;
+    }
+    if (gear <= gearCount)
+    {
+        rpm = rpm * gearRatios[gear + 1] / gearRatios[gear];
+        gear++;
     }
 }
 
@@ -282,9 +297,9 @@ void Vehicle::updateTransmission()
 
         if (isNeutral)
         {
-            if (vis.throttle == 0.0f)
+            if (vis.throttle == 0.0f && vis.brake == 0.0f)
                 return;
-            else
+            else if(vis.throttle != 0.0f)
                 isNeutral = false;
         }
 
@@ -292,28 +307,19 @@ void Vehicle::updateTransmission()
         // Shift Up when max RPM is reached and there is no wheel spin
         // Shift Down when lower gear RPM is less than max RPM or shift to Neutral when rpm is less than idle RPM
         const float shiftUpOverspeedToleranceRadps = 30.0f;
-        if ((rpm > maxRpm) &&
-            (rpm * RPM_TO_RADPS_CONVERSION_FACTOR <= fabsf(forwardSpeedMps) * gearRatios[gear] * finalDriveRatio / wheelRadiusM + shiftUpOverspeedToleranceRadps))
+        if (((gear != 0 && rpm > maxRpm) &&
+            (rpm * RPM_TO_RADPS_CONVERSION_FACTOR <= fabsf(forwardSpeedMps) * gearRatios[gear] * finalDriveRatio / wheelRadiusM + shiftUpOverspeedToleranceRadps)) ||
+            (gear == 0 && rawThrottle > 0.0f) ||
+            (gear == 0 && rpm < idleRpm))
         {
             shiftUp();
         }
-        else if ((gear > 1 && rpm * gearRatios[gear - 1] / gearRatios[gear] < maxRpm) ||
-                 (gear == 1 && rpm < idleRpm && (vis.brake > 0.0f || vis.handbrake > 0.0f || forwardSpeedMps < 0.0f)))
+        if ((gear > 1 && rpm * gearRatios[gear - 1] / gearRatios[gear] < maxRpm) ||
+                 (gear == 1 && rpm < idleRpm && (vis.brake > 0.0f || vis.handbrake > 0.0f || forwardSpeedMps < 0.0f)) ||
+                 (isNeutral && vis.brake > 0.0f && forwardSpeedMps < 1.0f))
         {
             shiftDown();
         }
-
-        /*
-        if (gear == 0 && vis.throttle > 0.0f)
-        {
-            shiftUp();
-        }
-
-        if (vis.brake > 0.0f && forwardSpeedMps < 1.0f)
-        {
-            shiftDown();
-        }
-        */
     }
     else
     {

@@ -70,32 +70,42 @@ Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHI
 
     drivetrainType = info.drivetrainType;
 
-    if (info.brakingForce >= 0)
+    if (info.brakingForceN >= 0)
     {
-        brakingForce = info.brakingForce;
+        brakingForceN = info.brakingForceN;
     }
     else
     {
-        brakingForce = 1.0f;
+        brakingForceN = 15000.0f;
     }
 
     if (info.pGearRatios)
     {
-        // error if pGearRatios size is lower than gearCount
-        gearRatios.assign(info.pGearRatios, info.pGearRatios + gearCount);
+        gearRatios.resize(gearCount + 1);
+
+        if (info.reverseGearRatio > 0.0f)
+        {
+            gearRatios[0] = info.reverseGearRatio;
+        }
+        else
+        {
+            gearRatios[0] = 3.5f;
+        }
+
+        std::copy(info.pGearRatios, info.pGearRatios + gearCount, gearRatios.begin() + 1);
     }
     else
     {
         if (gearCount == 1)
         {
-            gearRatios[0] = 1.0f;
+            gearRatios[1] = 1.0f;
         }
         else
         {
             const float defaultTopRatio = 1.0f;
             const float defaultFirstRatio = 5.0f;
             gearRatios.resize(gearCount);
-            for (size_t i = 0; i < gearCount; ++i)
+            for (size_t i = 1; i <= gearCount; ++i)
             {
                 gearRatios[i] = defaultTopRatio * std::pow(defaultFirstRatio / defaultTopRatio, float(gearCount - 1 - i) / float(gearCount - 1));
             }
@@ -279,7 +289,7 @@ void Vehicle::collideVelocityVector(glm::vec3 localPOI)
 
 void Vehicle::printState()
 {
-    std::cout << (std::round(forwardSpeedMps * 3.6f) > 1.0f ? std::round(forwardSpeedMps * 3.6f) : 0.0f) << " km/h | " << std::round(rpm) << " rpm | " << (isNeutral ? "N" : std::to_string(gear)) << " gear" << std::endl;
+    std::cout << (std::round(forwardSpeedMps * 3.6f) > 1.0f ? std::round(forwardSpeedMps * 3.6f) : 0.0f) << " km/h | " << std::round(rpm) << " rpm | " << (isNeutral ? "N" : (gear == 0 ? "R" : std::to_string(gear))) << " gear" << std::endl;
 }
 
 void Vehicle::printVIS()
@@ -330,6 +340,6 @@ void Vehicle::tick(VehicleInputState vis, Environment environment, float surface
 
     calcTireTemperatures(environment);
 
-    // printState();
-    printVIS();
+    printState();
+    // printVIS();
 }

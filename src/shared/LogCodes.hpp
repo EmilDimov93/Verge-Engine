@@ -119,6 +119,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'A', 113}, "Vehicle: invalid max steering angle. Using default value"},
     {{'A', 114}, "Vehicle: invalid camber. Using default value"},
     {{'A', 115}, "Vehicle: invalid tire grip. Using default value"},
+    {{'A', 116}, "Vehicle: invalid reverse gear ratio. Using default value"},
 
     // Prop
     // {'A', 160} removed

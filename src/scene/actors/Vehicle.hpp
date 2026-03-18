@@ -38,12 +38,13 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     uint32_t peakTorqueNm = 300;
 
     float weightKg = 1200.f;
-    uint32_t gearCount = 5;
+    uint32_t gearCount = 5; // Excluding reverse
     uint32_t maxRpm = 6000;
-    float brakingForce = 1.0f;
+    float brakingForceN = 15000.0f;
     VETransmissionType transmissionType = VE_TRANSMISSION_TYPE_AUTOMATIC;
 
     float *pGearRatios = nullptr;
+    float reverseGearRatio = 3.5f;
     float finalDriveRatio = 3.42f;
     float drivetrainEfficiency = 0.85f;
     float wheelRadiusM = 0.3f;
@@ -141,7 +142,7 @@ private:
     uint32_t maxRpm;
     uint32_t idleRpm;
     VETransmissionType transmissionType;
-    float brakingForce;
+    float brakingForceN;
     std::vector<float> gearRatios;
     float finalDriveRatio;
     float drivetrainEfficiency;
@@ -203,10 +204,10 @@ public:
     uint32_t getMaxRpm() const { return maxRpm; }
     uint32_t getIdleRpm() const { return idleRpm; }
     VETransmissionType getTransmissionType() const { return transmissionType; }
-    float getBrakingForce() const { return brakingForce; }
-    float getGearRatio(uint32_t gearIndex) const
+    float getBrakingForceN() const { return brakingForceN; }
+    float getGearRatio(uint32_t gear) const
     {
-        return gearIndex < gearRatios.size() ? gearRatios[gearIndex] : 0.0f;
+        return gear < gearRatios.size() ? gearRatios[gear] : 0.0f;
     }
     float getFinalDriveRatio() const { return finalDriveRatio; }
     float getDrivetrainEfficiency() const { return drivetrainEfficiency; }
@@ -234,11 +235,11 @@ public:
     void setMaxRpm(uint32_t value) { maxRpm = value; }
     void setIdleRpm(uint32_t value) { idleRpm = value; }
     void setTransmissionType(VETransmissionType value) { transmissionType = value; }
-    void setBrakingForce(float value) { brakingForce = value; }
-    void setGearRatio(uint32_t gearIndex, float value)
+    void setBrakingForceN(float value) { brakingForceN = value; }
+    void setGearRatio(uint32_t gear, float value)
     {
-        if (gearIndex < gearRatios.size() && gearIndex >= 0)
-            gearRatios[gearIndex] = value;
+        if (gear < gearRatios.size())
+            gearRatios[gear] = value;
     }
     void setFinalDriveRatio(float value) { finalDriveRatio = value; }
     void setDrivetrainEfficiency(float value) { drivetrainEfficiency = value; }

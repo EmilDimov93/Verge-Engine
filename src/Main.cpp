@@ -90,7 +90,7 @@ private:
         carInfo.wheelRadiusM = 0.31f;
         carInfo.dragCoeff = 0.31f;
         carInfo.frontalAreaM2 = 2.3f;
-        carInfo.brakingForce = 14700;
+        carInfo.brakingForceN = 14700;
         carInfo.tireGrip = 1.0f;
         carInfo.camberRad = (PI / 180);
         carInfo.drivetrainType = VE_DRIVETRAIN_TYPE_FWD;

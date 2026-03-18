@@ -107,18 +107,22 @@ VehicleInputState Renderer::getVIS()
 
     {
         vis.shiftUp = false;
-        vis.shiftDown = false;
 
-        bool isShiftUpAxis = false;
-        float shiftUp = getMaxAbsKeybindValue(keybinds.shiftUp, isShiftUpAxis);
-
-        bool isShiftDownAxis = false;
-        float shiftDown = getMaxAbsKeybindValue(keybinds.shiftDown, isShiftDownAxis);
-
-        if (!isShiftUpAxis && !isShiftDownAxis)
+        for(VEKeybind &k : keybinds.shiftUp)
         {
-            vis.shiftUp = shiftUp > 0.0f;
-            vis.shiftDown = shiftDown > 0.0f;
+            if(!k.isAxis() && k.isPressed()){
+                vis.shiftUp = true;
+            }
+        }
+    }
+
+    {
+        vis.shiftDown = false;
+        for(VEKeybind &k : keybinds.shiftDown)
+        {
+            if(!k.isAxis() && k.isPressed()){
+                vis.shiftDown = true;
+            }
         }
     }
 

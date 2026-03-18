@@ -74,7 +74,7 @@ float Vehicle::calcFDriveMag()
 {
     const float drivetrainEngagement = isNeutral ? 0.0f : (1.0f - vis.clutch);
 
-    const float gearRatio = gearRatios[gear - 1];
+    const float gearRatio = gearRatios[gear];
     {
         wheelRpm = drivetrainEngagement * rpm / (gearRatio * finalDriveRatio) + (1.0f - drivetrainEngagement) * (fabsf(forwardSpeedMps) * RADPS_TO_RPM_CONVERSION_FACTOR / wheelRadiusM);
 
@@ -149,7 +149,7 @@ void Vehicle::calcForces(const Environment &environment)
         FRoll = -(velocityMps / glm::length(velocityMps)) * FRollMag;
     }
 
-    float FBrakeMag = clamp01(vis.brake + vis.handbrake) * brakingForce;
+    float FBrakeMag = clamp01(vis.brake + vis.handbrake) * brakingForceN;
 
     glm::vec3 FBrake(0.0f);
     {
@@ -243,9 +243,9 @@ void Vehicle::steer()
 
 void Vehicle::shiftUp()
 {
-    if (gear < gearCount)
+    if (gear <= gearCount)
     {
-        rpm = rpm * gearRatios[gear] / gearRatios[gear - 1];
+        rpm = rpm * gearRatios[gear + 1] / gearRatios[gear];
         gear++;
     }
     if (isNeutral)
@@ -259,12 +259,17 @@ void Vehicle::shiftDown()
 {
     if (gear > 1)
     {
-        rpm = rpm * gearRatios[gear - 2] / gearRatios[gear - 1];
+        rpm = rpm * gearRatios[gear - 1] / gearRatios[gear];
         gear--;
     }
-    else if (gear == 1)
+    else if (gear == 1 && !isNeutral)
     {
         isNeutral = true;
+    }
+    else if (gear == 1 && isNeutral)
+    {
+        isNeutral = false;
+        gear = 0;
     }
 }
 
@@ -288,15 +293,27 @@ void Vehicle::updateTransmission()
         // Shift Down when lower gear RPM is less than max RPM or shift to Neutral when rpm is less than idle RPM
         const float shiftUpOverspeedToleranceRadps = 30.0f;
         if ((rpm > maxRpm) &&
-            (rpm * RPM_TO_RADPS_CONVERSION_FACTOR <= fabsf(forwardSpeedMps) * gearRatios[gear - 1] * finalDriveRatio / wheelRadiusM + shiftUpOverspeedToleranceRadps))
+            (rpm * RPM_TO_RADPS_CONVERSION_FACTOR <= fabsf(forwardSpeedMps) * gearRatios[gear] * finalDriveRatio / wheelRadiusM + shiftUpOverspeedToleranceRadps))
         {
             shiftUp();
         }
-        else if ((gear > 1 && rpm * gearRatios[gear - 2] / gearRatios[gear - 1] < maxRpm) ||
+        else if ((gear > 1 && rpm * gearRatios[gear - 1] / gearRatios[gear] < maxRpm) ||
                  (gear == 1 && rpm < idleRpm && (vis.brake > 0.0f || vis.handbrake > 0.0f || forwardSpeedMps < 0.0f)))
         {
             shiftDown();
         }
+
+        /*
+        if (gear == 0 && vis.throttle > 0.0f)
+        {
+            shiftUp();
+        }
+
+        if (vis.brake > 0.0f && forwardSpeedMps < 1.0f)
+        {
+            shiftDown();
+        }
+        */
     }
     else
     {

@@ -53,6 +53,9 @@ void Vehicle::stallAssist()
 
 void Vehicle::cruiseControl()
 {
+    if (gear == 0 || isNeutral)
+        return;
+
     if (vis.brake != 0)
         cruiseControlTargetMps = 0;
 

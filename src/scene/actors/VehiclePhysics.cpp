@@ -76,13 +76,13 @@ float Vehicle::calcFDriveMag()
 
     const float gearRatio = gearRatios[gear];
     {
-        wheelRpm = drivetrainEngagement * rpm / (gearRatio * finalDriveRatio) + (1.0f - drivetrainEngagement) * (fabsf(forwardSpeedMps) * RADPS_TO_RPM_CONVERSION_FACTOR / wheelRadiusM);
+        wheelRpm = (gear == 0 ? -1 : 1) * drivetrainEngagement * rpm / (gearRatio * finalDriveRatio) + (1.0f - drivetrainEngagement) * (forwardSpeedMps * RADPS_TO_RPM_CONVERSION_FACTOR / wheelRadiusM);
 
         const bool isFrontPowered = (drivetrainType == VE_DRIVETRAIN_TYPE_AWD) || drivetrainType == VE_DRIVETRAIN_TYPE_FWD;
         const bool isBackPowered = (drivetrainType == VE_DRIVETRAIN_TYPE_AWD) || drivetrainType == VE_DRIVETRAIN_TYPE_RWD;
 
         const float poweredWheelRpm = wheelRpm;
-        const float nonPoweredWheelRpm = (fabsf(forwardSpeedMps) * RADPS_TO_RPM_CONVERSION_FACTOR / wheelRadiusM);
+        const float nonPoweredWheelRpm = (forwardSpeedMps * RADPS_TO_RPM_CONVERSION_FACTOR / wheelRadiusM);
 
         flState.rpm = (1.0f - vis.brake) * (isFrontPowered ? poweredWheelRpm : nonPoweredWheelRpm);
         frState.rpm = (1.0f - vis.brake) * (isFrontPowered ? poweredWheelRpm : nonPoweredWheelRpm);

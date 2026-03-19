@@ -266,7 +266,7 @@ void Vehicle::shiftUp()
         isNeutral = true;
         return;
     }
-    if (gear <= gearCount)
+    if (gear < gearCount)
     {
         rpm = rpm * gearRatios[gear + 1] / gearRatios[gear];
         gear++;

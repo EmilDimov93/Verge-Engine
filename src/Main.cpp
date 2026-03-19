@@ -77,7 +77,7 @@ private:
         carInfo.bodyMeshHandle = scene.loadFile("models/car.obj");
         carInfo.wheelMeshHandle = scene.loadFile("models/wheel.obj");
         carInfo.wheelOffset = {1.05f, 0.5f, 1.8f};
-        carInfo.peakTorqueNm = 280;
+        carInfo.peakTorqueNm = 480;
         carInfo.weightKg = 1540;
         carInfo.maxRpm = 7000;
         carInfo.idleRpm = 800;

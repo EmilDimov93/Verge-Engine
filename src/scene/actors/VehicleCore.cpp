@@ -341,6 +341,6 @@ void Vehicle::tick(VehicleInputState vis, Environment environment, float surface
 
     calcTireTemperatures(environment);
 
-    // printState();
+    printState();
     // printVIS();
 }

@@ -114,7 +114,7 @@ public:
         return wheelRadiusM;
     }
 
-    void collideVelocityVector(glm::vec3 localPOI);
+    void collideVelocityVector(glm::vec3 localCollisionPoint);
 
     void updateTransform();
 
@@ -131,9 +131,6 @@ private:
     void calcTireTemperatures(const Environment &environment);
 
     void activateStarter();
-
-    void printState();
-    void printVIS();
 
     const VehicleHandle handle;
 
@@ -188,6 +185,10 @@ private:
     glm::mat4 bodyMat;
 
     ve_time_t dt;
+
+    // Debug
+    void printState() const;
+    void printVIS() const;
 
 public:
     // Getters

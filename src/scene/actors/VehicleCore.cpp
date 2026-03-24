@@ -260,21 +260,19 @@ glm::mat4 Vehicle::getWheelBRMat() const
     return wheelMat;
 }
 
-void Vehicle::collideVelocityVector(glm::vec3 localPOI)
+void Vehicle::collideVelocityVector(glm::vec3 collisionPointLocal)
 {
-    glm::vec3 normalizedPOI = -localPOI;
+    glm::vec3 collisionPointNormalized = glm::normalize(-collisionPointLocal);
 
     // Ignore Y
-    normalizedPOI.y = 0.0f;
-
-    normalizedPOI = glm::normalize(normalizedPOI);
+    collisionPointNormalized.y = 0.0f;
 
     glm::mat4 R =
         glm::rotate(glm::mat4(1.0f), (float)transform.rotation.yaw, glm::vec3(0, 1, 0)) *
         glm::rotate(glm::mat4(1.0f), (float)transform.rotation.pitch, glm::vec3(1, 0, 0)) *
         glm::rotate(glm::mat4(1.0f), (float)transform.rotation.roll, glm::vec3(0, 0, 1));
 
-    glm::vec3 collisionNormal = glm::normalize(glm::vec3(R * glm::vec4(normalizedPOI, 0.0f)));
+    glm::vec3 collisionNormal = glm::normalize(glm::vec3(R * glm::vec4(collisionPointNormalized, 0.0f)));
 
     float velocityAlongNormal = glm::dot(velocityMps, collisionNormal);
     if (velocityAlongNormal > 0.0f)
@@ -287,12 +285,12 @@ void Vehicle::collideVelocityVector(glm::vec3 localPOI)
         velocityMps -= collisionNormal * velocityAlongNormal;
 }
 
-void Vehicle::printState()
+void Vehicle::printState() const
 {
     std::cout << (std::round(forwardSpeedMps * 3.6f) > 1.0f ? std::round(forwardSpeedMps * 3.6f) : 0.0f) << " km/h | " << std::round(rpm) << " rpm | " << (isNeutral ? "N" : (gear == 0 ? "R" : std::to_string(gear))) << " gear" << std::endl;
 }
 
-void Vehicle::printVIS()
+void Vehicle::printVIS() const
 {
     printf("%.2ft %.2fb %.2fc %.2fs\n", vis.throttle, vis.brake, vis.clutch, vis.steer);
 }

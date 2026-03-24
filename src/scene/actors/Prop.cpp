@@ -12,7 +12,7 @@ Prop::Prop(PropHandle handle, MeshInstanceHandle meshInstanceHandle, Transform t
 
     this->transform = transform;
 
-    modelMat = transformToMat(transform);
+    modelMat = transform.toMat();
 }
 
 PropHandle Prop::getHandle() const
@@ -29,7 +29,7 @@ void Prop::setTransform(Transform transform)
 {
     this->transform = transform;
 
-    modelMat = transformToMat(transform);
+    modelMat = transform.toMat();
 
     hasChanged = true;
 }

@@ -30,7 +30,7 @@ Trigger::Trigger(TriggerHandle handle, Transform transform, MeshInstanceHandle m
 
     isAutoDestroy = info.isAutoDestroy;
 
-    modelMat = transformToMat(transform);
+    modelMat = transform.toMat();
 }
 
 bool Trigger::doesActorTrigger(Position3 actorPos) const

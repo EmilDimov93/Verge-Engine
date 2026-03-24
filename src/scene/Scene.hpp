@@ -12,7 +12,7 @@
 
 #include "Environment.hpp"
 
-#include "../shared/Mesh.hpp"
+#include "../shared/DrawData.hpp"
 
 class Scene
 {

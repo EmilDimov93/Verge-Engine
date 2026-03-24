@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../shared/Mesh.hpp"
+#include "../shared/DrawData.hpp"
 #include "../shared/definitions.hpp"
 
 #include "../../ext/stb_image/stb_image.h"

@@ -308,5 +308,5 @@ void Scene::addSurface(Size2 size, const std::vector<uint32_t> &surfaceTypeMap, 
 
     MeshInstanceHandle newMeshInstanceHandle = addMeshInstance(newMeshHandle);
 
-    setModelMat(newMeshInstanceHandle, transformToMat({position}));
+    setModelMat(newMeshInstanceHandle, Transform(position).toMat());
 }

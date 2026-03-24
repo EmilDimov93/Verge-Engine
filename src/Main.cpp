@@ -11,8 +11,6 @@ public:
 
     void run()
     {
-        renderer.setTargetFps(240);
-
         setupScene();
 
         setupRenderer();
@@ -22,11 +20,6 @@ public:
             renderer.tick(scene.getDrawData(player1), scene.getAudioData(player1));
 
             scene.tick(renderer.getFrameTime(), {{player1, renderer.getVIS()}});
-
-            if (Input::isPressed(VE_KEY_L))
-            {
-                scene.playAudio("sample.mp3", 1.0f);
-            }
         }
     }
 
@@ -39,6 +32,8 @@ private:
 
     void setupRenderer()
     {
+        renderer.setTargetFps(240);
+
         VehicleKeybinds keybinds{};
 
         keybinds.throttle[0] = VE_KEY_W;
@@ -97,7 +92,6 @@ private:
         carInfo.camberRad = (PI / 180);
         carInfo.drivetrainType = VE_DRIVETRAIN_TYPE_FWD;
         carInfo.engineAudioFileName = "4k.wav";
-        // Temporary(testing)
         // carInfo.layeredEngineAudioFiles = {{"4k.wav", 1000}, {"4k.wav", 2000}, {"4k.wav", 3000}, {"4k.wav", 4000}, {"4k.wav", 5000}, {"4k.wav", 6000}, {"4k.wav", 7000}};
         car1 = scene.addVehicle(carInfo, {{50.0f, 0, -40.0f}, {0, -PI / 4, 0}});
 

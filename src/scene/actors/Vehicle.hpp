@@ -7,6 +7,7 @@
 
 #include "../Controller.hpp"
 
+#include "../../shared/AudioData.hpp"
 #include "../../shared/definitions.hpp"
 
 #include <vector>

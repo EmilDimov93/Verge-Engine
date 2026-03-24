@@ -265,7 +265,7 @@ void Vehicle::updateTransform()
     transformMat = glm::rotate(transformMat, (float)transform.rotation.yaw, glm::vec3(0, 1, 0));
     transformMat = glm::rotate(transformMat, (float)transform.rotation.pitch, glm::vec3(1, 0, 0));
 
-    bodyMat = transformToMat(transform);
+    bodyMat = transform.toMat();
 }
 
 void Vehicle::tick(VehicleInputState vis, Environment environment, float surfaceFriction, ve_time_t deltaTime)

@@ -113,22 +113,22 @@ struct Transform
     Scale3 scale{};
 
     constexpr Transform(Position3 p = {}, Rotation3 r = {}, Scale3 s = {}) : position(p), rotation(r), scale(s) {}
+
+    glm::mat4 toMat() const
+    {
+        glm::mat4 mat(1.0f);
+
+        mat = glm::translate(mat, glm::vec3(static_cast<float>(position.x), static_cast<float>(position.y), static_cast<float>(position.z)));
+
+        mat = glm::rotate(mat, static_cast<float>(rotation.pitch), glm::vec3(1.0f, 0.0f, 0.0f));
+        mat = glm::rotate(mat, static_cast<float>(rotation.yaw), glm::vec3(0.0f, 1.0f, 0.0f));
+        mat = glm::rotate(mat, static_cast<float>(rotation.roll), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        mat = glm::scale(mat, glm::vec3(static_cast<float>(scale.x), static_cast<float>(scale.y), static_cast<float>(scale.z)));
+
+        return mat;
+    }
 };
-
-inline glm::mat4 transformToMat(const Transform &transform)
-{
-    glm::mat4 mat(1.0f);
-
-    mat = glm::translate(mat, glm::vec3(static_cast<float>(transform.position.x), static_cast<float>(transform.position.y), static_cast<float>(transform.position.z)));
-
-    mat = glm::rotate(mat, static_cast<float>(transform.rotation.pitch), glm::vec3(1.0f, 0.0f, 0.0f));
-    mat = glm::rotate(mat, static_cast<float>(transform.rotation.yaw), glm::vec3(0.0f, 1.0f, 0.0f));
-    mat = glm::rotate(mat, static_cast<float>(transform.rotation.roll), glm::vec3(0.0f, 0.0f, 1.0f));
-
-    mat = glm::scale(mat, glm::vec3(static_cast<float>(transform.scale.x), static_cast<float>(transform.scale.y), static_cast<float>(transform.scale.z)));
-
-    return mat;
-}
 
 template <typename T>
 inline T clamp(T v, T lo, T hi)
@@ -148,53 +148,6 @@ constexpr float AvoidZero(float x)
 {
     return (x == 0.0f) ? FLT_TRUE_MIN : x;
 }
-
-struct VEEngineAudioRequest
-{
-    VehicleHandle vehicleHandle;
-    std::string fileName;
-    float pitch;
-    Position3 position;
-};
-
-struct VEEngineAudioFile
-{
-    std::string fileName;
-    float rpm;
-};
-
-struct VELayeredEngineAudioRequest
-{
-    VehicleHandle vehicleHandle;
-    std::vector<VEEngineAudioFile> audioFiles;
-    float rpm;
-    float maxRpm;
-    Position3 position;
-};
-
-struct VEAudioRequest
-{
-    std::string fileName;
-    float pitch;
-    bool is3D;
-    Position3 position;
-};
-
-struct AudioData
-{
-    Position3 playerPosition;
-    float playerYawRad;
-    const std::vector<VEEngineAudioRequest> &engineAudioRequests;
-    const std::vector<VELayeredEngineAudioRequest> &layeredEngineAudioRequests;
-    const std::vector<VEAudioRequest> &oneShotAudioRequests;
-
-    AudioData(Position3 playerPosition,
-              float playerYawRad,
-              const std::vector<VEEngineAudioRequest> &engineAudioRequests,
-              const std::vector<VELayeredEngineAudioRequest> &layeredEngineAudioRequests,
-              const std::vector<VEAudioRequest> &oneShotAudioRequests)
-        : playerPosition(playerPosition), playerYawRad(playerYawRad), engineAudioRequests(engineAudioRequests), layeredEngineAudioRequests(layeredEngineAudioRequests), oneShotAudioRequests(oneShotAudioRequests) {}
-};
 
 struct VehicleInputState
 {

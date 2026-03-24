@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "../shared/AudioData.hpp"
 #include "../shared/definitions.hpp"
 
 #include "../../ext/miniaudio/miniaudio.h"

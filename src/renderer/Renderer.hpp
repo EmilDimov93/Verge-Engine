@@ -61,15 +61,12 @@ public:
     float getVolume() const;
     void setVolume(float volume);
 
-    // Input smoothing for non-axis keybinds
-    // 0 -> no smoothing (instant response)
-    // 1 -> maximum smoothing
-    float throttleSmoothing = 0.5f;
-    float brakeSmoothing = 0.5f;
-    float handbrakeSmoothing = 0.0f;
-    float clutchSmoothing = 0.5f;
-    float steerSmoothing = 0.5f;
-    float cameraMovementSmoothing = 0.0f;
+    void setThrottleInputSmoothing(float smoothing) { throttleSmoothing = clamp01(smoothing); }
+    void setBrakeInputSmoothing(float smoothing) { brakeSmoothing = clamp01(smoothing); }
+    void setHandbrakeInputSmoothing(float smoothing) { handbrakeSmoothing = clamp01(smoothing); }
+    void setClutchInputSmoothing(float smoothing) { clutchSmoothing = clamp01(smoothing); }
+    void setSteerInputSmoothing(float smoothing) { steerSmoothing = clamp01(smoothing); }
+    void setCameraMovementInputSmoothing(float smoothing) { cameraMovementSmoothing = clamp01(smoothing); }
 
 private:
     WindowManager window;
@@ -81,4 +78,14 @@ private:
 
     VehicleKeybinds keybinds;
     VehicleInputState vis;
+
+    // Input smoothing for non-axis keybinds
+    // 0 -> no smoothing (instant response)
+    // 1 -> maximum smoothing
+    float throttleSmoothing = 0.5f;
+    float brakeSmoothing = 0.5f;
+    float handbrakeSmoothing = 0.0f;
+    float clutchSmoothing = 0.5f;
+    float steerSmoothing = 0.5f;
+    float cameraMovementSmoothing = 0.0f;
 };

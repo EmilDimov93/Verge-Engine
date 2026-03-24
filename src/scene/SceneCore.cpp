@@ -137,10 +137,10 @@ void Scene::tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputS
 
         setModelMat(vehicle.getBodyMeshInstanceHandle(), vehicle.getBodyMat());
 
-        setModelMat(vehicle.getWheelFLMeshInstanceHandle(), vehicle.getWheelFLMat());
-        setModelMat(vehicle.getWheelFRMeshInstanceHandle(), vehicle.getWheelFRMat());
-        setModelMat(vehicle.getWheelBLMeshInstanceHandle(), vehicle.getWheelBLMat());
-        setModelMat(vehicle.getWheelBRMeshInstanceHandle(), vehicle.getWheelBRMat());
+        setModelMat(vehicle.getWheelMeshInstanceHandle(VE_WHEEL_FRONT_LEFT), vehicle.getWheelMat(VE_WHEEL_FRONT_LEFT));
+        setModelMat(vehicle.getWheelMeshInstanceHandle(VE_WHEEL_FRONT_RIGHT), vehicle.getWheelMat(VE_WHEEL_FRONT_RIGHT));
+        setModelMat(vehicle.getWheelMeshInstanceHandle(VE_WHEEL_BACK_LEFT), vehicle.getWheelMat(VE_WHEEL_BACK_LEFT));
+        setModelMat(vehicle.getWheelMeshInstanceHandle(VE_WHEEL_BACK_RIGHT), vehicle.getWheelMat(VE_WHEEL_BACK_RIGHT));
     }
 
     // Audio

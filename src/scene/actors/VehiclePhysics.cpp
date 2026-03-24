@@ -100,10 +100,10 @@ float Vehicle::calcFDriveMag()
         wheelStates[VE_WHEEL_BACK_LEFT].rpm = clamp01(1.0f - vis.brake - vis.handbrake) * (isBackPowered ? poweredWheelRpm : nonPoweredWheelRpm);
         wheelStates[VE_WHEEL_BACK_RIGHT].rpm = clamp01(1.0f - vis.brake - vis.handbrake) * (isBackPowered ? poweredWheelRpm : nonPoweredWheelRpm);
 
-        wheelStates[VE_WHEEL_FRONT_LEFT].spin = std::fmod(wheelStates[VE_WHEEL_FRONT_LEFT].spin + wheelStates[VE_WHEEL_FRONT_LEFT].rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
-        wheelStates[VE_WHEEL_FRONT_RIGHT].spin = std::fmod(wheelStates[VE_WHEEL_FRONT_RIGHT].spin + wheelStates[VE_WHEEL_FRONT_RIGHT].rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
-        wheelStates[VE_WHEEL_BACK_LEFT].spin = std::fmod(wheelStates[VE_WHEEL_BACK_LEFT].spin + wheelStates[VE_WHEEL_BACK_LEFT].rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
-        wheelStates[VE_WHEEL_BACK_RIGHT].spin = std::fmod(wheelStates[VE_WHEEL_BACK_RIGHT].spin + wheelStates[VE_WHEEL_BACK_RIGHT].rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
+        for(WheelState &state : wheelStates)
+        {
+            state.spin = std::fmod(state.spin + state.rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
+        }
     }
 
     const float clutchSlipRadps = rpm * RPM_TO_RADPS_CONVERSION_FACTOR - fabsf(forwardSpeedMps) * gearRatio * finalDriveRatio / wheelRadiusM;

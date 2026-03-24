@@ -135,10 +135,7 @@ private:
     const VehicleHandle handle;
 
     MeshInstanceHandle bodyMeshInstanceHandle;
-    MeshInstanceHandle wheelFLMeshInstanceHandle;
-    MeshInstanceHandle wheelFRMeshInstanceHandle;
-    MeshInstanceHandle wheelBLMeshInstanceHandle;
-    MeshInstanceHandle wheelBRMeshInstanceHandle;
+    std::array<MeshInstanceHandle, VE_WHEEL_COUNT> wheelMeshInstanceHandles;
 
     Position3 wheelOffset;
 
@@ -195,16 +192,10 @@ public:
     VehicleHandle getHandle() const { return handle; };
 
     glm::mat4 getBodyMat() const { return bodyMat; };
-    glm::mat4 getWheelFLMat() const;
-    glm::mat4 getWheelFRMat() const;
-    glm::mat4 getWheelBLMat() const;
-    glm::mat4 getWheelBRMat() const;
+    glm::mat4 getWheelMat(VEWheel wheel) const;
 
-    MeshInstanceHandle getBodyMeshInstanceHandle() const { return bodyMeshInstanceHandle; };
-    MeshInstanceHandle getWheelFLMeshInstanceHandle() const { return wheelFLMeshInstanceHandle; };
-    MeshInstanceHandle getWheelFRMeshInstanceHandle() const { return wheelFRMeshInstanceHandle; };
-    MeshInstanceHandle getWheelBLMeshInstanceHandle() const { return wheelBLMeshInstanceHandle; };
-    MeshInstanceHandle getWheelBRMeshInstanceHandle() const { return wheelBRMeshInstanceHandle; };
+    MeshInstanceHandle getBodyMeshInstanceHandle() const { return bodyMeshInstanceHandle; }
+    MeshInstanceHandle getWheelMeshInstanceHandle(VEWheel wheel) const { return wheelMeshInstanceHandles[wheel]; }
     Position3 getWheelOffset() const { return wheelOffset; }
     uint32_t getPeakTorqueNm() const { return peakTorqueNm; }
     float getWeightKg() const { return weightKg; }

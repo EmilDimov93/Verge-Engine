@@ -45,7 +45,9 @@ class Renderer
 public:
     Renderer(const VE_STRUCT_RENDERER_CREATE_INFO &info = {});
 
-    bool tick(DrawData drawData, AudioData audioData);
+    bool isOpen();
+
+    void tick(DrawData drawData, AudioData audioData);
 
     VehicleInputState getVIS();
     void setVehicleKeybinds(const VehicleKeybinds &keybinds);

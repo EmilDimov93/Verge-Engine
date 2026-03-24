@@ -17,8 +17,10 @@ public:
 
         setupRenderer();
 
-        while (renderer.tick(scene.getDrawData(player1), scene.getAudioData(player1)))
+        while (renderer.isOpen())
         {
+            renderer.tick(scene.getDrawData(player1), scene.getAudioData(player1));
+
             scene.tick(renderer.getFrameTime(), {{player1, renderer.getVIS()}});
 
             if (Input::isPressed(VE_KEY_L))

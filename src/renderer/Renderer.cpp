@@ -12,7 +12,12 @@ Renderer::Renderer(const VE_STRUCT_RENDERER_CREATE_INFO &info) : window(info.win
     fps.setTarget(info.targetFps);
 }
 
-bool Renderer::tick(DrawData drawData, AudioData audioData)
+bool Renderer::isOpen()
+{
+    return window.isOpen();
+}
+
+void Renderer::tick(DrawData drawData, AudioData audioData)
 {
     fps.sync();
 
@@ -21,8 +26,6 @@ bool Renderer::tick(DrawData drawData, AudioData audioData)
     vulkan.drawFrame(drawData);
 
     audio.tick(audioData, volume);
-
-    return window.isOpen();
 }
 
 float smoothValue(float newValue, float oldValue, float smoothingFactor, float dt)

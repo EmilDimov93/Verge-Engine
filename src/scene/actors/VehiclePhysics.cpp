@@ -95,15 +95,15 @@ float Vehicle::calcFDriveMag()
         const float poweredWheelRpm = wheelRpm;
         const float nonPoweredWheelRpm = (forwardSpeedMps * RADPS_TO_RPM_CONVERSION_FACTOR / wheelRadiusM);
 
-        flState.rpm = (1.0f - vis.brake) * (isFrontPowered ? poweredWheelRpm : nonPoweredWheelRpm);
-        frState.rpm = (1.0f - vis.brake) * (isFrontPowered ? poweredWheelRpm : nonPoweredWheelRpm);
-        blState.rpm = clamp01(1.0f - vis.brake - vis.handbrake) * (isBackPowered ? poweredWheelRpm : nonPoweredWheelRpm);
-        brState.rpm = clamp01(1.0f - vis.brake - vis.handbrake) * (isBackPowered ? poweredWheelRpm : nonPoweredWheelRpm);
+        wheelStates[VE_WHEEL_FRONT_LEFT].rpm = (1.0f - vis.brake) * (isFrontPowered ? poweredWheelRpm : nonPoweredWheelRpm);
+        wheelStates[VE_WHEEL_FRONT_RIGHT].rpm = (1.0f - vis.brake) * (isFrontPowered ? poweredWheelRpm : nonPoweredWheelRpm);
+        wheelStates[VE_WHEEL_BACK_LEFT].rpm = clamp01(1.0f - vis.brake - vis.handbrake) * (isBackPowered ? poweredWheelRpm : nonPoweredWheelRpm);
+        wheelStates[VE_WHEEL_BACK_RIGHT].rpm = clamp01(1.0f - vis.brake - vis.handbrake) * (isBackPowered ? poweredWheelRpm : nonPoweredWheelRpm);
 
-        flState.spin = std::fmod(flState.spin + flState.rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
-        frState.spin = std::fmod(frState.spin + frState.rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
-        blState.spin = std::fmod(blState.spin + blState.rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
-        brState.spin = std::fmod(brState.spin + brState.rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
+        wheelStates[VE_WHEEL_FRONT_LEFT].spin = std::fmod(wheelStates[VE_WHEEL_FRONT_LEFT].spin + wheelStates[VE_WHEEL_FRONT_LEFT].rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
+        wheelStates[VE_WHEEL_FRONT_RIGHT].spin = std::fmod(wheelStates[VE_WHEEL_FRONT_RIGHT].spin + wheelStates[VE_WHEEL_FRONT_RIGHT].rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
+        wheelStates[VE_WHEEL_BACK_LEFT].spin = std::fmod(wheelStates[VE_WHEEL_BACK_LEFT].spin + wheelStates[VE_WHEEL_BACK_LEFT].rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
+        wheelStates[VE_WHEEL_BACK_RIGHT].spin = std::fmod(wheelStates[VE_WHEEL_BACK_RIGHT].spin + wheelStates[VE_WHEEL_BACK_RIGHT].rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
     }
 
     const float clutchSlipRadps = rpm * RPM_TO_RADPS_CONVERSION_FACTOR - fabsf(forwardSpeedMps) * gearRatio * finalDriveRatio / wheelRadiusM;
@@ -181,12 +181,12 @@ void Vehicle::calcForces(const Environment &environment)
 
         float vehicleWheelRpm = (forwardSpeedMps / wheelRadiusM) * RADPS_TO_RPM_CONVERSION_FACTOR;
 
-        float frontSlipFactor = clamp01(1.0f - clamp((fabsf(flState.rpm - vehicleWheelRpm) + fabsf(frState.rpm - vehicleWheelRpm)) / 2, 0.0f, (float)maxRpm) / (float)maxRpm);
-        float backSlipFactor = clamp01(1.0f - clamp((fabsf(blState.rpm - vehicleWheelRpm) + fabsf(brState.rpm - vehicleWheelRpm)) / 2, 0.0f, (float)maxRpm) / (float)maxRpm);
+        float frontSlipFactor = clamp01(1.0f - clamp((fabsf(wheelStates[VE_WHEEL_FRONT_LEFT].rpm - vehicleWheelRpm) + fabsf(wheelStates[VE_WHEEL_FRONT_RIGHT].rpm - vehicleWheelRpm)) / 2, 0.0f, (float)maxRpm) / (float)maxRpm);
+        float backSlipFactor = clamp01(1.0f - clamp((fabsf(wheelStates[VE_WHEEL_BACK_LEFT].rpm - vehicleWheelRpm) + fabsf(wheelStates[VE_WHEEL_BACK_RIGHT].rpm - vehicleWheelRpm)) / 2, 0.0f, (float)maxRpm) / (float)maxRpm);
 
         // Temporary: disabled slip factor
-        float frontFrictionCoefficient = tireGrip * (flState.grip + frState.grip) / 2 * /*frontSlipFactor **/ (1.0f + fabsf(camberRad));
-        float backFrictionCoefficient = tireGrip * (blState.grip + brState.grip) / 2 * /*backSlipFactor **/ (1.0f + fabsf(camberRad));
+        float frontFrictionCoefficient = tireGrip * (wheelStates[VE_WHEEL_FRONT_LEFT].grip + wheelStates[VE_WHEEL_FRONT_RIGHT].grip) / 2 * /*frontSlipFactor **/ (1.0f + fabsf(camberRad));
+        float backFrictionCoefficient = tireGrip * (wheelStates[VE_WHEEL_BACK_LEFT].grip + wheelStates[VE_WHEEL_BACK_RIGHT].grip) / 2 * /*backSlipFactor **/ (1.0f + fabsf(camberRad));
 
         float totalNormalForceN = weightKg * environment.gravityMps2;
         float frontAxleNormalForceN = 0.5f * totalNormalForceN;
@@ -339,25 +339,23 @@ void Vehicle::updateTransmission()
 
 void Vehicle::calcTireTemperatures(const Environment &environment)
 {
-    float frontSlip = fabsf(flState.rpm - ((forwardSpeedMps / wheelRadiusM) * RADPS_TO_RPM_CONVERSION_FACTOR));
-    float backSlip = fabsf(blState.rpm - ((forwardSpeedMps / wheelRadiusM) * RADPS_TO_RPM_CONVERSION_FACTOR));
+    const float heatingCoefficient = 2e-5f;
+    const float coolingCoefficient = 2e-2f;
 
-    if (flState.temperatureK < environment.temperatureK)
-        flState.temperatureK = environment.temperatureK;
-    if (frState.temperatureK < environment.temperatureK)
-        frState.temperatureK = environment.temperatureK;
-    if (blState.temperatureK < environment.temperatureK)
-        blState.temperatureK = environment.temperatureK;
-    if (brState.temperatureK < environment.temperatureK)
-        brState.temperatureK = environment.temperatureK;
+    for(WheelState &state : wheelStates)
+    {
+        if (state.temperatureK < environment.temperatureK)
+            state.temperatureK = environment.temperatureK;
 
-    float heatingCoefficient = 2e-5f;
-    float coolingCoefficient = 2e-2f;
+        const float slip = fabsf(state.rpm - ((forwardSpeedMps / wheelRadiusM) * RADPS_TO_RPM_CONVERSION_FACTOR));
 
-    float tireCooling = coolingCoefficient * (flState.temperatureK - environment.temperatureK);
+        const float tireCooling = coolingCoefficient * (state.temperatureK - environment.temperatureK);
+        const float tireHeating = heatingCoefficient * state.grip * std::fabs(slip) * std::fabsf(state.rpm);
 
-    flState.temperatureK += dt * (heatingCoefficient * flState.grip * std::fabsf(frontSlip) * std::fabsf(flState.rpm) - tireCooling);
-    frState.temperatureK += dt * (heatingCoefficient * frState.grip * std::fabsf(frontSlip) * std::fabsf(frState.rpm) - tireCooling);
-    blState.temperatureK += dt * (heatingCoefficient * blState.grip * std::fabsf(backSlip) * std::fabsf(blState.rpm) - tireCooling);
-    brState.temperatureK += dt * (heatingCoefficient * brState.grip * std::fabsf(backSlip) * std::fabsf(brState.rpm) - tireCooling);
+        state.temperatureK += dt * (tireHeating - tireCooling);
+
+        std::cout << std::round(state.temperatureK) << " ";
+    }
+
+    std::cout << std::endl;
 }

@@ -73,6 +73,15 @@ struct WheelState
     float wear = 0.0f; // Not implemented
 };
 
+enum VEWheel
+{
+    VE_WHEEL_FRONT_LEFT = 0,
+    VE_WHEEL_FRONT_RIGHT = 1,
+    VE_WHEEL_BACK_LEFT = 2,
+    VE_WHEEL_BACK_RIGHT = 3,
+    VE_WHEEL_COUNT
+};
+
 class Vehicle
 {
 public:
@@ -174,10 +183,7 @@ private:
 
     float cruiseControlTargetMps = 0;
 
-    WheelState flState;
-    WheelState frState;
-    WheelState blState;
-    WheelState brState;
+    std::array<WheelState, VE_WHEEL_COUNT> wheelStates;
 
     glm::mat4 bodyMat;
 

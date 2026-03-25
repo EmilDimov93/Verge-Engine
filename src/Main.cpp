@@ -112,43 +112,40 @@ private:
         scene.addTrigger(sTriggerType, {{-35.0f, 1.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
 
         // Ground
-        uint32_t grassSurfaceTypeIndex = scene.addSurfaceType({0.6f, {0, 0.5f, 0}, {0, 0.05f, 0}, 0.1f});
-        uint32_t asphaltSurfaceTypeIndex = scene.addSurfaceType({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
-        uint32_t roadLineSurfaceTypeIndex = scene.addSurfaceType({1.0f, {1.0f, 1.0f, 1.0f}, {}});
+        SurfaceTypeIndex grassSurfaceTypeIndex = scene.addSurfaceType({0.6f, {0, 0.5f, 0}, {0, 0.05f, 0}, 0.1f});
+        SurfaceTypeIndex asphaltSurfaceTypeIndex = scene.addSurfaceType({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
+        SurfaceTypeIndex roadLineSurfaceTypeIndex = scene.addSurfaceType({1.0f, {1.0f, 1.0f, 1.0f}, {}});
 
-        uint32_t surfaceWidth = 1000;
-        uint32_t surfaceHeight = 1000;
+        Size2 surfaceSize = {1000, 1000};
 
-        std::vector<uint32_t> surfaceTypeMap;
-        surfaceTypeMap.resize(surfaceWidth * surfaceHeight);
+        std::vector<SurfaceTypeIndex> surfaceTypeMap;
+        surfaceTypeMap.resize(surfaceSize.w * surfaceSize.h);
 
         std::vector<float> heightMap;
-        heightMap.resize(surfaceWidth * surfaceHeight);
+        heightMap.resize(surfaceSize.w * surfaceSize.h);
 
         for (uint32_t &surfaceType : surfaceTypeMap)
-        {
             surfaceType = grassSurfaceTypeIndex;
-        }
 
-        for (size_t i = 0; i < surfaceHeight; i++)
+        const float curveStrength = 5.0f;
+        const float curveFrequency = 0.05f;
+        const int roadHalfWidth = 10;
+        for (size_t i = 0; i < surfaceSize.h; i++)
         {
-            const float curveStrength = 5.0f;
-            const float curveFrequency = 0.05f;
-            int centerX = static_cast<int>(surfaceWidth / 2 + std::cos(i * curveFrequency) * curveStrength);
+            const int centerX = static_cast<int>(surfaceSize.w / 2 + std::cos(i * curveFrequency) * curveStrength);
 
-            const int roadHalfWidth = 10;
             for (size_t j = centerX - roadHalfWidth; j <= centerX + roadHalfWidth; j++)
             {
-                surfaceTypeMap[i * surfaceWidth + j] = asphaltSurfaceTypeIndex;
-                heightMap[i * surfaceWidth + j] = 0.3f;
+                surfaceTypeMap[i * surfaceSize.w + j] = asphaltSurfaceTypeIndex;
+                heightMap[i * surfaceSize.w + j] = 0.3f;
                 if(j == centerX)
                 {
-                    surfaceTypeMap[i * surfaceWidth + j] = roadLineSurfaceTypeIndex;
+                    surfaceTypeMap[i * surfaceSize.w + j] = roadLineSurfaceTypeIndex;
                 }
             }
         }
 
-        scene.addSurface({surfaceWidth, surfaceHeight}, surfaceTypeMap, heightMap);
+        scene.addSurface(surfaceSize, surfaceTypeMap, heightMap);
     }
 };
 

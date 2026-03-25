@@ -200,7 +200,7 @@ TriggerHandle Scene::addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, 
     return handle;
 }
 
-uint32_t Scene::addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info)
+SurfaceTypeIndex Scene::addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info)
 {
     SurfaceType newSurfaceType;
 
@@ -255,11 +255,11 @@ void Scene::addSurface(Size2 size, const std::vector<uint32_t> &surfaceTypeMap, 
     std::vector<Vertex> meshVertices;
     std::vector<uint32_t> meshIndices;
 
-    for (size_t i = 0; i < newSurface.h; i++)
+    for (size_t i = 0; i < newSurface.size.h; i++)
     {
-        for (size_t j = 0; j < newSurface.w; j++)
+        for (size_t j = 0; j < newSurface.size.w; j++)
         {
-            uint32_t surfaceTypeIndex = newSurface.surfaceTypeMap[i * newSurface.w + j];
+            uint32_t surfaceTypeIndex = newSurface.surfaceTypeMap[i * newSurface.size.w + j];
             if (surfaceTypeIndex < 0 || surfaceTypeIndex >= surfaceTypes.size())
             {
                 Log::add('A', 190);
@@ -271,21 +271,21 @@ void Scene::addSurface(Size2 size, const std::vector<uint32_t> &surfaceTypeMap, 
             surfaceColor.g = surfaceTypes[surfaceTypeIndex].color.g + glm::linearRand(-surfaceTypes[surfaceTypeIndex].colorDistortion.g, surfaceTypes[surfaceTypeIndex].colorDistortion.g);
             surfaceColor.b = surfaceTypes[surfaceTypeIndex].color.b + glm::linearRand(-surfaceTypes[surfaceTypeIndex].colorDistortion.b, surfaceTypes[surfaceTypeIndex].colorDistortion.b);
 
-            newSurface.heightMap[i * newSurface.w + j] += glm::linearRand(-surfaceTypes[surfaceTypeIndex].heightDistortion, surfaceTypes[surfaceTypeIndex].heightDistortion);
+            newSurface.heightMap[i * newSurface.size.w + j] += glm::linearRand(-surfaceTypes[surfaceTypeIndex].heightDistortion, surfaceTypes[surfaceTypeIndex].heightDistortion);
 
-            const float halfW = (newSurface.w - 1) * 0.5f;
-            const float halfH = (newSurface.h - 1) * 0.5f;
-            meshVertices.push_back({{(float)(j - halfW), newSurface.heightMap[i * newSurface.w + j], (float)(i - halfH)}, surfaceColor});
+            const float halfW = (newSurface.size.w - 1) * 0.5f;
+            const float halfH = (newSurface.size.h - 1) * 0.5f;
+            meshVertices.push_back({{(float)(j - halfW), newSurface.heightMap[i * newSurface.size.w + j], (float)(i - halfH)}, surfaceColor});
         }
     }
 
-    for (uint32_t z = 0; z < newSurface.h - 1; z++)
+    for (uint32_t z = 0; z < newSurface.size.h - 1; z++)
     {
-        for (uint32_t x = 0; x < newSurface.w - 1; x++)
+        for (uint32_t x = 0; x < newSurface.size.w - 1; x++)
         {
-            uint32_t v0 = z * newSurface.w + x;
+            uint32_t v0 = z * newSurface.size.w + x;
             uint32_t v1 = v0 + 1;
-            uint32_t v2 = v0 + newSurface.w;
+            uint32_t v2 = v0 + newSurface.size.w;
             uint32_t v3 = v2 + 1;
 
             meshIndices.push_back(v0);

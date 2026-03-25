@@ -38,7 +38,7 @@ public:
 
     void tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputState>> inputData);
 
-    uint32_t addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info);
+    SurfaceTypeIndex addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info);
     void addSurface(Size2 size, const std::vector<uint32_t> &surfaceTypeMap, const std::vector<float> &heightMap, Position3 position = {});
 
     void setAirDensity(float airDensity);

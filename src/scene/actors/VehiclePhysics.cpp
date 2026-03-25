@@ -353,9 +353,5 @@ void Vehicle::calcTireTemperatures(const Environment &environment)
         const float tireHeating = heatingCoefficient * state.grip * std::fabs(slip) * std::fabsf(state.rpm);
 
         state.temperatureK += dt * (tireHeating - tireCooling);
-
-        std::cout << std::round(state.temperatureK) << " ";
     }
-
-    std::cout << std::endl;
 }

@@ -32,15 +32,11 @@ void Vehicle::stallAssist()
             vis.throttle = minThrottle;
     }
 
-    const float maxBackwardAssistSpeedMps = 5.0f / 3.6f;
-    const float maxForwardAssistSpeedMps = 5.0f / 3.6f;
     if (transmissionType != VE_TRANSMISSION_TYPE_MANUAL_WITH_CLUTCH &&
-        forwardSpeedMps > -maxBackwardAssistSpeedMps &&
-        forwardSpeedMps < maxForwardAssistSpeedMps &&
+        rpm < idleRpm &&
         vis.clutch == 0.0f)
     {
-        vis.clutch = 1.0f - (0.1f + ((gear == 0 ? -1 : 1) * forwardSpeedMps + maxBackwardAssistSpeedMps) * 3.6f / 10.0f);
-        vis.clutch = clamp(vis.clutch, 0.0f, 1.0f);
+        vis.clutch = clamp01(rpm / idleRpm);
     }
 }
 
@@ -93,7 +89,7 @@ float Vehicle::calcFDriveMag()
         wheelStates[VE_WHEEL_BACK_LEFT].rpm = clamp01(1.0f - vis.brake - vis.handbrake) * (isBackPowered ? poweredWheelRpm : nonPoweredWheelRpm);
         wheelStates[VE_WHEEL_BACK_RIGHT].rpm = clamp01(1.0f - vis.brake - vis.handbrake) * (isBackPowered ? poweredWheelRpm : nonPoweredWheelRpm);
 
-        for(WheelState &state : wheelStates)
+        for (WheelState &state : wheelStates)
         {
             state.spin = std::fmod(state.spin + state.rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
         }
@@ -295,7 +291,7 @@ void Vehicle::updateTransmission()
         {
             if (vis.throttle == 0.0f && vis.brake == 0.0f && !vis.shiftDown && !vis.shiftUp)
                 return;
-            else if(vis.throttle != 0.0f)
+            else if (vis.throttle != 0.0f)
                 isNeutral = false;
         }
 
@@ -303,15 +299,15 @@ void Vehicle::updateTransmission()
         const bool isBraking = (vis.brake > 0.0f || vis.handbrake > 0.0f);
         const float shiftUpOverspeedToleranceRadps = 30.0f;
         if (((rpm > maxRpm && !isReverse) && // RPM exceeds max(not in reverse) and there is no wheel spin
-            (rpm * RPM_TO_RADPS_CONVERSION_FACTOR <= fabsf(forwardSpeedMps) * gearRatios[gear] * finalDriveRatio / wheelRadiusM + shiftUpOverspeedToleranceRadps)) ||
+             (rpm * RPM_TO_RADPS_CONVERSION_FACTOR <= fabsf(forwardSpeedMps) * gearRatios[gear] * finalDriveRatio / wheelRadiusM + shiftUpOverspeedToleranceRadps)) ||
             (isReverse && rpm < idleRpm && isBraking) || // Low RPM while in reverse
-            (isReverse && vis.shiftUp)) // User wants to shift up from reverse
+            (isReverse && vis.shiftUp))                  // User wants to shift up from reverse
         {
             shiftUp();
         }
         if ((gear > 1 && rpm * gearRatios[gear - 1] / gearRatios[gear] < maxRpm) || // Gear is not R or N and lower gear rpm does not exceed max
-            (gear == 1 && !isNeutral && rpm < idleRpm && isBraking) || // Low RPM while in non-reverse gear
-            (isNeutral && vis.shiftDown)) // User wants to shift down to reverse
+            (gear == 1 && !isNeutral && rpm < idleRpm && isBraking) ||              // Low RPM while in non-reverse gear
+            (isNeutral && vis.shiftDown))                                           // User wants to shift down to reverse
         {
             shiftDown();
         }
@@ -334,7 +330,7 @@ void Vehicle::calcTireTemperatures(const Environment &environment)
     const float heatingCoefficient = 2e-5f;
     const float coolingCoefficient = 2e-2f;
 
-    for(WheelState &state : wheelStates)
+    for (WheelState &state : wheelStates)
     {
         if (state.temperatureK < environment.temperatureK)
             state.temperatureK = environment.temperatureK;

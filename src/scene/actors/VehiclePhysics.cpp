@@ -32,13 +32,6 @@ void Vehicle::stallAssist()
             vis.throttle = minThrottle;
     }
 
-    if(transmissionType == VE_TRANSMISSION_TYPE_AUTOMATIC && gear == 0)
-    {
-        float temp = vis.brake;
-        vis.brake = vis.throttle;
-        vis.throttle = temp;
-    }
-
     const float maxBackwardAssistSpeedMps = 5.0f / 3.6f;
     const float maxForwardAssistSpeedMps = 5.0f / 3.6f;
     if (transmissionType != VE_TRANSMISSION_TYPE_MANUAL_WITH_CLUTCH &&
@@ -300,26 +293,25 @@ void Vehicle::updateTransmission()
 
         if (isNeutral)
         {
-            if (vis.throttle == 0.0f && vis.brake == 0.0f)
+            if (vis.throttle == 0.0f && vis.brake == 0.0f && !vis.shiftDown && !vis.shiftUp)
                 return;
             else if(vis.throttle != 0.0f)
                 isNeutral = false;
         }
 
-        // Sport transmission:
-        // Shift Up when max RPM is reached and there is no wheel spin
-        // Shift Down when lower gear RPM is less than max RPM or shift to Neutral when rpm is less than idle RPM
+        const bool isReverse = gear == 0;
+        const bool isBraking = (vis.brake > 0.0f || vis.handbrake > 0.0f);
         const float shiftUpOverspeedToleranceRadps = 30.0f;
-        if (((gear != 0 && rpm > maxRpm) &&
+        if (((rpm > maxRpm && !isReverse) && // RPM exceeds max(not in reverse) and there is no wheel spin
             (rpm * RPM_TO_RADPS_CONVERSION_FACTOR <= fabsf(forwardSpeedMps) * gearRatios[gear] * finalDriveRatio / wheelRadiusM + shiftUpOverspeedToleranceRadps)) ||
-            (gear == 0 && rawThrottle > 0.0f) ||
-            (gear == 0 && rpm < idleRpm))
+            (isReverse && rpm < idleRpm && isBraking) || // Low RPM while in reverse
+            (isReverse && vis.shiftUp)) // User wants to shift up from reverse
         {
             shiftUp();
         }
-        if ((gear > 1 && rpm * gearRatios[gear - 1] / gearRatios[gear] < maxRpm) ||
-                 (gear == 1 && rpm < idleRpm && (vis.brake > 0.0f || vis.handbrake > 0.0f || forwardSpeedMps < 0.0f)) ||
-                 (isNeutral && vis.brake > 0.0f && forwardSpeedMps < 1.0f))
+        if ((gear > 1 && rpm * gearRatios[gear - 1] / gearRatios[gear] < maxRpm) || // Gear is not R or N and lower gear rpm does not exceed max
+            (gear == 1 && !isNeutral && rpm < idleRpm && isBraking) || // Low RPM while in non-reverse gear
+            (isNeutral && vis.shiftDown)) // User wants to shift down to reverse
         {
             shiftDown();
         }

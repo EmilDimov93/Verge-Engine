@@ -161,7 +161,6 @@ private:
 
     // Runtime
     VehicleInputState vis;
-    float rawThrottle;
 
     Transform transform;
     glm::vec3 velocityMps = glm::vec3(0.0f);

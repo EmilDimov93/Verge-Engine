@@ -273,7 +273,6 @@ void Vehicle::tick(VehicleInputState vis, Environment environment, float surface
     dt = deltaTime;
 
     this->vis = vis;
-    rawThrottle = vis.throttle;
 
     if (vis.starter)
         activateStarter();
@@ -295,6 +294,6 @@ void Vehicle::tick(VehicleInputState vis, Environment environment, float surface
 
     calcTireTemperatures(environment);
 
-    // printState();
+    printState();
     // printVIS();
 }

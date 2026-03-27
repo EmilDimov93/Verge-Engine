@@ -11,9 +11,8 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 
-struct GLFWwindow;
+#include <GLFW/glfw3.h>
 
-class Log;
 class ErrorCode;
 
 class VulkanManager

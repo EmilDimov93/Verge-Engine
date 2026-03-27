@@ -76,7 +76,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     // GLFW
     {{'G', 000}, "GLFW loaded successfully"},
 
-    {{'G', 100}, "Window not initialized. getAspectRatio returns 1.0f"},
+    // {'G', 100} removed
     {{'G', 101}, "Invalid key detected"},
     {{'G', 102}, "Invalid window size parameter. Using 50% of monitor size"},
 

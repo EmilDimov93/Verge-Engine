@@ -5,13 +5,10 @@
 
 #include "../shared/Log.hpp"
 
-#include <GLFW/glfw3.h>
-
-WindowManager::WindowManager(Size2 size, std::string projectName)
+WindowManager::WindowManager(Size2 size, std::string name)
 {
     if (!glfwInit())
         Log::add('G', 200);
-    isInitialized = true;
 
     const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
@@ -30,7 +27,7 @@ WindowManager::WindowManager(Size2 size, std::string projectName)
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    window = glfwCreateWindow(this->size.w, this->size.h, projectName.c_str(), nullptr, nullptr);
+    window = glfwCreateWindow(this->size.w, this->size.h, name.c_str(), nullptr, nullptr);
     if (!window)
     {
         Log::add('G', 201);
@@ -56,11 +53,6 @@ bool WindowManager::isOpen() const
 
 float WindowManager::getAspectRatio() const
 {
-    if (!isInitialized)
-    {
-        Log::add('G', 100);
-        return 1.0f;
-    }
     if (size.h == 0)
         return 1.0f;
 
@@ -70,12 +62,9 @@ float WindowManager::getAspectRatio() const
 WindowManager::~WindowManager()
 {
     if (window)
-    {
         glfwDestroyWindow(window);
-        window = nullptr;
-    }
 
-    if (isInitialized)
-        glfwTerminate();
-    isInitialized = false;
+    window = nullptr;
+
+    glfwTerminate();
 }

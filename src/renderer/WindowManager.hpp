@@ -5,14 +5,12 @@
 
 #include "../shared/definitions.hpp"
 
-class Log;
-
-struct GLFWwindow;
+#include <GLFW/glfw3.h>
 
 class WindowManager
 {
 public:
-    WindowManager(Size2 size, std::string projectName);
+    WindowManager(Size2 size, std::string name);
 
     GLFWwindow *getReference() const;
 
@@ -27,6 +25,4 @@ public:
 private:
     GLFWwindow *window;
     Size2 size = {};
-
-    bool isInitialized = false;
 };

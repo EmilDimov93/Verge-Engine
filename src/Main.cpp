@@ -7,7 +7,7 @@
 class VergeEngine
 {
 public:
-    VergeEngine() : renderer({"Example", {1200, 600}}), scene({0.7f, 1.0f, 1.0f}) {}
+    VergeEngine() : renderer({"Example", {1200, 600}}) {}
 
     void run()
     {
@@ -69,6 +69,8 @@ private:
 
     void setupScene()
     {
+        scene.setBackgroundColor({0.7f, 1.0f, 1.0f});
+
         // Vehicle
         VE_STRUCT_VEHICLE_CREATE_INFO carInfo = {};
         carInfo.bodyMeshHandle = scene.loadFile("models/car.obj");

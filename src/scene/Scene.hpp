@@ -17,7 +17,7 @@
 class Scene
 {
 public:
-    Scene(ve_color_t backgroundColor);
+    Scene();
 
     Player &player(PlayerHandle handle);
     Vehicle &vehicle(VehicleHandle handle);

@@ -40,7 +40,7 @@ class AudioManager
 public:
     AudioManager();
 
-    void tick(AudioData audioData, float volume);
+    void tick(const AudioData& audioData, float volume);
 
     ~AudioManager();
 

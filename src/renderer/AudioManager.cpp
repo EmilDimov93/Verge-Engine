@@ -32,7 +32,7 @@ float AudioManager::volumeToGain(float volume) const
     return std::pow(10.0f, dB / 20.0f);
 }
 
-void AudioManager::tick(AudioData audioData, float volume)
+void AudioManager::tick(const AudioData& audioData, float volume)
 {
     for (const VELayeredEngineAudioRequest &req : audioData.layeredEngineAudioRequests)
     {

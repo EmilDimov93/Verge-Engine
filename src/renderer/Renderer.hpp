@@ -47,7 +47,7 @@ public:
 
     bool isOpen();
 
-    void tick(DrawData drawData, AudioData audioData);
+    void tick(const DrawData& drawData, const AudioData& audioData);
 
     VehicleInputState getVIS();
     void setVehicleKeybinds(const VehicleKeybinds &keybinds);

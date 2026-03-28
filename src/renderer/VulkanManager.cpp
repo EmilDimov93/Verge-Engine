@@ -1261,7 +1261,7 @@ void VulkanManager::createDescriptorSets()
     }
 }
 
-void VulkanManager::drawFrame(DrawData drawData)
+void VulkanManager::drawFrame(const DrawData& drawData)
 {
     vkCheck(vkWaitForFences(device, 1, &drawFences[currentFrame], VK_TRUE, UINT64_MAX), {'V', 231});
     vkCheck(vkResetFences(device, 1, &drawFences[currentFrame]), {'V', 232});

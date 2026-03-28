@@ -17,15 +17,15 @@ bool Renderer::isOpen()
     return window.isOpen();
 }
 
-void Renderer::tick(DrawData drawData, AudioData audioData)
+void Renderer::tick(const DrawData& drawData, const AudioData& audioData)
 {
-    fps.sync();
-
     Input::refresh();
 
     vulkan.drawFrame(drawData);
 
     audio.tick(audioData, volume);
+
+    fps.sync();
 }
 
 float smoothValue(float newValue, float oldValue, float smoothingFactor, float dt)

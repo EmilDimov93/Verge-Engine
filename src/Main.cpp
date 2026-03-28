@@ -138,7 +138,7 @@ private:
             {
                 surfaceTypeMap[i * surfaceSize.w + j] = asphaltSurfaceTypeIndex;
                 heightMap[i * surfaceSize.w + j] = 0.3f;
-                if(j == centerX)
+                if (j == centerX)
                 {
                     surfaceTypeMap[i * surfaceSize.w + j] = roadLineSurfaceTypeIndex;
                 }

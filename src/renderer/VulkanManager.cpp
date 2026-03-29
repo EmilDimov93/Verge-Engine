@@ -13,6 +13,7 @@
 #include <fstream>
 
 const uint8_t MAX_FRAME_DRAWS = 2;
+const uint8_t MAX_OBJECTS = 2; // Temporary
 
 VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize)
 {
@@ -1266,6 +1267,18 @@ void VulkanManager::createDescriptorPool()
         .pPoolSizes = descriptorPoolSizes.data()};
 
     vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &descriptorPool), {'V', 219});
+
+    VkDescriptorPoolSize samplerPoolSize = {
+        .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+        .descriptorCount = MAX_OBJECTS};
+
+    VkDescriptorPoolCreateInfo samplerPoolCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+        .maxSets = MAX_OBJECTS,
+        .poolSizeCount = 1,
+        .pPoolSizes = &samplerPoolSize};
+
+    vkCheck(vkCreateDescriptorPool(device, &samplerPoolCreateInfo, nullptr, &samplerDescriptorPool), {'V', 219});
 }
 
 void VulkanManager::createDescriptorSets()
@@ -1419,6 +1432,8 @@ VulkanManager::~VulkanManager()
 
     if (descriptorPool)
         vkDestroyDescriptorPool(device, descriptorPool, nullptr);
+    if(samplerDescriptorPool)
+        vkDestroyDescriptorPool(device, samplerDescriptorPool, nullptr);
     if (descriptorSetLayout)
         vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 

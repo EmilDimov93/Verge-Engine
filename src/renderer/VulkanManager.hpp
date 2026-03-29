@@ -81,6 +81,7 @@ private:
     VkPushConstantRange pushConstantRange;
 
     VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
+    VkDescriptorPool samplerDescriptorPool = VK_NULL_HANDLE;
     std::vector<VkDescriptorSet> descriptorSets;
 
     std::vector<VkBuffer> vpUniformBuffer;

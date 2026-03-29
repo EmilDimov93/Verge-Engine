@@ -200,6 +200,22 @@ TriggerHandle Scene::addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, 
     return handle;
 }
 
+void Scene::removeVehicle(VehicleHandle handle)
+{
+    std::erase_if(meshInstances, [this, handle](const auto& meshInstance) { return meshInstance.handle == vehicle(handle).getBodyMeshInstanceHandle(); });
+
+    for(size_t i = 0; i < VE_WHEEL_COUNT; i++)
+    {
+        std::erase_if(meshInstances, [this, handle, i](const auto& meshInstance) { return meshInstance.handle == vehicle(handle).getWheelMeshInstanceHandle(static_cast<VEWheel>(i)); });
+    }
+
+    std::erase_if(vehicles, [handle](const auto& vehicle) { return vehicle.getHandle() == handle; });
+
+    std::erase_if(engineAudioRequests, [handle](const auto& engineAudioRequest) { return engineAudioRequest.vehicleHandle == handle; });
+
+    std::erase_if(layeredEngineAudioRequests, [handle](const auto& layeredEngineAudioRequests) { return layeredEngineAudioRequests.vehicleHandle == handle; });
+}
+
 SurfaceTypeIndex Scene::addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info)
 {
     SurfaceType newSurfaceType;

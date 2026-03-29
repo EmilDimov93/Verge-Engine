@@ -36,6 +36,8 @@ public:
     PropHandle addProp(MeshHandle meshHandle, Transform transform);
     TriggerHandle addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform = {});
 
+    void removeVehicle(VehicleHandle handle);
+
     void tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputState>> inputData);
 
     SurfaceTypeIndex addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info);

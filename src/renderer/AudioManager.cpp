@@ -176,7 +176,8 @@ void AudioManager::tick(const AudioData& audioData, float volume)
             {
                 foundAudio = true;
 
-                ma_sound_set_pitch(&audio.sound, 0.5f + req.pitch); // Temporary hardcoded base pitch offset
+                // Temporary: hardcoded base pitch offset
+                ma_sound_set_pitch(&audio.sound, 0.5f + req.pitch);
 
                 float dx = req.position.x - audioData.playerPosition.x;
                 float dy = req.position.y - audioData.playerPosition.y;

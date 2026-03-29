@@ -44,7 +44,7 @@ private:
 
 struct MeshInstance
 {
-    const MeshInstanceHandle handle;
+    MeshInstanceHandle handle;
 
     MeshHandle meshHandle;
 

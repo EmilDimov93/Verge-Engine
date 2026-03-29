@@ -133,7 +133,7 @@ private:
 
     void activateStarter();
 
-    const VehicleHandle handle;
+    VehicleHandle handle;
 
     MeshInstanceHandle bodyMeshInstanceHandle;
     std::array<MeshInstanceHandle, VE_WHEEL_COUNT> wheelMeshInstanceHandles;

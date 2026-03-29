@@ -170,6 +170,7 @@ void Scene::tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputS
                 if (player->getVehicleHandle() == vehicle.getHandle())
                 {
                     player->updateCamera(dt, vehicle.getTransform(), vehicle.getVelocityVector());
+                    break;
                 }
             }
         }

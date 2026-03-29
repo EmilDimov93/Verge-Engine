@@ -33,7 +33,7 @@ AudioData Scene::getAudioData(PlayerHandle playerHandle)
         {
             if (player->getHandle() == playerHandle)
             {
-                AudioData audioData(player->getCameraPosition(), player->getCameraYaw(), engineAudioRequests, layeredEngineAudioRequests, oneShotAudioRequests);
+                AudioData audioData(player->getCameraPosition(), player->getCameraYaw(), engineAudioRequests, layeredEngineAudioRequests, oneShotAudioRequests, vehicleRemovedThisFrame);
                 return audioData;
             }
         }
@@ -214,6 +214,8 @@ void Scene::removeVehicle(VehicleHandle handle)
     std::erase_if(engineAudioRequests, [handle](const auto& engineAudioRequest) { return engineAudioRequest.vehicleHandle == handle; });
 
     std::erase_if(layeredEngineAudioRequests, [handle](const auto& layeredEngineAudioRequests) { return layeredEngineAudioRequests.vehicleHandle == handle; });
+
+    vehicleRemovedThisFrame = true;
 }
 
 SurfaceTypeIndex Scene::addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info)

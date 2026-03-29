@@ -19,8 +19,8 @@ AudioManager::AudioManager()
 
 float AudioManager::attenuation(float distance) const
 {
-    float ref = 3.0f;
-    float rolloff = 3.0f;
+    const float ref = 3.0f;
+    const float rolloff = 3.0f;
     return ref / (ref + rolloff * (distance - ref));
 }
 
@@ -28,12 +28,69 @@ float AudioManager::volumeToGain(float volume) const
 {
     if (volume <= 0.0f)
         return 0.0f;
-    float dB = -60.0f + volume * 60.0f;
+    const float dB = -60.0f + volume * 60.0f;
     return std::pow(10.0f, dB / 20.0f);
 }
 
-void AudioManager::tick(const AudioData& audioData, float volume)
+void AudioManager::removeMissingAudio(const AudioData &audioData)
 {
+    for (auto it = engineAudios.begin(); it != engineAudios.end();)
+    {
+        bool hasRequest = false;
+        for (const VEEngineAudioRequest &req : audioData.engineAudioRequests)
+        {
+            if (req.vehicleHandle == it->vehicleHandle)
+            {
+                hasRequest = true;
+                break;
+            }
+        }
+
+        if (!hasRequest)
+        {
+            ma_sound_uninit(&it->sound);
+            it = engineAudios.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    for (auto it = layeredEngineAudios.begin(); it != layeredEngineAudios.end();)
+    {
+        bool hasRequest = false;
+        for (const VELayeredEngineAudioRequest &req : audioData.layeredEngineAudioRequests)
+        {
+            if (req.vehicleHandle == it->vehicleHandle)
+            {
+                hasRequest = true;
+                break;
+            }
+        }
+
+        if (!hasRequest)
+        {
+            for (VEEngineAudioFile2 &audioFile : it->audioFiles)
+            {
+                ma_sound_uninit(&audioFile.sound);
+            }
+            it = layeredEngineAudios.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
+void AudioManager::tick(const AudioData &audioData, float volume)
+{
+    if (audioData.vehicleRemovedThisFrame)
+    {
+        removeMissingAudio(audioData);
+    }
+
     for (const VELayeredEngineAudioRequest &req : audioData.layeredEngineAudioRequests)
     {
         bool foundAudio = false;
@@ -91,7 +148,7 @@ void AudioManager::tick(const AudioData& audioData, float volume)
                     if (file.fileName.empty())
                         Log::add('M', 100);
 
-                    engineAudios.pop_back();
+                    layeredEngineAudios.pop_back();
 
                     continue;
                 }
@@ -232,6 +289,13 @@ void AudioManager::tick(const AudioData& audioData, float volume)
 
 AudioManager::~AudioManager()
 {
+    for (VELayeredEngineAudio &audio : layeredEngineAudios)
+    {
+        for (VEEngineAudioFile2 &audioFile : audio.audioFiles)
+        {
+            ma_sound_uninit(&audioFile.sound);
+        }
+    }
     for (VEEngineAudio &audio : engineAudios)
     {
         ma_sound_uninit(&audio.sound);

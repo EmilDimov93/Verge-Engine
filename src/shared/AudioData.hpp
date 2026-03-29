@@ -38,16 +38,18 @@ struct VEAudioRequest
 
 struct AudioData
 {
-    Position3 playerPosition;
-    float playerYawRad;
+    const Position3 playerPosition;
+    const float playerYawRad;
     const std::vector<VEEngineAudioRequest> &engineAudioRequests;
     const std::vector<VELayeredEngineAudioRequest> &layeredEngineAudioRequests;
     const std::vector<VEAudioRequest> &oneShotAudioRequests;
+    const bool vehicleRemovedThisFrame;
 
-    AudioData(Position3 playerPosition,
-              float playerYawRad,
+    AudioData(const Position3 playerPosition,
+              const float playerYawRad,
               const std::vector<VEEngineAudioRequest> &engineAudioRequests,
               const std::vector<VELayeredEngineAudioRequest> &layeredEngineAudioRequests,
-              const std::vector<VEAudioRequest> &oneShotAudioRequests)
-        : playerPosition(playerPosition), playerYawRad(playerYawRad), engineAudioRequests(engineAudioRequests), layeredEngineAudioRequests(layeredEngineAudioRequests), oneShotAudioRequests(oneShotAudioRequests) {}
+              const std::vector<VEAudioRequest> &oneShotAudioRequests,
+              const bool vehicleRemovedThisFrame)
+        : playerPosition(playerPosition), playerYawRad(playerYawRad), engineAudioRequests(engineAudioRequests), layeredEngineAudioRequests(layeredEngineAudioRequests), oneShotAudioRequests(oneShotAudioRequests), vehicleRemovedThisFrame(vehicleRemovedThisFrame) {}
 };

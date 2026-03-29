@@ -51,7 +51,7 @@ private:
 
     ma_engine miniaudio;
 
-    void removeMissingAudio(const AudioData& audioData);
+    void removeOrphanedAudio(const AudioData& audioData);
 
     float volumeToGain(float volume) const;
     float attenuation(float distance) const;

@@ -980,6 +980,49 @@ void VulkanManager::createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags buf
     vkCheck(vkBindBufferMemory(device, *buffer, *bufferMemory, 0), {'V', 218});
 }
 
+void VulkanManager::removeOrphanedMesh(const std::vector<MeshInstance> &meshInstances)
+{
+    for (auto it = MeshGPUs.begin(); it != MeshGPUs.end();)
+    {
+        bool hasInstance = false;
+        for (const MeshInstance &instance : meshInstances)
+        {
+            if (instance.meshHandle == it->handle)
+            {
+                hasInstance = true;
+                break;
+            }
+        }
+
+        if (!hasInstance)
+        {
+            if (device != VK_NULL_HANDLE)
+                vkCheck(vkDeviceWaitIdle(device), {'V', 235});
+
+            if (it->vertexBuffer)
+                vkDestroyBuffer(device, it->vertexBuffer, nullptr);
+            if (it->vertexBufferMemory)
+                vkFreeMemory(device, it->vertexBufferMemory, nullptr);
+
+            if (it->indexBuffer)
+                vkDestroyBuffer(device, it->indexBuffer, nullptr);
+            if (it->indexBufferMemory)
+                vkFreeMemory(device, it->indexBufferMemory, nullptr);
+
+            it->vertexBuffer = VK_NULL_HANDLE;
+            it->vertexBufferMemory = VK_NULL_HANDLE;
+            it->indexBuffer = VK_NULL_HANDLE;
+            it->indexBufferMemory = VK_NULL_HANDLE;
+
+            it = MeshGPUs.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
 VkResult copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize)
 {
     VkResult res;
@@ -1261,13 +1304,16 @@ void VulkanManager::createDescriptorSets()
     }
 }
 
-void VulkanManager::drawFrame(const DrawData& drawData)
+void VulkanManager::drawFrame(const DrawData &drawData)
 {
     vkCheck(vkWaitForFences(device, 1, &drawFences[currentFrame], VK_TRUE, UINT64_MAX), {'V', 231});
     vkCheck(vkResetFences(device, 1, &drawFences[currentFrame]), {'V', 232});
 
     uint32_t imageIndex;
     vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex), {'V', 230});
+
+    if (drawData.meshRemovedThisFrame)
+        removeOrphanedMesh(drawData.meshInstances);
 
     recordCommands(imageIndex, drawData.meshes, drawData.meshInstances, drawData.backgroundColor);
     updateUniformBuffers(imageIndex, drawData.projectionMat, drawData.viewMat);

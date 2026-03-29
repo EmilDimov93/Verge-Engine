@@ -32,7 +32,7 @@ float AudioManager::volumeToGain(float volume) const
     return std::pow(10.0f, dB / 20.0f);
 }
 
-void AudioManager::removeMissingAudio(const AudioData &audioData)
+void AudioManager::removeOrphanedAudio(const AudioData &audioData)
 {
     for (auto it = engineAudios.begin(); it != engineAudios.end();)
     {
@@ -87,9 +87,7 @@ void AudioManager::removeMissingAudio(const AudioData &audioData)
 void AudioManager::tick(const AudioData &audioData, float volume)
 {
     if (audioData.vehicleRemovedThisFrame)
-    {
-        removeMissingAudio(audioData);
-    }
+        removeOrphanedAudio(audioData);
 
     for (const VELayeredEngineAudioRequest &req : audioData.layeredEngineAudioRequests)
     {

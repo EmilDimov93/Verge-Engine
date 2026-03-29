@@ -29,7 +29,7 @@ public:
 private:
     struct MeshGPU
     {
-        const MeshHandle handle;
+        MeshHandle handle;
 
         uint64_t version = 0;
 
@@ -126,6 +126,8 @@ private:
     void createDescriptorSets();
 
     void createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory);
+
+    void removeOrphanedMesh(const std::vector<MeshInstance> &meshInstances);
 
     void recordCommands(uint32_t currentImage, const std::vector<Mesh> &meshes, const std::vector<MeshInstance> &meshInstances, ve_color_t backgroundColor);
 

@@ -34,7 +34,7 @@ public:
     const std::vector<uint32_t> &getIndices() const { return indices; }
 
 private:
-    const MeshHandle handle;
+    MeshHandle handle;
 
     uint64_t version = 1;
 
@@ -59,15 +59,18 @@ struct DrawData
     const std::vector<Mesh> &meshes;
     const std::vector<MeshInstance> &meshInstances;
 
-    glm::mat4 projectionMat;
-    glm::mat4 viewMat;
+    const glm::mat4 projectionMat;
+    const glm::mat4 viewMat;
 
-    ve_color_t backgroundColor;
+    const ve_color_t backgroundColor;
+
+    const bool meshRemovedThisFrame;
 
     DrawData(const std::vector<Mesh> &meshes,
              const std::vector<MeshInstance> &meshInstances,
-             glm::mat4 projectionMat,
-             glm::mat4 viewMat,
-             ve_color_t backgroundColor)
-        : meshes(meshes), meshInstances(meshInstances), projectionMat(projectionMat), viewMat(viewMat), backgroundColor(backgroundColor) {}
+             const glm::mat4 projectionMat,
+             const glm::mat4 viewMat,
+             const ve_color_t backgroundColor,
+             const bool meshRemovedThisFrame)
+        : meshes(meshes), meshInstances(meshInstances), projectionMat(projectionMat), viewMat(viewMat), backgroundColor(backgroundColor), meshRemovedThisFrame(meshRemovedThisFrame) {}
 };

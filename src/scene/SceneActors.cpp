@@ -15,7 +15,7 @@ DrawData Scene::getDrawData(PlayerHandle playerHandle)
         {
             if (player->getHandle() == playerHandle)
             {
-                DrawData drawData(meshes, meshInstances, player->getCameraProjectionMat(), player->getCameraViewMat(), environment.backgroundColor);
+                DrawData drawData(meshes, meshInstances, player->getCameraProjectionMat(), player->getCameraViewMat(), environment.backgroundColor, meshRemovedThisFrame);
                 return drawData;
             }
         }
@@ -82,6 +82,19 @@ MeshInstanceHandle Scene::addMeshInstance(MeshHandle meshHandle)
     meshInstances.push_back(newMeshInstance);
 
     return newMeshInstance.handle;
+}
+
+bool Scene::isMeshInstanced(MeshHandle meshHandle) const
+{
+    for(const MeshInstance& meshInstance : meshInstances)
+    {
+        if(meshInstance.meshHandle == meshHandle)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 PlayerHandle Scene::addPlayer(VehicleHandle vehicleHandle, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo)
@@ -202,12 +215,17 @@ TriggerHandle Scene::addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, 
 
 void Scene::removeVehicle(VehicleHandle handle)
 {
-    std::erase_if(meshInstances, [this, handle](const auto& meshInstance) { return meshInstance.handle == vehicle(handle).getBodyMeshInstanceHandle(); });
+    const MeshInstanceHandle bodyHandle = vehicle(handle).getBodyMeshInstanceHandle();
+    std::erase_if(meshInstances, [bodyHandle](const auto &meshInstance) { return meshInstance.handle == bodyHandle; });
 
-    for(size_t i = 0; i < VE_WHEEL_COUNT; i++)
+    for (size_t i = 0; i < VE_WHEEL_COUNT; i++)
     {
-        std::erase_if(meshInstances, [this, handle, i](const auto& meshInstance) { return meshInstance.handle == vehicle(handle).getWheelMeshInstanceHandle(static_cast<VEWheel>(i)); });
+        const MeshInstanceHandle wheelHandle = vehicle(handle).getWheelMeshInstanceHandle(static_cast<VEWheel>(i));
+        std::erase_if(meshInstances, [wheelHandle](const auto &meshInstance) { return meshInstance.handle == wheelHandle; });
     }
+
+    size_t meshesRemoved = std::erase_if(meshes, [this](const auto &mesh) { return !isMeshInstanced(mesh.getHandle()); });
+    meshRemovedThisFrame = meshesRemoved > 0;
 
     std::erase_if(vehicles, [handle](const auto& vehicle) { return vehicle.getHandle() == handle; });
 

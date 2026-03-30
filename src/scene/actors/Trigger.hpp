@@ -29,11 +29,13 @@ public:
     TriggerHandle getHandle() const;
     glm::mat4 getModelMat() const;
 
+    MeshInstanceHandle getMeshInstanceHandle() const;
+
     bool doesActorTrigger(Position3 actorPos) const;
 
-    bool getIsAutoDestroy() const;
+    bool isAutoDestroy() const;
     void markForDestroy();
-    bool getIsMarkedForDestroy() const;
+    bool isMarkedForDestroy() const;
 
 private:
     TriggerHandle handle;
@@ -45,9 +47,9 @@ private:
     VE_SHAPE hitboxShape;
     float hitboxSize;
 
-    bool isAutoDestroy;
+    bool isAutoDestroy_ = false;
 
-    bool isMarkedForDestroy = false;
+    bool isMarkedForDestroy_ = false;
 
     glm::mat4 modelMat;
 

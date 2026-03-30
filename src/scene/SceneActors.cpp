@@ -215,13 +215,13 @@ TriggerHandle Scene::addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, 
 
 void Scene::removeVehicle(VehicleHandle handle)
 {
-    const MeshInstanceHandle bodyHandle = vehicle(handle).getBodyMeshInstanceHandle();
-    std::erase_if(meshInstances, [bodyHandle](const auto &meshInstance) { return meshInstance.handle == bodyHandle; });
+    const MeshInstanceHandle bodyMeshInstanceHandle = vehicle(handle).getBodyMeshInstanceHandle();
+    std::erase_if(meshInstances, [bodyMeshInstanceHandle](const auto &meshInstance) { return meshInstance.handle == bodyMeshInstanceHandle; });
 
     for (size_t i = 0; i < VE_WHEEL_COUNT; i++)
     {
-        const MeshInstanceHandle wheelHandle = vehicle(handle).getWheelMeshInstanceHandle(static_cast<VEWheel>(i));
-        std::erase_if(meshInstances, [wheelHandle](const auto &meshInstance) { return meshInstance.handle == wheelHandle; });
+        const MeshInstanceHandle wheelMeshInstanceHandle = vehicle(handle).getWheelMeshInstanceHandle(static_cast<VEWheel>(i));
+        std::erase_if(meshInstances, [wheelMeshInstanceHandle](const auto &meshInstance) { return meshInstance.handle == wheelMeshInstanceHandle; });
     }
 
     size_t meshesRemoved = std::erase_if(meshes, [this](const auto &mesh) { return !isMeshInstanced(mesh.getHandle()); });
@@ -234,6 +234,28 @@ void Scene::removeVehicle(VehicleHandle handle)
     std::erase_if(layeredEngineAudioRequests, [handle](const auto& layeredEngineAudioRequests) { return layeredEngineAudioRequests.vehicleHandle == handle; });
 
     vehicleRemovedThisFrame = true;
+}
+
+void Scene::removeProp(PropHandle handle)
+{
+    const MeshInstanceHandle meshInstanceHandle = prop(handle).getMeshInstanceHandle();
+    std::erase_if(meshInstances, [meshInstanceHandle](const auto &meshInstance) { return meshInstance.handle == meshInstanceHandle; });
+
+    size_t meshesRemoved = std::erase_if(meshes, [this](const auto &mesh) { return !isMeshInstanced(mesh.getHandle()); });
+    meshRemovedThisFrame = meshesRemoved > 0;
+
+    std::erase_if(props, [handle](const auto& prop) { return prop.getHandle() == handle; });
+}
+
+void Scene::removeTrigger(TriggerHandle handle)
+{
+    const MeshInstanceHandle meshInstanceHandle = trigger(handle).getMeshInstanceHandle();
+    std::erase_if(meshInstances, [meshInstanceHandle](const auto &meshInstance) { return meshInstance.handle == meshInstanceHandle; });
+
+    size_t meshesRemoved = std::erase_if(meshes, [this](const auto &mesh) { return !isMeshInstanced(mesh.getHandle()); });
+    meshRemovedThisFrame = meshesRemoved > 0;
+
+    std::erase_if(triggers, [handle](const auto& trigger) { return trigger.getHandle() == handle; });
 }
 
 SurfaceTypeIndex Scene::addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info)

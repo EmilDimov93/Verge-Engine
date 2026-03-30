@@ -196,7 +196,7 @@ void Scene::tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputS
             {
                 std::cout << "Triggered: " << trigger.getHandle().getValue() << std::endl;
                 // call callback function
-                if (trigger.getIsAutoDestroy())
+                if (trigger.isAutoDestroy())
                 {
                     trigger.markForDestroy();
                     break;
@@ -204,8 +204,16 @@ void Scene::tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputS
             }
         }
     }
-    std::erase_if(triggers, [](const Trigger &t)
-                  { return t.getIsMarkedForDestroy(); });
+
+    std::vector<TriggerHandle> markedHandles;
+    for (const auto &trigger : triggers)
+    {
+        if (trigger.isMarkedForDestroy())
+            markedHandles.push_back(trigger.getHandle());
+    }
+
+    for (const auto &handle : markedHandles)
+        removeTrigger(handle);
 }
 
 MeshHandle Scene::loadFile(const std::string &filePath)

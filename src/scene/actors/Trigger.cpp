@@ -28,7 +28,7 @@ Trigger::Trigger(TriggerHandle handle, Transform transform, MeshInstanceHandle m
 
     this->transform = transform;
 
-    isAutoDestroy = info.isAutoDestroy;
+    isAutoDestroy_ = info.isAutoDestroy;
 
     modelMat = transform.toMat();
 }
@@ -73,22 +73,28 @@ TriggerHandle Trigger::getHandle() const
     return handle;
 }
 
-bool Trigger::getIsAutoDestroy() const
-{
-    return isAutoDestroy;
-}
-
-void Trigger::markForDestroy()
-{
-    isMarkedForDestroy = true;
-}
-
-bool Trigger::getIsMarkedForDestroy() const
-{
-    return isMarkedForDestroy;
-}
-
 glm::mat4 Trigger::getModelMat() const
 {
     return modelMat;
 }
+
+MeshInstanceHandle Trigger::getMeshInstanceHandle() const
+{
+    return meshInstanceHandle;
+}
+
+bool Trigger::isAutoDestroy() const
+{
+    return isAutoDestroy_;
+}
+
+void Trigger::markForDestroy()
+{
+    isMarkedForDestroy_ = true;
+}
+
+bool Trigger::isMarkedForDestroy() const
+{
+    return isMarkedForDestroy_;
+}
+

@@ -39,14 +39,13 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     uint32_t peakTorqueNm = 300;
 
     float weightKg = 1200.f;
-    uint32_t gearCount = 5; // Excluding reverse
     uint32_t maxRpm = 6000;
     float brakingForceN = 15000.0f;
     VETransmissionType transmissionType = VE_TRANSMISSION_TYPE_AUTOMATIC;
 
-    float *pGearRatios = nullptr;
+    std::vector<float> gearRatios;
     float reverseGearRatio = 3.5f;
-    float finalDriveRatio = 3.42f;
+    float finalDriveRatio = 4.0f;
     float drivetrainEfficiency = 0.85f;
     float wheelRadiusM = 0.3f;
     float dragCoeff = 0.31f;

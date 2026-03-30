@@ -80,16 +80,11 @@ private:
         carInfo.weightKg = 1540;
         carInfo.maxRpm = 7000;
         carInfo.idleRpm = 800;
-        carInfo.gearCount = 8;
         carInfo.transmissionType = VE_TRANSMISSION_TYPE_AUTOMATIC;
-        float ratios[8] = {5.519f, 3.184f, 2.050f, 1.492f, 1.235f, 1.000f, 0.801f, 0.673f};
-        carInfo.pGearRatios = ratios;
+        carInfo.gearRatios = {5.519f, 3.184f, 2.050f, 1.492f, 1.235f, 1.000f, 0.801f, 0.673f};
         carInfo.finalDriveRatio = 3.2f;
         carInfo.drivetrainEfficiency = 0.9f;
         carInfo.wheelRadiusM = 0.31f;
-        carInfo.dragCoeff = 0.31f;
-        carInfo.frontalAreaM2 = 2.3f;
-        carInfo.brakingForceN = 14700;
         carInfo.tireGrip = 1.0f;
         carInfo.camberRad = (PI / 180);
         carInfo.drivetrainType = VE_DRIVETRAIN_TYPE_FWD;

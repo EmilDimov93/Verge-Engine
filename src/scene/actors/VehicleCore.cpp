@@ -36,16 +36,6 @@ Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHI
         weightKg = 1200.f;
     }
 
-    if (info.gearCount > 0)
-    {
-        gearCount = info.gearCount;
-    }
-    else
-    {
-        Log::add('A', 105);
-        gearCount = 5;
-    }
-
     if (info.idleRpm > 0)
     {
         idleRpm = info.idleRpm;
@@ -79,40 +69,45 @@ Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHI
         brakingForceN = 15000.0f;
     }
 
-    if (info.pGearRatios)
+    if (info.gearRatios.size() > 0)
     {
+        gearCount = info.gearRatios.size();
         gearRatios.resize(gearCount + 1);
 
-        if (info.reverseGearRatio > 0.0f)
-        {
-            gearRatios[0] = info.reverseGearRatio;
-        }
-        else
-        {
-            gearRatios[0] = 3.5f;
-        }
+        gearRatios[0] = info.reverseGearRatio > 0.0f ? info.reverseGearRatio : 3.5f;
 
-        std::copy(info.pGearRatios, info.pGearRatios + gearCount, gearRatios.begin() + 1);
+        for (size_t i = 1; i < gearCount; i++)
+        {
+            gearRatios[i] = info.gearRatios[i];
+        }
     }
     else
     {
-        if (gearCount == 1)
+        gearCount = 5;
+
+        gearRatios.resize(gearCount + 1);
+
+        gearRatios[0] = info.reverseGearRatio > 0.0f ? info.reverseGearRatio : 3.5f;
+
+        const float defaultTopRatio = 1.0f;
+        const float defaultFirstRatio = 5.0f;
+        for (size_t i = 1; i <= gearCount; ++i)
         {
-            gearRatios[1] = 1.0f;
+            gearRatios[i] = defaultTopRatio * std::pow(defaultFirstRatio / defaultTopRatio, float(gearCount - i) / float(gearCount));
         }
-        else
-        {
-            const float defaultTopRatio = 1.0f;
-            const float defaultFirstRatio = 5.0f;
-            gearRatios.resize(gearCount);
-            for (size_t i = 1; i <= gearCount; ++i)
-            {
-                gearRatios[i] = defaultTopRatio * std::pow(defaultFirstRatio / defaultTopRatio, float(gearCount - 1 - i) / float(gearCount - 1));
-            }
-        }
+
+        Log::add('A', 105);
     }
 
-    finalDriveRatio = info.finalDriveRatio;
+    if(info.finalDriveRatio <= 0.0f)
+    {
+        finalDriveRatio = info.finalDriveRatio;
+    }
+    else
+    {
+        finalDriveRatio = 3.0f;
+        Log::add('A', 117);
+    }
 
     if (info.drivetrainEfficiency >= 0 && info.drivetrainEfficiency <= 1.0f)
     {
@@ -277,7 +272,7 @@ void Vehicle::tick(VehicleInputState vis, Environment environment, float surface
     if (vis.starter)
         activateStarter();
 
-    for(WheelState &state : wheelStates)
+    for (WheelState &state : wheelStates)
     {
         state.grip = surfaceFriction;
     }

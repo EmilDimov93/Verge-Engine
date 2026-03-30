@@ -108,7 +108,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'A', 102}, "Vehicle: invalid peak torque. Using default value"},
     // {'A', 103} removed
     {{'A', 104}, "Vehicle: invalid weight. Using default value"},
-    {{'A', 105}, "Vehicle: invalid gear count. Using default value"},
+    {{'A', 105}, "Vehicle: invalid gear ratios. Using default value"},
     {{'A', 106}, "Vehicle: invalid idle RPM. Using default value"},
     {{'A', 107}, "Vehicle: invalid max RPM. Using default value"},
     {{'A', 108}, "Vehicle: invalid drivetrain efficiency. Using default value"},
@@ -120,6 +120,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'A', 114}, "Vehicle: invalid camber. Using default value"},
     {{'A', 115}, "Vehicle: invalid tire grip. Using default value"},
     {{'A', 116}, "Vehicle: invalid reverse gear ratio. Using default value"},
+    {{'A', 117}, "Vehicle: invalid final drive ratio. Using default value"},
 
     // Prop
     // {'A', 160} removed

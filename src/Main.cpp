@@ -89,7 +89,7 @@ private:
         carInfo.camberRad = (PI / 180);
         carInfo.drivetrainType = VE_DRIVETRAIN_TYPE_FWD;
         carInfo.engineAudioFileName = "4k.wav";
-        // carInfo.layeredEngineAudioFiles = {{"4k.wav", 1000}, {"4k.wav", 2000}, {"4k.wav", 3000}, {"4k.wav", 4000}, {"4k.wav", 5000}, {"4k.wav", 6000}, {"4k.wav", 7000}};
+        // carInfo.layeredEngineAudioFiles = {{"1k.wav", 1000}, {"2k.wav", 2000}, {"3k.wav", 3000}, {"4k.wav", 4000}, {"5k.wav", 5000}, {"6k.wav", 6000}, {"7k.wav", 7000}};
         car1 = scene.addVehicle(carInfo, {{50.0f, 0, -40.0f}, {0, -PI / 4, 0}});
 
         // Player

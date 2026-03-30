@@ -33,7 +33,7 @@ Player &Scene::player(PlayerHandle handle)
     }
 
     Log::add('S', 202);
-    std::terminate();
+    std::unreachable();
 }
 
 Vehicle &Scene::vehicle(VehicleHandle handle)
@@ -47,7 +47,7 @@ Vehicle &Scene::vehicle(VehicleHandle handle)
     }
 
     Log::add('S', 203);
-    std::terminate();
+    std::unreachable();
 }
 
 Prop &Scene::prop(PropHandle handle)
@@ -61,7 +61,7 @@ Prop &Scene::prop(PropHandle handle)
     }
 
     Log::add('S', 204);
-    std::terminate();
+    std::unreachable();
 }
 
 Trigger &Scene::trigger(TriggerHandle handle)
@@ -75,7 +75,7 @@ Trigger &Scene::trigger(TriggerHandle handle)
     }
 
     Log::add('S', 205);
-    std::terminate();
+    std::unreachable();
 }
 
 void Scene::tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputState>> inputData)

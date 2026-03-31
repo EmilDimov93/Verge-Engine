@@ -78,7 +78,7 @@ Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHI
 
         for (size_t i = 1; i < gearCount; i++)
         {
-            gearRatios[i] = info.gearRatios[i];
+            gearRatios[i] = info.gearRatios[i - 1];
         }
     }
     else

@@ -82,7 +82,6 @@ private:
         carInfo.idleRpm = 800;
         carInfo.transmissionType = VE_TRANSMISSION_TYPE_AUTOMATIC;
         carInfo.gearRatios = {5.519f, 3.184f, 2.050f, 1.492f, 1.235f, 1.000f, 0.801f, 0.673f};
-        carInfo.finalDriveRatio = 3.2f;
         carInfo.drivetrainEfficiency = 0.9f;
         carInfo.wheelRadiusM = 0.31f;
         carInfo.tireGrip = 1.0f;

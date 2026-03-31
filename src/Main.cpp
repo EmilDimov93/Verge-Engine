@@ -90,7 +90,7 @@ private:
         carInfo.drivetrainType = VE_DRIVETRAIN_TYPE_FWD;
         carInfo.engineAudioFileName = "4k.wav";
         // carInfo.layeredEngineAudioFiles = {{"1k.wav", 1000}, {"2k.wav", 2000}, {"3k.wav", 3000}, {"4k.wav", 4000}, {"5k.wav", 5000}, {"6k.wav", 6000}, {"7k.wav", 7000}};
-        car1 = scene.addVehicle(carInfo, {{50.0f, 0, -40.0f}, {0, -PI / 4, 0}});
+        car1 = scene.addVehicle(carInfo);
 
         // Player
         player1 = scene.addPlayer(car1, {renderer.getAspectRatio()});
@@ -109,11 +109,11 @@ private:
         scene.addTrigger(sTriggerType, {{-35.0f, 1.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
 
         // Ground
-        SurfaceTypeIndex grassSurfaceTypeIndex = scene.addSurfaceType({0.6f, {0, 0.5f, 0}, {0, 0.05f, 0}, 0.1f});
+        SurfaceTypeIndex grassSurfaceTypeIndex = scene.addSurfaceType({0.6f, {0, 0.4f, 0}, {0, 0.05f, 0}, 0.05f});
         SurfaceTypeIndex asphaltSurfaceTypeIndex = scene.addSurfaceType({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
         SurfaceTypeIndex roadLineSurfaceTypeIndex = scene.addSurfaceType({1.0f, {1.0f, 1.0f, 1.0f}, {}});
 
-        Size2 surfaceSize = {1000, 1000};
+        Size2 surfaceSize = {4000, 4000};
 
         std::vector<SurfaceTypeIndex> surfaceTypeMap;
         surfaceTypeMap.resize(surfaceSize.w * surfaceSize.h);
@@ -126,7 +126,7 @@ private:
 
         const float curveStrength = 5.0f;
         const float curveFrequency = 0.05f;
-        const int roadHalfWidth = 10;
+        const int roadHalfWidth = 30;
         for (size_t i = 0; i < surfaceSize.h; i++)
         {
             const int centerX = static_cast<int>(surfaceSize.w / 2 + std::cos(i * curveFrequency) * curveStrength);
@@ -142,7 +142,7 @@ private:
             }
         }
 
-        scene.addSurface(surfaceSize, surfaceTypeMap, heightMap);
+        scene.addSurface(surfaceSize, surfaceTypeMap, heightMap, 0.2f);
     }
 };
 

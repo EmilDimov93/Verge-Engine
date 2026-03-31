@@ -31,6 +31,8 @@ class Surface
 public:
     Size2 size = {0, 0};
 
+    float tileSize = 1.0f;
+
     std::vector<float> heightMap;
     std::vector<SurfaceTypeIndex> surfaceTypeMap;
 
@@ -47,13 +49,13 @@ public:
 
     float sampleHeight(const Position3 &pos) const // world coordinates
     {
-        if (pos.x < position.x - size.w / 2 || pos.x > position.x + size.w / 2 || pos.z < position.z - size.h / 2 || pos.z > position.z + size.h / 2)
+        if (pos.x < position.x - size.w * tileSize / 2 || pos.x > position.x + size.w * tileSize / 2 || pos.z < position.z - size.h * tileSize / 2 || pos.z > position.z + size.h * tileSize / 2)
         {
             return FLOAT_MIN;
         }
 
-        float localX = size.w / 2 + pos.x - position.x;
-        float localZ = size.h / 2 + pos.z - position.z;
+        float localX = size.w / 2.0f + (pos.x - position.x) / tileSize;
+        float localZ = size.h / 2.0f + (pos.z - position.z) / tileSize;
 
         int localXLower = std::floor(localX);
         int localXUpper = std::ceil(localX);
@@ -68,12 +70,12 @@ public:
 
     SurfaceTypeIndex sampleSurfaceTypeIndex(const Position3 &pos) const // world coordinates
     {
-        if (pos.x < position.x - size.w / 2 || pos.x > position.x + size.w / 2 || pos.z < position.z - size.h / 2 || pos.z > position.z + size.h / 2)
+        if (pos.x < position.x - size.w * tileSize / 2 || pos.x > position.x + size.w * tileSize / 2 || pos.z < position.z - size.h * tileSize / 2 || pos.z > position.z + size.h * tileSize / 2)
         {
             return 0;
         }
 
-        return getSurfaceTypeAt(size.w / 2 + pos.x - position.x, size.h / 2 + pos.z - position.z);
+        return getSurfaceTypeAt(size.w / 2.0f + (pos.x - position.x) / tileSize, size.h / 2.0f + (pos.z - position.z) / tileSize);
     }
 
 private:

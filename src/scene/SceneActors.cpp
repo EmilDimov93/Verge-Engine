@@ -86,9 +86,9 @@ MeshInstanceHandle Scene::addMeshInstance(MeshHandle meshHandle)
 
 bool Scene::isMeshInstanced(MeshHandle meshHandle) const
 {
-    for(const MeshInstance& meshInstance : meshInstances)
+    for (const MeshInstance &meshInstance : meshInstances)
     {
-        if(meshInstance.meshHandle == meshHandle)
+        if (meshInstance.meshHandle == meshHandle)
         {
             return true;
         }
@@ -216,22 +216,28 @@ TriggerHandle Scene::addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, 
 void Scene::removeVehicle(VehicleHandle handle)
 {
     const MeshInstanceHandle bodyMeshInstanceHandle = vehicle(handle).getBodyMeshInstanceHandle();
-    std::erase_if(meshInstances, [bodyMeshInstanceHandle](const auto &meshInstance) { return meshInstance.handle == bodyMeshInstanceHandle; });
+    std::erase_if(meshInstances, [bodyMeshInstanceHandle](const auto &meshInstance)
+                  { return meshInstance.handle == bodyMeshInstanceHandle; });
 
     for (size_t i = 0; i < VE_WHEEL_COUNT; i++)
     {
         const MeshInstanceHandle wheelMeshInstanceHandle = vehicle(handle).getWheelMeshInstanceHandle(static_cast<VEWheel>(i));
-        std::erase_if(meshInstances, [wheelMeshInstanceHandle](const auto &meshInstance) { return meshInstance.handle == wheelMeshInstanceHandle; });
+        std::erase_if(meshInstances, [wheelMeshInstanceHandle](const auto &meshInstance)
+                      { return meshInstance.handle == wheelMeshInstanceHandle; });
     }
 
-    size_t meshesRemoved = std::erase_if(meshes, [this](const auto &mesh) { return !isMeshInstanced(mesh.getHandle()); });
+    size_t meshesRemoved = std::erase_if(meshes, [this](const auto &mesh)
+                                         { return !isMeshInstanced(mesh.getHandle()); });
     meshRemovedThisFrame = meshesRemoved > 0;
 
-    std::erase_if(vehicles, [handle](const auto& vehicle) { return vehicle.getHandle() == handle; });
+    std::erase_if(vehicles, [handle](const auto &vehicle)
+                  { return vehicle.getHandle() == handle; });
 
-    std::erase_if(engineAudioRequests, [handle](const auto& engineAudioRequest) { return engineAudioRequest.vehicleHandle == handle; });
+    std::erase_if(engineAudioRequests, [handle](const auto &engineAudioRequest)
+                  { return engineAudioRequest.vehicleHandle == handle; });
 
-    std::erase_if(layeredEngineAudioRequests, [handle](const auto& layeredEngineAudioRequests) { return layeredEngineAudioRequests.vehicleHandle == handle; });
+    std::erase_if(layeredEngineAudioRequests, [handle](const auto &layeredEngineAudioRequests)
+                  { return layeredEngineAudioRequests.vehicleHandle == handle; });
 
     vehicleRemovedThisFrame = true;
 }
@@ -239,23 +245,29 @@ void Scene::removeVehicle(VehicleHandle handle)
 void Scene::removeProp(PropHandle handle)
 {
     const MeshInstanceHandle meshInstanceHandle = prop(handle).getMeshInstanceHandle();
-    std::erase_if(meshInstances, [meshInstanceHandle](const auto &meshInstance) { return meshInstance.handle == meshInstanceHandle; });
+    std::erase_if(meshInstances, [meshInstanceHandle](const auto &meshInstance)
+                  { return meshInstance.handle == meshInstanceHandle; });
 
-    size_t meshesRemoved = std::erase_if(meshes, [this](const auto &mesh) { return !isMeshInstanced(mesh.getHandle()); });
+    size_t meshesRemoved = std::erase_if(meshes, [this](const auto &mesh)
+                                         { return !isMeshInstanced(mesh.getHandle()); });
     meshRemovedThisFrame = meshesRemoved > 0;
 
-    std::erase_if(props, [handle](const auto& prop) { return prop.getHandle() == handle; });
+    std::erase_if(props, [handle](const auto &prop)
+                  { return prop.getHandle() == handle; });
 }
 
 void Scene::removeTrigger(TriggerHandle handle)
 {
     const MeshInstanceHandle meshInstanceHandle = trigger(handle).getMeshInstanceHandle();
-    std::erase_if(meshInstances, [meshInstanceHandle](const auto &meshInstance) { return meshInstance.handle == meshInstanceHandle; });
+    std::erase_if(meshInstances, [meshInstanceHandle](const auto &meshInstance)
+                  { return meshInstance.handle == meshInstanceHandle; });
 
-    size_t meshesRemoved = std::erase_if(meshes, [this](const auto &mesh) { return !isMeshInstanced(mesh.getHandle()); });
+    size_t meshesRemoved = std::erase_if(meshes, [this](const auto &mesh)
+                                         { return !isMeshInstanced(mesh.getHandle()); });
     meshRemovedThisFrame = meshesRemoved > 0;
 
-    std::erase_if(triggers, [handle](const auto& trigger) { return trigger.getHandle() == handle; });
+    std::erase_if(triggers, [handle](const auto &trigger)
+                  { return trigger.getHandle() == handle; });
 }
 
 SurfaceTypeIndex Scene::addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info)
@@ -299,7 +311,7 @@ SurfaceTypeIndex Scene::addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO 
     return surfaceTypes.size() - 1;
 }
 
-void Scene::addSurface(Size2 size, const std::vector<uint32_t> &surfaceTypeMap, const std::vector<float> &heightMap, Position3 position)
+void Scene::addSurface(Size2 size, const std::vector<uint32_t> &surfaceTypeMap, const std::vector<float> &heightMap, float tileSize, Position3 position)
 {
     Surface newSurface;
 
@@ -309,6 +321,8 @@ void Scene::addSurface(Size2 size, const std::vector<uint32_t> &surfaceTypeMap, 
 
     newSurface.surfaceTypeMap = surfaceTypeMap;
     newSurface.heightMap = heightMap;
+
+    newSurface.tileSize = tileSize;
 
     std::vector<Vertex> meshVertices;
     std::vector<uint32_t> meshIndices;
@@ -333,7 +347,7 @@ void Scene::addSurface(Size2 size, const std::vector<uint32_t> &surfaceTypeMap, 
 
             const float halfW = (newSurface.size.w - 1) * 0.5f;
             const float halfH = (newSurface.size.h - 1) * 0.5f;
-            meshVertices.push_back({{(float)(j - halfW), newSurface.heightMap[i * newSurface.size.w + j], (float)(i - halfH)}, surfaceColor});
+            meshVertices.push_back({{(float)(j - halfW) * tileSize, newSurface.heightMap[i * newSurface.size.w + j], (float)(i - halfH) * tileSize}, surfaceColor});
         }
     }
 

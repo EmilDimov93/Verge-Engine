@@ -99,7 +99,7 @@ Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHI
         Log::add('A', 105);
     }
 
-    if(info.finalDriveRatio <= 0.0f)
+    if(info.finalDriveRatio > 0.0f)
     {
         finalDriveRatio = info.finalDriveRatio;
     }

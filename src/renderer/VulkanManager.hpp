@@ -78,6 +78,7 @@ private:
     VkFormat depthFormat;
 
     VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+    VkDescriptorSetLayout samplerSetLayout = VK_NULL_HANDLE;
     VkPushConstantRange pushConstantRange;
 
     VkDescriptorPool descriptorPool = VK_NULL_HANDLE;

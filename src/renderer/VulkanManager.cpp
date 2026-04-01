@@ -871,6 +871,21 @@ void VulkanManager::createDescriptorSetLayout()
         .pBindings = vpLayoutBindings.data()};
 
     vkCheck(vkCreateDescriptorSetLayout(device, &layoutCreateInfo, nullptr, &descriptorSetLayout), {'V', 217});
+
+    // Texture sampler
+    VkDescriptorSetLayoutBinding samplerLayoutBinding = {
+        .binding = 0,
+        .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+        .descriptorCount = 1,
+        .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+        .pImmutableSamplers = nullptr};
+
+    VkDescriptorSetLayoutCreateInfo textureLayoutCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+        .bindingCount = 1,
+        .pBindings = &samplerLayoutBinding};
+
+    vkCheck(vkCreateDescriptorSetLayout(device, &textureLayoutCreateInfo, nullptr, &samplerSetLayout), {'V', 217});
 }
 
 void VulkanManager::createPushConstantRange()

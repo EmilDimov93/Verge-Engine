@@ -84,6 +84,7 @@ private:
     VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
     VkDescriptorPool samplerDescriptorPool = VK_NULL_HANDLE;
     std::vector<VkDescriptorSet> descriptorSets;
+    std::vector<VkDescriptorSet> samplerDescriptorSets;
 
     std::vector<VkBuffer> vpUniformBuffer;
     std::vector<VkDeviceMemory> vpUniformBufferMemory;
@@ -141,5 +142,6 @@ private:
     stbi_uc *loadTextureFile(std::string fileName, int *width, int *height, VkDeviceSize *imageSize);
     size_t createTextureImage(std::string fileName);
     size_t createTexture(std::string fileName);
+    size_t createTextureDescriptor(VkImageView textureImageView);
     VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory *imageMemory);
 };

@@ -370,7 +370,43 @@ size_t VulkanManager::createTexture(std::string fileName)
     vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &imageView), {'V', 205});
     textureImageViews.push_back(imageView);
 
-    return 0;
+    return createTextureDescriptor(imageView);
+}
+
+size_t VulkanManager::createTextureDescriptor(VkImageView textureImageView)
+{
+    VkDescriptorSet descriptorSet;
+
+    VkDescriptorSetAllocateInfo setAllocInfo = {
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+        .descriptorPool = samplerDescriptorPool,
+        .descriptorSetCount = 1,
+        .pSetLayouts = &samplerSetLayout
+    };
+
+    vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, &descriptorSet), {'V', 220});
+
+    VkDescriptorImageInfo imageInfo = {
+        .sampler = textureSampler,
+        .imageView = textureImageView,
+        .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+    };
+
+    VkWriteDescriptorSet descriptorWrite = {
+        .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+        .dstSet = descriptorSet,
+        .dstBinding = 0,
+        .dstArrayElement = 0,
+        .descriptorCount = 1,
+        .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+        .pImageInfo = &imageInfo
+    };
+
+    vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
+
+    samplerDescriptorSets.push_back(descriptorSet);
+
+    return samplerDescriptorSets.size() - 1;
 }
 
 VkImage VulkanManager::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory *imageMemory)
@@ -699,10 +735,12 @@ void VulkanManager::createGraphicsPipeline()
         .attachmentCount = 1,
         .pAttachments = &colorState};
 
+    std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts = {descriptorSetLayout, samplerSetLayout};
+
     VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-        .setLayoutCount = 1,
-        .pSetLayouts = &descriptorSetLayout,
+        .setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size()),
+        .pSetLayouts = descriptorSetLayouts.data(),
         .pushConstantRangeCount = 1,
         .pPushConstantRanges = &pushConstantRange};
 
@@ -1405,6 +1443,9 @@ VulkanManager::~VulkanManager()
 {
     if (device != VK_NULL_HANDLE)
         vkCheck(vkDeviceWaitIdle(device), {'V', 235});
+    
+    if(samplerSetLayout)
+        vkDestroyDescriptorSetLayout(device, samplerSetLayout, nullptr);
 
     if (textureSampler)
         vkDestroySampler(device, textureSampler, nullptr);

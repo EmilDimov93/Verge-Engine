@@ -41,6 +41,8 @@ private:
         VkBuffer indexBuffer = VK_NULL_HANDLE;
         VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
 
+        size_t texIndex = 0;
+
         MeshGPU(MeshHandle handle) : handle(handle) {}
     };
 

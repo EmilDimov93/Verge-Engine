@@ -661,7 +661,7 @@ void VulkanManager::createGraphicsPipeline()
         .stride = sizeof(Vertex),
         .inputRate = VK_VERTEX_INPUT_RATE_VERTEX};
 
-    std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions;
+    std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions;
 
     attributeDescriptions[0].binding = 0;
     attributeDescriptions[0].location = 0;
@@ -672,6 +672,11 @@ void VulkanManager::createGraphicsPipeline()
     attributeDescriptions[1].location = 1;
     attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
     attributeDescriptions[1].offset = offsetof(Vertex, col);
+
+    attributeDescriptions[2].binding = 0;
+    attributeDescriptions[2].location = 2;
+    attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+    attributeDescriptions[2].offset = offsetof(Vertex, tex);
 
     VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
@@ -1278,7 +1283,9 @@ void VulkanManager::recordCommands(uint32_t imageIndex, const std::vector<Mesh> 
                 glm::mat4 modelMat = instance.modelMat;
                 vkCmdPushConstants(commandBuffers[imageIndex], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &modelMat);
 
-                vkCmdBindDescriptorSets(commandBuffers[imageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[imageIndex], 0, nullptr);
+                std::array<VkDescriptorSet, 2> descriptorSetGroup = {descriptorSets[imageIndex], samplerDescriptorSets[meshGPU.texIndex]};
+
+                vkCmdBindDescriptorSets(commandBuffers[imageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
 
                 vkCmdDrawIndexed(commandBuffers[imageIndex], meshGPU.indexCount, 1, 0, 0, 0);
 

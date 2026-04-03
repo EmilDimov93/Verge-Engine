@@ -11,6 +11,7 @@ struct Vertex
 {
     glm::vec3 pos;
     ve_color_t col;
+    glm::vec2 tex;
 
     Vertex(const glm::vec3 &position = glm::vec3(0.0f), const ve_color_t &color = ve_color_t(1.0f)) : pos(position), col(color) {}
 };

@@ -258,6 +258,7 @@ MeshHandle Scene::loadOBJ(const std::string &filePath)
 
     std::vector<glm::vec3> positions;
     std::unordered_map<std::string, glm::vec3> materials;
+    std::vector<glm::vec2> texCoords;
 
     ve_color_t currentColor(1.0f);
 
@@ -326,22 +327,40 @@ MeshHandle Scene::loadOBJ(const std::string &filePath)
             std::string a, b, c;
             ss >> a >> b >> c;
 
-            auto parseIndex = [](const std::string &s)
+            auto parseIndices = [](const std::string &token) -> std::pair<uint32_t, int32_t>
             {
-                return static_cast<uint32_t>(std::stoi(s.substr(0, s.find('/'))) - 1);
+                size_t firstSlash = token.find('/');
+                uint32_t positionIndex = static_cast<uint32_t>(std::stoi(token.substr(0, firstSlash)) - 1);
+                int32_t texCoordIndex = -1;
+
+                if (firstSlash != std::string::npos && firstSlash + 1 < token.size() && token[firstSlash + 1] != '/')
+                {
+                    size_t secondSlash = token.find('/', firstSlash + 1);
+                    texCoordIndex = std::stoi(token.substr(firstSlash + 1, secondSlash - firstSlash - 1)) - 1;
+                }
+
+                return {positionIndex, texCoordIndex};
             };
 
-            uint32_t ids[3] = {parseIndex(a), parseIndex(b), parseIndex(c)};
+            std::pair<uint32_t, int32_t> parsed[3] = {parseIndices(a), parseIndices(b), parseIndices(c)};
 
-            for (uint32_t idx : ids)
+            for (auto &[positionIndex, texCoordIndex] : parsed)
             {
-                Vertex v;
-                v.pos = positions[idx];
-                v.col = currentColor;
+                Vertex vertex;
+                vertex.pos = positions[positionIndex];
+                vertex.col = currentColor;
+                vertex.tex = (texCoordIndex >= 0) ? texCoords[texCoordIndex] : glm::vec2(0.0f);
 
                 meshIndices.push_back(static_cast<uint32_t>(meshVertices.size()));
-                meshVertices.push_back(v);
+                meshVertices.push_back(vertex);
             }
+        }
+        else if (line.rfind("vt ", 0) == 0)
+        {
+            glm::vec2 uv;
+            std::stringstream ss(line.substr(3));
+            ss >> uv.x >> uv.y;
+            texCoords.push_back(uv);
         }
     }
 

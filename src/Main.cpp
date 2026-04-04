@@ -88,7 +88,7 @@ private:
         carInfo.wheelRadiusM = 0.31f;
         carInfo.tireGrip = 1.0f;
         carInfo.camberRad = (PI / 180);
-        carInfo.drivetrainType = VE_DRIVETRAIN_TYPE_FWD;
+        carInfo.drivetrainType = VE_DRIVETRAIN_TYPE_RWD;
         carInfo.engineAudioFileName = "4k.wav";
         // carInfo.layeredEngineAudioFiles = {{"1k.wav", 1000}, {"2k.wav", 2000}, {"3k.wav", 3000}, {"4k.wav", 4000}, {"5k.wav", 5000}, {"6k.wav", 6000}, {"7k.wav", 7000}};
         car1 = scene.addVehicle(carInfo);

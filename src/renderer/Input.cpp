@@ -16,7 +16,7 @@ bool Input::controllerConnected = false;
 std::vector<KeyState> Input::controllerBtnStates;
 std::vector<float> Input::controllerAxes;
 
-float Input::axisDeadZone = 0.001f;
+float Input::axisDeadZone = 0.1f;
 
 GLFWwindow *Input::window = nullptr;
 

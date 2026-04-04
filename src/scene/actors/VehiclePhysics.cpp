@@ -173,9 +173,8 @@ void Vehicle::calcForces(const Environment &environment)
         float frontSlipFactor = clamp01(1.0f - clamp((fabsf(wheelStates[VE_WHEEL_FRONT_LEFT].rpm - vehicleWheelRpm) + fabsf(wheelStates[VE_WHEEL_FRONT_RIGHT].rpm - vehicleWheelRpm)) / 2, 0.0f, (float)maxRpm) / (float)maxRpm);
         float backSlipFactor = clamp01(1.0f - clamp((fabsf(wheelStates[VE_WHEEL_BACK_LEFT].rpm - vehicleWheelRpm) + fabsf(wheelStates[VE_WHEEL_BACK_RIGHT].rpm - vehicleWheelRpm)) / 2, 0.0f, (float)maxRpm) / (float)maxRpm);
 
-        // Temporary: disabled slip factor
-        float frontFrictionCoefficient = tireGrip * (wheelStates[VE_WHEEL_FRONT_LEFT].grip + wheelStates[VE_WHEEL_FRONT_RIGHT].grip) / 2 * /*frontSlipFactor **/ (1.0f + fabsf(camberRad));
-        float backFrictionCoefficient = tireGrip * (wheelStates[VE_WHEEL_BACK_LEFT].grip + wheelStates[VE_WHEEL_BACK_RIGHT].grip) / 2 * /*backSlipFactor **/ (1.0f + fabsf(camberRad));
+        float frontFrictionCoefficient = tireGrip * (wheelStates[VE_WHEEL_FRONT_LEFT].grip + wheelStates[VE_WHEEL_FRONT_RIGHT].grip) / 2 * frontSlipFactor * (1.0f + fabsf(camberRad));
+        float backFrictionCoefficient = tireGrip * (wheelStates[VE_WHEEL_BACK_LEFT].grip + wheelStates[VE_WHEEL_BACK_RIGHT].grip) / 2 * backSlipFactor * (1.0f + fabsf(camberRad));
 
         float totalNormalForceN = weightKg * environment.gravityMps2;
         float frontAxleNormalForceN = 0.5f * totalNormalForceN;

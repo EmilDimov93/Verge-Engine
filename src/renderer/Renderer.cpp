@@ -33,10 +33,15 @@ float smoothValue(float newValue, float oldValue, float smoothingFactor, float d
     if (smoothingFactor <= 0.0f)
         return newValue;
 
-    float interpolationSpeed = (1.0f - smoothingFactor) * 10.0f;
+    const bool differentSigns = (newValue >= 0.0f && oldValue <= 0.0f) || (newValue <= 0.0f && oldValue >= 0.0f);
 
-    float bigger = newValue > oldValue ? newValue : oldValue;
-    float smaller = newValue < oldValue ? newValue : oldValue;
+    if(differentSigns || fabsf(newValue) < fabsf(oldValue))
+        smoothingFactor = 1e-4f;
+
+    const float interpolationSpeed = (1.0f - smoothingFactor) * 10.0f;
+
+    const float bigger = newValue > oldValue ? newValue : oldValue;
+    const float smaller = newValue < oldValue ? newValue : oldValue;
 
     const float inputEpsilon = 1e-5f;
 

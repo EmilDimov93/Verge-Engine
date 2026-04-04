@@ -88,6 +88,6 @@ private:
     float brakeSmoothing = 0.5f;
     float handbrakeSmoothing = 0.0f;
     float clutchSmoothing = 0.5f;
-    float steerSmoothing = 0.9f;
+    float steerSmoothing = 0.5f;
     float cameraMovementSmoothing = 0.0f;
 };

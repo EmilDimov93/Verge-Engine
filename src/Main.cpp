@@ -65,6 +65,8 @@ private:
         keybinds.moveCameraDown[1] = VE_CONTROLLER_AXIS_RY_NEGATIVE;
 
         renderer.setVehicleKeybinds(keybinds);
+
+        renderer.setSteerInputSmoothing(0.8f);
     }
 
     void setupScene()

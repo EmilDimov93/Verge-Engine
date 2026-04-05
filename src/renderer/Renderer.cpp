@@ -37,7 +37,7 @@ float smoothValue(float newValue, float oldValue, float smoothingFactor, float d
     const bool differentSigns = (newValue >= 0.0f && oldValue <= 0.0f) || (newValue <= 0.0f && oldValue >= 0.0f);
 
     if (differentSigns || fabsf(newValue) < fabsf(oldValue))
-        smoothingFactor = 1e-4f;
+        smoothingFactor = 1e-5f;
 
     const float interpolationSpeed = (1.0f - smoothingFactor) * 10.0f;
 

@@ -57,6 +57,7 @@ private:
     void initModelBuffer(const Model &model);
     void updateModelBuffer(ModelBuffer &modelBuffer, const Model &model);
     void removeOrphanedModel(const std::vector<ModelInstance> &modelInstances);
+    void destroyMeshBuffer(MeshBuffer& meshBuffer);
 
     int currentFrame = 0;
 

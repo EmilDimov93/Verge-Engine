@@ -1053,25 +1053,7 @@ void VulkanManager::removeOrphanedModel(const std::vector<ModelInstance> &modelI
         if (!hasInstance)
         {
             for (MeshBuffer &meshBuffer : it->meshBuffers)
-            {
-                if (device != VK_NULL_HANDLE)
-                    vkCheck(vkDeviceWaitIdle(device), {'V', 235});
-
-                if (meshBuffer.vertexBuffer)
-                    vkDestroyBuffer(device, meshBuffer.vertexBuffer, nullptr);
-                if (meshBuffer.vertexBufferMemory)
-                    vkFreeMemory(device, meshBuffer.vertexBufferMemory, nullptr);
-
-                if (meshBuffer.indexBuffer)
-                    vkDestroyBuffer(device, meshBuffer.indexBuffer, nullptr);
-                if (meshBuffer.indexBufferMemory)
-                    vkFreeMemory(device, meshBuffer.indexBufferMemory, nullptr);
-
-                meshBuffer.vertexBuffer = VK_NULL_HANDLE;
-                meshBuffer.vertexBufferMemory = VK_NULL_HANDLE;
-                meshBuffer.indexBuffer = VK_NULL_HANDLE;
-                meshBuffer.indexBufferMemory = VK_NULL_HANDLE;
-            }
+                destroyMeshBuffer(meshBuffer);
 
             it = modelBuffers.erase(it);
         }
@@ -1200,28 +1182,31 @@ void VulkanManager::initModelBuffer(const Model &model)
     modelBuffers.push_back(newModelBuffer);
 }
 
+void VulkanManager::destroyMeshBuffer(MeshBuffer &meshBuffer)
+{
+    if (meshBuffer.vertexBuffer)
+        vkDestroyBuffer(device, meshBuffer.vertexBuffer, nullptr);
+    if (meshBuffer.vertexBufferMemory)
+        vkFreeMemory(device, meshBuffer.vertexBufferMemory, nullptr);
+
+    if (meshBuffer.indexBuffer)
+        vkDestroyBuffer(device, meshBuffer.indexBuffer, nullptr);
+    if (meshBuffer.indexBufferMemory)
+        vkFreeMemory(device, meshBuffer.indexBufferMemory, nullptr);
+
+    meshBuffer.vertexBuffer = VK_NULL_HANDLE;
+    meshBuffer.vertexBufferMemory = VK_NULL_HANDLE;
+    meshBuffer.indexBuffer = VK_NULL_HANDLE;
+    meshBuffer.indexBufferMemory = VK_NULL_HANDLE;
+}
+
 void VulkanManager::updateModelBuffer(ModelBuffer &modelBuffer, const Model &model)
 {
     if (device != VK_NULL_HANDLE)
         vkCheck(vkDeviceWaitIdle(device), {'V', 235});
 
     for (MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
-    {
-        if (meshBuffer.vertexBuffer)
-            vkDestroyBuffer(device, meshBuffer.vertexBuffer, nullptr);
-        if (meshBuffer.vertexBufferMemory)
-            vkFreeMemory(device, meshBuffer.vertexBufferMemory, nullptr);
-
-        if (meshBuffer.indexBuffer)
-            vkDestroyBuffer(device, meshBuffer.indexBuffer, nullptr);
-        if (meshBuffer.indexBufferMemory)
-            vkFreeMemory(device, meshBuffer.indexBufferMemory, nullptr);
-
-        meshBuffer.vertexBuffer = VK_NULL_HANDLE;
-        meshBuffer.vertexBufferMemory = VK_NULL_HANDLE;
-        meshBuffer.indexBuffer = VK_NULL_HANDLE;
-        meshBuffer.indexBufferMemory = VK_NULL_HANDLE;
-    }
+        destroyMeshBuffer(meshBuffer);
 
     modelBuffer.meshBuffers.clear();
 
@@ -1488,22 +1473,7 @@ VulkanManager::~VulkanManager()
     for (ModelBuffer &modelBuffer : modelBuffers)
     {
         for (MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
-        {
-            if (meshBuffer.vertexBuffer)
-                vkDestroyBuffer(device, meshBuffer.vertexBuffer, nullptr);
-            if (meshBuffer.vertexBufferMemory)
-                vkFreeMemory(device, meshBuffer.vertexBufferMemory, nullptr);
-
-            if (meshBuffer.indexBuffer)
-                vkDestroyBuffer(device, meshBuffer.indexBuffer, nullptr);
-            if (meshBuffer.indexBufferMemory)
-                vkFreeMemory(device, meshBuffer.indexBufferMemory, nullptr);
-
-            meshBuffer.vertexBuffer = VK_NULL_HANDLE;
-            meshBuffer.vertexBufferMemory = VK_NULL_HANDLE;
-            meshBuffer.indexBuffer = VK_NULL_HANDLE;
-            meshBuffer.indexBufferMemory = VK_NULL_HANDLE;
-        }
+            destroyMeshBuffer(meshBuffer);
     }
 
     if (depthBufferImageView)

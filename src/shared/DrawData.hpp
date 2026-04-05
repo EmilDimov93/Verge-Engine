@@ -70,7 +70,6 @@ struct DrawData
     const std::vector<Model> &models;
     const std::vector<ModelInstance> &modelInstances;
 
-    const glm::mat4 projectionMat;
     const glm::mat4 viewMat;
 
     const ve_color_t backgroundColor;
@@ -79,9 +78,8 @@ struct DrawData
 
     DrawData(const std::vector<Model> &models,
              const std::vector<ModelInstance> &modelInstances,
-             const glm::mat4 projectionMat,
              const glm::mat4 viewMat,
              const ve_color_t backgroundColor,
              const bool modelRemovedThisFrame)
-        : models(models), modelInstances(modelInstances), projectionMat(projectionMat), viewMat(viewMat), backgroundColor(backgroundColor), modelRemovedThisFrame(modelRemovedThisFrame) {}
+        : models(models), modelInstances(modelInstances), viewMat(viewMat), backgroundColor(backgroundColor), modelRemovedThisFrame(modelRemovedThisFrame) {}
 };

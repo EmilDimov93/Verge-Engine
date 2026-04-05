@@ -94,7 +94,7 @@ private:
         car1 = scene.addVehicle(carInfo);
 
         // Player
-        player1 = scene.addPlayer(car1, {renderer.getAspectRatio()});
+        player1 = scene.addPlayer(car1);
 
         // Prop
         scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});

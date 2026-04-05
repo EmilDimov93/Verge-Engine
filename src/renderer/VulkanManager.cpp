@@ -1396,7 +1396,7 @@ void VulkanManager::createDescriptorSets()
     }
 }
 
-void VulkanManager::drawFrame(const DrawData &drawData)
+void VulkanManager::drawFrame(const DrawData &drawData, const glm::mat4 projectionMat)
 {
     vkCheck(vkWaitForFences(device, 1, &drawFences[currentFrame], VK_TRUE, UINT64_MAX), {'V', 231});
     vkCheck(vkResetFences(device, 1, &drawFences[currentFrame]), {'V', 232});
@@ -1408,7 +1408,7 @@ void VulkanManager::drawFrame(const DrawData &drawData)
         removeOrphanedModel(drawData.modelInstances);
 
     recordCommands(imageIndex, drawData.models, drawData.modelInstances, drawData.backgroundColor);
-    updateUniformBuffers(imageIndex, drawData.projectionMat, drawData.viewMat);
+    updateUniformBuffers(imageIndex, projectionMat, drawData.viewMat);
 
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 

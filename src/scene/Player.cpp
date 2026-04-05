@@ -52,7 +52,7 @@ void Player::updateCamera(ve_time_t dt, Transform vehicleTransform, glm::vec3 ve
     cameraPitch = clamp(cameraPitch, minCameraPitch, maxCameraPitch);
 
     glm::vec3 dir = glm::normalize(glm::vec3(vehiclePos.x, vehiclePos.y, vehiclePos.z) - camPos);
-    camera.rotate({asin(dir.y), atan2(dir.z, dir.x), 0});
+    camera.rotate({-asin(dir.y), atan2(dir.x, dir.z), 0});
 }
 
 void Player::setCameraFollowDistance(float distance)
@@ -75,11 +75,6 @@ void Player::setCameraFollowVehicle(bool shouldFollow)
     isCameraFollowingVehicle = shouldFollow;
 }
 
-glm::mat4 Player::getCameraProjectionMat() const
-{
-    return camera.getProjectionMat();
-}
-
 glm::mat4 Player::getCameraViewMat() const
 {
     return camera.getViewMat();
@@ -93,12 +88,6 @@ Position3 Player::getCameraPosition() const
 float Player::getCameraYaw() const
 {
     return camera.getRotation().yaw;
-}
-
-void Player::setRenderDistance(float renderDistance)
-{
-    if (renderDistance >= 0)
-        camera.setZFar(renderDistance);
 }
 
 void Player::setMinCameraPitch(float minCameraPitch)

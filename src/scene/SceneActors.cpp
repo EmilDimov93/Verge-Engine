@@ -15,7 +15,7 @@ DrawData Scene::getDrawData(PlayerHandle playerHandle)
         {
             if (player->getHandle() == playerHandle)
             {
-                DrawData drawData(models, modelInstances, player->getCameraProjectionMat(), player->getCameraViewMat(), environment.backgroundColor, modelRemovedThisFrame);
+                DrawData drawData(models, modelInstances, player->getCameraViewMat(), environment.backgroundColor, modelRemovedThisFrame);
                 return drawData;
             }
         }
@@ -95,11 +95,11 @@ bool Scene::isModelInstanced(ModelHandle modelHandle) const
     return false;
 }
 
-PlayerHandle Scene::addPlayer(VehicleHandle vehicleHandle, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo)
+PlayerHandle Scene::addPlayer(VehicleHandle vehicleHandle)
 {
     PlayerHandle handle = HandleFactory<PlayerHandle>::getNewHandle();
 
-    controllers.push_back(std::make_unique<Player>(handle, vehicleHandle, cameraInfo));
+    controllers.push_back(std::make_unique<Player>(handle, vehicleHandle));
 
     return handle;
 }

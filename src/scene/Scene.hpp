@@ -30,7 +30,7 @@ public:
 
     ModelHandle loadFile(const std::string &filePath);
 
-    PlayerHandle addPlayer(VehicleHandle vehicleHandle, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo);
+    PlayerHandle addPlayer(VehicleHandle vehicleHandle);
 
     VehicleHandle addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform = {});
     PropHandle addProp(ModelHandle modelHandle, Transform transform);

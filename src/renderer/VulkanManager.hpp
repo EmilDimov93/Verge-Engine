@@ -20,7 +20,7 @@ class VulkanManager
 public:
     VulkanManager(GLFWwindow *window, Size2 windowSize);
 
-    void drawFrame(const DrawData& drawData);
+    void drawFrame(const DrawData& drawData, const glm::mat4 projectionMat);
 
     void vkCheck(VkResult res, ErrorCode errorCode);
 

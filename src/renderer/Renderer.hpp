@@ -47,7 +47,7 @@ public:
 
     bool isOpen();
 
-    void tick(const DrawData& drawData, const AudioData& audioData);
+    void tick(const DrawData &drawData, const AudioData &audioData);
 
     VehicleInputState getVIS();
     void setVehicleKeybinds(const VehicleKeybinds &keybinds);
@@ -57,8 +57,6 @@ public:
     ve_time_t getFrameTime() const;
     uint32_t getFps() const;
     void setTargetFps(uint16_t target);
-
-    float getAspectRatio() const;
 
     float getVolume() const;
     void setVolume(float volume);
@@ -70,14 +68,29 @@ public:
     void setSteerInputSmoothing(float smoothing) { steerSmoothing = clamp01(smoothing); }
     void setCameraMovementInputSmoothing(float smoothing) { cameraMovementSmoothing = clamp01(smoothing); }
 
+    // void setAspectRatio(float aspectRatio);
+    void setFOV(float fov);
+    void setzNear(float zNear);
+    void setZFar(float zFar);
+
 private:
+    // Window & Rendering
     WindowManager window;
     VulkanManager vulkan;
-    AudioManager audio;
     FpsManager fps;
 
+    float aspectRatio = 1.0f;
+    float fov = 60.0f;
+    float zNear = 0.01f;
+    float zFar = 1000.0f;
+
+    glm::mat4 getProjectionMat() const;
+
+    // Audio
+    AudioManager audio;
     float volume = 1.0f;
 
+    // Input
     VehicleKeybinds keybinds;
     VehicleInputState vis;
 

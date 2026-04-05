@@ -10,6 +10,7 @@ Renderer::Renderer(const VE_STRUCT_RENDERER_CREATE_INFO &info) : window(info.win
     Input::init(window.getReference());
     Log::init(info.logOutputMode);
     fps.setTarget(info.targetFps);
+    aspectRatio = window.getAspectRatio();
 }
 
 bool Renderer::isOpen()
@@ -17,11 +18,11 @@ bool Renderer::isOpen()
     return window.isOpen();
 }
 
-void Renderer::tick(const DrawData& drawData, const AudioData& audioData)
+void Renderer::tick(const DrawData &drawData, const AudioData &audioData)
 {
     Input::refresh();
 
-    vulkan.drawFrame(drawData);
+    vulkan.drawFrame(drawData, getProjectionMat());
 
     audio.tick(audioData, volume);
 
@@ -35,7 +36,7 @@ float smoothValue(float newValue, float oldValue, float smoothingFactor, float d
 
     const bool differentSigns = (newValue >= 0.0f && oldValue <= 0.0f) || (newValue <= 0.0f && oldValue >= 0.0f);
 
-    if(differentSigns || fabsf(newValue) < fabsf(oldValue))
+    if (differentSigns || fabsf(newValue) < fabsf(oldValue))
         smoothingFactor = 1e-4f;
 
     const float interpolationSpeed = (1.0f - smoothingFactor) * 10.0f;
@@ -116,9 +117,10 @@ VehicleInputState Renderer::getVIS()
     {
         vis.shiftUp = false;
 
-        for(VEKeybind &k : keybinds.shiftUp)
+        for (VEKeybind &k : keybinds.shiftUp)
         {
-            if(!k.isAxis() && k.isPressed()){
+            if (!k.isAxis() && k.isPressed())
+            {
                 vis.shiftUp = true;
             }
         }
@@ -126,9 +128,10 @@ VehicleInputState Renderer::getVIS()
 
     {
         vis.shiftDown = false;
-        for(VEKeybind &k : keybinds.shiftDown)
+        for (VEKeybind &k : keybinds.shiftDown)
         {
-            if(!k.isAxis() && k.isPressed()){
+            if (!k.isAxis() && k.isPressed())
+            {
                 vis.shiftDown = true;
             }
         }
@@ -197,15 +200,41 @@ void Renderer::setTargetFps(uint16_t target)
     fps.setTarget(target);
 }
 
-float Renderer::getAspectRatio() const
-{
-    return window.getAspectRatio();
-}
-
 void Renderer::setVolume(float volume)
 {
     if (volume >= 0 && volume <= 1.0f)
         this->volume = volume;
+}
+
+void Renderer::setFOV(float fov)
+{
+    if(fov > 0.0f && fov < 180.0f)
+        this->fov = fov;
+    else
+        Log::add('R', 200);
+}
+
+void Renderer::setzNear(float zNear)
+{
+    if(zNear > 0.0f)
+        this->zNear = zNear;
+    else
+        Log::add('R', 201);
+}
+
+void Renderer::setZFar(float zFar)
+{
+    if(zFar > zNear)
+        this->zFar = zFar;
+    else
+        Log::add('R', 202);
+}
+
+glm::mat4 Renderer::getProjectionMat() const
+{
+    glm::mat4 projectionMat = glm::perspective(glm::radians(fov), aspectRatio, zNear, zFar);
+    projectionMat[1][1] *= -1;
+    return projectionMat;
 }
 
 float Renderer::getVolume() const

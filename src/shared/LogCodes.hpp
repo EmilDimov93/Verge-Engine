@@ -65,13 +65,10 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'V', 239}, "Vulkan failed to copy image"},
     {{'V', 239}, "Vulkan failed to transition image layout"},
 
-    // Camera
-    {{'K', 100}, "Camera already initialized. Operation cancelled"},
-    {{'K', 200}, "Camera not initialized"},
-    {{'K', 201}, "Camera: invalid Field Of View value"},
-    {{'K', 202}, "Camera: invalid Aspect Ratio value"},
-    {{'K', 203}, "Camera: invalid Z Near value"},
-    {{'K', 204}, "Camera: invalid Z Far value"},
+    // Renderer
+    {{'R', 200}, "Renderer: invalid Field Of View value"},
+    {{'R', 201}, "Renderer: invalid Z Near value"},
+    {{'R', 202}, "Renderer: invalid Z Far value"},
 
     // GLFW
     {{'G', 000}, "GLFW loaded successfully"},

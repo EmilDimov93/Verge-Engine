@@ -10,8 +10,8 @@
 class Player : public Controller
 {
 public:
-    Player(PlayerHandle handle, VehicleHandle vehicleHandle, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo)
-        : handle(handle), vehicleHandle(vehicleHandle), camera(cameraInfo)
+    Player(PlayerHandle handle, VehicleHandle vehicleHandle)
+        : handle(handle), vehicleHandle(vehicleHandle)
     {
     }
 
@@ -33,15 +33,11 @@ public:
 
     void setCameraFollowVehicle(bool shouldFollow);
 
-    glm::mat4 getCameraProjectionMat() const;
-
     glm::mat4 getCameraViewMat() const;
 
     Position3 getCameraPosition() const;
 
     float getCameraYaw() const;
-
-    void setRenderDistance(float renderDistance);
 
     void setMinCameraPitch(float minCameraPitch);
 

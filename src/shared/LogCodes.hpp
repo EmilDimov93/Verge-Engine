@@ -94,7 +94,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     // {'S', 102} removed
     {{'S', 103}, "Out of bounds access to vehicle list"},
     {{'S', 200}, "Handle limit exceeded: too many objects"},
-    {{'S', 201}, "Invalid mesh handle"},
+    {{'S', 201}, "Invalid model handle"},
     {{'S', 202}, "Invalid player handle"},
     {{'S', 203}, "Invalid vehicle handle"},
     {{'S', 204}, "Invalid prop handle"},

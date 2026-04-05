@@ -83,7 +83,7 @@ void Scene::tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputS
     this->dt = dt;
 
     vehicleRemovedThisFrame = false;
-    meshRemovedThisFrame = false;
+    modelRemovedThisFrame = false;
 
     for (const auto &vis : inputData)
     {
@@ -136,12 +136,12 @@ void Scene::tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputS
             vehicle.setVelocityVector(v);
         }
 
-        setModelMat(vehicle.getBodyMeshInstanceHandle(), vehicle.getBodyMat());
+        setModelMat(vehicle.getBodyModelInstanceHandle(), vehicle.getBodyMat());
 
-        setModelMat(vehicle.getWheelMeshInstanceHandle(VE_WHEEL_FRONT_LEFT), vehicle.getWheelMat(VE_WHEEL_FRONT_LEFT));
-        setModelMat(vehicle.getWheelMeshInstanceHandle(VE_WHEEL_FRONT_RIGHT), vehicle.getWheelMat(VE_WHEEL_FRONT_RIGHT));
-        setModelMat(vehicle.getWheelMeshInstanceHandle(VE_WHEEL_BACK_LEFT), vehicle.getWheelMat(VE_WHEEL_BACK_LEFT));
-        setModelMat(vehicle.getWheelMeshInstanceHandle(VE_WHEEL_BACK_RIGHT), vehicle.getWheelMat(VE_WHEEL_BACK_RIGHT));
+        setModelMat(vehicle.getWheelModelInstanceHandle(VE_WHEEL_FRONT_LEFT), vehicle.getWheelMat(VE_WHEEL_FRONT_LEFT));
+        setModelMat(vehicle.getWheelModelInstanceHandle(VE_WHEEL_FRONT_RIGHT), vehicle.getWheelMat(VE_WHEEL_FRONT_RIGHT));
+        setModelMat(vehicle.getWheelModelInstanceHandle(VE_WHEEL_BACK_LEFT), vehicle.getWheelMat(VE_WHEEL_BACK_LEFT));
+        setModelMat(vehicle.getWheelModelInstanceHandle(VE_WHEEL_BACK_RIGHT), vehicle.getWheelMat(VE_WHEEL_BACK_RIGHT));
     }
 
     // Audio
@@ -183,7 +183,7 @@ void Scene::tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputS
     {
         if (prop.hasChanges())
         {
-            setModelMat(prop.getMeshInstanceHandle(), prop.getModelMat());
+            setModelMat(prop.getModelInstanceHandle(), prop.getModelMat());
             prop.markChangesSaved();
         }
     }
@@ -216,7 +216,7 @@ void Scene::tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputS
         removeTrigger(handle);
 }
 
-MeshHandle Scene::loadFile(const std::string &filePath)
+ModelHandle Scene::loadFile(const std::string &filePath)
 {
     std::string ext = std::filesystem::path(filePath).extension().string();
 
@@ -241,19 +241,16 @@ MeshHandle Scene::loadFile(const std::string &filePath)
         Log::add('S', 100);
     }
 
-    return INVALID_MESH_HANDLE;
+    return INVALID_MODEL_HANDLE;
 }
 
-MeshHandle Scene::loadOBJ(const std::string &filePath)
+ModelHandle Scene::loadOBJ(const std::string &filePath)
 {
-    std::vector<Vertex> meshVertices;
-    std::vector<uint32_t> meshIndices;
-
     std::ifstream file(filePath);
     if (!file.is_open())
     {
         Log::add('S', 101);
-        return INVALID_MESH_HANDLE;
+        return INVALID_MODEL_HANDLE;
     }
 
     std::vector<glm::vec3> positions;
@@ -261,6 +258,9 @@ MeshHandle Scene::loadOBJ(const std::string &filePath)
     std::vector<glm::vec2> texCoords;
 
     ve_color_t currentColor(1.0f);
+
+    std::vector<Vertex> currentMeshVertices;
+    std::vector<uint32_t> currentMeshIndices;
 
     auto trim = [](std::string &s)
     {
@@ -279,12 +279,12 @@ MeshHandle Scene::loadOBJ(const std::string &filePath)
 
         while (std::getline(mtl, line))
         {
-            if (line.rfind("newmtl ", 0) == 0)
+            if (line.starts_with("newmtl "))
             {
                 currentMat = line.substr(7);
                 trim(currentMat);
             }
-            else if (line.rfind("Kd ", 0) == 0 && !currentMat.empty())
+            else if (line.starts_with("Kd ") && !currentMat.empty())
             {
                 std::stringstream ss(line.substr(3));
                 glm::vec3 kd;
@@ -294,18 +294,31 @@ MeshHandle Scene::loadOBJ(const std::string &filePath)
         }
     };
 
+    std::vector<Mesh> meshes;
+    auto finalizeCurrentMesh = [&]()
+    {
+        if (currentMeshVertices.empty())
+            return;
+
+        Mesh newMesh(currentMeshVertices, currentMeshIndices);
+        meshes.push_back(newMesh);
+
+        currentMeshVertices.clear();
+        currentMeshIndices.clear();
+    };
+
     std::filesystem::path objPath(filePath);
 
     std::string line;
     while (std::getline(file, line))
     {
-        if (line.rfind("mtllib ", 0) == 0)
+        if (line.starts_with("mtllib "))
         {
             std::string mtlFile = line.substr(7);
             trim(mtlFile);
             loadMTL((objPath.parent_path() / mtlFile).string());
         }
-        else if (line.rfind("usemtl ", 0) == 0)
+        else if (line.starts_with("usemtl "))
         {
             std::string mat = line.substr(7);
             trim(mat);
@@ -314,14 +327,14 @@ MeshHandle Scene::loadOBJ(const std::string &filePath)
             if (it != materials.end())
                 currentColor = it->second;
         }
-        else if (line.rfind("v ", 0) == 0)
+        else if (line.starts_with("v "))
         {
             glm::vec3 p;
             std::stringstream ss(line.substr(2));
             ss >> p.x >> p.y >> p.z;
             positions.push_back(p);
         }
-        else if (line.rfind("f ", 0) == 0)
+        else if (line.starts_with("f "))
         {
             std::stringstream ss(line.substr(2));
             std::string a, b, c;
@@ -351,44 +364,48 @@ MeshHandle Scene::loadOBJ(const std::string &filePath)
                 vertex.col = currentColor;
                 vertex.tex = (texCoordIndex >= 0) ? texCoords[texCoordIndex] : glm::vec2(0.0f);
 
-                meshIndices.push_back(static_cast<uint32_t>(meshVertices.size()));
-                meshVertices.push_back(vertex);
+                currentMeshIndices.push_back(static_cast<uint32_t>(currentMeshVertices.size()));
+                currentMeshVertices.push_back(vertex);
             }
         }
-        else if (line.rfind("vt ", 0) == 0)
+        else if (line.starts_with("vt "))
         {
             glm::vec2 uv;
             std::stringstream ss(line.substr(3));
             ss >> uv.x >> uv.y;
             texCoords.push_back(uv);
         }
+        else if (line.starts_with("o "))
+        {
+            finalizeCurrentMesh();
+        }
     }
 
-    MeshHandle newMeshHandle = HandleFactory<MeshHandle>::getNewHandle();
+    finalizeCurrentMesh();
 
-    Mesh newMesh(newMeshHandle, meshVertices, meshIndices);
+    ModelHandle newModelHandle = HandleFactory<ModelHandle>::getNewHandle();
 
-    meshes.push_back(newMesh);
+    models.emplace_back(newModelHandle, meshes);
 
-    return newMeshHandle;
+    return newModelHandle;
 }
 
-MeshHandle Scene::loadFBX(const std::string &filePath)
+ModelHandle Scene::loadFBX(const std::string &filePath)
 {
     Log::add('S', 100);
-    return INVALID_MESH_HANDLE;
+    return INVALID_MODEL_HANDLE;
 }
 
-MeshHandle Scene::loadGLB(const std::string &filePath)
+ModelHandle Scene::loadGLB(const std::string &filePath)
 {
     Log::add('S', 100);
-    return INVALID_MESH_HANDLE;
+    return INVALID_MODEL_HANDLE;
 }
 
-MeshHandle Scene::loadGLTF(const std::string &filePath)
+ModelHandle Scene::loadGLTF(const std::string &filePath)
 {
     Log::add('S', 100);
-    return INVALID_MESH_HANDLE;
+    return INVALID_MODEL_HANDLE;
 }
 
 float Scene::sampleHeightAt(const Position3 &point) const

@@ -381,16 +381,14 @@ size_t VulkanManager::createTextureDescriptor(VkImageView textureImageView)
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
         .descriptorPool = samplerDescriptorPool,
         .descriptorSetCount = 1,
-        .pSetLayouts = &samplerSetLayout
-    };
+        .pSetLayouts = &samplerSetLayout};
 
     vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, &descriptorSet), {'V', 220});
 
     VkDescriptorImageInfo imageInfo = {
         .sampler = textureSampler,
         .imageView = textureImageView,
-        .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-    };
+        .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
 
     VkWriteDescriptorSet descriptorWrite = {
         .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
@@ -399,8 +397,7 @@ size_t VulkanManager::createTextureDescriptor(VkImageView textureImageView)
         .dstArrayElement = 0,
         .descriptorCount = 1,
         .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-        .pImageInfo = &imageInfo
-    };
+        .pImageInfo = &imageInfo};
 
     vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
 
@@ -1039,14 +1036,14 @@ void VulkanManager::createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags buf
     vkCheck(vkBindBufferMemory(device, *buffer, *bufferMemory, 0), {'V', 218});
 }
 
-void VulkanManager::removeOrphanedMesh(const std::vector<MeshInstance> &meshInstances)
+void VulkanManager::removeOrphanedModel(const std::vector<ModelInstance> &modelInstances)
 {
-    for (auto it = MeshGPUs.begin(); it != MeshGPUs.end();)
+    for (auto it = modelBuffers.begin(); it != modelBuffers.end();)
     {
         bool hasInstance = false;
-        for (const MeshInstance &instance : meshInstances)
+        for (const ModelInstance &instance : modelInstances)
         {
-            if (instance.meshHandle == it->handle)
+            if (instance.modelHandle == it->handle)
             {
                 hasInstance = true;
                 break;
@@ -1055,25 +1052,28 @@ void VulkanManager::removeOrphanedMesh(const std::vector<MeshInstance> &meshInst
 
         if (!hasInstance)
         {
-            if (device != VK_NULL_HANDLE)
-                vkCheck(vkDeviceWaitIdle(device), {'V', 235});
+            for (MeshBuffer &meshBuffer : it->meshBuffers)
+            {
+                if (device != VK_NULL_HANDLE)
+                    vkCheck(vkDeviceWaitIdle(device), {'V', 235});
 
-            if (it->vertexBuffer)
-                vkDestroyBuffer(device, it->vertexBuffer, nullptr);
-            if (it->vertexBufferMemory)
-                vkFreeMemory(device, it->vertexBufferMemory, nullptr);
+                if (meshBuffer.vertexBuffer)
+                    vkDestroyBuffer(device, meshBuffer.vertexBuffer, nullptr);
+                if (meshBuffer.vertexBufferMemory)
+                    vkFreeMemory(device, meshBuffer.vertexBufferMemory, nullptr);
 
-            if (it->indexBuffer)
-                vkDestroyBuffer(device, it->indexBuffer, nullptr);
-            if (it->indexBufferMemory)
-                vkFreeMemory(device, it->indexBufferMemory, nullptr);
+                if (meshBuffer.indexBuffer)
+                    vkDestroyBuffer(device, meshBuffer.indexBuffer, nullptr);
+                if (meshBuffer.indexBufferMemory)
+                    vkFreeMemory(device, meshBuffer.indexBufferMemory, nullptr);
 
-            it->vertexBuffer = VK_NULL_HANDLE;
-            it->vertexBufferMemory = VK_NULL_HANDLE;
-            it->indexBuffer = VK_NULL_HANDLE;
-            it->indexBufferMemory = VK_NULL_HANDLE;
+                meshBuffer.vertexBuffer = VK_NULL_HANDLE;
+                meshBuffer.vertexBufferMemory = VK_NULL_HANDLE;
+                meshBuffer.indexBuffer = VK_NULL_HANDLE;
+                meshBuffer.indexBufferMemory = VK_NULL_HANDLE;
+            }
 
-            it = MeshGPUs.erase(it);
+            it = modelBuffers.erase(it);
         }
         else
         {
@@ -1136,7 +1136,7 @@ VkResult copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transf
     return VK_SUCCESS;
 }
 
-void VulkanManager::createVertexBuffer(MeshGPU &meshGPU, const std::vector<Vertex> &vertices)
+void VulkanManager::createVertexBuffer(MeshBuffer &meshBuffer, const std::vector<Vertex> &vertices)
 {
     VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
 
@@ -1150,16 +1150,16 @@ void VulkanManager::createVertexBuffer(MeshGPU &meshGPU, const std::vector<Verte
     memcpy(data, vertices.data(), (size_t)bufferSize);
     vkUnmapMemory(device, stagingBufferMemory);
 
-    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &meshGPU.vertexBuffer, &meshGPU.vertexBufferMemory);
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &meshBuffer.vertexBuffer, &meshBuffer.vertexBufferMemory);
 
     // Should be transferQueue and transferCommandPool?
-    vkCheck(copyBuffer(device, graphicsQueue, graphicsCommandPool, stagingBuffer, meshGPU.vertexBuffer, bufferSize), {'V', 224});
+    vkCheck(copyBuffer(device, graphicsQueue, graphicsCommandPool, stagingBuffer, meshBuffer.vertexBuffer, bufferSize), {'V', 224});
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 
-void VulkanManager::createIndexBuffer(MeshGPU &meshGPU, const std::vector<uint32_t> &indices)
+void VulkanManager::createIndexBuffer(MeshBuffer &meshBuffer, const std::vector<uint32_t> &indices)
 {
     VkDeviceSize bufferSize = sizeof(uint32_t) * indices.size();
 
@@ -1172,68 +1172,83 @@ void VulkanManager::createIndexBuffer(MeshGPU &meshGPU, const std::vector<uint32
     memcpy(data, indices.data(), (size_t)bufferSize);
     vkUnmapMemory(device, stagingBufferMemory);
 
-    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &meshGPU.indexBuffer, &meshGPU.indexBufferMemory);
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &meshBuffer.indexBuffer, &meshBuffer.indexBufferMemory);
 
     // Should be transferQueue and transferCommandPool?
-    vkCheck(copyBuffer(device, graphicsQueue, graphicsCommandPool, stagingBuffer, meshGPU.indexBuffer, bufferSize), {'V', 224});
+    vkCheck(copyBuffer(device, graphicsQueue, graphicsCommandPool, stagingBuffer, meshBuffer.indexBuffer, bufferSize), {'V', 224});
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 
-void VulkanManager::initMeshGPU(const Mesh &mesh)
+void VulkanManager::initModelBuffer(const Model &model)
 {
-    MeshGPU newMeshGPU(mesh.getHandle());
+    ModelBuffer newModelBuffer(model.getHandle());
 
-    newMeshGPU.version = mesh.getVersion();
+    newModelBuffer.version = model.getVersion();
 
-    newMeshGPU.vertexCount = mesh.getVertices().size();
-    newMeshGPU.indexCount = mesh.getIndices().size();
-    createVertexBuffer(newMeshGPU, mesh.getVertices());
-    createIndexBuffer(newMeshGPU, mesh.getIndices());
+    for (const Mesh &mesh : model.getMeshes())
+    {
+        MeshBuffer newMeshBuffer;
+        newMeshBuffer.vertexCount = mesh.getVertices().size();
+        newMeshBuffer.indexCount = mesh.getIndices().size();
+        createVertexBuffer(newMeshBuffer, mesh.getVertices());
+        createIndexBuffer(newMeshBuffer, mesh.getIndices());
+        newModelBuffer.meshBuffers.push_back(newMeshBuffer);
+    }
 
-    MeshGPUs.push_back(newMeshGPU);
+    modelBuffers.push_back(newModelBuffer);
 }
 
-void VulkanManager::updateMeshGPU(MeshGPU &meshGPU, const Mesh &mesh)
+void VulkanManager::updateModelBuffer(ModelBuffer &modelBuffer, const Model &model)
 {
     if (device != VK_NULL_HANDLE)
         vkCheck(vkDeviceWaitIdle(device), {'V', 235});
 
-    if (meshGPU.vertexBuffer)
-        vkDestroyBuffer(device, meshGPU.vertexBuffer, nullptr);
-    if (meshGPU.vertexBufferMemory)
-        vkFreeMemory(device, meshGPU.vertexBufferMemory, nullptr);
+    for (MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
+    {
+        if (meshBuffer.vertexBuffer)
+            vkDestroyBuffer(device, meshBuffer.vertexBuffer, nullptr);
+        if (meshBuffer.vertexBufferMemory)
+            vkFreeMemory(device, meshBuffer.vertexBufferMemory, nullptr);
 
-    if (meshGPU.indexBuffer)
-        vkDestroyBuffer(device, meshGPU.indexBuffer, nullptr);
-    if (meshGPU.indexBufferMemory)
-        vkFreeMemory(device, meshGPU.indexBufferMemory, nullptr);
+        if (meshBuffer.indexBuffer)
+            vkDestroyBuffer(device, meshBuffer.indexBuffer, nullptr);
+        if (meshBuffer.indexBufferMemory)
+            vkFreeMemory(device, meshBuffer.indexBufferMemory, nullptr);
 
-    meshGPU.vertexBuffer = VK_NULL_HANDLE;
-    meshGPU.vertexBufferMemory = VK_NULL_HANDLE;
-    meshGPU.indexBuffer = VK_NULL_HANDLE;
-    meshGPU.indexBufferMemory = VK_NULL_HANDLE;
+        meshBuffer.vertexBuffer = VK_NULL_HANDLE;
+        meshBuffer.vertexBufferMemory = VK_NULL_HANDLE;
+        meshBuffer.indexBuffer = VK_NULL_HANDLE;
+        meshBuffer.indexBufferMemory = VK_NULL_HANDLE;
+    }
 
-    meshGPU.vertexCount = mesh.getVertices().size();
-    meshGPU.indexCount = mesh.getIndices().size();
-    createVertexBuffer(meshGPU, mesh.getVertices());
-    createIndexBuffer(meshGPU, mesh.getIndices());
+    modelBuffer.meshBuffers.clear();
 
-    meshGPU.version = mesh.getVersion();
+    for (const Mesh &mesh : model.getMeshes())
+    {
+        MeshBuffer newMeshBuffer;
+        newMeshBuffer.vertexCount = mesh.getVertices().size();
+        newMeshBuffer.indexCount = mesh.getIndices().size();
+        createVertexBuffer(newMeshBuffer, mesh.getVertices());
+        createIndexBuffer(newMeshBuffer, mesh.getIndices());
+        modelBuffer.meshBuffers.push_back(newMeshBuffer);
+    }
+
+    modelBuffer.version = model.getVersion();
 }
 
-void VulkanManager::recordCommands(uint32_t imageIndex, const std::vector<Mesh> &meshes, const std::vector<MeshInstance> &meshInstances, ve_color_t backgroundColor)
+void VulkanManager::recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, ve_color_t backgroundColor)
 {
     VkCommandBufferBeginInfo commandBufferBeginInfo = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
 
-    vkCheck(vkBeginCommandBuffer(commandBuffers[imageIndex], &commandBufferBeginInfo), {'V', 213});
+    vkCheck(vkBeginCommandBuffer(commandBuffers[currentImage], &commandBufferBeginInfo), {'V', 213});
 
     VkRenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassBeginInfo.renderPass = renderPass;
-    renderPassBeginInfo.framebuffer = swapChainFramebuffers[imageIndex];
+    renderPassBeginInfo.framebuffer = swapChainFramebuffers[currentImage];
     renderPassBeginInfo.renderArea.offset = {0, 0};
     renderPassBeginInfo.renderArea.extent = swapChainExtent;
 
@@ -1243,60 +1258,64 @@ void VulkanManager::recordCommands(uint32_t imageIndex, const std::vector<Mesh> 
     renderPassBeginInfo.pClearValues = clearValues.data();
     renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 
-    vkCmdBeginRenderPass(commandBuffers[imageIndex], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(commandBuffers[currentImage], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    vkCmdBindPipeline(commandBuffers[imageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+    vkCmdBindPipeline(commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-    for (const Mesh &mesh : meshes)
+    for (const Model &model : models)
     {
-        bool MeshGPUFound = false;
-        for (MeshGPU &meshGPU : MeshGPUs)
+        bool modelBufferFound = false;
+        for (ModelBuffer &modelBuffer : modelBuffers)
         {
-            if (mesh.getHandle() == meshGPU.handle)
+            if (model.getHandle() == modelBuffer.handle)
             {
-                MeshGPUFound = true;
-                if (mesh.getVersion() > meshGPU.version)
+                modelBufferFound = true;
+                if (model.getVersion() > modelBuffer.version)
                 {
-                    updateMeshGPU(meshGPU, mesh);
+                    updateModelBuffer(modelBuffer, model);
                 }
                 break;
             }
         }
-        if (!MeshGPUFound)
+
+        if (!modelBufferFound)
         {
-            initMeshGPU(mesh);
+            initModelBuffer(model);
         }
     }
 
-    for (const MeshInstance &instance : meshInstances)
+    for (const ModelInstance &instance : modelInstances)
     {
-        for (const MeshGPU &meshGPU : MeshGPUs)
+        for (const ModelBuffer &modelBuffer : modelBuffers)
         {
-            if (instance.meshHandle == meshGPU.handle)
+            if (instance.modelHandle == modelBuffer.handle)
             {
-                VkBuffer vertexBuffers[] = {meshGPU.vertexBuffer};
-                VkDeviceSize offsets[] = {0};
-                vkCmdBindVertexBuffers(commandBuffers[imageIndex], 0, 1, vertexBuffers, offsets);
+                for (const MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
+                {
+                    VkBuffer vertexBuffers[] = {meshBuffer.vertexBuffer};
+                    VkDeviceSize offsets[] = {0};
+                    vkCmdBindVertexBuffers(commandBuffers[currentImage], 0, 1, vertexBuffers, offsets);
 
-                vkCmdBindIndexBuffer(commandBuffers[imageIndex], meshGPU.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+                    vkCmdBindIndexBuffer(commandBuffers[currentImage], meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-                glm::mat4 modelMat = instance.modelMat;
-                vkCmdPushConstants(commandBuffers[imageIndex], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &modelMat);
+                    glm::mat4 modelMat = instance.modelMat;
+                    vkCmdPushConstants(commandBuffers[currentImage], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &modelMat);
 
-                std::array<VkDescriptorSet, 2> descriptorSetGroup = {descriptorSets[imageIndex], samplerDescriptorSets[meshGPU.texIndex]};
+                    std::array<VkDescriptorSet, 2> descriptorSetGroup = {descriptorSets[currentImage], samplerDescriptorSets[meshBuffer.texIndex]};
 
-                vkCmdBindDescriptorSets(commandBuffers[imageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
+                    vkCmdBindDescriptorSets(commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
 
-                vkCmdDrawIndexed(commandBuffers[imageIndex], meshGPU.indexCount, 1, 0, 0, 0);
+                    vkCmdDrawIndexed(commandBuffers[currentImage], meshBuffer.indexCount, 1, 0, 0, 0);
+                }
 
                 break;
             }
         }
     }
 
-    vkCmdEndRenderPass(commandBuffers[imageIndex]);
+    vkCmdEndRenderPass(commandBuffers[currentImage]);
 
-    vkCheck(vkEndCommandBuffer(commandBuffers[imageIndex]), {'V', 213});
+    vkCheck(vkEndCommandBuffer(commandBuffers[currentImage]), {'V', 213});
 }
 
 void VulkanManager::createUniformBuffers()
@@ -1385,10 +1404,10 @@ void VulkanManager::drawFrame(const DrawData &drawData)
     uint32_t imageIndex;
     vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex), {'V', 230});
 
-    if (drawData.meshRemovedThisFrame)
-        removeOrphanedMesh(drawData.meshInstances);
+    if (drawData.modelRemovedThisFrame)
+        removeOrphanedModel(drawData.modelInstances);
 
-    recordCommands(imageIndex, drawData.meshes, drawData.meshInstances, drawData.backgroundColor);
+    recordCommands(imageIndex, drawData.models, drawData.modelInstances, drawData.backgroundColor);
     updateUniformBuffers(imageIndex, drawData.projectionMat, drawData.viewMat);
 
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
@@ -1450,8 +1469,8 @@ VulkanManager::~VulkanManager()
 {
     if (device != VK_NULL_HANDLE)
         vkCheck(vkDeviceWaitIdle(device), {'V', 235});
-    
-    if(samplerSetLayout)
+
+    if (samplerSetLayout)
         vkDestroyDescriptorSetLayout(device, samplerSetLayout, nullptr);
 
     if (textureSampler)
@@ -1466,22 +1485,25 @@ VulkanManager::~VulkanManager()
     for (VkImageView &imageView : textureImageViews)
         vkDestroyImageView(device, imageView, nullptr);
 
-    for (MeshGPU &meshGPU : MeshGPUs)
+    for (ModelBuffer &modelBuffer : modelBuffers)
     {
-        if (meshGPU.vertexBuffer)
-            vkDestroyBuffer(device, meshGPU.vertexBuffer, nullptr);
-        if (meshGPU.vertexBufferMemory)
-            vkFreeMemory(device, meshGPU.vertexBufferMemory, nullptr);
+        for (MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
+        {
+            if (meshBuffer.vertexBuffer)
+                vkDestroyBuffer(device, meshBuffer.vertexBuffer, nullptr);
+            if (meshBuffer.vertexBufferMemory)
+                vkFreeMemory(device, meshBuffer.vertexBufferMemory, nullptr);
 
-        if (meshGPU.indexBuffer)
-            vkDestroyBuffer(device, meshGPU.indexBuffer, nullptr);
-        if (meshGPU.indexBufferMemory)
-            vkFreeMemory(device, meshGPU.indexBufferMemory, nullptr);
+            if (meshBuffer.indexBuffer)
+                vkDestroyBuffer(device, meshBuffer.indexBuffer, nullptr);
+            if (meshBuffer.indexBufferMemory)
+                vkFreeMemory(device, meshBuffer.indexBufferMemory, nullptr);
 
-        meshGPU.vertexBuffer = VK_NULL_HANDLE;
-        meshGPU.vertexBufferMemory = VK_NULL_HANDLE;
-        meshGPU.indexBuffer = VK_NULL_HANDLE;
-        meshGPU.indexBufferMemory = VK_NULL_HANDLE;
+            meshBuffer.vertexBuffer = VK_NULL_HANDLE;
+            meshBuffer.vertexBufferMemory = VK_NULL_HANDLE;
+            meshBuffer.indexBuffer = VK_NULL_HANDLE;
+            meshBuffer.indexBufferMemory = VK_NULL_HANDLE;
+        }
     }
 
     if (depthBufferImageView)
@@ -1495,7 +1517,7 @@ VulkanManager::~VulkanManager()
 
     if (descriptorPool)
         vkDestroyDescriptorPool(device, descriptorPool, nullptr);
-    if(samplerDescriptorPool)
+    if (samplerDescriptorPool)
         vkDestroyDescriptorPool(device, samplerDescriptorPool, nullptr);
     if (descriptorSetLayout)
         vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);

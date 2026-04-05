@@ -5,10 +5,10 @@
 
 #include "../../shared/Log.hpp"
 
-Trigger::Trigger(TriggerHandle handle, Transform transform, MeshInstanceHandle meshInstanceHandle, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info)
+Trigger::Trigger(TriggerHandle handle, Transform transform, ModelInstanceHandle modelInstanceHandle, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info)
     : handle(handle)
 {
-    this->meshInstanceHandle = meshInstanceHandle;
+    this->modelInstanceHandle = modelInstanceHandle;
 
     if (info.hitboxShape != VE_SHAPE_UNKNOWN)
         hitboxShape = info.hitboxShape;
@@ -78,9 +78,9 @@ glm::mat4 Trigger::getModelMat() const
     return modelMat;
 }
 
-MeshInstanceHandle Trigger::getMeshInstanceHandle() const
+ModelInstanceHandle Trigger::getModelInstanceHandle() const
 {
-    return meshInstanceHandle;
+    return modelInstanceHandle;
 }
 
 bool Trigger::isAutoDestroy() const

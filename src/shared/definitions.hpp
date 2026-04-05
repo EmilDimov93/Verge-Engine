@@ -33,10 +33,10 @@ private:
     uint64_t value = INVALID;
 };
 
-struct MeshTag
+struct ModelTag
 {
 };
-struct MeshInstanceTag
+struct ModelInstanceTag
 {
 };
 struct PlayerTag
@@ -52,14 +52,14 @@ struct TriggerTag
 {
 };
 
-using MeshHandle = Handle<MeshTag>;
-using MeshInstanceHandle = Handle<MeshInstanceTag>;
+using ModelHandle = Handle<ModelTag>;
+using ModelInstanceHandle = Handle<ModelInstanceTag>;
 using PlayerHandle = Handle<PlayerTag>;
 using VehicleHandle = Handle<VehicleTag>;
 using PropHandle = Handle<PropTag>;
 using TriggerHandle = Handle<TriggerTag>;
 
-#define INVALID_MESH_HANDLE MeshHandle{0}
+#define INVALID_MODEL_HANDLE ModelHandle{0}
 
 using ve_time_t = double;
 using ve_color_t = glm::vec3;

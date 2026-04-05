@@ -75,8 +75,8 @@ private:
 
         // Vehicle
         VE_STRUCT_VEHICLE_CREATE_INFO carInfo = {};
-        carInfo.bodyMeshHandle = scene.loadFile("models/car.obj");
-        carInfo.wheelMeshHandle = scene.loadFile("models/wheel.obj");
+        carInfo.bodyModelHandle = scene.loadFile("models/car.obj");
+        carInfo.wheelModelHandle = scene.loadFile("models/wheel.obj");
         carInfo.wheelOffset = {1.05f, 0.5f, 1.8f};
         carInfo.peakTorqueNm = 480;
         carInfo.weightKg = 1540;
@@ -101,7 +101,7 @@ private:
 
         // Triggers
         VE_STRUCT_TRIGGER_TYPE_CREATE_INFO sTriggerType = {};
-        sTriggerType.meshHandle = scene.loadFile("models/checkpoint.obj");
+        sTriggerType.modelHandle = scene.loadFile("models/checkpoint.obj");
         sTriggerType.hitboxShape = VE_SHAPE_SPHERE;
         sTriggerType.hitboxSize = 10.0f;
         sTriggerType.isAutoDestroy = true;

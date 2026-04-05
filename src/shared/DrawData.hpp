@@ -19,59 +19,69 @@ struct Vertex
 class Mesh
 {
 public:
-    Mesh(MeshHandle handle, const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices) : handle(handle), vertices(vertices), indices(indices) {}
+    Mesh(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices) : vertices(vertices), indices(indices) {}
 
-    void update(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices)
-    {
-        this->vertices = vertices;
-        this->indices = indices;
-
-        version++;
-    }
-
-    MeshHandle getHandle() const { return handle; }
-    uint64_t getVersion() const { return version; };
     const std::vector<Vertex> &getVertices() const { return vertices; }
     const std::vector<uint32_t> &getIndices() const { return indices; }
 
 private:
-    MeshHandle handle;
-
-    uint64_t version = 1;
-
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
 };
 
-struct MeshInstance
+class Model
 {
-    MeshInstanceHandle handle;
+public:
+    Model(ModelHandle handle, const std::vector<Mesh> &meshes) : handle(handle), meshes(meshes) {}
 
-    MeshHandle meshHandle;
+    void update(const std::vector<Mesh> &meshes)
+    {
+        this->meshes = meshes;
+
+        version++;
+    }
+
+    ModelHandle getHandle() const { return handle; };
+    uint64_t getVersion() const { return version; }
+    const std::vector<Mesh> &getMeshes() const { return meshes; }
+
+private:
+    ModelHandle handle;
+
+    uint64_t version = 1;
+
+    std::vector<Mesh> meshes;
+};
+
+struct ModelInstance
+{
+    ModelInstanceHandle handle;
+
+    ModelHandle modelHandle;
 
     glm::mat4 modelMat;
 
-    MeshInstance(MeshInstanceHandle handle, MeshHandle meshHandle, glm::mat4 modelMat)
-        : handle(handle), meshHandle(meshHandle), modelMat(modelMat) {}
+    ModelInstance(ModelInstanceHandle handle, ModelHandle modelHandle, glm::mat4 modelMat)
+        : handle(handle), modelHandle(modelHandle), modelMat(modelMat) {}
 };
 
 struct DrawData
 {
-    const std::vector<Mesh> &meshes;
-    const std::vector<MeshInstance> &meshInstances;
+    const std::vector<Model> &models;
+    const std::vector<ModelInstance> &modelInstances;
 
     const glm::mat4 projectionMat;
     const glm::mat4 viewMat;
 
     const ve_color_t backgroundColor;
 
-    const bool meshRemovedThisFrame;
+    const bool modelRemovedThisFrame;
 
-    DrawData(const std::vector<Mesh> &meshes,
-             const std::vector<MeshInstance> &meshInstances,
+    DrawData(const std::vector<Model> &models,
+             const std::vector<ModelInstance> &modelInstances,
              const glm::mat4 projectionMat,
              const glm::mat4 viewMat,
              const ve_color_t backgroundColor,
-             const bool meshRemovedThisFrame)
-        : meshes(meshes), meshInstances(meshInstances), projectionMat(projectionMat), viewMat(viewMat), backgroundColor(backgroundColor), meshRemovedThisFrame(meshRemovedThisFrame) {}
+             const bool modelRemovedThisFrame)
+        : models(models), modelInstances(modelInstances), projectionMat(projectionMat), viewMat(viewMat), backgroundColor(backgroundColor), modelRemovedThisFrame(modelRemovedThisFrame) {}
 };

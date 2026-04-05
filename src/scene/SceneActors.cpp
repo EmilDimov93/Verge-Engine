@@ -15,14 +15,14 @@ DrawData Scene::getDrawData(PlayerHandle playerHandle)
         {
             if (player->getHandle() == playerHandle)
             {
-                DrawData drawData(meshes, meshInstances, player->getCameraProjectionMat(), player->getCameraViewMat(), environment.backgroundColor, meshRemovedThisFrame);
+                DrawData drawData(models, modelInstances, player->getCameraProjectionMat(), player->getCameraViewMat(), environment.backgroundColor, modelRemovedThisFrame);
                 return drawData;
             }
         }
     }
 
     Log::add('S', 202);
-    std::terminate();
+    std::unreachable();
 }
 
 AudioData Scene::getAudioData(PlayerHandle playerHandle)
@@ -40,14 +40,14 @@ AudioData Scene::getAudioData(PlayerHandle playerHandle)
     }
 
     Log::add('S', 202);
-    std::terminate();
+    std::unreachable();
 }
 
-void Scene::setModelMat(MeshInstanceHandle meshInstanceHandle, glm::mat4 modelMat)
+void Scene::setModelMat(ModelInstanceHandle modelInstanceHandle, glm::mat4 modelMat)
 {
-    for (MeshInstance &instance : meshInstances)
+    for (ModelInstance &instance : modelInstances)
     {
-        if (instance.handle == meshInstanceHandle)
+        if (instance.handle == modelInstanceHandle)
         {
             instance.modelMat = modelMat;
             break;
@@ -55,40 +55,38 @@ void Scene::setModelMat(MeshInstanceHandle meshInstanceHandle, glm::mat4 modelMa
     }
 }
 
-MeshInstanceHandle Scene::addMeshInstance(MeshHandle meshHandle)
+ModelInstanceHandle Scene::addModelInstance(ModelHandle modelHandle)
 {
-    if (meshHandle == INVALID_MESH_HANDLE)
+    if (modelHandle == INVALID_MODEL_HANDLE)
     {
         Log::add('S', 201);
     }
 
-    bool foundMesh = false;
-    for (size_t i = 0; i < meshes.size(); i++)
+    bool foundModel = false;
+    for (const Model &model : models)
     {
-        if (meshes[i].getHandle() == meshHandle)
+        if (model.getHandle() == modelHandle)
         {
-            foundMesh = true;
+            foundModel = true;
             break;
         }
     }
 
-    if (!foundMesh)
+    if (!foundModel)
     {
         Log::add('S', 201);
     }
 
-    MeshInstance newMeshInstance(HandleFactory<MeshInstanceHandle>::getNewHandle(), meshHandle, glm::mat4(1.0f));
+    modelInstances.emplace_back(HandleFactory<ModelInstanceHandle>::getNewHandle(), modelHandle, glm::mat4(1.0f));
 
-    meshInstances.push_back(newMeshInstance);
-
-    return newMeshInstance.handle;
+    return modelInstances.back().handle;
 }
 
-bool Scene::isMeshInstanced(MeshHandle meshHandle) const
+bool Scene::isModelInstanced(ModelHandle modelHandle) const
 {
-    for (const MeshInstance &meshInstance : meshInstances)
+    for (const ModelInstance &modelInstance : modelInstances)
     {
-        if (meshInstance.meshHandle == meshHandle)
+        if (modelInstance.modelHandle == modelHandle)
         {
             return true;
         }
@@ -113,11 +111,11 @@ VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Trans
     Vehicle newVehicle(handle,
                        transform,
                        info,
-                       addMeshInstance(info.bodyMeshHandle),
-                       addMeshInstance(info.wheelMeshHandle),
-                       addMeshInstance(info.wheelMeshHandle),
-                       addMeshInstance(info.wheelMeshHandle),
-                       addMeshInstance(info.wheelMeshHandle));
+                       addModelInstance(info.bodyModelHandle),
+                       addModelInstance(info.wheelModelHandle),
+                       addModelInstance(info.wheelModelHandle),
+                       addModelInstance(info.wheelModelHandle),
+                       addModelInstance(info.wheelModelHandle));
 
     if (!info.engineAudioFileName.empty())
     {
@@ -145,29 +143,32 @@ VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Trans
     float minY = std::numeric_limits<float>::infinity();
     float maxZ = -std::numeric_limits<float>::infinity();
     float minZ = std::numeric_limits<float>::infinity();
-    for (const Mesh &mesh : meshes)
+    for (const Model &model : models)
     {
-        if (info.bodyMeshHandle == mesh.getHandle())
+        if (info.bodyModelHandle == model.getHandle())
         {
-            for (const Vertex &v : mesh.getVertices())
+            for (const Mesh &mesh : model.getMeshes())
             {
-                if (v.pos.x > maxX)
-                    maxX = v.pos.x;
+                for (const Vertex &v : mesh.getVertices())
+                {
+                    if (v.pos.x > maxX)
+                        maxX = v.pos.x;
 
-                if (v.pos.x < minX)
-                    minX = v.pos.x;
+                    if (v.pos.x < minX)
+                        minX = v.pos.x;
 
-                if (v.pos.y > maxY)
-                    maxY = v.pos.y;
+                    if (v.pos.y > maxY)
+                        maxY = v.pos.y;
 
-                if (v.pos.y < minY)
-                    minY = v.pos.y;
+                    if (v.pos.y < minY)
+                        minY = v.pos.y;
 
-                if (v.pos.z > maxZ)
-                    maxZ = v.pos.z;
+                    if (v.pos.z > maxZ)
+                        maxZ = v.pos.z;
 
-                if (v.pos.z < minZ)
-                    minZ = v.pos.z;
+                    if (v.pos.z < minZ)
+                        minZ = v.pos.z;
+                }
             }
 
             break;
@@ -185,17 +186,17 @@ VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Trans
     return handle;
 }
 
-PropHandle Scene::addProp(MeshHandle meshHandle, Transform transform)
+PropHandle Scene::addProp(ModelHandle modelHandle, Transform transform)
 {
     PropHandle handle = HandleFactory<PropHandle>::getNewHandle();
 
-    MeshInstanceHandle meshInstanceHandle = addMeshInstance(meshHandle);
+    ModelInstanceHandle modelInstanceHandle = addModelInstance(modelHandle);
 
-    Prop newProp(handle, meshInstanceHandle, transform);
+    Prop newProp(handle, modelInstanceHandle, transform);
 
     props.push_back(newProp);
 
-    setModelMat(meshInstanceHandle, newProp.getModelMat());
+    setModelMat(modelInstanceHandle, newProp.getModelMat());
 
     return handle;
 }
@@ -204,31 +205,31 @@ TriggerHandle Scene::addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, 
 {
     TriggerHandle handle = HandleFactory<TriggerHandle>::getNewHandle();
 
-    MeshInstanceHandle meshInstanceHandle = addMeshInstance(info.meshHandle);
+    ModelInstanceHandle modelInstanceHandle = addModelInstance(info.modelHandle);
 
-    triggers.emplace_back(handle, transform, meshInstanceHandle, info);
+    triggers.emplace_back(handle, transform, modelInstanceHandle, info);
 
-    setModelMat(meshInstanceHandle, triggers.back().getModelMat());
+    setModelMat(modelInstanceHandle, triggers.back().getModelMat());
 
     return handle;
 }
 
 void Scene::removeVehicle(VehicleHandle handle)
 {
-    const MeshInstanceHandle bodyMeshInstanceHandle = vehicle(handle).getBodyMeshInstanceHandle();
-    std::erase_if(meshInstances, [bodyMeshInstanceHandle](const auto &meshInstance)
-                  { return meshInstance.handle == bodyMeshInstanceHandle; });
+    const ModelInstanceHandle bodyModelInstanceHandle = vehicle(handle).getBodyModelInstanceHandle();
+    std::erase_if(modelInstances, [bodyModelInstanceHandle](const auto &modelInstance)
+                  { return modelInstance.handle == bodyModelInstanceHandle; });
 
     for (size_t i = 0; i < VE_WHEEL_COUNT; i++)
     {
-        const MeshInstanceHandle wheelMeshInstanceHandle = vehicle(handle).getWheelMeshInstanceHandle(static_cast<VEWheel>(i));
-        std::erase_if(meshInstances, [wheelMeshInstanceHandle](const auto &meshInstance)
-                      { return meshInstance.handle == wheelMeshInstanceHandle; });
+        const ModelInstanceHandle wheelModelInstanceHandle = vehicle(handle).getWheelModelInstanceHandle(static_cast<VEWheel>(i));
+        std::erase_if(modelInstances, [wheelModelInstanceHandle](const auto &modelInstance)
+                      { return modelInstance.handle == wheelModelInstanceHandle; });
     }
 
-    size_t meshesRemoved = std::erase_if(meshes, [this](const auto &mesh)
-                                         { return !isMeshInstanced(mesh.getHandle()); });
-    meshRemovedThisFrame = meshesRemoved > 0;
+    size_t modelsRemoved = std::erase_if(models, [this](const auto &model)
+                                         { return !isModelInstanced(model.getHandle()); });
+    modelRemovedThisFrame = modelsRemoved > 0;
 
     std::erase_if(vehicles, [handle](const auto &vehicle)
                   { return vehicle.getHandle() == handle; });
@@ -244,13 +245,13 @@ void Scene::removeVehicle(VehicleHandle handle)
 
 void Scene::removeProp(PropHandle handle)
 {
-    const MeshInstanceHandle meshInstanceHandle = prop(handle).getMeshInstanceHandle();
-    std::erase_if(meshInstances, [meshInstanceHandle](const auto &meshInstance)
-                  { return meshInstance.handle == meshInstanceHandle; });
+    const ModelInstanceHandle modelInstanceHandle = prop(handle).getModelInstanceHandle();
+    std::erase_if(modelInstances, [modelInstanceHandle](const auto &modelInstance)
+                  { return modelInstance.handle == modelInstanceHandle; });
 
-    size_t meshesRemoved = std::erase_if(meshes, [this](const auto &mesh)
-                                         { return !isMeshInstanced(mesh.getHandle()); });
-    meshRemovedThisFrame = meshesRemoved > 0;
+    size_t modelsRemoved = std::erase_if(models, [this](const auto &model)
+                                         { return !isModelInstanced(model.getHandle()); });
+    modelRemovedThisFrame = modelsRemoved > 0;
 
     std::erase_if(props, [handle](const auto &prop)
                   { return prop.getHandle() == handle; });
@@ -258,13 +259,13 @@ void Scene::removeProp(PropHandle handle)
 
 void Scene::removeTrigger(TriggerHandle handle)
 {
-    const MeshInstanceHandle meshInstanceHandle = trigger(handle).getMeshInstanceHandle();
-    std::erase_if(meshInstances, [meshInstanceHandle](const auto &meshInstance)
-                  { return meshInstance.handle == meshInstanceHandle; });
+    const ModelInstanceHandle modelInstanceHandle = trigger(handle).getModelInstanceHandle();
+    std::erase_if(modelInstances, [modelInstanceHandle](const auto &modelInstance)
+                  { return modelInstance.handle == modelInstanceHandle; });
 
-    size_t meshesRemoved = std::erase_if(meshes, [this](const auto &mesh)
-                                         { return !isMeshInstanced(mesh.getHandle()); });
-    meshRemovedThisFrame = meshesRemoved > 0;
+    size_t modelsRemoved = std::erase_if(models, [this](const auto &model)
+                                         { return !isModelInstanced(model.getHandle()); });
+    modelRemovedThisFrame = modelsRemoved > 0;
 
     std::erase_if(triggers, [handle](const auto &trigger)
                   { return trigger.getHandle() == handle; });
@@ -372,13 +373,16 @@ void Scene::addSurface(Size2 size, const std::vector<uint32_t> &surfaceTypeMap, 
 
     surfaces.push_back(newSurface);
 
-    MeshHandle newMeshHandle = HandleFactory<MeshHandle>::getNewHandle();
+    ModelHandle newModelHandle = HandleFactory<ModelHandle>::getNewHandle();
 
-    Mesh newMesh(newMeshHandle, meshVertices, meshIndices);
+    Mesh mesh1(meshVertices, meshIndices);
+    std::vector<Mesh> meshes = {mesh1};
 
-    meshes.push_back(newMesh);
+    Model newModel(newModelHandle, meshes);
 
-    MeshInstanceHandle newMeshInstanceHandle = addMeshInstance(newMeshHandle);
+    models.push_back(newModel);
 
-    setModelMat(newMeshInstanceHandle, Transform(position).toMat());
+    ModelInstanceHandle newModelInstanceHandle = addModelInstance(newModelHandle);
+
+    setModelMat(newModelInstanceHandle, Transform(position).toMat());
 }

@@ -5,14 +5,14 @@
 
 #include "../../shared/Log.hpp"
 
-Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceHandle bodyMeshInstanceHandle, MeshInstanceHandle wheelFLMeshInstanceHandle, MeshInstanceHandle wheelFRMeshInstanceHandle, MeshInstanceHandle wheelBLMeshInstanceHandle, MeshInstanceHandle wheelBRMeshInstanceHandle)
+Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, ModelInstanceHandle bodyModelInstanceHandle, ModelInstanceHandle wheelFLModelInstanceHandle, ModelInstanceHandle wheelFRModelInstanceHandle, ModelInstanceHandle wheelBLModelInstanceHandle, ModelInstanceHandle wheelBRModelInstanceHandle)
     : handle(handle)
 {
-    this->bodyMeshInstanceHandle = bodyMeshInstanceHandle;
-    this->wheelMeshInstanceHandles[VE_WHEEL_FRONT_LEFT] = wheelFLMeshInstanceHandle;
-    this->wheelMeshInstanceHandles[VE_WHEEL_FRONT_RIGHT] = wheelFRMeshInstanceHandle;
-    this->wheelMeshInstanceHandles[VE_WHEEL_BACK_LEFT] = wheelBLMeshInstanceHandle;
-    this->wheelMeshInstanceHandles[VE_WHEEL_BACK_RIGHT] = wheelBRMeshInstanceHandle;
+    this->bodyModelInstanceHandle = bodyModelInstanceHandle;
+    this->wheelModelInstanceHandles[VE_WHEEL_FRONT_LEFT] = wheelFLModelInstanceHandle;
+    this->wheelModelInstanceHandles[VE_WHEEL_FRONT_RIGHT] = wheelFRModelInstanceHandle;
+    this->wheelModelInstanceHandles[VE_WHEEL_BACK_LEFT] = wheelBLModelInstanceHandle;
+    this->wheelModelInstanceHandles[VE_WHEEL_BACK_RIGHT] = wheelBRModelInstanceHandle;
 
     wheelOffset = info.wheelOffset;
 

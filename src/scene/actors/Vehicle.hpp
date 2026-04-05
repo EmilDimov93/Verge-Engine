@@ -31,8 +31,8 @@ enum VEDrivetrainType
 
 struct VE_STRUCT_VEHICLE_CREATE_INFO
 {
-    MeshHandle bodyMeshHandle = INVALID_MESH_HANDLE;
-    MeshHandle wheelMeshHandle = INVALID_MESH_HANDLE;
+    ModelHandle bodyModelHandle = INVALID_MODEL_HANDLE;
+    ModelHandle wheelModelHandle = INVALID_MODEL_HANDLE;
 
     Position3 wheelOffset = {0, 0, 0};
 
@@ -85,7 +85,7 @@ enum VEWheel
 class Vehicle
 {
 public:
-    Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, MeshInstanceHandle bodyMeshInstanceHandle, MeshInstanceHandle wheelFLMeshInstanceHandle, MeshInstanceHandle wheelFRMeshInstanceHandle, MeshInstanceHandle wheelBLMeshInstanceHandle, MeshInstanceHandle wheelBRMeshInstanceHandle);
+    Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, ModelInstanceHandle bodyModelInstanceHandle, ModelInstanceHandle wheelFLModelInstanceHandle, ModelInstanceHandle wheelFRModelInstanceHandle, ModelInstanceHandle wheelBLModelInstanceHandle, ModelInstanceHandle wheelBRModelInstanceHandle);
 
     void tick(VehicleInputState vis, Environment environment, float surfaceFriction, ve_time_t deltaTime);
 
@@ -134,8 +134,8 @@ private:
 
     VehicleHandle handle;
 
-    MeshInstanceHandle bodyMeshInstanceHandle;
-    std::array<MeshInstanceHandle, VE_WHEEL_COUNT> wheelMeshInstanceHandles;
+    ModelInstanceHandle bodyModelInstanceHandle;
+    std::array<ModelInstanceHandle, VE_WHEEL_COUNT> wheelModelInstanceHandles;
 
     Position3 wheelOffset;
 
@@ -193,8 +193,8 @@ public:
     glm::mat4 getBodyMat() const { return bodyMat; };
     glm::mat4 getWheelMat(VEWheel wheel) const;
 
-    MeshInstanceHandle getBodyMeshInstanceHandle() const { return bodyMeshInstanceHandle; }
-    MeshInstanceHandle getWheelMeshInstanceHandle(VEWheel wheel) const { return wheelMeshInstanceHandles[wheel]; }
+    ModelInstanceHandle getBodyModelInstanceHandle() const { return bodyModelInstanceHandle; }
+    ModelInstanceHandle getWheelModelInstanceHandle(VEWheel wheel) const { return wheelModelInstanceHandles[wheel]; }
     Position3 getWheelOffset() const { return wheelOffset; }
     uint32_t getPeakTorqueNm() const { return peakTorqueNm; }
     float getWeightKg() const { return weightKg; }

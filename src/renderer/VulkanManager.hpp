@@ -27,12 +27,8 @@ public:
     ~VulkanManager();
 
 private:
-    struct MeshGPU
+    struct MeshBuffer
     {
-        MeshHandle handle;
-
-        uint64_t version = 0;
-
         uint64_t vertexCount = 0;
         VkBuffer vertexBuffer = VK_NULL_HANDLE;
         VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;
@@ -42,15 +38,25 @@ private:
         VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
 
         size_t texIndex = 0;
-
-        MeshGPU(MeshHandle handle) : handle(handle) {}
     };
 
-    std::vector<MeshGPU> MeshGPUs;
-    void createVertexBuffer(MeshGPU &MeshGPU, const std::vector<Vertex> &vertices);
-    void createIndexBuffer(MeshGPU &MeshGPU, const std::vector<uint32_t> &indices);
-    void initMeshGPU(const Mesh &mesh);
-    void updateMeshGPU(MeshGPU &MeshGPU, const Mesh &mesh);
+    struct ModelBuffer
+    {
+        ModelHandle handle;
+
+        std::vector<MeshBuffer> meshBuffers;
+
+        uint64_t version = 0;
+
+        ModelBuffer(ModelHandle handle) : handle(handle) {}
+    };
+
+    std::vector<ModelBuffer> modelBuffers;
+    void createVertexBuffer(MeshBuffer &meshBuffer, const std::vector<Vertex> &vertices);
+    void createIndexBuffer(MeshBuffer &meshBuffer, const std::vector<uint32_t> &indices);
+    void initModelBuffer(const Model &model);
+    void updateModelBuffer(ModelBuffer &modelBuffer, const Model &model);
+    void removeOrphanedModel(const std::vector<ModelInstance> &modelInstances);
 
     int currentFrame = 0;
 
@@ -132,9 +138,7 @@ private:
 
     void createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory);
 
-    void removeOrphanedMesh(const std::vector<MeshInstance> &meshInstances);
-
-    void recordCommands(uint32_t currentImage, const std::vector<Mesh> &meshes, const std::vector<MeshInstance> &meshInstances, ve_color_t backgroundColor);
+    void recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, ve_color_t backgroundColor);
 
     void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat);
 

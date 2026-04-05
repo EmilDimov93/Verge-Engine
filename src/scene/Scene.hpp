@@ -28,12 +28,12 @@ public:
 
     AudioData getAudioData(PlayerHandle playerHandle);
 
-    MeshHandle loadFile(const std::string &filePath);
+    ModelHandle loadFile(const std::string &filePath);
 
     PlayerHandle addPlayer(VehicleHandle vehicleHandle, const VE_STRUCT_CAMERA_CREATE_INFO &cameraInfo);
 
     VehicleHandle addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform = {});
-    PropHandle addProp(MeshHandle meshHandle, Transform transform);
+    PropHandle addProp(ModelHandle modelHandle, Transform transform);
     TriggerHandle addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform = {});
 
     void removeVehicle(VehicleHandle handle);
@@ -58,9 +58,9 @@ private:
     // Controllers
     std::vector<std::unique_ptr<Controller>> controllers;
 
-    // Meshes
-    std::vector<Mesh> meshes;
-    std::vector<MeshInstance> meshInstances;
+    // Models
+    std::vector<Model> models;
+    std::vector<ModelInstance> modelInstances;
 
     // Surface
     std::vector<Surface> surfaces;
@@ -79,16 +79,16 @@ private:
     std::vector<VELayeredEngineAudioRequest> layeredEngineAudioRequests;
     std::vector<VEAudioRequest> oneShotAudioRequests;
 
-    MeshHandle loadOBJ(const std::string &filePath);
-    MeshHandle loadFBX(const std::string &filePath);
-    MeshHandle loadGLB(const std::string &filePath);
-    MeshHandle loadGLTF(const std::string &filePath);
+    ModelHandle loadOBJ(const std::string &filePath);
+    ModelHandle loadFBX(const std::string &filePath);
+    ModelHandle loadGLB(const std::string &filePath);
+    ModelHandle loadGLTF(const std::string &filePath);
 
-    void setModelMat(MeshInstanceHandle meshInstanceHandle, glm::mat4 newModel);
+    void setModelMat(ModelInstanceHandle modelInstanceHandle, glm::mat4 newModel);
 
-    MeshInstanceHandle addMeshInstance(MeshHandle meshHandle);
+    ModelInstanceHandle addModelInstance(ModelHandle modleHandle);
 
-    bool isMeshInstanced(MeshHandle meshHandle) const;
+    bool isModelInstanced(ModelHandle modelHandle) const;
 
     float sampleHeightAt(const Position3 &point) const;
     const SurfaceType &sampleSurfaceTypeAt(const Position3 &point) const;
@@ -96,5 +96,5 @@ private:
     const SurfaceType &sampleSurfaceTypeAt(const glm::vec3 &point) const;
 
     bool vehicleRemovedThisFrame = false;
-    bool meshRemovedThisFrame = false;
+    bool modelRemovedThisFrame = false;
 };

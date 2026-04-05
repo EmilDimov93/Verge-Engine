@@ -6,14 +6,14 @@
 class Prop
 {
 public:
-    Prop(PropHandle handle, MeshInstanceHandle meshInstanceHandle, Transform transform);
+    Prop(PropHandle handle, ModelInstanceHandle modelInstanceHandle, Transform transform);
 
     PropHandle getHandle() const;
     glm::mat4 getModelMat() const;
 
     void setTransform(Transform transform);
 
-    MeshInstanceHandle getMeshInstanceHandle() const;
+    ModelInstanceHandle getModelInstanceHandle() const;
 
     bool hasChanges() const;
     void markChangesSaved();
@@ -25,7 +25,7 @@ private:
 
     glm::mat4 modelMat;
 
-    MeshInstanceHandle meshInstanceHandle;
+    ModelInstanceHandle modelInstanceHandle;
 
     bool hasChanged = true;
 };

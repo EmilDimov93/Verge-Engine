@@ -5,10 +5,10 @@
 
 #include "../../shared/Log.hpp"
 
-Prop::Prop(PropHandle handle, MeshInstanceHandle meshInstanceHandle, Transform transform)
+Prop::Prop(PropHandle handle, ModelInstanceHandle modelInstanceHandle, Transform transform)
     : handle(handle)
 {
-    this->meshInstanceHandle = meshInstanceHandle;
+    this->modelInstanceHandle = modelInstanceHandle;
 
     this->transform = transform;
 
@@ -34,9 +34,9 @@ void Prop::setTransform(Transform transform)
     hasChanged = true;
 }
 
-MeshInstanceHandle Prop::getMeshInstanceHandle() const
+ModelInstanceHandle Prop::getModelInstanceHandle() const
 {
-    return meshInstanceHandle;
+    return modelInstanceHandle;
 }
 
 bool Prop::hasChanges() const

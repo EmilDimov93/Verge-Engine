@@ -14,7 +14,7 @@ enum VE_SHAPE
 
 struct VE_STRUCT_TRIGGER_TYPE_CREATE_INFO
 {
-    MeshHandle meshHandle = INVALID_MESH_HANDLE;
+    ModelHandle modelHandle = INVALID_MODEL_HANDLE;
     VE_SHAPE hitboxShape = VE_SHAPE_UNKNOWN;
     float hitboxSize = -1.0f;
     bool isAutoDestroy = false;
@@ -24,12 +24,12 @@ struct VE_STRUCT_TRIGGER_TYPE_CREATE_INFO
 class Trigger
 {
 public:
-    Trigger(TriggerHandle handle, Transform transform, MeshInstanceHandle meshInstanceHandle, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info);
+    Trigger(TriggerHandle handle, Transform transform, ModelInstanceHandle modelInstanceHandle, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info);
 
     TriggerHandle getHandle() const;
     glm::mat4 getModelMat() const;
 
-    MeshInstanceHandle getMeshInstanceHandle() const;
+    ModelInstanceHandle getModelInstanceHandle() const;
 
     bool doesActorTrigger(Position3 actorPos) const;
 
@@ -42,7 +42,7 @@ private:
 
     Transform transform;
 
-    MeshInstanceHandle meshInstanceHandle;
+    ModelInstanceHandle modelInstanceHandle;
 
     VE_SHAPE hitboxShape;
     float hitboxSize;

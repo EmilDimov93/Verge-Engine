@@ -13,7 +13,7 @@
 #include <fstream>
 
 const uint8_t MAX_FRAME_DRAWS = 2;
-const uint8_t MAX_OBJECTS = 2; // Temporary
+const uint8_t MAX_OBJECTS = 20; // Temporary
 
 VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize)
 {
@@ -37,8 +37,7 @@ VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize)
     createDescriptorSets();
     createSemaphores();
 
-    // Temporary(testing)
-    createTexture("test.jpg");
+    createFallbackTexture();
 
     Log::add('V', 000);
 }
@@ -310,6 +309,49 @@ VkResult transitionImageLayout(VkDevice device, VkQueue queue, VkCommandPool com
     return VK_SUCCESS;
 }
 
+void VulkanManager::createFallbackTexture()
+{
+    uint32_t whitePixel = 0xFFFFFFFF;
+    VkDeviceSize imageSize = 4;
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
+
+    void *data;
+    vkCheck(vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data), {'V', 236});
+    memcpy(data, &whitePixel, imageSize);
+    vkUnmapMemory(device, stagingBufferMemory);
+
+    VkImage texImage;
+    VkDeviceMemory texImageMemory;
+    texImage = createImage(1, 1, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texImageMemory);
+
+    vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPool, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL), {'V', 240});
+    vkCheck(copyImageBuffer(device, graphicsQueue, graphicsCommandPool, stagingBuffer, texImage, 1, 1), {'V', 239});
+    vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPool, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL), {'V', 240});
+
+    textureImages.push_back(texImage);
+    textureImageMemory.push_back(texImageMemory);
+
+    vkDestroyBuffer(device, stagingBuffer, nullptr);
+    vkFreeMemory(device, stagingBufferMemory, nullptr);
+
+    VkImageViewCreateInfo imageViewCreateInfo{};
+    imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    imageViewCreateInfo.image = texImage;
+    imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    imageViewCreateInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+    imageViewCreateInfo.components = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY};
+    imageViewCreateInfo.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+
+    VkImageView imageView;
+    vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &imageView), {'V', 205});
+    textureImageViews.push_back(imageView);
+
+    createTextureDescriptor(imageView);
+}
+
 size_t VulkanManager::createTextureImage(std::string fileName)
 {
     int width, height;
@@ -333,11 +375,11 @@ size_t VulkanManager::createTextureImage(std::string fileName)
 
     texImage = createImage(width, height, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texImageMemory);
 
-    vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPool, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL), {'V', 239});
+    vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPool, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL), {'V', 240});
 
     vkCheck(copyImageBuffer(device, graphicsQueue, graphicsCommandPool, imageStagingBuffer, texImage, width, height), {'V', 239});
 
-    vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPool, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL), {'V', 239});
+    vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPool, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL), {'V', 240});
 
     textureImages.push_back(texImage);
     textureImageMemory.push_back(texImageMemory);
@@ -350,9 +392,15 @@ size_t VulkanManager::createTextureImage(std::string fileName)
 
 size_t VulkanManager::createTexture(std::string fileName)
 {
+    // Temporary
+    if(samplerDescriptorSets.size() >= MAX_OBJECTS)
+    {
+        Log::add('V', 120);
+        return INVALID_TEXTURE_INDEX;
+    }
+
     size_t textureImageLoc = createTextureImage(fileName);
 
-    VkImageView imageView;
     VkImageViewCreateInfo imageViewCreateInfo{};
     imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     imageViewCreateInfo.image = textureImages[textureImageLoc];
@@ -367,7 +415,10 @@ size_t VulkanManager::createTexture(std::string fileName)
     imageViewCreateInfo.subresourceRange.levelCount = 1;
     imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
     imageViewCreateInfo.subresourceRange.layerCount = 1;
+
+    VkImageView imageView;
     vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &imageView), {'V', 205});
+
     textureImageViews.push_back(imageView);
 
     return createTextureDescriptor(imageView);
@@ -930,9 +981,9 @@ void VulkanManager::createDescriptorSetLayout()
 
 void VulkanManager::createPushConstantRange()
 {
-    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(glm::mat4);
+    pushConstantRange.size = sizeof(PushData);
 }
 
 void VulkanManager::createFramebuffers()
@@ -1169,17 +1220,25 @@ void VulkanManager::initModelBuffer(const Model &model)
 
     newModelBuffer.version = model.getVersion();
 
+    modelBuffers.push_back(newModelBuffer);
+
+    ModelBuffer &modelBuffer = modelBuffers.back();
+
     for (const Mesh &mesh : model.getMeshes())
     {
         MeshBuffer newMeshBuffer;
+
         newMeshBuffer.vertexCount = mesh.getVertices().size();
         newMeshBuffer.indexCount = mesh.getIndices().size();
         createVertexBuffer(newMeshBuffer, mesh.getVertices());
         createIndexBuffer(newMeshBuffer, mesh.getIndices());
-        newModelBuffer.meshBuffers.push_back(newMeshBuffer);
-    }
 
-    modelBuffers.push_back(newModelBuffer);
+        modelBuffer.meshBuffers.push_back(newMeshBuffer);
+
+        if(!mesh.getTextureFilePath().empty()){
+            modelBuffer.meshBuffers.back().texIndex = createTexture(mesh.getTextureFilePath());
+        }
+    }
 }
 
 void VulkanManager::destroyMeshBuffer(MeshBuffer &meshBuffer)
@@ -1283,8 +1342,10 @@ void VulkanManager::recordCommands(uint32_t currentImage, const std::vector<Mode
 
                     vkCmdBindIndexBuffer(commandBuffers[currentImage], meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-                    glm::mat4 modelMat = instance.modelMat;
-                    vkCmdPushConstants(commandBuffers[currentImage], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &modelMat);
+                    pushData.model = instance.modelMat;
+                    pushData.textureIndex = meshBuffer.texIndex;
+
+                    vkCmdPushConstants(commandBuffers[currentImage], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushData), &pushData);
 
                     std::array<VkDescriptorSet, 2> descriptorSetGroup = {descriptorSets[currentImage], samplerDescriptorSets[meshBuffer.texIndex]};
 

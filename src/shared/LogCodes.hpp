@@ -23,7 +23,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'V', 102}, "Vulkan returned: VK_SUBOPTIMAL_KHR"},
     {{'V', 103}, "Vulkan returned: VK_EVENT_SET"},
     {{'V', 104}, "Vulkan returned: VK_EVENT_RESET"},
-    {{'V', 120}, "Vulkan: Mesh buffers were not destroyed at exit"},
+    {{'V', 120}, "Texture count exceeds limit"}, // Temporary
 
     {{'V', 200}, "Vulkan failed to create instance"},
     {{'V', 201}, "Vulkan failed to create window surface"},
@@ -63,7 +63,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'V', 237}, "Vulkan failed to find a suitable memory type index"},
     {{'V', 238}, "Vulkan failed: vkQueueWaitIdle"},
     {{'V', 239}, "Vulkan failed to copy image"},
-    {{'V', 239}, "Vulkan failed to transition image layout"},
+    {{'V', 240}, "Vulkan failed to transition image layout"},
 
     // Renderer
     {{'R', 200}, "Renderer: invalid Field Of View value"},

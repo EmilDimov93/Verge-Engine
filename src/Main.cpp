@@ -75,8 +75,8 @@ private:
 
         // Vehicle
         VE_STRUCT_VEHICLE_CREATE_INFO carInfo = {};
-        carInfo.bodyModelHandle = scene.loadFile("models/car.obj");
-        carInfo.wheelModelHandle = scene.loadFile("models/wheel.obj");
+        carInfo.bodyModelHandle = scene.loadFile("models/X2/car.obj");
+        carInfo.wheelModelHandle = scene.loadFile("models/X2/wheel.obj");
         carInfo.wheelOffset = {1.05f, 0.5f, 1.8f};
         carInfo.peakTorqueNm = 480;
         carInfo.weightKg = 1540;
@@ -89,8 +89,8 @@ private:
         carInfo.tireGrip = 1.0f;
         carInfo.camberRad = (PI / 180);
         carInfo.drivetrainType = VE_DRIVETRAIN_TYPE_RWD;
-        carInfo.engineAudioFileName = "4k.wav";
-        // carInfo.layeredEngineAudioFiles = {{"1k.wav", 1000}, {"2k.wav", 2000}, {"3k.wav", 3000}, {"4k.wav", 4000}, {"5k.wav", 5000}, {"6k.wav", 6000}, {"7k.wav", 7000}};
+        carInfo.engineAudioFileName = "audio/4k.wav";
+        // carInfo.layeredEngineAudioFiles = {{"audio/1k.wav", 1000}, {"audio/2k.wav", 2000}, {"audio/3k.wav", 3000}, {"audio/4k.wav", 4000}, {"audio/5k.wav", 5000}, {"audio/6k.wav", 6000}, {"audio/7k.wav", 7000}};
         car1 = scene.addVehicle(carInfo);
 
         // Player

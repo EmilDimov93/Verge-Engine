@@ -19,14 +19,18 @@ struct Vertex
 class Mesh
 {
 public:
-    Mesh(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices) : vertices(vertices), indices(indices) {}
+    Mesh(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const std::string &textureFilePath) : vertices(vertices), indices(indices), textureFilePath(textureFilePath) {}
 
     const std::vector<Vertex> &getVertices() const { return vertices; }
     const std::vector<uint32_t> &getIndices() const { return indices; }
+    const std::string &getTextureFilePath() const { return textureFilePath; }
+
+    static inline const std::string NO_TEXTURE = "";
 
 private:
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
+    std::string textureFilePath;
 };
 
 class Model

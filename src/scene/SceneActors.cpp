@@ -375,8 +375,9 @@ void Scene::addSurface(Size2 size, const std::vector<uint32_t> &surfaceTypeMap, 
 
     ModelHandle newModelHandle = HandleFactory<ModelHandle>::getNewHandle();
 
-    Mesh mesh1(meshVertices, meshIndices);
-    std::vector<Mesh> meshes = {mesh1};
+    std::vector<Mesh> meshes;
+    
+    meshes.emplace_back(meshVertices, meshIndices, Mesh::NO_TEXTURE);
 
     Model newModel(newModelHandle, meshes);
 

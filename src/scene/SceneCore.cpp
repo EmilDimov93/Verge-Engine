@@ -15,7 +15,7 @@
 
 Scene::Scene()
 {
-    // Default surface
+    // Fallback surface
     surfaceTypes.push_back({1.0f, {0.1f, 0.1f, 0.1f}});
 }
 
@@ -253,11 +253,18 @@ ModelHandle Scene::loadOBJ(const std::string &filePath)
         return INVALID_MODEL_HANDLE;
     }
 
+    struct Material
+    {
+        glm::vec3 diffuseColor{1.0f};
+        std::string diffuseTexturePath;
+    };
+
     std::vector<glm::vec3> positions;
-    std::unordered_map<std::string, glm::vec3> materials;
+    std::unordered_map<std::string, Material> materials;
     std::vector<glm::vec2> texCoords;
 
     ve_color_t currentColor(1.0f);
+    std::string currentTexturePath;
 
     std::vector<Vertex> currentMeshVertices;
     std::vector<uint32_t> currentMeshIndices;
@@ -289,7 +296,14 @@ ModelHandle Scene::loadOBJ(const std::string &filePath)
                 std::stringstream ss(line.substr(3));
                 glm::vec3 kd;
                 ss >> kd.r >> kd.g >> kd.b;
-                materials[currentMat] = kd;
+                materials[currentMat].diffuseColor = kd;
+            }
+            else if (line.starts_with("map_Kd ") && !currentMat.empty())
+            {
+                std::string texturePath = line.substr(7);
+                trim(texturePath);
+                std::filesystem::path resolvedPath = std::filesystem::path(mtlPath).parent_path() / texturePath;
+                materials[currentMat].diffuseTexturePath = resolvedPath.string();
             }
         }
     };
@@ -300,11 +314,12 @@ ModelHandle Scene::loadOBJ(const std::string &filePath)
         if (currentMeshVertices.empty())
             return;
 
-        Mesh newMesh(currentMeshVertices, currentMeshIndices);
+        Mesh newMesh(currentMeshVertices, currentMeshIndices, currentTexturePath);
         meshes.push_back(newMesh);
 
         currentMeshVertices.clear();
         currentMeshIndices.clear();
+        currentTexturePath.clear();
     };
 
     std::filesystem::path objPath(filePath);
@@ -320,12 +335,15 @@ ModelHandle Scene::loadOBJ(const std::string &filePath)
         }
         else if (line.starts_with("usemtl "))
         {
+            finalizeCurrentMesh();
+
             std::string mat = line.substr(7);
             trim(mat);
 
             auto it = materials.find(mat);
             if (it != materials.end())
-                currentColor = it->second;
+                currentColor = it->second.diffuseColor;
+                currentTexturePath = it->second.diffuseTexturePath;
         }
         else if (line.starts_with("v "))
         {

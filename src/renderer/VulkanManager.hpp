@@ -15,12 +15,14 @@
 
 class ErrorCode;
 
+constexpr uint32_t INVALID_TEXTURE_INDEX = 0;
+
 class VulkanManager
 {
 public:
     VulkanManager(GLFWwindow *window, Size2 windowSize);
 
-    void drawFrame(const DrawData& drawData, const glm::mat4 projectionMat);
+    void drawFrame(const DrawData &drawData, const glm::mat4 projectionMat);
 
     void vkCheck(VkResult res, ErrorCode errorCode);
 
@@ -37,7 +39,7 @@ private:
         VkBuffer indexBuffer = VK_NULL_HANDLE;
         VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
 
-        size_t texIndex = 0;
+        size_t texIndex = INVALID_TEXTURE_INDEX;
     };
 
     struct ModelBuffer
@@ -57,7 +59,7 @@ private:
     void initModelBuffer(const Model &model);
     void updateModelBuffer(ModelBuffer &modelBuffer, const Model &model);
     void removeOrphanedModel(const std::vector<ModelInstance> &modelInstances);
-    void destroyMeshBuffer(MeshBuffer& meshBuffer);
+    void destroyMeshBuffer(MeshBuffer &meshBuffer);
 
     int currentFrame = 0;
 
@@ -117,6 +119,12 @@ private:
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> drawFences;
 
+    struct PushData
+    {
+        glm::mat4 model;
+        uint32_t textureIndex;
+    } pushData;
+
     void createInstance();
     void createSurface(GLFWwindow *window);
     void pickPhysicalDevice();
@@ -146,6 +154,7 @@ private:
     VkShaderModule createShaderModule(const std::vector<char> &code);
     static uint32_t rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
 
+    void createFallbackTexture();
     stbi_uc *loadTextureFile(std::string fileName, int *width, int *height, VkDeviceSize *imageSize);
     size_t createTextureImage(std::string fileName);
     size_t createTexture(std::string fileName);

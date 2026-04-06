@@ -11,14 +11,17 @@ layout(set = 0, binding = 0) uniform UboViewProjection {
 
 layout(push_constant) uniform PushModel {
     mat4 model;
+    uint textureIndex;
 }pushModel;
 
 layout(location = 0) out vec3 fragCol;
 layout(location = 1) out vec2 fragTex;
+layout(location = 2) flat out uint fragTextureIndex;
 
 void main(){
     gl_Position = uboViewProjection.projection * uboViewProjection.view * pushModel.model * vec4(pos, 1.0);
 
     fragCol = col;
     fragTex = tex;
+    fragTextureIndex = pushModel.textureIndex;
 }

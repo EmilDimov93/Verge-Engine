@@ -66,7 +66,7 @@ private:
 
         renderer.setVehicleKeybinds(keybinds);
 
-        renderer.setSteerInputSmoothing(0.8f);
+        renderer.setSteerInputSmoothing(0.9f);
     }
 
     void setupScene()
@@ -124,8 +124,8 @@ private:
         for (uint32_t &surfaceType : surfaceTypeMap)
             surfaceType = grassSurfaceTypeIndex;
 
-        const float curveStrength = 5.0f;
-        const float curveFrequency = 0.05f;
+        const float curveStrength = 30.0f;
+        const float curveFrequency = 0.005f;
         const int roadHalfWidth = 30;
         for (size_t i = 0; i < surfaceSize.h; i++)
         {

@@ -12,8 +12,13 @@ glm::mat4 Camera::getViewMat() const
     forward.y = -sin(rotation.pitch);
     forward.z = cos(rotation.pitch) * cos(rotation.yaw);
     forward = glm::normalize(forward);
-    
-    return glm::lookAt(glm::vec3(position.x, position.y, position.z), glm::vec3(position.x + forward.x, position.y + forward.y, position.z + forward.z), glm::vec3(0.0f, 1.0f, 0.0f));
+
+    glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0.0f, 1.0f, 0.0f)));
+    glm::vec3 up = glm::normalize(glm::cross(right, forward));
+    up = up * (float)cos(rotation.roll) + right * (float)sin(rotation.roll);
+
+    glm::vec3 pos(position.x, position.y, position.z);
+    return glm::lookAt(pos, glm::vec3(position.x, position.y, position.z) + forward, up);
 }
 
 void Camera::move(Position3 newPosition)

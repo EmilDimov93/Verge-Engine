@@ -33,23 +33,24 @@ void Player::updateCamera(ve_time_t dt, Transform vehicleTransform, glm::vec3 ve
     if (!isCameraFollowingVehicle)
         return;
 
+    float targetYaw = atan2(vehicleVelocityVector.x, vehicleVelocityVector.z) - PI;
+    if (glm::length(vehicleVelocityVector) < 1.0f)
+        targetYaw = cameraYaw;
+
+    cameraYaw += wrapRadToPi(targetYaw - cameraYaw) * std::exp(-float(dt) * cameraFollowDelay) + (vis.moveCameraRight - vis.moveCameraLeft) * PI * dt;
+    cameraYaw = wrapRadToPi(cameraYaw);
+    cameraPitch += (vis.moveCameraUp - vis.moveCameraDown) * PI * dt;
+
+    cameraPitch = clamp(cameraPitch, minCameraPitch, maxCameraPitch);
+
     float currCameraHeight = cameraFollowHeight;
 
     Position3 vehiclePos = vehicleTransform.position;
 
     camPos = {camera.getPosition().x, camera.getPosition().y, camera.getPosition().z};
     glm::vec3 targetCamPos = {vehiclePos.x + sin(cameraYaw) * cameraFollowDistance, vehiclePos.y + sin(cameraPitch) * cameraFollowDistance + currCameraHeight, vehiclePos.z + cos(cameraYaw) * cos(cameraPitch) * cameraFollowDistance};
-    camPos = glm::mix(camPos, targetCamPos, std::exp(-float(dt) * cameraFollowDelay * 10.0f));
+    camPos = glm::mix(camPos, targetCamPos, std::exp(-float(dt) * cameraFollowDelay));
     camera.move({camPos.x, camPos.y, camPos.z});
-
-    float targetYaw = atan2(vehicleVelocityVector.x, vehicleVelocityVector.z) - PI;
-    if (glm::length(vehicleVelocityVector) < 1.0f)
-        targetYaw = cameraYaw;
-
-    cameraYaw += wrapRadToPi(targetYaw - cameraYaw) * cameraFollowDelay + (vis.moveCameraRight - vis.moveCameraLeft) * PI * dt;
-    cameraPitch += (vis.moveCameraUp - vis.moveCameraDown) * PI * dt;
-
-    cameraPitch = clamp(cameraPitch, minCameraPitch, maxCameraPitch);
 
     glm::vec3 dir = glm::normalize(glm::vec3(vehiclePos.x, vehiclePos.y, vehiclePos.z) - camPos);
     camera.rotate({-asin(dir.y), atan2(dir.x, dir.z), 0});

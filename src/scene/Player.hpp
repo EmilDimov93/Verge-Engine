@@ -59,7 +59,7 @@ private:
     bool isCameraFollowingVehicle = true;
     float cameraFollowDistance = 10.0f;
     float cameraFollowHeight = 3.0f;
-    float cameraFollowDelay = 0.01f;
+    float cameraFollowDelay = 500.0f;
 
     float minCameraPitch = -1.2f;
     float maxCameraPitch = 0.6f;

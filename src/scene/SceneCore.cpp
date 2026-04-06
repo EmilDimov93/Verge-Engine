@@ -379,6 +379,7 @@ ModelHandle Scene::loadOBJ(const std::string &filePath)
                 vertex.pos = positions[positionIndex];
                 vertex.col = currentColor;
                 vertex.tex = (texCoordIndex >= 0) ? texCoords[texCoordIndex] : glm::vec2(0.0f);
+                vertex.tex.y = 1.0f - vertex.tex.y;
 
                 currentMeshIndices.push_back(static_cast<uint32_t>(currentMeshVertices.size()));
                 currentMeshVertices.push_back(vertex);

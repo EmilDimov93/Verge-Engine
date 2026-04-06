@@ -39,7 +39,7 @@ void Player::updateCamera(ve_time_t dt, Transform vehicleTransform, glm::vec3 ve
 
     camPos = {camera.getPosition().x, camera.getPosition().y, camera.getPosition().z};
     glm::vec3 targetCamPos = {vehiclePos.x + sin(cameraYaw) * cameraFollowDistance, vehiclePos.y + sin(cameraPitch) * cameraFollowDistance + currCameraHeight, vehiclePos.z + cos(cameraYaw) * cos(cameraPitch) * cameraFollowDistance};
-    camPos = glm::mix(camPos, targetCamPos, 1.0f - std::exp(-float(dt) * 10.0f));
+    camPos = glm::mix(camPos, targetCamPos, std::exp(-float(dt) * cameraFollowDelay * 10.0f));
     camera.move({camPos.x, camPos.y, camPos.z});
 
     float targetYaw = atan2(vehicleVelocityVector.x, vehicleVelocityVector.z) - PI;

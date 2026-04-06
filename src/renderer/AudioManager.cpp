@@ -21,7 +21,7 @@ float AudioManager::attenuation(float distance) const
 {
     const float ref = 3.0f;
     const float rolloff = 3.0f;
-    return ref / (ref + rolloff * (distance - ref));
+    return ref / (ref + rolloff * (max(distance, ref) - ref));
 }
 
 float AudioManager::volumeToGain(float volume) const
@@ -112,7 +112,7 @@ void AudioManager::tick(const AudioData &audioData, float volume)
                 float cross = fx * dz - fz * dx;
 
                 float distanceXZ = std::sqrt(dx * dx + dz * dz);
-                float pan = (distanceXZ > 1e-6f) ? (cross / distanceXZ) : 0.0f;
+                float pan = (distanceXZ > 1e-3f) ? (cross / distanceXZ) : 0.0f;
                 pan = clamp(pan, -1.0f, 1.0f);
 
                 for (VEEngineAudioFile &file : audio.audioFiles)
@@ -212,7 +212,7 @@ void AudioManager::tick(const AudioData &audioData, float volume)
                 float cross = fx * dz - fz * dx;
 
                 float distanceXZ = std::sqrt(dx * dx + dz * dz);
-                float pan = (distanceXZ > 1e-6f) ? (cross / distanceXZ) : 0.0f;
+                float pan = (distanceXZ > 1e-3f) ? (cross / distanceXZ) : 0.0f;
                 pan = clamp(pan, -1.0f, 1.0f);
 
                 ma_sound_set_pan(&audio.sound, pan);
@@ -250,7 +250,7 @@ void AudioManager::tick(const AudioData &audioData, float volume)
                 float cross = fx * dz - fz * dx;
 
                 float distanceXZ = std::sqrt(dx * dx + dz * dz);
-                float pan = (distanceXZ > 1e-6f) ? (cross / distanceXZ) : 0.0f;
+                float pan = (distanceXZ > 1e-3f) ? (cross / distanceXZ) : 0.0f;
                 pan = clamp(pan, -1.0f, 1.0f);
 
                 ma_sound_set_pan(&audio.sound, pan);

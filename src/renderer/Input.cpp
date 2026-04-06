@@ -5,15 +5,15 @@
 
 #include "../shared/Log.hpp"
 
-KeyState Input::mouseBtnStates[VE_MOUSE_BTN_COUNT] = {};
-KeyState Input::keyStates[VE_KEY_COUNT] = {};
+Input::KeyState Input::mouseBtnStates[VE_MOUSE_BTN_COUNT] = {};
+Input::KeyState Input::keyStates[VE_KEY_COUNT] = {};
 
 Position2 Input::mousePosition = {0, 0};
 
 int Input::controllerId = GLFW_JOYSTICK_1;
 bool Input::controllerConnected = false;
 
-std::vector<KeyState> Input::controllerBtnStates;
+std::vector<Input::KeyState> Input::controllerBtnStates;
 std::vector<float> Input::controllerAxes;
 
 float Input::axisDeadZone = 0.1f;

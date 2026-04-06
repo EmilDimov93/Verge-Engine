@@ -16,7 +16,7 @@ struct VEEngineAudio
     ma_sound sound;
 };
 
-struct VEEngineAudioFile2
+struct VEEngineAudioFile
 {
     ma_sound sound;
     float rpm;
@@ -25,7 +25,7 @@ struct VEEngineAudioFile2
 struct VELayeredEngineAudio
 {
     VehicleHandle vehicleHandle;
-    std::vector<VEEngineAudioFile2> audioFiles;
+    std::vector<VEEngineAudioFile> audioFiles;
 };
 
 struct VEAudio

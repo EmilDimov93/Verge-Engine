@@ -5,17 +5,17 @@
 
 #include "../../shared/definitions.hpp"
 
-enum VE_SHAPE
+enum VEShape
 {
     VE_SHAPE_UNKNOWN,
     VE_SHAPE_PRISM,
     VE_SHAPE_SPHERE
 };
 
-struct VE_STRUCT_TRIGGER_TYPE_CREATE_INFO
+struct VETriggerTypeCreateInfo
 {
     ModelHandle modelHandle = INVALID_MODEL_HANDLE;
-    VE_SHAPE hitboxShape = VE_SHAPE_UNKNOWN;
+    VEShape hitboxShape = VE_SHAPE_UNKNOWN;
     float hitboxSize = -1.0f;
     bool isAutoDestroy = false;
     // callback function
@@ -24,7 +24,7 @@ struct VE_STRUCT_TRIGGER_TYPE_CREATE_INFO
 class Trigger
 {
 public:
-    Trigger(TriggerHandle handle, Transform transform, ModelInstanceHandle modelInstanceHandle, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info);
+    Trigger(TriggerHandle handle, Transform transform, ModelInstanceHandle modelInstanceHandle, const VETriggerTypeCreateInfo& info);
 
     TriggerHandle getHandle() const;
     glm::mat4 getModelMat() const;
@@ -44,7 +44,7 @@ private:
 
     ModelInstanceHandle modelInstanceHandle;
 
-    VE_SHAPE hitboxShape;
+    VEShape hitboxShape;
     float hitboxSize;
 
     bool isAutoDestroy_ = false;

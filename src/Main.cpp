@@ -34,7 +34,7 @@ private:
     {
         renderer.setTargetFps(240);
 
-        VehicleKeybinds keybinds{};
+        VEVehicleKeybinds keybinds{};
 
         keybinds.throttle[0] = VE_KEY_W;
         keybinds.brake[0] = VE_KEY_S;
@@ -74,7 +74,7 @@ private:
         scene.setBackgroundColor({0.7f, 1.0f, 1.0f});
 
         // Vehicle
-        VE_STRUCT_VEHICLE_CREATE_INFO carInfo = {};
+        VEVehicleCreateInfo carInfo = {};
         carInfo.bodyModelHandle = scene.loadFile("models/X2/car.obj");
         carInfo.wheelModelHandle = scene.loadFile("models/X2/wheel.obj");
         carInfo.wheelOffset = {1.05f, 0.5f, 1.8f};
@@ -89,8 +89,7 @@ private:
         carInfo.tireGrip = 1.0f;
         carInfo.camberRad = (PI / 180);
         carInfo.drivetrainType = VE_DRIVETRAIN_TYPE_RWD;
-        carInfo.engineAudioFileName = "audio/4k.wav";
-        // carInfo.layeredEngineAudioFiles = {{"audio/1k.wav", 1000}, {"audio/2k.wav", 2000}, {"audio/3k.wav", 3000}, {"audio/4k.wav", 4000}, {"audio/5k.wav", 5000}, {"audio/6k.wav", 6000}, {"audio/7k.wav", 7000}};
+        carInfo.layeredEngineAudioFiles = {{"audio/4k.wav", 4000}};
         car1 = scene.addVehicle(carInfo);
 
         // Player
@@ -100,7 +99,7 @@ private:
         scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});
 
         // Triggers
-        VE_STRUCT_TRIGGER_TYPE_CREATE_INFO sTriggerType = {};
+        VETriggerTypeCreateInfo sTriggerType = {};
         sTriggerType.modelHandle = scene.loadFile("models/checkpoint.obj");
         sTriggerType.hitboxShape = VE_SHAPE_SPHERE;
         sTriggerType.hitboxSize = 10.0f;

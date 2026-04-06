@@ -13,7 +13,7 @@
 
 #include <GLFW/glfw3.h>
 
-class ErrorCode;
+class VEErrorCode;
 
 constexpr uint32_t INVALID_TEXTURE_INDEX = 0;
 
@@ -24,7 +24,7 @@ public:
 
     void drawFrame(const DrawData &drawData, const glm::mat4 projectionMat);
 
-    void vkCheck(VkResult res, ErrorCode errorCode);
+    void vkCheck(VkResult res, VEErrorCode errorCode);
 
     ~VulkanManager();
 
@@ -123,7 +123,7 @@ private:
     {
         glm::mat4 model;
         uint32_t textureIndex;
-    } pushData;
+    };
 
     void createInstance();
     void createSurface(GLFWwindow *window);

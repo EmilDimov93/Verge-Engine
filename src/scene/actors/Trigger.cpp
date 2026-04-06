@@ -5,7 +5,7 @@
 
 #include "../../shared/Log.hpp"
 
-Trigger::Trigger(TriggerHandle handle, Transform transform, ModelInstanceHandle modelInstanceHandle, VE_STRUCT_TRIGGER_TYPE_CREATE_INFO info)
+Trigger::Trigger(TriggerHandle handle, Transform transform, ModelInstanceHandle modelInstanceHandle, const VETriggerTypeCreateInfo& info)
     : handle(handle)
 {
     this->modelInstanceHandle = modelInstanceHandle;

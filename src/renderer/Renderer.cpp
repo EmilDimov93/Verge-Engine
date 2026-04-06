@@ -5,7 +5,7 @@
 
 #include "../shared/Log.hpp"
 
-Renderer::Renderer(const VE_STRUCT_RENDERER_CREATE_INFO &info) : window(info.windowSize, info.projectName), vulkan(window.getReference(), window.getSize())
+Renderer::Renderer(const VERendererCreateInfo &info) : window(info.windowSize, info.projectName), vulkan(window.getReference(), window.getSize())
 {
     Input::init(window.getReference());
     Log::init(info.logOutputMode);
@@ -175,7 +175,7 @@ VehicleInputState Renderer::getVIS()
     return vis;
 }
 
-void Renderer::setVehicleKeybinds(const VehicleKeybinds &keybinds)
+void Renderer::setVehicleKeybinds(const VEVehicleKeybinds &keybinds)
 {
     this->keybinds = keybinds;
 }

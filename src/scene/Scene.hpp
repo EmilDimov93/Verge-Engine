@@ -32,9 +32,9 @@ public:
 
     PlayerHandle addPlayer(VehicleHandle vehicleHandle);
 
-    VehicleHandle addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform = {});
+    VehicleHandle addVehicle(const VEVehicleCreateInfo &info, Transform transform = {});
     PropHandle addProp(ModelHandle modelHandle, Transform transform);
-    TriggerHandle addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform = {});
+    TriggerHandle addTrigger(const VETriggerTypeCreateInfo &info, Transform transform = {});
 
     void removeVehicle(VehicleHandle handle);
     void removeProp(PropHandle handle);
@@ -42,7 +42,7 @@ public:
 
     void tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputState>> inputData);
 
-    SurfaceTypeIndex addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info);
+    SurfaceTypeIndex addSurfaceType(const VESurfaceTypeCreateInfo &info);
     void addSurface(Size2 size, const std::vector<uint32_t> &surfaceTypeMap, const std::vector<float> &heightMap, float tileSize = 1.0f, Position3 position = {});
 
     void setAirDensity(float airDensity);

@@ -5,7 +5,7 @@
 
 #include "../../shared/Log.hpp"
 
-Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, ModelInstanceHandle bodyModelInstanceHandle, ModelInstanceHandle wheelFLModelInstanceHandle, ModelInstanceHandle wheelFRModelInstanceHandle, ModelInstanceHandle wheelBLModelInstanceHandle, ModelInstanceHandle wheelBRModelInstanceHandle)
+Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VEVehicleCreateInfo &info, ModelInstanceHandle bodyModelInstanceHandle, ModelInstanceHandle wheelFLModelInstanceHandle, ModelInstanceHandle wheelFRModelInstanceHandle, ModelInstanceHandle wheelBLModelInstanceHandle, ModelInstanceHandle wheelBRModelInstanceHandle)
     : handle(handle)
 {
     this->bodyModelInstanceHandle = bodyModelInstanceHandle;

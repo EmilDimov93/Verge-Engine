@@ -138,10 +138,8 @@ void Scene::tick(ve_time_t dt, std::vector<std::pair<PlayerHandle, VehicleInputS
 
         setModelMat(vehicle.getBodyModelInstanceHandle(), vehicle.getBodyMat());
 
-        setModelMat(vehicle.getWheelModelInstanceHandle(VE_WHEEL_FRONT_LEFT), vehicle.getWheelMat(VE_WHEEL_FRONT_LEFT));
-        setModelMat(vehicle.getWheelModelInstanceHandle(VE_WHEEL_FRONT_RIGHT), vehicle.getWheelMat(VE_WHEEL_FRONT_RIGHT));
-        setModelMat(vehicle.getWheelModelInstanceHandle(VE_WHEEL_BACK_LEFT), vehicle.getWheelMat(VE_WHEEL_BACK_LEFT));
-        setModelMat(vehicle.getWheelModelInstanceHandle(VE_WHEEL_BACK_RIGHT), vehicle.getWheelMat(VE_WHEEL_BACK_RIGHT));
+        for (size_t i = 0; i < VE_WHEEL_COUNT; i++)
+            setModelMat(vehicle.getWheelModelInstanceHandle(static_cast<VEWheel>(i)), vehicle.getWheelMat(static_cast<VEWheel>(i)));
     }
 
     // Audio
@@ -343,7 +341,7 @@ ModelHandle Scene::loadOBJ(const std::string &filePath)
             auto it = materials.find(mat);
             if (it != materials.end())
                 currentColor = it->second.diffuseColor;
-                currentTexturePath = it->second.diffuseTexturePath;
+            currentTexturePath = it->second.diffuseTexturePath;
         }
         else if (line.starts_with("v "))
         {

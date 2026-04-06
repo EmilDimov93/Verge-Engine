@@ -7,14 +7,6 @@
 
 #include <GLFW/glfw3.h>
 
-enum KeyState
-{
-    KEY_STATE_DOWN,
-    KEY_STATE_UP,
-    KEY_STATE_PRESSED,
-    KEY_STATE_RELEASED
-};
-
 enum VEKey
 {
     VE_KEY_UNKNOWN = -1,
@@ -161,7 +153,16 @@ public:
 
     static float getAxis(VEControllerAxis axis);
 
+    enum KeyState
+    {
+        KEY_STATE_DOWN,
+        KEY_STATE_UP,
+        KEY_STATE_PRESSED,
+        KEY_STATE_RELEASED
+    };
+
 private:
+
     static KeyState keyStates[VE_KEY_COUNT];
     static KeyState mouseBtnStates[VE_MOUSE_BTN_COUNT];
 

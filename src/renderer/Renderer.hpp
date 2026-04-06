@@ -11,15 +11,15 @@
 
 #define VE_KEYBIND_COUNT 2
 
-struct VE_STRUCT_RENDERER_CREATE_INFO
+struct VERendererCreateInfo
 {
     std::string projectName = "Verge Engine Program";
     Size2 windowSize = {};
-    LogOutputMode logOutputMode = VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE;
+    VELogOutputMode logOutputMode = VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE;
     uint16_t targetFps = VE_DEFAULT_FPS;
 };
 
-struct VehicleKeybinds
+struct VEVehicleKeybinds
 {
     VEKeybind throttle[VE_KEYBIND_COUNT];
     VEKeybind brake[VE_KEYBIND_COUNT];
@@ -43,14 +43,14 @@ struct VehicleKeybinds
 class Renderer
 {
 public:
-    Renderer(const VE_STRUCT_RENDERER_CREATE_INFO &info = {});
+    Renderer(const VERendererCreateInfo &info = {});
 
     bool isOpen();
 
     void tick(const DrawData &drawData, const AudioData &audioData);
 
     VehicleInputState getVIS();
-    void setVehicleKeybinds(const VehicleKeybinds &keybinds);
+    void setVehicleKeybinds(const VEVehicleKeybinds &keybinds);
 
     ~Renderer();
 
@@ -91,7 +91,7 @@ private:
     float volume = 1.0f;
 
     // Input
-    VehicleKeybinds keybinds;
+    VEVehicleKeybinds keybinds;
     VehicleInputState vis;
 
     // Input smoothing for non-axis keybinds

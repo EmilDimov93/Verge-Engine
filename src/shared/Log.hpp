@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-class ErrorCode
+class VEErrorCode
 {
 public:
     char letter;
@@ -17,7 +17,7 @@ public:
 
     std::string getMessage();
 
-    ErrorCode(char newLetter, uint16_t newNumber)
+    VEErrorCode(char newLetter, uint16_t newNumber)
     {
         if (messages.find({newLetter, newNumber}) == messages.end())
         {
@@ -33,7 +33,7 @@ private:
     static const std::map<std::pair<char, uint16_t>, std::string> messages;
 };
 
-inline bool operator!=(const ErrorCode &lhs, const ErrorCode &rhs)
+inline bool operator!=(const VEErrorCode &lhs, const VEErrorCode &rhs)
 {
     return lhs.letter != rhs.letter || lhs.number != rhs.number;
 }
@@ -42,7 +42,7 @@ struct EngineCrash : public std::exception
 {
 };
 
-enum LogOutputMode
+enum VELogOutputMode
 {
     VE_LOG_OUTPUT_MODE_NONE,
     VE_LOG_OUTPUT_MODE_FILE,
@@ -53,18 +53,18 @@ enum LogOutputMode
 class Log
 {
 public:
-    static void init(LogOutputMode mode);
+    static void init(VELogOutputMode mode);
     static void add(char letter, uint16_t number);
     static std::vector<std::string> getNewMessages();
     static bool hasNewMessages();
     static void end();
 
 private:
-    static std::vector<ErrorCode> entries;
+    static std::vector<VEErrorCode> entries;
     static size_t newMessageCount;
     static bool hasNewMessagesFlag;
     static size_t clearedEntriesCount;
-    static LogOutputMode outputMode;
+    static VELogOutputMode outputMode;
 
     static void writeToLogFile();
     static void freeLogSpace();

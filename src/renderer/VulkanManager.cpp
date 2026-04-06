@@ -1342,6 +1342,7 @@ void VulkanManager::recordCommands(uint32_t currentImage, const std::vector<Mode
 
                     vkCmdBindIndexBuffer(commandBuffers[currentImage], meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
+                    PushData pushData;
                     pushData.model = instance.modelMat;
                     pushData.textureIndex = meshBuffer.texIndex;
 
@@ -1485,7 +1486,7 @@ void VulkanManager::drawFrame(const DrawData &drawData, const glm::mat4 projecti
     currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
 }
 
-void VulkanManager::vkCheck(VkResult res, ErrorCode errorCode)
+void VulkanManager::vkCheck(VkResult res, VEErrorCode errorCode)
 {
     switch (res)
     {

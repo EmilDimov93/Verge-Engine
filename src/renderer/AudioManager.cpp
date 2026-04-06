@@ -71,7 +71,7 @@ void AudioManager::removeOrphanedAudio(const AudioData &audioData)
 
         if (!hasRequest)
         {
-            for (VEEngineAudioFile2 &audioFile : it->audioFiles)
+            for (VEEngineAudioFile &audioFile : it->audioFiles)
             {
                 ma_sound_uninit(&audioFile.sound);
             }
@@ -115,7 +115,7 @@ void AudioManager::tick(const AudioData &audioData, float volume)
                 float pan = (distanceXZ > 1e-6f) ? (cross / distanceXZ) : 0.0f;
                 pan = clamp(pan, -1.0f, 1.0f);
 
-                for (VEEngineAudioFile2 &file : audio.audioFiles)
+                for (VEEngineAudioFile &file : audio.audioFiles)
                 {
                     ma_sound_set_pitch(&file.sound, req.rpm / file.rpm);
 
@@ -137,7 +137,7 @@ void AudioManager::tick(const AudioData &audioData, float volume)
             layeredEngineAudios.back().audioFiles.resize(req.audioFiles.size());
 
             size_t i = 0;
-            for (const VEEngineAudioFile &file : req.audioFiles)
+            for (const VEEngineAudioFileRequest &file : req.audioFiles)
             {
                 layeredEngineAudios.back().audioFiles[i].rpm = file.rpm;
                 ma_result res = ma_sound_init_from_file(&miniaudio, file.fileName.c_str(), MA_SOUND_FLAG_STREAM, NULL, NULL, &layeredEngineAudios.back().audioFiles[i].sound);
@@ -289,7 +289,7 @@ AudioManager::~AudioManager()
 {
     for (VELayeredEngineAudio &audio : layeredEngineAudios)
     {
-        for (VEEngineAudioFile2 &audioFile : audio.audioFiles)
+        for (VEEngineAudioFile &audioFile : audio.audioFiles)
         {
             ma_sound_uninit(&audioFile.sound);
         }

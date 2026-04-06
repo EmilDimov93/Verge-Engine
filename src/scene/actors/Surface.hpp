@@ -9,7 +9,7 @@
 
 using SurfaceTypeIndex = uint32_t;
 
-struct VE_STRUCT_SURFACE_TYPE_CREATE_INFO
+struct VESurfaceTypeCreateInfo
 {
     float friction = 1.0f;
     glm::vec3 color = {0, 0, 0};
@@ -81,20 +81,16 @@ public:
 private:
     float getHeightAt(uint32_t x, uint32_t y) const // grid coordinates
     {
-        if (x >= size.w || y >= size.h || x < 0 || y < 0)
-        {
+        if (x >= size.w || y >= size.h)
             return FLOAT_MIN;
-        }
 
         return heightMap[size_t(y) * size.w + x];
     }
 
     SurfaceTypeIndex getSurfaceTypeAt(uint32_t x, uint32_t y) const // grid coordinates
     {
-        if (x >= size.w || y >= size.h || x < 0 || y < 0)
-        {
+        if (x >= size.w || y >= size.h)
             return 0;
-        }
 
         return surfaceTypeMap[size_t(y) * size.w + x];
     }

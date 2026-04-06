@@ -13,15 +13,15 @@ static constexpr size_t LOG_MESSAGE_LIMIT = 1e5;
 
 #define IS_ENTRY_ERROR(num) (((num) / 100) % 10 == 2)
 
-std::vector<ErrorCode> Log::entries;
+std::vector<VEErrorCode> Log::entries;
 size_t Log::newMessageCount = 0;
 bool Log::hasNewMessagesFlag = false;
 size_t Log::clearedEntriesCount = 0;
-LogOutputMode Log::outputMode = VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE;
+VELogOutputMode Log::outputMode = VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE;
 
-const std::map<std::pair<char, uint16_t>, std::string> ErrorCode::messages = LOG_MESSAGES;
+const std::map<std::pair<char, uint16_t>, std::string> VEErrorCode::messages = LOG_MESSAGES;
 
-std::string ErrorCode::getMessage()
+std::string VEErrorCode::getMessage()
 {
     auto it = messages.find({letter, number});
     if (it != messages.end())
@@ -31,7 +31,7 @@ std::string ErrorCode::getMessage()
     return "Invalid error code";
 }
 
-void Log::init(LogOutputMode mode)
+void Log::init(VELogOutputMode mode)
 {
     outputMode = mode;
 
@@ -60,7 +60,7 @@ void Log::freeLogSpace()
 
 void Log::add(char letter, uint16_t number)
 {
-    entries.push_back(ErrorCode{letter, number});
+    entries.push_back(VEErrorCode{letter, number});
     hasNewMessagesFlag = true;
     newMessageCount++;
 
@@ -112,7 +112,7 @@ void Log::writeToLogFile()
 
 void Log::induceCrash()
 {
-    entries.push_back(ErrorCode{'E', 200});
+    entries.push_back(VEErrorCode{'E', 200});
 
     if (outputMode == VE_LOG_OUTPUT_MODE_FILE || outputMode == VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE)
     {
@@ -124,7 +124,7 @@ void Log::induceCrash()
 
 void Log::end()
 {
-    if (entries.empty() || entries.back() != ErrorCode{'E', 200})
+    if (entries.empty() || entries.back() != VEErrorCode{'E', 200})
         add('E', 001);
 
     if (outputMode == VE_LOG_OUTPUT_MODE_FILE || outputMode == VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE)

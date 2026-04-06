@@ -104,7 +104,7 @@ PlayerHandle Scene::addPlayer(VehicleHandle vehicleHandle)
     return handle;
 }
 
-VehicleHandle Scene::addVehicle(const VE_STRUCT_VEHICLE_CREATE_INFO &info, Transform transform)
+VehicleHandle Scene::addVehicle(const VEVehicleCreateInfo &info, Transform transform)
 {
     VehicleHandle handle = HandleFactory<VehicleHandle>::getNewHandle();
 
@@ -201,7 +201,7 @@ PropHandle Scene::addProp(ModelHandle modelHandle, Transform transform)
     return handle;
 }
 
-TriggerHandle Scene::addTrigger(const VE_STRUCT_TRIGGER_TYPE_CREATE_INFO &info, Transform transform)
+TriggerHandle Scene::addTrigger(const VETriggerTypeCreateInfo &info, Transform transform)
 {
     TriggerHandle handle = HandleFactory<TriggerHandle>::getNewHandle();
 
@@ -271,7 +271,7 @@ void Scene::removeTrigger(TriggerHandle handle)
                   { return trigger.getHandle() == handle; });
 }
 
-SurfaceTypeIndex Scene::addSurfaceType(const VE_STRUCT_SURFACE_TYPE_CREATE_INFO &info)
+SurfaceTypeIndex Scene::addSurfaceType(const VESurfaceTypeCreateInfo &info)
 {
     SurfaceType newSurfaceType;
 

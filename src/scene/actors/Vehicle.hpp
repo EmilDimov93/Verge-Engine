@@ -29,7 +29,7 @@ enum VEDrivetrainType
     VE_DRIVETRAIN_TYPE_RWD
 };
 
-struct VE_STRUCT_VEHICLE_CREATE_INFO
+struct VEVehicleCreateInfo
 {
     ModelHandle bodyModelHandle = INVALID_MODEL_HANDLE;
     ModelHandle wheelModelHandle = INVALID_MODEL_HANDLE;
@@ -58,19 +58,7 @@ struct VE_STRUCT_VEHICLE_CREATE_INFO
     VEDrivetrainType drivetrainType = VE_DRIVETRAIN_TYPE_AWD;
 
     std::string engineAudioFileName;
-    std::vector<VEEngineAudioFile> layeredEngineAudioFiles;
-};
-
-struct WheelState
-{
-    float grip = 1.0f;
-    float suspension = 0.0f;
-    float rpm = 0.0f;
-    float spin = 0.0f;
-
-    float temperatureK = 0.0f;
-
-    float wear = 0.0f; // Not implemented
+    std::vector<VEEngineAudioFileRequest> layeredEngineAudioFiles;
 };
 
 enum VEWheel
@@ -85,7 +73,7 @@ enum VEWheel
 class Vehicle
 {
 public:
-    Vehicle(VehicleHandle handle, Transform transform, const VE_STRUCT_VEHICLE_CREATE_INFO &info, ModelInstanceHandle bodyModelInstanceHandle, ModelInstanceHandle wheelFLModelInstanceHandle, ModelInstanceHandle wheelFRModelInstanceHandle, ModelInstanceHandle wheelBLModelInstanceHandle, ModelInstanceHandle wheelBRModelInstanceHandle);
+    Vehicle(VehicleHandle handle, Transform transform, const VEVehicleCreateInfo &info, ModelInstanceHandle bodyModelInstanceHandle, ModelInstanceHandle wheelFLModelInstanceHandle, ModelInstanceHandle wheelFRModelInstanceHandle, ModelInstanceHandle wheelBLModelInstanceHandle, ModelInstanceHandle wheelBRModelInstanceHandle);
 
     void tick(VehicleInputState vis, Environment environment, float surfaceFriction, ve_time_t deltaTime);
 
@@ -131,6 +119,18 @@ private:
     void calcTireTemperatures(const Environment &environment);
 
     void activateStarter();
+
+    struct WheelState
+    {
+        float grip = 1.0f;
+        float suspension = 0.0f;
+        float rpm = 0.0f;
+        float spin = 0.0f;
+
+        float temperatureK = 0.0f;
+
+        float wear = 0.0f; // Not implemented
+    };
 
     VehicleHandle handle;
 

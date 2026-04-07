@@ -214,6 +214,19 @@ TriggerHandle Scene::addTrigger(const VETriggerTypeCreateInfo &info, Transform t
     return handle;
 }
 
+void Scene::removePlayer(PlayerHandle handle)
+{
+    for (auto it = controllers.begin(); it != controllers.end(); ++it)
+    {
+        Player* player = dynamic_cast<Player*>(it->get());
+        if (player && player->getHandle() == handle)
+        {
+            controllers.erase(it);
+            return;
+        }
+    }
+}
+
 void Scene::removeVehicle(VehicleHandle handle)
 {
     const ModelInstanceHandle bodyModelInstanceHandle = vehicle(handle).getBodyModelInstanceHandle();

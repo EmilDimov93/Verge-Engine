@@ -31,6 +31,7 @@ public:
     ModelHandle loadFile(const std::string &filePath);
 
     PlayerHandle addPlayer(VehicleHandle vehicleHandle);
+    void removePlayer(PlayerHandle handle);
 
     VehicleHandle addVehicle(const VEVehicleCreateInfo &info, Transform transform = {});
     PropHandle addProp(ModelHandle modelHandle, Transform transform);

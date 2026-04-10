@@ -13,7 +13,7 @@ struct Vertex
     ve_color_t col;
     glm::vec2 tex;
 
-    Vertex(const glm::vec3 &position = glm::vec3(0.0f), const ve_color_t &color = ve_color_t(1.0f)) : pos(position), col(color) {}
+    Vertex(const glm::vec3 &position = glm::vec3(0.0f), const ve_color_t &color = ve_color_t(1.0f), const glm::vec2 &texture = glm::vec2(0.0f)) : pos(position), col(color), tex(texture) {}
 };
 
 class Mesh

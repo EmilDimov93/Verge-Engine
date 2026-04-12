@@ -7,9 +7,12 @@
 
 #include "../../shared/definitions.hpp"
 
+namespace VE
+{
+
 using SurfaceTypeIndex = uint32_t;
 
-struct VESurfaceTypeCreateInfo
+struct SurfaceTypeCreateInfo
 {
     float friction = 1.0f;
     glm::vec3 color = {0, 0, 0};
@@ -95,3 +98,5 @@ private:
         return surfaceTypeMap[size_t(y) * size.w + x];
     }
 };
+
+}

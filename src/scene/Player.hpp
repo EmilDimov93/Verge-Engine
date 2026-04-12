@@ -7,60 +7,65 @@
 
 #include "Camera.hpp"
 
-class Player : public Controller
+namespace VE
 {
-public:
-    Player(PlayerHandle handle, VehicleHandle vehicleHandle)
-        : handle(handle), vehicleHandle(vehicleHandle)
+
+    class Player : public Controller
     {
-    }
+    public:
+        Player(PlayerHandle handle, VehicleHandle vehicleHandle)
+            : handle(handle), vehicleHandle(vehicleHandle)
+        {
+        }
 
-    void setVehicleInputState(const VehicleInputState &vis);
-    VehicleInputState getVehicleInputState() const override;
+        void setVehicleInputState(const VehicleInputState &vis);
+        VehicleInputState getVehicleInputState() const override;
 
-    void setVehicleHandle(VehicleHandle vehicleHandle);
-    VehicleHandle getVehicleHandle() const override;
+        void setVehicleHandle(VehicleHandle vehicleHandle);
+        VehicleHandle getVehicleHandle() const override;
 
-    PlayerHandle getHandle() const;
+        PlayerHandle getHandle() const;
 
-    void updateCamera(ve_time_t dt, Transform vehicleTransform, glm::vec3 vehicleVelocityVector);
+        void updateCamera(milliseconds_t dt, Transform vehicleTransform, glm::vec3 vehicleVelocityVector);
 
-    void setCameraFollowDistance(float distance);
+        void setCameraFollowDistance(float distance);
 
-    void setCameraFollowHeight(float height);
+        void setCameraFollowHeight(float height);
 
-    void setCameraFollowDelay(float delay);
+        void setCameraFollowDelay(float delay);
 
-    void setCameraFollowVehicle(bool shouldFollow);
+        void setCameraFollowVehicle(bool shouldFollow);
 
-    glm::mat4 getCameraViewMat() const;
+        glm::mat4 getCameraViewMat() const;
 
-    Position3 getCameraPosition() const;
+        Position3 getCameraPosition() const;
 
-    float getCameraYaw() const;
+        float getCameraYaw() const;
 
-    void setMinCameraPitch(float minCameraPitch);
+        void setMinCameraPitch(float minCameraPitch);
 
-    void setMaxCameraPitch(float maxCameraPitch);
+        void setMaxCameraPitch(float maxCameraPitch);
 
-private:
-    const PlayerHandle handle;
+    private:
+        const PlayerHandle handle;
 
-    VehicleHandle vehicleHandle;
+        VehicleHandle vehicleHandle;
 
-    Camera camera;
+        Camera camera;
 
-    VehicleInputState vis;
+        VehicleInputState vis;
 
-    float cameraPitch = 0.0f;
-    float cameraYaw = -PI;
-    glm::vec3 camPos;
+        float cameraPitch = 0.0f;
+        float cameraYaw = -PI;
+        glm::vec3 camPos;
 
-    bool isCameraFollowingVehicle = true;
-    float cameraFollowDistance = 10.0f;
-    float cameraFollowHeight = 3.0f;
-    float cameraFollowDelay = 500.0f;
+        bool isCameraFollowingVehicle = true;
+        float cameraFollowDistance = 10.0f;
+        float cameraFollowHeight = 3.0f;
+        float cameraFollowDelay = 500.0f;
 
-    float minCameraPitch = -1.2f;
-    float maxCameraPitch = 0.6f;
-};
+        float minCameraPitch = -1.2f;
+        float maxCameraPitch = 0.6f;
+    };
+
+}

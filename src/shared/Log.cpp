@@ -9,126 +9,134 @@
 #include <fstream>
 #include <chrono>
 
-static constexpr size_t LOG_MESSAGE_LIMIT = 1e5;
-
-#define IS_ENTRY_ERROR(num) (((num) / 100) % 10 == 2)
-
-std::vector<VEErrorCode> Log::entries;
-size_t Log::newMessageCount = 0;
-bool Log::hasNewMessagesFlag = false;
-size_t Log::clearedEntriesCount = 0;
-VELogOutputMode Log::outputMode = VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE;
-
-const std::map<std::pair<char, uint16_t>, std::string> VEErrorCode::messages = LOG_MESSAGES;
-
-std::string VEErrorCode::getMessage()
+namespace VE
 {
-    auto it = messages.find({letter, number});
-    if (it != messages.end())
+
+    static constexpr size_t LOG_MESSAGE_LIMIT = 1e5;
+
+    constexpr bool isEntryError(int num)
     {
-        return it->second;
+        return ((num / 100) % 10) == 2;
     }
-    return "Invalid error code";
-}
 
-void Log::init(VELogOutputMode mode)
-{
-    outputMode = mode;
+    std::vector<ErrorCode> Log::entries;
+    size_t Log::newMessageCount = 0;
+    bool Log::hasNewMessagesFlag = false;
+    size_t Log::clearedEntriesCount = 0;
+    LogOutputMode Log::outputMode = LOG_OUTPUT_MODE_FILE_AND_CONSOLE;
 
-    Log::add('E', 000);
-}
+    const std::map<std::pair<char, uint16_t>, std::string> ErrorCode::messages = LOG_MESSAGES;
 
-void Log::freeLogSpace()
-{
-    if (entries.empty())
-        return;
-
-    // Remove non-error messages from the oldest quarter
-    const size_t limit = entries.size() / 4;
-
-    for (size_t i = limit + 1; i-- > 0;)
+    std::string ErrorCode::getMessage()
     {
-        if (i >= entries.size())
-            continue;
-        if (!IS_ENTRY_ERROR(entries[i].number))
+        auto it = messages.find({letter, number});
+        if (it != messages.end())
         {
-            entries.erase(entries.begin() + i);
-            clearedEntriesCount++;
+            return it->second;
+        }
+        return "Invalid error code";
+    }
+
+    void Log::init(LogOutputMode mode)
+    {
+        outputMode = mode;
+
+        Log::add('E', 000);
+    }
+
+    void Log::freeLogSpace()
+    {
+        if (entries.empty())
+            return;
+
+        // Remove non-error messages from the oldest quarter
+        const size_t limit = entries.size() / 4;
+
+        for (size_t i = limit + 1; i-- > 0;)
+        {
+            if (i >= entries.size())
+                continue;
+            if (!isEntryError(entries[i].number))
+            {
+                entries.erase(entries.begin() + i);
+                clearedEntriesCount++;
+            }
         }
     }
-}
 
-void Log::add(char letter, uint16_t number)
-{
-    entries.push_back(VEErrorCode{letter, number});
-    hasNewMessagesFlag = true;
-    newMessageCount++;
-
-    if (outputMode == VE_LOG_OUTPUT_MODE_CONSOLE || outputMode == VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE)
+    void Log::add(char letter, uint16_t number)
     {
-        std::cout << "LOG: " << entries.back().getMessage() << std::endl;
+        entries.push_back(ErrorCode{letter, number});
+        hasNewMessagesFlag = true;
+        newMessageCount++;
+
+        if (outputMode == LOG_OUTPUT_MODE_CONSOLE || outputMode == LOG_OUTPUT_MODE_FILE_AND_CONSOLE)
+        {
+            std::cout << "LOG: " << entries.back().getMessage() << std::endl;
+        }
+
+        if (isEntryError(number))
+        {
+            induceCrash();
+        }
+
+        if (entries.size() > LOG_MESSAGE_LIMIT)
+        {
+            freeLogSpace();
+        }
     }
 
-    if (IS_ENTRY_ERROR(number))
+    std::vector<std::string> Log::getNewMessages()
     {
-        induceCrash();
+        std::vector<std::string> newMessages;
+        for (size_t i = entries.size() - newMessageCount; i < entries.size(); i++)
+        {
+            newMessages.push_back(entries[i].getMessage());
+        }
+        newMessageCount = 0;
+        hasNewMessagesFlag = false;
+        return newMessages;
     }
 
-    if (entries.size() > LOG_MESSAGE_LIMIT)
+    bool Log::hasNewMessages()
     {
-        freeLogSpace();
-    }
-}
-
-std::vector<std::string> Log::getNewMessages()
-{
-    std::vector<std::string> newMessages;
-    for (size_t i = entries.size() - newMessageCount; i < entries.size(); i++)
-    {
-        newMessages.push_back(entries[i].getMessage());
-    }
-    newMessageCount = 0;
-    hasNewMessagesFlag = false;
-    return newMessages;
-}
-
-bool Log::hasNewMessages()
-{
-    return hasNewMessagesFlag;
-}
-
-void Log::writeToLogFile()
-{
-    std::ofstream file("log.txt");
-
-    auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    file << "Verge Engine Log - " << std::put_time(std::localtime(&now), "%Y-%m-%d - %H:%M:%S") << " - Version " << VERGE_ENGINE_VERSION << "\n\n";
-
-    for (auto &entry : entries)
-    {
-        file << entry.letter << std::setfill('0') << std::setw(3) << entry.number << ": " << entry.getMessage() << '\n';
-    }
-}
-
-void Log::induceCrash()
-{
-    entries.push_back(VEErrorCode{'E', 200});
-
-    if (outputMode == VE_LOG_OUTPUT_MODE_FILE || outputMode == VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE)
-    {
-        writeToLogFile();
+        return hasNewMessagesFlag;
     }
 
-    throw EngineCrash{};
-}
-
-void Log::end()
-{
-    if (entries.empty() || entries.back() != VEErrorCode{'E', 200})
-        add('E', 001);
-
-    if (outputMode == VE_LOG_OUTPUT_MODE_FILE || outputMode == VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE)
+    void Log::writeToLogFile()
     {
-        writeToLogFile();
+        std::ofstream file("log.txt");
+
+        auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        file << "Verge Engine Log - " << std::put_time(std::localtime(&now), "%Y-%m-%d - %H:%M:%S") << " - Version " << VERGE_ENGINE_VERSION << "\n\n";
+
+        for (auto &entry : entries)
+        {
+            file << entry.letter << std::setfill('0') << std::setw(3) << entry.number << ": " << entry.getMessage() << '\n';
+        }
     }
+
+    void Log::induceCrash()
+    {
+        entries.push_back(ErrorCode{'E', 200});
+
+        if (outputMode == LOG_OUTPUT_MODE_FILE || outputMode == LOG_OUTPUT_MODE_FILE_AND_CONSOLE)
+        {
+            writeToLogFile();
+        }
+
+        throw EngineCrash{};
+    }
+
+    void Log::end()
+    {
+        if (entries.empty() || entries.back() != ErrorCode{'E', 200})
+            add('E', 001);
+
+        if (outputMode == LOG_OUTPUT_MODE_FILE || outputMode == LOG_OUTPUT_MODE_FILE_AND_CONSOLE)
+        {
+            writeToLogFile();
+        }
+    }
+
 }

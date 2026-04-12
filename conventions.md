@@ -12,7 +12,7 @@
 
 ## Input
 
-#### The term **controller** encompasses all devices that may be connected and used to control a Vehicle. In the case that it is a gamepad, the hardcoded keybinds may be used(VE_CONTROLLER_*).
+#### The term **controller** encompasses all devices that may be connected and used to control a Vehicle. In the case that it is a gamepad, the hardcoded keybinds may be used(VE::CONTROLLER_*).
 
 #### Axes may be used in 4 ways: full range, full range inverted, positive half and negative half. The reason is because GLFW returns -1 to 1 for all axes, which is good for a steering wheel or a joystick, but bad for a pedal or a trigger.
 

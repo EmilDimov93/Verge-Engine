@@ -7,21 +7,26 @@
 
 #include <chrono>
 
-#define VE_DEFAULT_FPS 140
-
-class FpsManager
+namespace VE
 {
-public:
-    FpsManager();
-    void sync();
-    void setTarget(uint16_t targetFps);
-    uint16_t getFps() const;
-    double getFrameTime() const;
 
-private:
-    std::chrono::steady_clock::time_point timeAtStartOfFrame;
-    ve_time_t targetFrameTime = 0;
+    constexpr uint16_t DEFAULT_FPS = 140;
 
-    ve_time_t lastFrameTime = 0;
-    uint16_t currentFps = 0;
-};
+    class FpsManager
+    {
+    public:
+        FpsManager();
+        void sync();
+        void setTarget(uint16_t targetFps);
+        uint16_t getFps() const;
+        double getFrameTime() const;
+
+    private:
+        std::chrono::steady_clock::time_point timeAtStartOfFrame;
+        milliseconds_t targetFrameTime = 0;
+
+        milliseconds_t lastFrameTime = 0;
+        uint16_t currentFps = 0;
+    };
+
+}

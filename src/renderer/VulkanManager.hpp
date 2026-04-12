@@ -13,151 +13,156 @@
 
 #include <GLFW/glfw3.h>
 
-class VEErrorCode;
-
-constexpr uint32_t INVALID_TEXTURE_INDEX = 0;
-
-class VulkanManager
+namespace VE
 {
-public:
-    VulkanManager(GLFWwindow *window, Size2 windowSize);
 
-    void drawFrame(const DrawData &drawData, const glm::mat4 projectionMat);
+    class ErrorCode;
 
-    void vkCheck(VkResult res, VEErrorCode errorCode);
+    constexpr uint32_t INVALID_TEXTURE_INDEX = 0;
 
-    ~VulkanManager();
-
-private:
-    struct MeshBuffer
+    class VulkanManager
     {
-        uint64_t vertexCount = 0;
-        VkBuffer vertexBuffer = VK_NULL_HANDLE;
-        VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;
+    public:
+        VulkanManager(GLFWwindow *window, Size2 windowSize);
 
-        uint64_t indexCount = 0;
-        VkBuffer indexBuffer = VK_NULL_HANDLE;
-        VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
+        void drawFrame(const DrawData &drawData, const glm::mat4 projectionMat);
 
-        size_t texIndex = INVALID_TEXTURE_INDEX;
+        void vkCheck(VkResult res, ErrorCode errorCode);
+
+        ~VulkanManager();
+
+    private:
+        struct MeshBuffer
+        {
+            uint64_t vertexCount = 0;
+            VkBuffer vertexBuffer = VK_NULL_HANDLE;
+            VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;
+
+            uint64_t indexCount = 0;
+            VkBuffer indexBuffer = VK_NULL_HANDLE;
+            VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
+
+            size_t texIndex = INVALID_TEXTURE_INDEX;
+        };
+
+        struct ModelBuffer
+        {
+            ModelHandle handle;
+
+            std::vector<MeshBuffer> meshBuffers;
+
+            uint64_t version = 0;
+
+            ModelBuffer(ModelHandle handle) : handle(handle) {}
+        };
+
+        std::vector<ModelBuffer> modelBuffers;
+        void createVertexBuffer(MeshBuffer &meshBuffer, const std::vector<Vertex> &vertices);
+        void createIndexBuffer(MeshBuffer &meshBuffer, const std::vector<uint32_t> &indices);
+        void initModelBuffer(const Model &model);
+        void updateModelBuffer(ModelBuffer &modelBuffer, const Model &model);
+        void removeOrphanedModel(const std::vector<ModelInstance> &modelInstances);
+        void destroyMeshBuffer(MeshBuffer &meshBuffer);
+
+        int currentFrame = 0;
+
+        VkInstance instance = VK_NULL_HANDLE;
+        VkSurfaceKHR surface = VK_NULL_HANDLE;
+
+        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+        VkDevice device = VK_NULL_HANDLE;
+
+        VkQueue graphicsQueue = VK_NULL_HANDLE;
+        VkQueue presentQueue = VK_NULL_HANDLE;
+
+        int32_t graphicsQueueFamilyIndex = -1;
+
+        VkSwapchainKHR swapChain = VK_NULL_HANDLE;
+        VkFormat swapChainImageFormat;
+        VkExtent2D swapChainExtent;
+
+        std::vector<VkImage> swapChainImages;
+        std::vector<VkImageView> swapChainImageViews;
+        std::vector<VkFramebuffer> swapChainFramebuffers;
+        std::vector<VkCommandBuffer> commandBuffers;
+
+        VkImage depthBufferImage = VK_NULL_HANDLE;
+        VkDeviceMemory depthBufferImageMemory = VK_NULL_HANDLE;
+        VkImageView depthBufferImageView = VK_NULL_HANDLE;
+        VkFormat depthFormat;
+
+        VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+        VkDescriptorSetLayout samplerSetLayout = VK_NULL_HANDLE;
+        VkPushConstantRange pushConstantRange;
+
+        VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
+        VkDescriptorPool samplerDescriptorPool = VK_NULL_HANDLE;
+        std::vector<VkDescriptorSet> descriptorSets;
+        std::vector<VkDescriptorSet> samplerDescriptorSets;
+
+        std::vector<VkBuffer> vpUniformBuffer;
+        std::vector<VkDeviceMemory> vpUniformBufferMemory;
+
+        std::vector<VkBuffer> modelDUniformBuffer;
+        std::vector<VkDeviceMemory> modelDUniformBufferMemory;
+
+        VkSampler textureSampler;
+        std::vector<VkImage> textureImages;
+        std::vector<VkDeviceMemory> textureImageMemory;
+        std::vector<VkImageView> textureImageViews;
+
+        VkPipeline graphicsPipeline = VK_NULL_HANDLE;
+        VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
+
+        VkRenderPass renderPass = VK_NULL_HANDLE;
+
+        VkCommandPool graphicsCommandPool = VK_NULL_HANDLE;
+
+        std::vector<VkSemaphore> imageAvailableSemaphores;
+        std::vector<VkSemaphore> renderFinishedSemaphores;
+        std::vector<VkFence> drawFences;
+
+        struct PushData
+        {
+            glm::mat4 model;
+            uint32_t textureIndex;
+        };
+
+        void createInstance();
+        void createSurface(GLFWwindow *window);
+        void pickPhysicalDevice();
+        void createLogicalDevice();
+        void createSwapChain(Size2 windowSize);
+        void createImageViews();
+        void createRenderPass();
+        void createDescriptorSetLayout();
+        void createPushConstantRange();
+        void createGraphicsPipeline();
+        void createDepthBufferImage();
+        void createFramebuffers();
+        void createCommandPool();
+        void createCommandBuffers();
+        void createTextureSampler();
+        void createSemaphores();
+        void createUniformBuffers();
+        void createDescriptorPool();
+        void createDescriptorSets();
+
+        void createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory);
+
+        void recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor);
+
+        void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat);
+
+        VkShaderModule createShaderModule(const std::vector<char> &code);
+        static uint32_t rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
+
+        void createFallbackTexture();
+        stbi_uc *loadTextureFile(std::string fileName, int *width, int *height, VkDeviceSize *imageSize);
+        size_t createTextureImage(std::string fileName);
+        size_t createTexture(std::string fileName);
+        size_t createTextureDescriptor(VkImageView textureImageView);
+        VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory *imageMemory);
     };
 
-    struct ModelBuffer
-    {
-        ModelHandle handle;
-
-        std::vector<MeshBuffer> meshBuffers;
-
-        uint64_t version = 0;
-
-        ModelBuffer(ModelHandle handle) : handle(handle) {}
-    };
-
-    std::vector<ModelBuffer> modelBuffers;
-    void createVertexBuffer(MeshBuffer &meshBuffer, const std::vector<Vertex> &vertices);
-    void createIndexBuffer(MeshBuffer &meshBuffer, const std::vector<uint32_t> &indices);
-    void initModelBuffer(const Model &model);
-    void updateModelBuffer(ModelBuffer &modelBuffer, const Model &model);
-    void removeOrphanedModel(const std::vector<ModelInstance> &modelInstances);
-    void destroyMeshBuffer(MeshBuffer &meshBuffer);
-
-    int currentFrame = 0;
-
-    VkInstance instance = VK_NULL_HANDLE;
-    VkSurfaceKHR surface = VK_NULL_HANDLE;
-
-    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-    VkDevice device = VK_NULL_HANDLE;
-
-    VkQueue graphicsQueue = VK_NULL_HANDLE;
-    VkQueue presentQueue = VK_NULL_HANDLE;
-
-    int32_t graphicsQueueFamilyIndex = -1;
-
-    VkSwapchainKHR swapChain = VK_NULL_HANDLE;
-    VkFormat swapChainImageFormat;
-    VkExtent2D swapChainExtent;
-
-    std::vector<VkImage> swapChainImages;
-    std::vector<VkImageView> swapChainImageViews;
-    std::vector<VkFramebuffer> swapChainFramebuffers;
-    std::vector<VkCommandBuffer> commandBuffers;
-
-    VkImage depthBufferImage = VK_NULL_HANDLE;
-    VkDeviceMemory depthBufferImageMemory = VK_NULL_HANDLE;
-    VkImageView depthBufferImageView = VK_NULL_HANDLE;
-    VkFormat depthFormat;
-
-    VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
-    VkDescriptorSetLayout samplerSetLayout = VK_NULL_HANDLE;
-    VkPushConstantRange pushConstantRange;
-
-    VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
-    VkDescriptorPool samplerDescriptorPool = VK_NULL_HANDLE;
-    std::vector<VkDescriptorSet> descriptorSets;
-    std::vector<VkDescriptorSet> samplerDescriptorSets;
-
-    std::vector<VkBuffer> vpUniformBuffer;
-    std::vector<VkDeviceMemory> vpUniformBufferMemory;
-
-    std::vector<VkBuffer> modelDUniformBuffer;
-    std::vector<VkDeviceMemory> modelDUniformBufferMemory;
-
-    VkSampler textureSampler;
-    std::vector<VkImage> textureImages;
-    std::vector<VkDeviceMemory> textureImageMemory;
-    std::vector<VkImageView> textureImageViews;
-
-    VkPipeline graphicsPipeline = VK_NULL_HANDLE;
-    VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-
-    VkRenderPass renderPass = VK_NULL_HANDLE;
-
-    VkCommandPool graphicsCommandPool = VK_NULL_HANDLE;
-
-    std::vector<VkSemaphore> imageAvailableSemaphores;
-    std::vector<VkSemaphore> renderFinishedSemaphores;
-    std::vector<VkFence> drawFences;
-
-    struct PushData
-    {
-        glm::mat4 model;
-        uint32_t textureIndex;
-    };
-
-    void createInstance();
-    void createSurface(GLFWwindow *window);
-    void pickPhysicalDevice();
-    void createLogicalDevice();
-    void createSwapChain(Size2 windowSize);
-    void createImageViews();
-    void createRenderPass();
-    void createDescriptorSetLayout();
-    void createPushConstantRange();
-    void createGraphicsPipeline();
-    void createDepthBufferImage();
-    void createFramebuffers();
-    void createCommandPool();
-    void createCommandBuffers();
-    void createTextureSampler();
-    void createSemaphores();
-    void createUniformBuffers();
-    void createDescriptorPool();
-    void createDescriptorSets();
-
-    void createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory);
-
-    void recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, ve_color_t backgroundColor);
-
-    void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat);
-
-    VkShaderModule createShaderModule(const std::vector<char> &code);
-    static uint32_t rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
-
-    void createFallbackTexture();
-    stbi_uc *loadTextureFile(std::string fileName, int *width, int *height, VkDeviceSize *imageSize);
-    size_t createTextureImage(std::string fileName);
-    size_t createTexture(std::string fileName);
-    size_t createTextureDescriptor(VkImageView textureImageView);
-    VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory *imageMemory);
-};
+}

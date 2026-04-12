@@ -5,66 +5,71 @@
 
 #include "../shared/Log.hpp"
 
-WindowManager::WindowManager(Size2 size, std::string name)
+namespace VE
 {
-    if (!glfwInit())
-        Log::add('G', 200);
 
-    const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-    if (size.w > 0 && size.w <= mode->width && size.h > 0 && size.h <= mode->height)
+    WindowManager::WindowManager(Size2 size, std::string name)
     {
-        this->size = size;
+        if (!glfwInit())
+            Log::add('G', 200);
+
+        const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+        if (size.w > 0 && size.w <= mode->width && size.h > 0 && size.h <= mode->height)
+        {
+            this->size = size;
+        }
+        else
+        {
+            Log::add('G', 102);
+
+            this->size.w = mode->width * 0.5f;
+            this->size.h = mode->height * 0.5f;
+        }
+
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+        window = glfwCreateWindow(this->size.w, this->size.h, name.c_str(), nullptr, nullptr);
+        if (!window)
+        {
+            Log::add('G', 201);
+        }
+
+        Log::add('G', 000);
     }
-    else
+
+    GLFWwindow *WindowManager::getReference() const
     {
-        Log::add('G', 102);
-
-        this->size.w = mode->width * 0.5f;
-        this->size.h = mode->height * 0.5f;
+        return window;
     }
 
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
-    window = glfwCreateWindow(this->size.w, this->size.h, name.c_str(), nullptr, nullptr);
-    if (!window)
+    Size2 WindowManager::getSize() const
     {
-        Log::add('G', 201);
+        return size;
     }
 
-    Log::add('G', 000);
-}
+    bool WindowManager::isOpen() const
+    {
+        return !glfwWindowShouldClose(window);
+    }
 
-GLFWwindow *WindowManager::getReference() const
-{
-    return window;
-}
+    float WindowManager::getAspectRatio() const
+    {
+        if (size.h == 0)
+            return 1.0f;
 
-Size2 WindowManager::getSize() const
-{
-    return size;
-}
+        return (float)size.w / (float)size.h;
+    }
 
-bool WindowManager::isOpen() const
-{
-    return !glfwWindowShouldClose(window);
-}
+    WindowManager::~WindowManager()
+    {
+        if (window)
+            glfwDestroyWindow(window);
 
-float WindowManager::getAspectRatio() const
-{
-    if (size.h == 0)
-        return 1.0f;
+        window = nullptr;
 
-    return (float)size.w / (float)size.h;
-}
+        glfwTerminate();
+    }
 
-WindowManager::~WindowManager()
-{
-    if (window)
-        glfwDestroyWindow(window);
-
-    window = nullptr;
-
-    glfwTerminate();
 }

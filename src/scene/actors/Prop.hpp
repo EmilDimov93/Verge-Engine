@@ -3,29 +3,34 @@
 
 #include "../../shared/definitions.hpp"
 
-class Prop
+namespace VE
 {
-public:
-    Prop(PropHandle handle, ModelInstanceHandle modelInstanceHandle, Transform transform);
 
-    PropHandle getHandle() const;
-    glm::mat4 getModelMat() const;
+    class Prop
+    {
+    public:
+        Prop(PropHandle handle, ModelInstanceHandle modelInstanceHandle, Transform transform);
 
-    void setTransform(Transform transform);
+        PropHandle getHandle() const;
+        glm::mat4 getModelMat() const;
 
-    ModelInstanceHandle getModelInstanceHandle() const;
+        void setTransform(Transform transform);
 
-    bool hasChanges() const;
-    void markChangesSaved();
+        ModelInstanceHandle getModelInstanceHandle() const;
 
-private:
-    PropHandle handle;
+        bool hasChanges() const;
+        void markChangesSaved();
 
-    Transform transform;
+    private:
+        PropHandle handle;
 
-    glm::mat4 modelMat;
+        Transform transform;
 
-    ModelInstanceHandle modelInstanceHandle;
+        glm::mat4 modelMat;
 
-    bool hasChanged = true;
-};
+        ModelInstanceHandle modelInstanceHandle;
+
+        bool hasChanged = true;
+    };
+
+}

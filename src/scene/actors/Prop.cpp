@@ -5,46 +5,51 @@
 
 #include "../../shared/Log.hpp"
 
-Prop::Prop(PropHandle handle, ModelInstanceHandle modelInstanceHandle, Transform transform)
-    : handle(handle)
+namespace VE
 {
-    this->modelInstanceHandle = modelInstanceHandle;
 
-    this->transform = transform;
+    Prop::Prop(PropHandle handle, ModelInstanceHandle modelInstanceHandle, Transform transform)
+        : handle(handle)
+    {
+        this->modelInstanceHandle = modelInstanceHandle;
 
-    modelMat = transform.toMat();
-}
+        this->transform = transform;
 
-PropHandle Prop::getHandle() const
-{
-    return handle;
-}
+        modelMat = transform.toMat();
+    }
 
-glm::mat4 Prop::getModelMat() const
-{
-    return modelMat;
-}
+    PropHandle Prop::getHandle() const
+    {
+        return handle;
+    }
 
-void Prop::setTransform(Transform transform)
-{
-    this->transform = transform;
+    glm::mat4 Prop::getModelMat() const
+    {
+        return modelMat;
+    }
 
-    modelMat = transform.toMat();
+    void Prop::setTransform(Transform transform)
+    {
+        this->transform = transform;
 
-    hasChanged = true;
-}
+        modelMat = transform.toMat();
 
-ModelInstanceHandle Prop::getModelInstanceHandle() const
-{
-    return modelInstanceHandle;
-}
+        hasChanged = true;
+    }
 
-bool Prop::hasChanges() const
-{
-    return hasChanged;
-}
+    ModelInstanceHandle Prop::getModelInstanceHandle() const
+    {
+        return modelInstanceHandle;
+    }
 
-void Prop::markChangesSaved()
-{
-    hasChanged = false;
+    bool Prop::hasChanges() const
+    {
+        return hasChanged;
+    }
+
+    void Prop::markChangesSaved()
+    {
+        hasChanged = false;
+    }
+
 }

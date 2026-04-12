@@ -7,22 +7,27 @@
 
 #include <GLFW/glfw3.h>
 
-class WindowManager
+namespace VE
 {
-public:
-    WindowManager(Size2 size, std::string name);
 
-    GLFWwindow *getReference() const;
+    class WindowManager
+    {
+    public:
+        WindowManager(Size2 size, std::string name);
 
-    Size2 getSize() const;
+        GLFWwindow *getReference() const;
 
-    bool isOpen() const;
+        Size2 getSize() const;
 
-    float getAspectRatio() const;
+        bool isOpen() const;
 
-    ~WindowManager();
+        float getAspectRatio() const;
 
-private:
-    GLFWwindow *window;
-    Size2 size = {};
-};
+        ~WindowManager();
+
+    private:
+        GLFWwindow *window;
+        Size2 size = {};
+    };
+
+}

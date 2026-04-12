@@ -4,6 +4,8 @@
 #include "renderer/Renderer.hpp"
 #include "scene/Scene.hpp"
 
+using namespace VE;
+
 class VergeEngine
 {
 public:
@@ -34,35 +36,35 @@ private:
     {
         renderer.setTargetFps(240);
 
-        VEVehicleKeybinds keybinds{};
+        VehicleKeybinds keybinds{};
 
-        keybinds.throttle[0] = VE_KEY_W;
-        keybinds.brake[0] = VE_KEY_S;
-        keybinds.handbrake[0] = VE_KEY_SPACE;
-        keybinds.clutch[0] = VE_KEY_E;
-        keybinds.steerLeft[0] = VE_KEY_A;
-        keybinds.steerRight[0] = VE_KEY_D;
-        keybinds.shiftUp[0] = VE_MOUSE_BTN_RIGHT;
-        keybinds.shiftDown[0] = VE_MOUSE_BTN_LEFT;
-        keybinds.startEngine[0] = VE_KEY_Q;
-        keybinds.moveCameraLeft[0] = VE_KEY_LEFT;
-        keybinds.moveCameraRight[0] = VE_KEY_RIGHT;
-        keybinds.moveCameraUp[0] = VE_KEY_UP;
-        keybinds.moveCameraDown[0] = VE_KEY_DOWN;
+        keybinds.throttle[0] = KEY_W;
+        keybinds.brake[0] = KEY_S;
+        keybinds.handbrake[0] = KEY_SPACE;
+        keybinds.clutch[0] = KEY_E;
+        keybinds.steerLeft[0] = KEY_A;
+        keybinds.steerRight[0] = KEY_D;
+        keybinds.shiftUp[0] = MOUSE_BTN_RIGHT;
+        keybinds.shiftDown[0] = MOUSE_BTN_LEFT;
+        keybinds.startEngine[0] = KEY_Q;
+        keybinds.moveCameraLeft[0] = KEY_LEFT;
+        keybinds.moveCameraRight[0] = KEY_RIGHT;
+        keybinds.moveCameraUp[0] = KEY_UP;
+        keybinds.moveCameraDown[0] = KEY_DOWN;
 
-        keybinds.throttle[1] = VE_CONTROLLER_AXIS_RT;
-        keybinds.brake[1] = VE_CONTROLLER_AXIS_LT;
-        keybinds.handbrake[1] = VE_CONTROLLER_BTN_RB;
-        keybinds.clutch[1] = VE_CONTROLLER_BTN_LB;
-        keybinds.steerLeft[1] = VE_CONTROLLER_AXIS_LX_NEGATIVE;
-        keybinds.steerRight[1] = VE_CONTROLLER_AXIS_LX_POSITIVE;
-        keybinds.shiftUp[1] = VE_CONTROLLER_BTN_X;
-        keybinds.shiftDown[1] = VE_CONTROLLER_BTN_Y;
-        keybinds.startEngine[1] = VE_CONTROLLER_BTN_A;
-        keybinds.moveCameraLeft[1] = VE_CONTROLLER_AXIS_RX_NEGATIVE;
-        keybinds.moveCameraRight[1] = VE_CONTROLLER_AXIS_RX_POSITIVE;
-        keybinds.moveCameraUp[1] = VE_CONTROLLER_AXIS_RY_POSITIVE;
-        keybinds.moveCameraDown[1] = VE_CONTROLLER_AXIS_RY_NEGATIVE;
+        keybinds.throttle[1] = CONTROLLER_AXIS_RT;
+        keybinds.brake[1] = CONTROLLER_AXIS_LT;
+        keybinds.handbrake[1] = CONTROLLER_BTN_RB;
+        keybinds.clutch[1] = CONTROLLER_BTN_LB;
+        keybinds.steerLeft[1] = CONTROLLER_AXIS_LX_NEGATIVE;
+        keybinds.steerRight[1] = CONTROLLER_AXIS_LX_POSITIVE;
+        keybinds.shiftUp[1] = CONTROLLER_BTN_X;
+        keybinds.shiftDown[1] = CONTROLLER_BTN_Y;
+        keybinds.startEngine[1] = CONTROLLER_BTN_A;
+        keybinds.moveCameraLeft[1] = CONTROLLER_AXIS_RX_NEGATIVE;
+        keybinds.moveCameraRight[1] = CONTROLLER_AXIS_RX_POSITIVE;
+        keybinds.moveCameraUp[1] = CONTROLLER_AXIS_RY_POSITIVE;
+        keybinds.moveCameraDown[1] = CONTROLLER_AXIS_RY_NEGATIVE;
 
         renderer.setVehicleKeybinds(keybinds);
 
@@ -74,7 +76,7 @@ private:
         scene.setBackgroundColor({0.7f, 1.0f, 1.0f});
 
         // Vehicle
-        VEVehicleCreateInfo carInfo = {};
+        VehicleCreateInfo carInfo = {};
         carInfo.bodyModelHandle = scene.loadFile("models/X2/car.obj");
         carInfo.wheelModelHandle = scene.loadFile("models/X2/wheel.obj");
         carInfo.wheelOffset = {1.05f, 0.5f, 1.8f};
@@ -82,13 +84,13 @@ private:
         carInfo.weightKg = 1540;
         carInfo.maxRpm = 7000;
         carInfo.idleRpm = 800;
-        carInfo.transmissionType = VE_TRANSMISSION_TYPE_AUTOMATIC;
+        carInfo.transmissionType = TRANSMISSION_TYPE_AUTOMATIC;
         carInfo.gearRatios = {5.519f, 3.184f, 2.050f, 1.492f, 1.235f, 1.000f, 0.801f, 0.673f};
         carInfo.drivetrainEfficiency = 0.9f;
         carInfo.wheelRadiusM = 0.31f;
         carInfo.tireGrip = 1.0f;
         carInfo.camberRad = (PI / 180);
-        carInfo.drivetrainType = VE_DRIVETRAIN_TYPE_RWD;
+        carInfo.drivetrainType = DRIVETRAIN_TYPE_RWD;
         carInfo.layeredEngineAudioFiles = {{"audio/4k.wav", 4000}};
         car1 = scene.addVehicle(carInfo);
 
@@ -99,9 +101,9 @@ private:
         scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});
 
         // Triggers
-        VETriggerTypeCreateInfo sTriggerType = {};
+        TriggerTypeCreateInfo sTriggerType = {};
         sTriggerType.modelHandle = scene.loadFile("models/checkpoint.obj");
-        sTriggerType.hitboxShape = VE_SHAPE_SPHERE;
+        sTriggerType.hitboxShape = HITBOX_SHAPE_SPHERE;
         sTriggerType.hitboxSize = 10.0f;
         sTriggerType.isAutoDestroy = true;
 

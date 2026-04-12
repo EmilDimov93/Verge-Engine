@@ -6,6 +6,9 @@
 #include <map>
 #include <string>
 
+namespace VE
+{
+
 inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGES{
     // Engine
     {{'E', 000}, "All resources loaded! Welcome!"},
@@ -134,3 +137,5 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'A', 192}, "Surface: invalid friction value"},
     {{'A', 193}, "Surface: invalid color value"},
     {{'A', 194}, "Surface: invalid color distortion value"}};
+
+}

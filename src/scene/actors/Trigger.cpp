@@ -5,96 +5,100 @@
 
 #include "../../shared/Log.hpp"
 
-Trigger::Trigger(TriggerHandle handle, Transform transform, ModelInstanceHandle modelInstanceHandle, const VETriggerTypeCreateInfo& info)
-    : handle(handle)
+namespace VE
 {
-    this->modelInstanceHandle = modelInstanceHandle;
 
-    if (info.hitboxShape != VE_SHAPE_UNKNOWN)
-        hitboxShape = info.hitboxShape;
-    else
+    Trigger::Trigger(TriggerHandle handle, Transform transform, ModelInstanceHandle modelInstanceHandle, const TriggerTypeCreateInfo &info)
+        : handle(handle)
     {
-        hitboxShape = VE_SHAPE_PRISM;
-        Log::add('A', 182);
+        this->modelInstanceHandle = modelInstanceHandle;
+
+        if (info.hitboxShape != HITBOX_SHAPE_UNKNOWN)
+            hitboxShape = info.hitboxShape;
+        else
+        {
+            hitboxShape = HITBOX_SHAPE_PRISM;
+            Log::add('A', 182);
+        }
+
+        if (info.hitboxSize > 0)
+            hitboxSize = info.hitboxSize;
+        else
+        {
+            hitboxSize = 1.0f;
+            Log::add('A', 183);
+        }
+
+        this->transform = transform;
+
+        isAutoDestroy_ = info.isAutoDestroy;
+
+        modelMat = transform.toMat();
     }
 
-    if (info.hitboxSize > 0)
-        hitboxSize = info.hitboxSize;
-    else
+    bool Trigger::doesActorTrigger(Position3 actorPos) const
     {
-        hitboxSize = 1.0f;
-        Log::add('A', 183);
+        Position3 triggerPos = transform.position;
+
+        switch (hitboxShape)
+        {
+        case HITBOX_SHAPE_PRISM:
+        {
+            if ((actorPos.x > triggerPos.x - hitboxSize / 2) && (actorPos.x < triggerPos.x + hitboxSize / 2) &&
+                (actorPos.y > triggerPos.y - hitboxSize / 2) && (actorPos.y < triggerPos.y + hitboxSize / 2) &&
+                (actorPos.z > triggerPos.z - hitboxSize / 2) && (actorPos.z < triggerPos.z + hitboxSize / 2))
+                return true;
+            break;
+        }
+        case HITBOX_SHAPE_SPHERE:
+        {
+            float dx = actorPos.x - triggerPos.x;
+            float dy = actorPos.y - triggerPos.y;
+            float dz = actorPos.z - triggerPos.z;
+            float radius = hitboxSize / 2;
+
+            if (dx * dx + dy * dy + dz * dz <= radius * radius)
+                return true;
+
+            break;
+        }
+        case HITBOX_SHAPE_UNKNOWN:
+        default:
+            Log::add('A', 182);
+            break;
+        }
+
+        return false;
     }
 
-    this->transform = transform;
-
-    isAutoDestroy_ = info.isAutoDestroy;
-
-    modelMat = transform.toMat();
-}
-
-bool Trigger::doesActorTrigger(Position3 actorPos) const
-{
-    Position3 triggerPos = transform.position;
-
-    switch (hitboxShape)
+    TriggerHandle Trigger::getHandle() const
     {
-    case VE_SHAPE_PRISM:
-    {
-        if ((actorPos.x > triggerPos.x - hitboxSize / 2) && (actorPos.x < triggerPos.x + hitboxSize / 2) &&
-            (actorPos.y > triggerPos.y - hitboxSize / 2) && (actorPos.y < triggerPos.y + hitboxSize / 2) &&
-            (actorPos.z > triggerPos.z - hitboxSize / 2) && (actorPos.z < triggerPos.z + hitboxSize / 2))
-            return true;
-        break;
-    }
-    case VE_SHAPE_SPHERE:
-    {
-        float dx = actorPos.x - triggerPos.x;
-        float dy = actorPos.y - triggerPos.y;
-        float dz = actorPos.z - triggerPos.z;
-        float radius = hitboxSize / 2;
-
-        if (dx * dx + dy * dy + dz * dz <= radius * radius)
-            return true;
-
-        break;
-    }
-    case VE_SHAPE_UNKNOWN:
-    default:
-        Log::add('A', 182);
-        break;
+        return handle;
     }
 
-    return false;
-}
+    glm::mat4 Trigger::getModelMat() const
+    {
+        return modelMat;
+    }
 
-TriggerHandle Trigger::getHandle() const
-{
-    return handle;
-}
+    ModelInstanceHandle Trigger::getModelInstanceHandle() const
+    {
+        return modelInstanceHandle;
+    }
 
-glm::mat4 Trigger::getModelMat() const
-{
-    return modelMat;
-}
+    bool Trigger::isAutoDestroy() const
+    {
+        return isAutoDestroy_;
+    }
 
-ModelInstanceHandle Trigger::getModelInstanceHandle() const
-{
-    return modelInstanceHandle;
-}
+    void Trigger::markForDestroy()
+    {
+        isMarkedForDestroy_ = true;
+    }
 
-bool Trigger::isAutoDestroy() const
-{
-    return isAutoDestroy_;
-}
+    bool Trigger::isMarkedForDestroy() const
+    {
+        return isMarkedForDestroy_;
+    }
 
-void Trigger::markForDestroy()
-{
-    isMarkedForDestroy_ = true;
 }
-
-bool Trigger::isMarkedForDestroy() const
-{
-    return isMarkedForDestroy_;
-}
-

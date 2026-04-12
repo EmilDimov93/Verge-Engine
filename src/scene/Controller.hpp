@@ -5,10 +5,15 @@
 
 #include "../shared/definitions.hpp"
 
-class Controller
+namespace VE
 {
-public:
-    virtual VehicleInputState getVehicleInputState() const = 0;
-    virtual VehicleHandle getVehicleHandle() const = 0;
-    virtual ~Controller() = default;
-};
+
+    class Controller
+    {
+    public:
+        virtual VehicleInputState getVehicleInputState() const = 0;
+        virtual VehicleHandle getVehicleHandle() const = 0;
+        virtual ~Controller() = default;
+    };
+
+}

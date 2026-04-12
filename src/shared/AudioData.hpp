@@ -5,51 +5,56 @@
 
 #include "definitions.hpp"
 
-struct VEEngineAudioRequest
+namespace VE
 {
-    VehicleHandle vehicleHandle;
-    std::string fileName;
-    float pitch;
-    Position3 position;
-};
 
-struct VEEngineAudioFileRequest
-{
-    std::string fileName;
-    float rpm;
-};
+    struct EngineAudioRequest
+    {
+        VehicleHandle vehicleHandle;
+        std::string fileName;
+        float pitch;
+        Position3 position;
+    };
 
-struct VELayeredEngineAudioRequest
-{
-    VehicleHandle vehicleHandle;
-    std::vector<VEEngineAudioFileRequest> audioFiles;
-    float rpm;
-    float maxRpm;
-    Position3 position;
-};
+    struct EngineAudioFileRequest
+    {
+        std::string fileName;
+        float rpm;
+    };
 
-struct VEAudioRequest
-{
-    std::string fileName;
-    float pitch;
-    bool is3D;
-    Position3 position;
-};
+    struct LayeredEngineAudioRequest
+    {
+        VehicleHandle vehicleHandle;
+        std::vector<EngineAudioFileRequest> audioFiles;
+        float rpm;
+        float maxRpm;
+        Position3 position;
+    };
 
-struct AudioData
-{
-    const Position3 playerPosition;
-    const float playerYawRad;
-    const std::vector<VEEngineAudioRequest> &engineAudioRequests;
-    const std::vector<VELayeredEngineAudioRequest> &layeredEngineAudioRequests;
-    const std::vector<VEAudioRequest> &oneShotAudioRequests;
-    const bool vehicleRemovedThisFrame;
+    struct AudioRequest
+    {
+        std::string fileName;
+        float pitch;
+        bool is3D;
+        Position3 position;
+    };
 
-    AudioData(const Position3 playerPosition,
-              const float playerYawRad,
-              const std::vector<VEEngineAudioRequest> &engineAudioRequests,
-              const std::vector<VELayeredEngineAudioRequest> &layeredEngineAudioRequests,
-              const std::vector<VEAudioRequest> &oneShotAudioRequests,
-              const bool vehicleRemovedThisFrame)
-        : playerPosition(playerPosition), playerYawRad(playerYawRad), engineAudioRequests(engineAudioRequests), layeredEngineAudioRequests(layeredEngineAudioRequests), oneShotAudioRequests(oneShotAudioRequests), vehicleRemovedThisFrame(vehicleRemovedThisFrame) {}
-};
+    struct AudioData
+    {
+        const Position3 playerPosition;
+        const float playerYawRad;
+        const std::vector<EngineAudioRequest> &engineAudioRequests;
+        const std::vector<LayeredEngineAudioRequest> &layeredEngineAudioRequests;
+        const std::vector<AudioRequest> &oneShotAudioRequests;
+        const bool vehicleRemovedThisFrame;
+
+        AudioData(const Position3 playerPosition,
+                  const float playerYawRad,
+                  const std::vector<EngineAudioRequest> &engineAudioRequests,
+                  const std::vector<LayeredEngineAudioRequest> &layeredEngineAudioRequests,
+                  const std::vector<AudioRequest> &oneShotAudioRequests,
+                  const bool vehicleRemovedThisFrame)
+            : playerPosition(playerPosition), playerYawRad(playerYawRad), engineAudioRequests(engineAudioRequests), layeredEngineAudioRequests(layeredEngineAudioRequests), oneShotAudioRequests(oneShotAudioRequests), vehicleRemovedThisFrame(vehicleRemovedThisFrame) {}
+    };
+
+}

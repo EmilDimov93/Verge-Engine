@@ -5,53 +5,58 @@
 
 #include "../../shared/definitions.hpp"
 
-enum VEShape
+namespace VE
 {
-    VE_SHAPE_UNKNOWN,
-    VE_SHAPE_PRISM,
-    VE_SHAPE_SPHERE
-};
 
-struct VETriggerTypeCreateInfo
-{
-    ModelHandle modelHandle = INVALID_MODEL_HANDLE;
-    VEShape hitboxShape = VE_SHAPE_UNKNOWN;
-    float hitboxSize = -1.0f;
-    bool isAutoDestroy = false;
-    // callback function
-};
+    enum HitboxShape
+    {
+        HITBOX_SHAPE_UNKNOWN,
+        HITBOX_SHAPE_PRISM,
+        HITBOX_SHAPE_SPHERE
+    };
 
-class Trigger
-{
-public:
-    Trigger(TriggerHandle handle, Transform transform, ModelInstanceHandle modelInstanceHandle, const VETriggerTypeCreateInfo& info);
+    struct TriggerTypeCreateInfo
+    {
+        ModelHandle modelHandle = INVALID_MODEL_HANDLE;
+        HitboxShape hitboxShape = HITBOX_SHAPE_UNKNOWN;
+        float hitboxSize = -1.0f;
+        bool isAutoDestroy = false;
+        // callback function
+    };
 
-    TriggerHandle getHandle() const;
-    glm::mat4 getModelMat() const;
+    class Trigger
+    {
+    public:
+        Trigger(TriggerHandle handle, Transform transform, ModelInstanceHandle modelInstanceHandle, const TriggerTypeCreateInfo &info);
 
-    ModelInstanceHandle getModelInstanceHandle() const;
+        TriggerHandle getHandle() const;
+        glm::mat4 getModelMat() const;
 
-    bool doesActorTrigger(Position3 actorPos) const;
+        ModelInstanceHandle getModelInstanceHandle() const;
 
-    bool isAutoDestroy() const;
-    void markForDestroy();
-    bool isMarkedForDestroy() const;
+        bool doesActorTrigger(Position3 actorPos) const;
 
-private:
-    TriggerHandle handle;
+        bool isAutoDestroy() const;
+        void markForDestroy();
+        bool isMarkedForDestroy() const;
 
-    Transform transform;
+    private:
+        TriggerHandle handle;
 
-    ModelInstanceHandle modelInstanceHandle;
+        Transform transform;
 
-    VEShape hitboxShape;
-    float hitboxSize;
+        ModelInstanceHandle modelInstanceHandle;
 
-    bool isAutoDestroy_ = false;
+        HitboxShape hitboxShape;
+        float hitboxSize;
 
-    bool isMarkedForDestroy_ = false;
+        bool isAutoDestroy_ = false;
 
-    glm::mat4 modelMat;
+        bool isMarkedForDestroy_ = false;
 
-    // callback function
-};
+        glm::mat4 modelMat;
+
+        // callback function
+    };
+
+}

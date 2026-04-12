@@ -5,15 +5,20 @@
 
 #include "../shared/definitions.hpp"
 
-inline float KelvinToCelsius(float kelvin)
+namespace VE
 {
-    return kelvin - 273.15f;
-}
 
-struct Environment
-{
-    ve_color_t backgroundColor;
-    float airDensityKgpm3 = 1.225f;
-    float gravityMps2 = 9.81f;
-    float temperatureK = 293.15f;
-};
+    inline float KelvinToCelsius(float kelvin)
+    {
+        return kelvin - 273.15f;
+    }
+
+    struct Environment
+    {
+        color_t backgroundColor;
+        float airDensityKgpm3 = 1.225f;
+        float gravityMps2 = 9.81f;
+        float temperatureK = 293.15f;
+    };
+
+}

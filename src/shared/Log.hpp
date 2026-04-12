@@ -9,64 +9,69 @@
 #include <string>
 #include <vector>
 
-class VEErrorCode
+namespace VE
 {
-public:
-    char letter;
-    uint16_t number;
 
-    std::string getMessage();
-
-    VEErrorCode(char newLetter, uint16_t newNumber)
+    class ErrorCode
     {
-        if (messages.find({newLetter, newNumber}) == messages.end())
+    public:
+        char letter;
+        uint16_t number;
+
+        std::string getMessage();
+
+        ErrorCode(char newLetter, uint16_t newNumber)
         {
-            letter = 'O';
-            number = 100;
-            return;
+            if (messages.find({newLetter, newNumber}) == messages.end())
+            {
+                letter = 'O';
+                number = 100;
+                return;
+            }
+            letter = newLetter;
+            number = newNumber;
         }
-        letter = newLetter;
-        number = newNumber;
+
+    private:
+        static const std::map<std::pair<char, uint16_t>, std::string> messages;
+    };
+
+    inline bool operator!=(const ErrorCode &lhs, const ErrorCode &rhs)
+    {
+        return lhs.letter != rhs.letter || lhs.number != rhs.number;
     }
 
-private:
-    static const std::map<std::pair<char, uint16_t>, std::string> messages;
-};
+    struct EngineCrash : public std::exception
+    {
+    };
 
-inline bool operator!=(const VEErrorCode &lhs, const VEErrorCode &rhs)
-{
-    return lhs.letter != rhs.letter || lhs.number != rhs.number;
+    enum LogOutputMode
+    {
+        LOG_OUTPUT_MODE_NONE,
+        LOG_OUTPUT_MODE_FILE,
+        LOG_OUTPUT_MODE_CONSOLE,
+        LOG_OUTPUT_MODE_FILE_AND_CONSOLE
+    };
+
+    class Log
+    {
+    public:
+        static void init(LogOutputMode mode);
+        static void add(char letter, uint16_t number);
+        static std::vector<std::string> getNewMessages();
+        static bool hasNewMessages();
+        static void end();
+
+    private:
+        static std::vector<ErrorCode> entries;
+        static size_t newMessageCount;
+        static bool hasNewMessagesFlag;
+        static size_t clearedEntriesCount;
+        static LogOutputMode outputMode;
+
+        static void writeToLogFile();
+        static void freeLogSpace();
+        static void induceCrash();
+    };
+
 }
-
-struct EngineCrash : public std::exception
-{
-};
-
-enum VELogOutputMode
-{
-    VE_LOG_OUTPUT_MODE_NONE,
-    VE_LOG_OUTPUT_MODE_FILE,
-    VE_LOG_OUTPUT_MODE_CONSOLE,
-    VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE
-};
-
-class Log
-{
-public:
-    static void init(VELogOutputMode mode);
-    static void add(char letter, uint16_t number);
-    static std::vector<std::string> getNewMessages();
-    static bool hasNewMessages();
-    static void end();
-
-private:
-    static std::vector<VEErrorCode> entries;
-    static size_t newMessageCount;
-    static bool hasNewMessagesFlag;
-    static size_t clearedEntriesCount;
-    static VELogOutputMode outputMode;
-
-    static void writeToLogFile();
-    static void freeLogSpace();
-    static void induceCrash();
-};

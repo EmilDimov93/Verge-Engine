@@ -6,20 +6,25 @@
 #include "../shared/Log.hpp"
 #include "../shared/definitions.hpp"
 
-template <typename HandleT>
-class HandleFactory
+namespace VE
 {
-public:
-    static HandleT getNewHandle()
+
+    template <typename HandleT>
+    class HandleFactory
     {
-        if (last >= UINT64_MAX)
+    public:
+        static HandleT getNewHandle()
         {
-            Log::add('S', 200);
+            if (last >= UINT64_MAX)
+            {
+                Log::add('S', 200);
+            }
+
+            return HandleT{++last};
         }
 
-        return HandleT{++last};
-    }
+    private:
+        static inline uint64_t last = 0;
+    };
 
-private:
-    static inline uint64_t last = 0;
-};
+}

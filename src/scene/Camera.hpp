@@ -5,18 +5,23 @@
 
 #include "../shared/definitions.hpp"
 
-class Camera
+namespace VE
 {
-public:
-    glm::mat4 getViewMat() const;
 
-    void move(Position3 newPosition);
-    void rotate(Rotation3 newRotation);
+    class Camera
+    {
+    public:
+        glm::mat4 getViewMat() const;
 
-    Position3 getPosition() const;
-    Rotation3 getRotation() const;
+        void move(Position3 newPosition);
+        void rotate(Rotation3 newRotation);
 
-private:
-    Position3 position;
-    Rotation3 rotation;
-};
+        Position3 getPosition() const;
+        Rotation3 getRotation() const;
+
+    private:
+        Position3 position;
+        Rotation3 rotation;
+    };
+
+}

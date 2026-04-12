@@ -5,290 +5,296 @@
 
 #include "../../shared/Log.hpp"
 
-Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VEVehicleCreateInfo &info, ModelInstanceHandle bodyModelInstanceHandle, ModelInstanceHandle wheelFLModelInstanceHandle, ModelInstanceHandle wheelFRModelInstanceHandle, ModelInstanceHandle wheelBLModelInstanceHandle, ModelInstanceHandle wheelBRModelInstanceHandle)
-    : handle(handle)
+namespace VE
 {
-    this->bodyModelInstanceHandle = bodyModelInstanceHandle;
-    this->wheelModelInstanceHandles[VE_WHEEL_FRONT_LEFT] = wheelFLModelInstanceHandle;
-    this->wheelModelInstanceHandles[VE_WHEEL_FRONT_RIGHT] = wheelFRModelInstanceHandle;
-    this->wheelModelInstanceHandles[VE_WHEEL_BACK_LEFT] = wheelBLModelInstanceHandle;
-    this->wheelModelInstanceHandles[VE_WHEEL_BACK_RIGHT] = wheelBRModelInstanceHandle;
 
-    wheelOffset = info.wheelOffset;
+    Vehicle::Vehicle(VehicleHandle handle, Transform transform, const VehicleCreateInfo &info, ModelInstanceHandle bodyModelInstanceHandle, ModelInstanceHandle wheelFLModelInstanceHandle, ModelInstanceHandle wheelFRModelInstanceHandle, ModelInstanceHandle wheelBLModelInstanceHandle, ModelInstanceHandle wheelBRModelInstanceHandle)
+        : handle(handle)
+    {
+        this->bodyModelInstanceHandle = bodyModelInstanceHandle;
+        this->wheelModelInstanceHandles[WHEEL_FRONT_LEFT] = wheelFLModelInstanceHandle;
+        this->wheelModelInstanceHandles[WHEEL_FRONT_RIGHT] = wheelFRModelInstanceHandle;
+        this->wheelModelInstanceHandles[WHEEL_BACK_LEFT] = wheelBLModelInstanceHandle;
+        this->wheelModelInstanceHandles[WHEEL_BACK_RIGHT] = wheelBRModelInstanceHandle;
 
-    if (info.peakTorqueNm > 0)
-    {
-        peakTorqueNm = info.peakTorqueNm;
-    }
-    else
-    {
-        Log::add('A', 102);
-        peakTorqueNm = 300;
-    }
+        wheelOffset = info.wheelOffset;
 
-    if (info.weightKg > 0)
-    {
-        weightKg = info.weightKg;
-    }
-    else
-    {
-        Log::add('A', 104);
-        weightKg = 1200.f;
-    }
-
-    if (info.idleRpm > 0)
-    {
-        idleRpm = info.idleRpm;
-    }
-    else
-    {
-        Log::add('A', 106);
-        idleRpm = 800;
-    }
-
-    if (info.maxRpm > idleRpm)
-    {
-        maxRpm = info.maxRpm;
-    }
-    else
-    {
-        Log::add('A', 107);
-        maxRpm = 6000;
-    }
-
-    transmissionType = info.transmissionType;
-
-    drivetrainType = info.drivetrainType;
-
-    if (info.brakingForceN >= 0)
-    {
-        brakingForceN = info.brakingForceN;
-    }
-    else
-    {
-        brakingForceN = 15000.0f;
-    }
-
-    if (info.gearRatios.size() > 0)
-    {
-        gearCount = info.gearRatios.size();
-        gearRatios.resize(gearCount + 1);
-
-        gearRatios[0] = info.reverseGearRatio > 0.0f ? info.reverseGearRatio : 3.5f;
-
-        for (size_t i = 1; i < gearCount; i++)
+        if (info.peakTorqueNm > 0)
         {
-            gearRatios[i] = info.gearRatios[i - 1];
+            peakTorqueNm = info.peakTorqueNm;
         }
-    }
-    else
-    {
-        gearCount = 5;
-
-        gearRatios.resize(gearCount + 1);
-
-        gearRatios[0] = info.reverseGearRatio > 0.0f ? info.reverseGearRatio : 3.5f;
-
-        const float defaultTopRatio = 1.0f;
-        const float defaultFirstRatio = 5.0f;
-        for (size_t i = 1; i <= gearCount; ++i)
+        else
         {
-            gearRatios[i] = defaultTopRatio * std::pow(defaultFirstRatio / defaultTopRatio, float(gearCount - i) / float(gearCount));
+            Log::add('A', 102);
+            peakTorqueNm = 300;
         }
 
-        Log::add('A', 105);
+        if (info.weightKg > 0)
+        {
+            weightKg = info.weightKg;
+        }
+        else
+        {
+            Log::add('A', 104);
+            weightKg = 1200.f;
+        }
+
+        if (info.idleRpm > 0)
+        {
+            idleRpm = info.idleRpm;
+        }
+        else
+        {
+            Log::add('A', 106);
+            idleRpm = 800;
+        }
+
+        if (info.maxRpm > idleRpm)
+        {
+            maxRpm = info.maxRpm;
+        }
+        else
+        {
+            Log::add('A', 107);
+            maxRpm = 6000;
+        }
+
+        transmissionType = info.transmissionType;
+
+        drivetrainType = info.drivetrainType;
+
+        if (info.brakingForceN >= 0)
+        {
+            brakingForceN = info.brakingForceN;
+        }
+        else
+        {
+            brakingForceN = 15000.0f;
+        }
+
+        if (info.gearRatios.size() > 0)
+        {
+            gearCount = info.gearRatios.size();
+            gearRatios.resize(gearCount + 1);
+
+            gearRatios[0] = info.reverseGearRatio > 0.0f ? info.reverseGearRatio : 3.5f;
+
+            for (size_t i = 1; i < gearCount; i++)
+            {
+                gearRatios[i] = info.gearRatios[i - 1];
+            }
+        }
+        else
+        {
+            gearCount = 5;
+
+            gearRatios.resize(gearCount + 1);
+
+            gearRatios[0] = info.reverseGearRatio > 0.0f ? info.reverseGearRatio : 3.5f;
+
+            const float defaultTopRatio = 1.0f;
+            const float defaultFirstRatio = 5.0f;
+            for (size_t i = 1; i <= gearCount; ++i)
+            {
+                gearRatios[i] = defaultTopRatio * std::pow(defaultFirstRatio / defaultTopRatio, float(gearCount - i) / float(gearCount));
+            }
+
+            Log::add('A', 105);
+        }
+
+        if (info.finalDriveRatio > 0.0f)
+        {
+            finalDriveRatio = info.finalDriveRatio;
+        }
+        else
+        {
+            finalDriveRatio = 3.0f;
+            Log::add('A', 117);
+        }
+
+        if (info.drivetrainEfficiency >= 0 && info.drivetrainEfficiency <= 1.0f)
+        {
+            drivetrainEfficiency = info.drivetrainEfficiency;
+        }
+        else
+        {
+            Log::add('A', 108);
+            drivetrainEfficiency = 1.0f;
+        }
+
+        if (info.wheelRadiusM > 0)
+        {
+            wheelRadiusM = info.wheelRadiusM;
+        }
+        else
+        {
+            Log::add('A', 109);
+            wheelRadiusM = 0.3f;
+        }
+
+        if (info.dragCoeff >= 0)
+        {
+            dragCoeff = info.dragCoeff;
+        }
+        else
+        {
+            Log::add('A', 110);
+            dragCoeff = 0.31f;
+        }
+
+        if (info.frontalAreaM2 > 0)
+        {
+            frontalAreaM2 = info.frontalAreaM2;
+        }
+        else
+        {
+            Log::add('A', 111);
+            frontalAreaM2 = 0.0009f * info.weightKg + 0.5f;
+        }
+
+        if (info.maxSteeringAngleRad > 0 && info.maxSteeringAngleRad <= 0.9f) // Hardcoded limit
+        {
+            maxSteeringAngleRad = info.maxSteeringAngleRad;
+        }
+        else if (info.maxSteeringAngleRad >= -0.9f && info.maxSteeringAngleRad <= 0.9f)
+        {
+            Log::add('A', 112);
+            maxSteeringAngleRad = -info.maxSteeringAngleRad;
+        }
+        else
+        {
+            Log::add('A', 113);
+            maxSteeringAngleRad = 0.55f;
+        }
+
+        if (info.tireGrip > 0.05f)
+        {
+            tireGrip = info.tireGrip;
+        }
+        else
+        {
+            Log::add('A', 115);
+            tireGrip = 1.0f;
+        }
+
+        if (info.camberRad > -(PI / 2) && info.camberRad < PI / 2)
+        {
+            camberRad = info.camberRad;
+        }
+        else
+        {
+            Log::add('A', 114);
+            camberRad = 0;
+        }
+
+        this->transform = transform;
     }
 
-    if(info.finalDriveRatio > 0.0f)
+    glm::mat4 Vehicle::getWheelMat(Wheel wheel) const
     {
-        finalDriveRatio = info.finalDriveRatio;
+        bool isFront = wheel == WHEEL_FRONT_LEFT || wheel == WHEEL_FRONT_RIGHT;
+        bool isLeft = wheel == WHEEL_FRONT_LEFT || wheel == WHEEL_BACK_LEFT;
+
+        glm::mat4 wheelMat =
+            bodyMat *
+            glm::translate(glm::mat4(1.0f), glm::vec3(isLeft ? wheelOffset.x : -wheelOffset.x,       /*X Offset*/
+                                                      wheelOffset.y + wheelStates[wheel].suspension, /*Y Offset & Suspension*/
+                                                      isFront ? wheelOffset.z : -wheelOffset.z))     /*Z Offset*/
+            *
+            glm::rotate(glm::mat4(1.0f), isLeft ? 0.0f : PI, glm::vec3(0, 1, 0)) /*Invert*/;
+
+        // Steer
+        wheelMat = glm::rotate(wheelMat, isFront ? steeringAngleRad : 0.0f, glm::vec3(0, 1.0f, 0));
+
+        // Camber
+        wheelMat = glm::rotate(wheelMat, camberRad, glm::vec3(0, 0, 1));
+
+        // Spin
+        wheelMat = glm::rotate(wheelMat, isLeft ? wheelStates[wheel].spin : -wheelStates[wheel].spin, glm::vec3(1.0f, 0, 0));
+
+        return wheelMat;
     }
-    else
+
+    void Vehicle::collideVelocityVector(glm::vec3 collisionPointLocal)
     {
-        finalDriveRatio = 3.0f;
-        Log::add('A', 117);
+        glm::vec3 collisionPointNormalized = glm::normalize(-collisionPointLocal);
+
+        // Ignore Y
+        collisionPointNormalized.y = 0.0f;
+
+        glm::mat4 R =
+            glm::rotate(glm::mat4(1.0f), (float)transform.rotation.yaw, glm::vec3(0, 1, 0)) *
+            glm::rotate(glm::mat4(1.0f), (float)transform.rotation.pitch, glm::vec3(1, 0, 0)) *
+            glm::rotate(glm::mat4(1.0f), (float)transform.rotation.roll, glm::vec3(0, 0, 1));
+
+        glm::vec3 collisionNormal = glm::normalize(glm::vec3(R * glm::vec4(collisionPointNormalized, 0.0f)));
+
+        float velocityAlongNormal = glm::dot(velocityMps, collisionNormal);
+        if (velocityAlongNormal > 0.0f)
+        {
+            collisionNormal = -collisionNormal;
+            velocityAlongNormal = -velocityAlongNormal;
+        }
+
+        if (velocityAlongNormal < 0.0f)
+            velocityMps -= collisionNormal * velocityAlongNormal;
     }
 
-    if (info.drivetrainEfficiency >= 0 && info.drivetrainEfficiency <= 1.0f)
+    void Vehicle::printState() const
     {
-        drivetrainEfficiency = info.drivetrainEfficiency;
+        std::cout << (std::round(forwardSpeedMps * 3.6f) > 1.0f ? std::round(forwardSpeedMps * 3.6f) : 0.0f) << " km/h | " << std::round(rpm) << " rpm | " << (isNeutral ? "N" : (gear == 0 ? "R" : std::to_string(gear))) << " gear" << std::endl;
     }
-    else
+
+    void Vehicle::printVIS() const
     {
-        Log::add('A', 108);
-        drivetrainEfficiency = 1.0f;
+        printf("%.2ft %.2fb %.2fc %.2fs\n", vis.throttle, vis.brake, vis.clutch, vis.steer);
     }
 
-    if (info.wheelRadiusM > 0)
+    void Vehicle::updateTransform()
     {
-        wheelRadiusM = info.wheelRadiusM;
+        transform.position.x += velocityMps.x * dt;
+        transform.position.y += velocityMps.y * dt;
+        transform.position.z += velocityMps.z * dt;
+
+        transform.rotation.yaw += yawRateRadps * (float)dt;
+
+        transformMat = glm::mat4(1.0f);
+        transformMat = glm::translate(transformMat, glm::vec3{transform.position.x, transform.position.y, transform.position.z});
+        transformMat = glm::rotate(transformMat, (float)transform.rotation.roll, glm::vec3(0, 0, 1));
+        transformMat = glm::rotate(transformMat, (float)transform.rotation.yaw, glm::vec3(0, 1, 0));
+        transformMat = glm::rotate(transformMat, (float)transform.rotation.pitch, glm::vec3(1, 0, 0));
+
+        bodyMat = transform.toMat();
     }
-    else
+
+    void Vehicle::tick(VehicleInputState vis, Environment environment, float surfaceFriction, milliseconds_t deltaTime)
     {
-        Log::add('A', 109);
-        wheelRadiusM = 0.3f;
+        dt = deltaTime;
+
+        this->vis = vis;
+
+        if (vis.starter)
+            activateStarter();
+
+        for (WheelState &state : wheelStates)
+        {
+            state.grip = surfaceFriction;
+        }
+
+        steer();
+
+        updateTransmission();
+
+        stallAssist();
+
+        cruiseControl();
+
+        calcForces(environment);
+
+        calcTireTemperatures(environment);
+
+        // printState();
+        // printVIS();
     }
 
-    if (info.dragCoeff >= 0)
-    {
-        dragCoeff = info.dragCoeff;
-    }
-    else
-    {
-        Log::add('A', 110);
-        dragCoeff = 0.31f;
-    }
-
-    if (info.frontalAreaM2 > 0)
-    {
-        frontalAreaM2 = info.frontalAreaM2;
-    }
-    else
-    {
-        Log::add('A', 111);
-        frontalAreaM2 = 0.0009f * info.weightKg + 0.5f;
-    }
-
-    if (info.maxSteeringAngleRad > 0 && info.maxSteeringAngleRad <= 0.9f) // Hardcoded limit
-    {
-        maxSteeringAngleRad = info.maxSteeringAngleRad;
-    }
-    else if (info.maxSteeringAngleRad >= -0.9f && info.maxSteeringAngleRad <= 0.9f)
-    {
-        Log::add('A', 112);
-        maxSteeringAngleRad = -info.maxSteeringAngleRad;
-    }
-    else
-    {
-        Log::add('A', 113);
-        maxSteeringAngleRad = 0.55f;
-    }
-
-    if (info.tireGrip > 0.05f)
-    {
-        tireGrip = info.tireGrip;
-    }
-    else
-    {
-        Log::add('A', 115);
-        tireGrip = 1.0f;
-    }
-
-    if (info.camberRad > -(PI / 2) && info.camberRad < PI / 2)
-    {
-        camberRad = info.camberRad;
-    }
-    else
-    {
-        Log::add('A', 114);
-        camberRad = 0;
-    }
-
-    this->transform = transform;
-}
-
-glm::mat4 Vehicle::getWheelMat(VEWheel wheel) const
-{
-    bool isFront = wheel == VE_WHEEL_FRONT_LEFT || wheel == VE_WHEEL_FRONT_RIGHT;
-    bool isLeft = wheel == VE_WHEEL_FRONT_LEFT || wheel == VE_WHEEL_BACK_LEFT;
-
-    glm::mat4 wheelMat =
-        bodyMat *
-        glm::translate(glm::mat4(1.0f), glm::vec3(isLeft ? wheelOffset.x : -wheelOffset.x, /*X Offset*/
-            wheelOffset.y + wheelStates[wheel].suspension, /*Y Offset & Suspension*/
-            isFront ? wheelOffset.z : -wheelOffset.z)) /*Z Offset*/ *
-        glm::rotate(glm::mat4(1.0f), isLeft ? 0.0f : PI, glm::vec3(0, 1, 0)) /*Invert*/;
-
-    // Steer
-    wheelMat = glm::rotate(wheelMat, isFront ? steeringAngleRad : 0.0f, glm::vec3(0, 1.0f, 0));
-
-    // Camber
-    wheelMat = glm::rotate(wheelMat, camberRad, glm::vec3(0, 0, 1));
-
-    // Spin
-    wheelMat = glm::rotate(wheelMat, isLeft ? wheelStates[wheel].spin : -wheelStates[wheel].spin, glm::vec3(1.0f, 0, 0));
-
-    return wheelMat;
-}
-
-void Vehicle::collideVelocityVector(glm::vec3 collisionPointLocal)
-{
-    glm::vec3 collisionPointNormalized = glm::normalize(-collisionPointLocal);
-
-    // Ignore Y
-    collisionPointNormalized.y = 0.0f;
-
-    glm::mat4 R =
-        glm::rotate(glm::mat4(1.0f), (float)transform.rotation.yaw, glm::vec3(0, 1, 0)) *
-        glm::rotate(glm::mat4(1.0f), (float)transform.rotation.pitch, glm::vec3(1, 0, 0)) *
-        glm::rotate(glm::mat4(1.0f), (float)transform.rotation.roll, glm::vec3(0, 0, 1));
-
-    glm::vec3 collisionNormal = glm::normalize(glm::vec3(R * glm::vec4(collisionPointNormalized, 0.0f)));
-
-    float velocityAlongNormal = glm::dot(velocityMps, collisionNormal);
-    if (velocityAlongNormal > 0.0f)
-    {
-        collisionNormal = -collisionNormal;
-        velocityAlongNormal = -velocityAlongNormal;
-    }
-
-    if (velocityAlongNormal < 0.0f)
-        velocityMps -= collisionNormal * velocityAlongNormal;
-}
-
-void Vehicle::printState() const
-{
-    std::cout << (std::round(forwardSpeedMps * 3.6f) > 1.0f ? std::round(forwardSpeedMps * 3.6f) : 0.0f) << " km/h | " << std::round(rpm) << " rpm | " << (isNeutral ? "N" : (gear == 0 ? "R" : std::to_string(gear))) << " gear" << std::endl;
-}
-
-void Vehicle::printVIS() const
-{
-    printf("%.2ft %.2fb %.2fc %.2fs\n", vis.throttle, vis.brake, vis.clutch, vis.steer);
-}
-
-void Vehicle::updateTransform()
-{
-    transform.position.x += velocityMps.x * dt;
-    transform.position.y += velocityMps.y * dt;
-    transform.position.z += velocityMps.z * dt;
-
-    transform.rotation.yaw += yawRateRadps * (float)dt;
-
-    transformMat = glm::mat4(1.0f);
-    transformMat = glm::translate(transformMat, glm::vec3{transform.position.x, transform.position.y, transform.position.z});
-    transformMat = glm::rotate(transformMat, (float)transform.rotation.roll, glm::vec3(0, 0, 1));
-    transformMat = glm::rotate(transformMat, (float)transform.rotation.yaw, glm::vec3(0, 1, 0));
-    transformMat = glm::rotate(transformMat, (float)transform.rotation.pitch, glm::vec3(1, 0, 0));
-
-    bodyMat = transform.toMat();
-}
-
-void Vehicle::tick(VehicleInputState vis, Environment environment, float surfaceFriction, ve_time_t deltaTime)
-{
-    dt = deltaTime;
-
-    this->vis = vis;
-
-    if (vis.starter)
-        activateStarter();
-
-    for (WheelState &state : wheelStates)
-    {
-        state.grip = surfaceFriction;
-    }
-
-    steer();
-
-    updateTransmission();
-
-    stallAssist();
-
-    cruiseControl();
-
-    calcForces(environment);
-
-    calcTireTemperatures(environment);
-
-    // printState();
-    // printVIS();
 }

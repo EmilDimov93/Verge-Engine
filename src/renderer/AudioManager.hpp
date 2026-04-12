@@ -10,25 +10,28 @@
 
 #include <deque>
 
-struct VEEngineAudio
+namespace VE
+{
+
+struct EngineAudio
 {
     VehicleHandle vehicleHandle;
     ma_sound sound;
 };
 
-struct VEEngineAudioFile
+struct EngineAudioFile
 {
     ma_sound sound;
     float rpm;
 };
 
-struct VELayeredEngineAudio
+struct LayeredEngineAudio
 {
     VehicleHandle vehicleHandle;
-    std::vector<VEEngineAudioFile> audioFiles;
+    std::vector<EngineAudioFile> audioFiles;
 };
 
-struct VEAudio
+struct Audio
 {
     ma_sound sound;
     bool is3D;
@@ -45,9 +48,9 @@ public:
     ~AudioManager();
 
 private:
-    std::deque<VEEngineAudio> engineAudios;
-    std::deque<VELayeredEngineAudio> layeredEngineAudios;
-    std::deque<VEAudio> oneShotAudios;
+    std::deque<EngineAudio> engineAudios;
+    std::deque<LayeredEngineAudio> layeredEngineAudios;
+    std::deque<Audio> oneShotAudios;
 
     ma_engine miniaudio;
 
@@ -56,3 +59,5 @@ private:
     float volumeToGain(float volume) const;
     float attenuation(float distance) const;
 };
+
+}

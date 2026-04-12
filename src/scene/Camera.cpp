@@ -5,38 +5,43 @@
 
 #include "../shared/Log.hpp"
 
-glm::mat4 Camera::getViewMat() const
+namespace VE
 {
-    glm::vec3 forward;
-    forward.x = cos(rotation.pitch) * sin(rotation.yaw);
-    forward.y = -sin(rotation.pitch);
-    forward.z = cos(rotation.pitch) * cos(rotation.yaw);
-    forward = glm::normalize(forward);
 
-    glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0.0f, 1.0f, 0.0f)));
-    glm::vec3 up = glm::normalize(glm::cross(right, forward));
-    up = up * (float)cos(rotation.roll) + right * (float)sin(rotation.roll);
+    glm::mat4 Camera::getViewMat() const
+    {
+        glm::vec3 forward;
+        forward.x = cos(rotation.pitch) * sin(rotation.yaw);
+        forward.y = -sin(rotation.pitch);
+        forward.z = cos(rotation.pitch) * cos(rotation.yaw);
+        forward = glm::normalize(forward);
 
-    glm::vec3 pos(position.x, position.y, position.z);
-    return glm::lookAt(pos, glm::vec3(position.x, position.y, position.z) + forward, up);
-}
+        glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0.0f, 1.0f, 0.0f)));
+        glm::vec3 up = glm::normalize(glm::cross(right, forward));
+        up = up * (float)cos(rotation.roll) + right * (float)sin(rotation.roll);
 
-void Camera::move(Position3 newPosition)
-{
-    position = newPosition;
-}
+        glm::vec3 pos(position.x, position.y, position.z);
+        return glm::lookAt(pos, glm::vec3(position.x, position.y, position.z) + forward, up);
+    }
 
-void Camera::rotate(Rotation3 newRotation)
-{
-    rotation = newRotation;
-}
+    void Camera::move(Position3 newPosition)
+    {
+        position = newPosition;
+    }
 
-Position3 Camera::getPosition() const
-{
-    return position;
-}
+    void Camera::rotate(Rotation3 newRotation)
+    {
+        rotation = newRotation;
+    }
 
-Rotation3 Camera::getRotation() const
-{
-    return rotation;
+    Position3 Camera::getPosition() const
+    {
+        return position;
+    }
+
+    Rotation3 Camera::getRotation() const
+    {
+        return rotation;
+    }
+
 }

@@ -9,98 +9,103 @@
 
 #include "../shared/Log.hpp"
 
-#define VE_KEYBIND_COUNT 2
-
-struct VERendererCreateInfo
+namespace VE
 {
-    std::string projectName = "Verge Engine Program";
-    Size2 windowSize = {};
-    VELogOutputMode logOutputMode = VE_LOG_OUTPUT_MODE_FILE_AND_CONSOLE;
-    uint16_t targetFps = VE_DEFAULT_FPS;
-};
 
-struct VEVehicleKeybinds
-{
-    VEKeybind throttle[VE_KEYBIND_COUNT];
-    VEKeybind brake[VE_KEYBIND_COUNT];
-    VEKeybind handbrake[VE_KEYBIND_COUNT];
-    VEKeybind clutch[VE_KEYBIND_COUNT];
+    constexpr size_t KEYBIND_COUNT = 2;
 
-    VEKeybind steerLeft[VE_KEYBIND_COUNT];
-    VEKeybind steerRight[VE_KEYBIND_COUNT];
+    struct RendererCreateInfo
+    {
+        std::string projectName = "Verge Engine Program";
+        Size2 windowSize = {};
+        LogOutputMode logOutputMode = LOG_OUTPUT_MODE_FILE_AND_CONSOLE;
+        uint16_t targetFps = DEFAULT_FPS;
+    };
 
-    VEKeybind shiftUp[VE_KEYBIND_COUNT];
-    VEKeybind shiftDown[VE_KEYBIND_COUNT];
+    struct VehicleKeybinds
+    {
+        Keybind throttle[KEYBIND_COUNT];
+        Keybind brake[KEYBIND_COUNT];
+        Keybind handbrake[KEYBIND_COUNT];
+        Keybind clutch[KEYBIND_COUNT];
 
-    VEKeybind startEngine[VE_KEYBIND_COUNT];
+        Keybind steerLeft[KEYBIND_COUNT];
+        Keybind steerRight[KEYBIND_COUNT];
 
-    VEKeybind moveCameraLeft[VE_KEYBIND_COUNT];
-    VEKeybind moveCameraRight[VE_KEYBIND_COUNT];
-    VEKeybind moveCameraUp[VE_KEYBIND_COUNT];
-    VEKeybind moveCameraDown[VE_KEYBIND_COUNT];
-};
+        Keybind shiftUp[KEYBIND_COUNT];
+        Keybind shiftDown[KEYBIND_COUNT];
 
-class Renderer
-{
-public:
-    Renderer(const VERendererCreateInfo &info = {});
+        Keybind startEngine[KEYBIND_COUNT];
 
-    bool isOpen();
+        Keybind moveCameraLeft[KEYBIND_COUNT];
+        Keybind moveCameraRight[KEYBIND_COUNT];
+        Keybind moveCameraUp[KEYBIND_COUNT];
+        Keybind moveCameraDown[KEYBIND_COUNT];
+    };
 
-    void tick(const DrawData &drawData, const AudioData &audioData);
+    class Renderer
+    {
+    public:
+        Renderer(const RendererCreateInfo &info = {});
 
-    VehicleInputState getVIS();
-    void setVehicleKeybinds(const VEVehicleKeybinds &keybinds);
+        bool isOpen();
 
-    ~Renderer();
+        void tick(const DrawData &drawData, const AudioData &audioData);
 
-    ve_time_t getFrameTime() const;
-    uint32_t getFps() const;
-    void setTargetFps(uint16_t target);
+        VehicleInputState getVIS();
+        void setVehicleKeybinds(const VehicleKeybinds &keybinds);
 
-    float getVolume() const;
-    void setVolume(float volume);
+        ~Renderer();
 
-    void setThrottleInputSmoothing(float smoothing) { throttleSmoothing = clamp01(smoothing); }
-    void setBrakeInputSmoothing(float smoothing) { brakeSmoothing = clamp01(smoothing); }
-    void setHandbrakeInputSmoothing(float smoothing) { handbrakeSmoothing = clamp01(smoothing); }
-    void setClutchInputSmoothing(float smoothing) { clutchSmoothing = clamp01(smoothing); }
-    void setSteerInputSmoothing(float smoothing) { steerSmoothing = clamp01(smoothing); }
-    void setCameraMovementInputSmoothing(float smoothing) { cameraMovementSmoothing = clamp01(smoothing); }
+        milliseconds_t getFrameTime() const;
+        uint32_t getFps() const;
+        void setTargetFps(uint16_t target);
 
-    // void setAspectRatio(float aspectRatio);
-    void setFOV(float fov);
-    void setzNear(float zNear);
-    void setZFar(float zFar);
+        float getVolume() const;
+        void setVolume(float volume);
 
-private:
-    // Window & Rendering
-    WindowManager window;
-    VulkanManager vulkan;
-    FpsManager fps;
+        void setThrottleInputSmoothing(float smoothing) { throttleSmoothing = clamp01(smoothing); }
+        void setBrakeInputSmoothing(float smoothing) { brakeSmoothing = clamp01(smoothing); }
+        void setHandbrakeInputSmoothing(float smoothing) { handbrakeSmoothing = clamp01(smoothing); }
+        void setClutchInputSmoothing(float smoothing) { clutchSmoothing = clamp01(smoothing); }
+        void setSteerInputSmoothing(float smoothing) { steerSmoothing = clamp01(smoothing); }
+        void setCameraMovementInputSmoothing(float smoothing) { cameraMovementSmoothing = clamp01(smoothing); }
 
-    float aspectRatio = 1.0f;
-    float fov = 60.0f;
-    float zNear = 0.01f;
-    float zFar = 1000.0f;
+        // void setAspectRatio(float aspectRatio);
+        void setFOV(float fov);
+        void setzNear(float zNear);
+        void setZFar(float zFar);
 
-    glm::mat4 getProjectionMat() const;
+    private:
+        // Window & Rendering
+        WindowManager window;
+        VulkanManager vulkan;
+        FpsManager fps;
 
-    // Audio
-    AudioManager audio;
-    float volume = 1.0f;
+        float aspectRatio = 1.0f;
+        float fov = 60.0f;
+        float zNear = 0.01f;
+        float zFar = 1000.0f;
 
-    // Input
-    VEVehicleKeybinds keybinds;
-    VehicleInputState vis;
+        glm::mat4 getProjectionMat() const;
 
-    // Input smoothing for non-axis keybinds
-    // 0 -> no smoothing (instant response)
-    // 1 -> maximum smoothing
-    float throttleSmoothing = 0.5f;
-    float brakeSmoothing = 0.5f;
-    float handbrakeSmoothing = 0.0f;
-    float clutchSmoothing = 0.5f;
-    float steerSmoothing = 0.5f;
-    float cameraMovementSmoothing = 0.0f;
-};
+        // Audio
+        AudioManager audio;
+        float volume = 1.0f;
+
+        // Input
+        VehicleKeybinds keybinds;
+        VehicleInputState vis;
+
+        // Input smoothing for non-axis keybinds
+        // 0 -> no smoothing (instant response)
+        // 1 -> maximum smoothing
+        float throttleSmoothing = 0.5f;
+        float brakeSmoothing = 0.5f;
+        float handbrakeSmoothing = 0.0f;
+        float clutchSmoothing = 0.5f;
+        float steerSmoothing = 0.5f;
+        float cameraMovementSmoothing = 0.0f;
+    };
+
+}

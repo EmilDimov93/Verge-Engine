@@ -5,55 +5,60 @@
 
 #include <thread>
 
-FpsManager::FpsManager()
+namespace VE
 {
-    setTarget(VE_DEFAULT_FPS);
-    timeAtStartOfFrame = std::chrono::steady_clock::now();
-}
 
-void FpsManager::sync()
-{
-    using namespace std::chrono;
-    using std::this_thread::sleep_for;
-
-    auto now = steady_clock::now();
-    auto elapsed = now - timeAtStartOfFrame;
-    auto target = duration<ve_time_t>(targetFrameTime);
-
-    if (elapsed < target)
+    FpsManager::FpsManager()
     {
-        auto remaining = target - elapsed;
-        if (remaining > milliseconds(1))
+        setTarget(DEFAULT_FPS);
+        timeAtStartOfFrame = std::chrono::steady_clock::now();
+    }
+
+    void FpsManager::sync()
+    {
+        using namespace std::chrono;
+        using std::this_thread::sleep_for;
+
+        auto now = steady_clock::now();
+        auto elapsed = now - timeAtStartOfFrame;
+        auto target = duration<milliseconds_t>(targetFrameTime);
+
+        if (elapsed < target)
         {
-            sleep_for(remaining - milliseconds(1));
+            auto remaining = target - elapsed;
+            if (remaining > milliseconds(1))
+            {
+                sleep_for(remaining - milliseconds(1));
+            }
+        }
+
+        while ((steady_clock::now() - timeAtStartOfFrame) < target)
+        {
+            std::this_thread::yield();
+        }
+
+        now = steady_clock::now();
+        currentFps = static_cast<uint16_t>(1.0 / duration<milliseconds_t>(now - timeAtStartOfFrame).count());
+        lastFrameTime = std::chrono::duration<milliseconds_t>(now - timeAtStartOfFrame).count();
+        timeAtStartOfFrame = now;
+    }
+
+    void FpsManager::setTarget(uint16_t targetFps)
+    {
+        if (targetFps > 0)
+        {
+            targetFrameTime = 1.0 / targetFps;
         }
     }
 
-    while ((steady_clock::now() - timeAtStartOfFrame) < target)
+    uint16_t FpsManager::getFps() const
     {
-        std::this_thread::yield();
+        return currentFps;
     }
 
-    now = steady_clock::now();
-    currentFps = static_cast<uint16_t>(1.0 / duration<ve_time_t>(now - timeAtStartOfFrame).count());
-    lastFrameTime = std::chrono::duration<ve_time_t>(now - timeAtStartOfFrame).count();
-    timeAtStartOfFrame = now;
-}
-
-void FpsManager::setTarget(uint16_t targetFps)
-{
-    if (targetFps > 0)
+    milliseconds_t FpsManager::getFrameTime() const
     {
-        targetFrameTime = 1.0 / targetFps;
+        return lastFrameTime;
     }
-}
 
-uint16_t FpsManager::getFps() const
-{
-    return currentFps;
-}
-
-ve_time_t FpsManager::getFrameTime() const
-{
-    return lastFrameTime;
 }

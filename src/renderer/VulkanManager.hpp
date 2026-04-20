@@ -53,6 +53,8 @@ namespace VE
 
             uint64_t version = 0;
 
+            float lightStrength = 0.0f;
+
             ModelBuffer(ModelHandle handle) : handle(handle) {}
         };
 
@@ -126,6 +128,7 @@ namespace VE
         {
             glm::mat4 model;
             uint32_t textureIndex;
+            uint32_t lightStrength;
         };
 
         void createInstance();
@@ -152,7 +155,7 @@ namespace VE
 
         void recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor);
 
-        void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat);
+        void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos);
 
         VkShaderModule createShaderModule(const std::vector<char> &code);
         static uint32_t rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);

@@ -383,6 +383,8 @@ namespace VE
                     vertex.col = currentColor;
                     vertex.tex = (texCoordIndex >= 0) ? texCoords[texCoordIndex] : glm::vec2(0.0f);
                     vertex.tex.y = 1.0f - vertex.tex.y;
+                    vertex.norm = glm::normalize(glm::cross(positions[parsed[1].first] - positions[parsed[0].first],
+                                                            positions[parsed[2].first] - positions[parsed[0].first]));
 
                     currentMeshIndices.push_back(static_cast<uint32_t>(currentMeshVertices.size()));
                     currentMeshVertices.push_back(vertex);
@@ -405,7 +407,10 @@ namespace VE
 
         ModelHandle newModelHandle = HandleFactory<ModelHandle>::getNewHandle();
 
-        models.emplace_back(newModelHandle, meshes);
+        // Temporary: const
+        const float lightStrength = 0.0f;
+
+        models.emplace_back(newModelHandle, meshes, lightStrength);
 
         return newModelHandle;
     }

@@ -712,7 +712,7 @@ namespace VE
             .stride = sizeof(Vertex),
             .inputRate = VK_VERTEX_INPUT_RATE_VERTEX};
 
-        std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions;
+        std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions;
 
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;
@@ -728,6 +728,11 @@ namespace VE
         attributeDescriptions[2].location = 2;
         attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
         attributeDescriptions[2].offset = offsetof(Vertex, tex);
+
+        attributeDescriptions[3].binding = 0;
+        attributeDescriptions[3].location = 3;
+        attributeDescriptions[3].format = VK_FORMAT_R32G32B32_SFLOAT;
+        attributeDescriptions[3].offset = offsetof(Vertex, norm);
 
         VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
@@ -954,7 +959,7 @@ namespace VE
             .binding = 0,
             .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
             .descriptorCount = 1,
-            .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+            .stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
             .pImmutableSamplers = nullptr};
 
         std::vector<VkDescriptorSetLayoutBinding> vpLayoutBindings = {vpLayoutBinding};
@@ -1050,16 +1055,20 @@ namespace VE
         }
     }
 
-    void VulkanManager::updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat)
+    void VulkanManager::updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos)
     {
         struct UboViewProjection
         {
             glm::mat4 projection;
             glm::mat4 view;
+            glm::vec4 lightPos;
+            glm::vec4 viewPos;
         } uboViewProjection;
 
         uboViewProjection.projection = projectionMat;
         uboViewProjection.view = viewMat;
+        uboViewProjection.lightPos = lightPos;
+        uboViewProjection.viewPos = glm::inverse(viewMat)[3];
 
         void *data;
         vkCheck(vkMapMemory(device, vpUniformBufferMemory[imageIndex], 0, sizeof(UboViewProjection), 0, &data), {'V', 236});
@@ -1223,6 +1232,8 @@ namespace VE
 
         newModelBuffer.version = model.getVersion();
 
+        newModelBuffer.lightStrength = model.getLightStrength();
+
         modelBuffers.push_back(newModelBuffer);
 
         ModelBuffer &modelBuffer = modelBuffers.back();
@@ -1284,6 +1295,7 @@ namespace VE
         }
 
         modelBuffer.version = model.getVersion();
+        modelBuffer.lightStrength = model.getLightStrength();
     }
 
     void VulkanManager::recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor)
@@ -1349,6 +1361,7 @@ namespace VE
                         PushData pushData;
                         pushData.model = instance.modelMat;
                         pushData.textureIndex = meshBuffer.texIndex;
+                        pushData.lightStrength = modelBuffer.lightStrength;
 
                         vkCmdPushConstants(commandBuffers[currentImage], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushData), &pushData);
 
@@ -1371,7 +1384,7 @@ namespace VE
 
     void VulkanManager::createUniformBuffers()
     {
-        VkDeviceSize vpBufferSize = sizeof(glm::mat4) * 2;
+        VkDeviceSize vpBufferSize = sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 2;
 
         vpUniformBuffer.resize(swapChainImages.size());
         vpUniformBufferMemory.resize(swapChainImages.size());
@@ -1430,7 +1443,7 @@ namespace VE
             VkDescriptorBufferInfo vpBufferInfo = {
                 .buffer = vpUniformBuffer[i],
                 .offset = 0,
-                .range = sizeof(glm::mat4) * 2};
+                .range = sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 2};
 
             VkWriteDescriptorSet vpSetWrite = {
                 .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
@@ -1458,8 +1471,23 @@ namespace VE
         if (drawData.modelRemovedThisFrame)
             removeOrphanedModel(drawData.modelInstances);
 
+        glm::vec4 lightPos(0.0f);
+        for (const ModelInstance &instance : drawData.modelInstances)
+        {
+            for (const Model &model : drawData.models)
+            {
+                if (model.getHandle() == instance.modelHandle)
+                {
+                    lightPos = glm::vec4(glm::vec3(instance.modelMat[3]), model.getLightStrength());
+                    break;
+                }
+            }
+            if (lightPos.w > 0.0f)
+                break;
+        }
+
         recordCommands(imageIndex, drawData.models, drawData.modelInstances, drawData.backgroundColor);
-        updateUniformBuffers(imageIndex, projectionMat, drawData.viewMat);
+        updateUniformBuffers(imageIndex, projectionMat, drawData.viewMat, lightPos);
 
         VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 

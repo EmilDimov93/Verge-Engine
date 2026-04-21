@@ -189,11 +189,14 @@ namespace VE
         return handle;
     }
 
-    PropHandle Scene::addProp(ModelHandle modelHandle, Transform transform)
+    PropHandle Scene::addProp(ModelHandle modelHandle, Transform transform, float lightStrength, color_t lightColor)
     {
         PropHandle handle = HandleFactory<PropHandle>::getNewHandle();
 
         ModelInstanceHandle modelInstanceHandle = addModelInstance(modelHandle);
+
+        modelInstances.back().lightStrength = lightStrength;
+        modelInstances.back().lightColor = lightColor;
 
         Prop newProp(handle, modelInstanceHandle, transform);
 
@@ -355,10 +358,11 @@ namespace VE
                     surfaceTypeIndex = 0;
                 }
 
-                glm::vec3 surfaceColor;
+                color_t surfaceColor;
                 surfaceColor.r = surfaceTypes[surfaceTypeIndex].color.r + glm::linearRand(-surfaceTypes[surfaceTypeIndex].colorDistortion.r, surfaceTypes[surfaceTypeIndex].colorDistortion.r);
                 surfaceColor.g = surfaceTypes[surfaceTypeIndex].color.g + glm::linearRand(-surfaceTypes[surfaceTypeIndex].colorDistortion.g, surfaceTypes[surfaceTypeIndex].colorDistortion.g);
                 surfaceColor.b = surfaceTypes[surfaceTypeIndex].color.b + glm::linearRand(-surfaceTypes[surfaceTypeIndex].colorDistortion.b, surfaceTypes[surfaceTypeIndex].colorDistortion.b);
+                surfaceColor.a = 1.0f;
 
                 newSurface.heightMap[i * newSurface.size.w + j] += glm::linearRand(-surfaceTypes[surfaceTypeIndex].heightDistortion, surfaceTypes[surfaceTypeIndex].heightDistortion);
 

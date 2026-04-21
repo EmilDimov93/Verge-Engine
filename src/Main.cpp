@@ -73,7 +73,7 @@ private:
 
     void setupScene()
     {
-        scene.setBackgroundColor({0.7f, 1.0f, 1.0f});
+        scene.setBackgroundColor({0.7f, 1.0f, 1.0f, 1.0f});
 
         // Vehicle
         VehicleCreateInfo carInfo = {};
@@ -98,7 +98,7 @@ private:
         player1 = scene.addPlayer(car1);
 
         // Prop
-        scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}});
+        scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}}, 1.0f);
 
         // Triggers
         TriggerTypeCreateInfo sTriggerType = {};

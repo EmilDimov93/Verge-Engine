@@ -65,7 +65,7 @@ namespace VE
     constexpr ModelHandle INVALID_MODEL_HANDLE{0};
 
     using milliseconds_t = double;
-    using color_t = glm::vec3;
+    using color_t = glm::vec4;
 
     struct Size2
     {

@@ -40,7 +40,7 @@ namespace VE
     class Model
     {
     public:
-        Model(ModelHandle handle, const std::vector<Mesh> &meshes, float lightStrength = 0.0f) : handle(handle), meshes(meshes), lightStrength(lightStrength) {}
+        Model(ModelHandle handle, const std::vector<Mesh> &meshes) : handle(handle), meshes(meshes) {}
 
         void update(const std::vector<Mesh> &meshes)
         {
@@ -52,7 +52,6 @@ namespace VE
         ModelHandle getHandle() const { return handle; };
         uint64_t getVersion() const { return version; }
         const std::vector<Mesh> &getMeshes() const { return meshes; }
-        const float getLightStrength() const { return lightStrength; };
 
     private:
         ModelHandle handle;
@@ -60,8 +59,6 @@ namespace VE
         uint64_t version = 1;
 
         std::vector<Mesh> meshes;
-
-        float lightStrength = 0.0f;
     };
 
     struct ModelInstance
@@ -72,8 +69,11 @@ namespace VE
 
         glm::mat4 modelMat;
 
-        ModelInstance(ModelInstanceHandle handle, ModelHandle modelHandle, glm::mat4 modelMat)
-            : handle(handle), modelHandle(modelHandle), modelMat(modelMat) {}
+        float lightStrength = 0.0f;
+        color_t lightColor = color_t(1.0f);
+
+        ModelInstance(ModelInstanceHandle handle, ModelHandle modelHandle, glm::mat4 modelMat, float lightStrength = 0.0f, color_t lightColor = color_t(1.0f))
+            : handle(handle), modelHandle(modelHandle), modelMat(modelMat), lightStrength(lightStrength), lightColor(lightColor) {}
     };
 
     struct DrawData

@@ -37,7 +37,7 @@ namespace VE
         void removePlayer(PlayerHandle handle);
 
         VehicleHandle addVehicle(const VehicleCreateInfo &info, Transform transform = {});
-        PropHandle addProp(ModelHandle modelHandle, Transform transform);
+        PropHandle addProp(ModelHandle modelHandle, Transform transform, float lightStrength = 0.0f, color_t lightColor = color_t(1.0f));
         TriggerHandle addTrigger(const TriggerTypeCreateInfo &info, Transform transform = {});
 
         void removeVehicle(VehicleHandle handle);

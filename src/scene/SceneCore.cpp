@@ -297,7 +297,7 @@ namespace VE
                     std::stringstream ss(line.substr(3));
                     glm::vec3 kd;
                     ss >> kd.r >> kd.g >> kd.b;
-                    materials[currentMat].diffuseColor = kd;
+                    materials[currentMat].diffuseColor = color_t(kd, 1.0f);
                 }
                 else if (line.starts_with("map_Kd ") && !currentMat.empty())
                 {
@@ -407,10 +407,7 @@ namespace VE
 
         ModelHandle newModelHandle = HandleFactory<ModelHandle>::getNewHandle();
 
-        // Temporary: const
-        const float lightStrength = 0.0f;
-
-        models.emplace_back(newModelHandle, meshes, lightStrength);
+        models.emplace_back(newModelHandle, meshes);
 
         return newModelHandle;
     }

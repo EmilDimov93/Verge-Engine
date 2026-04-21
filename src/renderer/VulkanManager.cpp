@@ -1239,8 +1239,6 @@ namespace VE
 
         newModelBuffer.version = model.getVersion();
 
-        newModelBuffer.lightStrength = model.getLightStrength();
-
         modelBuffers.push_back(newModelBuffer);
 
         ModelBuffer &modelBuffer = modelBuffers.back();
@@ -1302,7 +1300,6 @@ namespace VE
         }
 
         modelBuffer.version = model.getVersion();
-        modelBuffer.lightStrength = model.getLightStrength();
     }
 
     void VulkanManager::recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor)
@@ -1368,7 +1365,7 @@ namespace VE
                         PushData pushData;
                         pushData.model = instance.modelMat;
                         pushData.textureIndex = meshBuffer.texIndex;
-                        pushData.lightStrength = modelBuffer.lightStrength;
+                        pushData.lightStrength = instance.lightStrength;
 
                         vkCmdPushConstants(commandBuffers[currentImage], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushData), &pushData);
 
@@ -1504,7 +1501,7 @@ namespace VE
             {
                 if (model.getHandle() == instance.modelHandle)
                 {
-                    lightPos = glm::vec4(glm::vec3(instance.modelMat[3]), model.getLightStrength());
+                    lightPos = glm::vec4(glm::vec3(instance.modelMat[3]), instance.lightStrength);
                     break;
                 }
             }

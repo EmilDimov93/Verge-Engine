@@ -53,8 +53,6 @@ namespace VE
 
             uint64_t version = 0;
 
-            float lightStrength = 0.0f;
-
             ModelBuffer(ModelHandle handle) : handle(handle) {}
         };
 

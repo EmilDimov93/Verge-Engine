@@ -5,12 +5,10 @@ layout(location = 1) in vec3 col;
 layout(location = 2) in vec2 tex;
 layout(location = 3) in vec3 normal;
 
-layout(set = 0, binding = 0) uniform UboViewProjection {
+layout(set = 0, binding = 0) uniform UboCamera {
     mat4 projection;
     mat4 view;
-    vec4 lightPos;
-    vec4 viewPos;
-} uboViewProjection;
+} uboCamera;
 
 layout(push_constant) uniform PushModel {
     mat4 model;
@@ -27,7 +25,7 @@ layout(location = 5) flat out float fragLightStrength;
 
 void main(){
     vec4 worldPos = pushModel.model * vec4(pos, 1.0);
-    gl_Position = uboViewProjection.projection * uboViewProjection.view * worldPos;
+    gl_Position = uboCamera.projection * uboCamera.view * worldPos;
 
     fragCol = col;
     fragTex = tex;

@@ -955,19 +955,26 @@ namespace VE
 
     void VulkanManager::createDescriptorSetLayout()
     {
-        VkDescriptorSetLayoutBinding vpLayoutBinding = {
+        VkDescriptorSetLayoutBinding cameraLayoutBinding = {
             .binding = 0,
             .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
             .descriptorCount = 1,
-            .stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+            .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
             .pImmutableSamplers = nullptr};
 
-        std::vector<VkDescriptorSetLayoutBinding> vpLayoutBindings = {vpLayoutBinding};
+        VkDescriptorSetLayoutBinding lightingLayoutBinding = {
+            .binding = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+            .descriptorCount = 1,
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+            .pImmutableSamplers = nullptr};
+
+        std::vector<VkDescriptorSetLayoutBinding> layoutBindings = {cameraLayoutBinding, lightingLayoutBinding};
 
         VkDescriptorSetLayoutCreateInfo layoutCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-            .bindingCount = static_cast<uint32_t>(vpLayoutBindings.size()),
-            .pBindings = vpLayoutBindings.data()};
+            .bindingCount = static_cast<uint32_t>(layoutBindings.size()),
+            .pBindings = layoutBindings.data()};
 
         vkCheck(vkCreateDescriptorSetLayout(device, &layoutCreateInfo, nullptr, &descriptorSetLayout), {'V', 217});
 
@@ -1057,23 +1064,23 @@ namespace VE
 
     void VulkanManager::updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos)
     {
-        struct UboViewProjection
-        {
-            glm::mat4 projection;
-            glm::mat4 view;
-            glm::vec4 lightPos;
-            glm::vec4 viewPos;
-        } uboViewProjection;
+        UboCamera uboCamera;
+        uboCamera.projection = projectionMat;
+        uboCamera.view = viewMat;
 
-        uboViewProjection.projection = projectionMat;
-        uboViewProjection.view = viewMat;
-        uboViewProjection.lightPos = lightPos;
-        uboViewProjection.viewPos = glm::inverse(viewMat)[3];
+        UboLighting uboLighting;
+        uboLighting.lightPos = lightPos;
+        uboLighting.viewPos = glm::inverse(viewMat)[3];
 
-        void *data;
-        vkCheck(vkMapMemory(device, vpUniformBufferMemory[imageIndex], 0, sizeof(UboViewProjection), 0, &data), {'V', 236});
-        memcpy(data, &uboViewProjection, sizeof(UboViewProjection));
-        vkUnmapMemory(device, vpUniformBufferMemory[imageIndex]);
+        void *cameraData;
+        vkCheck(vkMapMemory(device, cameraUniformBufferMemory[imageIndex], 0, sizeof(UboCamera), 0, &cameraData), {'V', 236});
+        memcpy(cameraData, &uboCamera, sizeof(UboCamera));
+        vkUnmapMemory(device, cameraUniformBufferMemory[imageIndex]);
+
+        void *lightingData;
+        vkCheck(vkMapMemory(device, lightingUniformBufferMemory[imageIndex], 0, sizeof(UboLighting), 0, &lightingData), {'V', 236});
+        memcpy(lightingData, &uboLighting, sizeof(UboLighting));
+        vkUnmapMemory(device, lightingUniformBufferMemory[imageIndex]);
     }
 
     void VulkanManager::createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory)
@@ -1384,24 +1391,29 @@ namespace VE
 
     void VulkanManager::createUniformBuffers()
     {
-        VkDeviceSize vpBufferSize = sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 2;
+        VkDeviceSize cameraBufferSize = sizeof(UboCamera);
+        VkDeviceSize lightingBufferSize = sizeof(UboLighting);
 
-        vpUniformBuffer.resize(swapChainImages.size());
-        vpUniformBufferMemory.resize(swapChainImages.size());
+        cameraUniformBuffer.resize(swapChainImages.size());
+        cameraUniformBufferMemory.resize(swapChainImages.size());
+
+        lightingUniformBuffer.resize(swapChainImages.size());
+        lightingUniformBufferMemory.resize(swapChainImages.size());
 
         for (size_t i = 0; i < swapChainImages.size(); i++)
         {
-            createBuffer(vpBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &vpUniformBuffer[i], &vpUniformBufferMemory[i]);
+            createBuffer(cameraBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &cameraUniformBuffer[i], &cameraUniformBufferMemory[i]);
+            createBuffer(lightingBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &lightingUniformBuffer[i], &lightingUniformBufferMemory[i]);
         }
     }
 
     void VulkanManager::createDescriptorPool()
     {
-        VkDescriptorPoolSize vpPoolSize = {
+        VkDescriptorPoolSize uniformPoolSize = {
             .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-            .descriptorCount = static_cast<uint32_t>(vpUniformBuffer.size())};
+            .descriptorCount = static_cast<uint32_t>(cameraUniformBuffer.size() + lightingUniformBuffer.size())};
 
-        std::vector<VkDescriptorPoolSize> descriptorPoolSizes = {vpPoolSize};
+        std::vector<VkDescriptorPoolSize> descriptorPoolSizes = {uniformPoolSize};
 
         VkDescriptorPoolCreateInfo poolCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
@@ -1440,21 +1452,35 @@ namespace VE
 
         for (size_t i = 0; i < swapChainImages.size(); i++)
         {
-            VkDescriptorBufferInfo vpBufferInfo = {
-                .buffer = vpUniformBuffer[i],
+            VkDescriptorBufferInfo cameraBufferInfo = {
+                .buffer = cameraUniformBuffer[i],
                 .offset = 0,
-                .range = sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 2};
+                .range = sizeof(UboCamera)};
 
-            VkWriteDescriptorSet vpSetWrite = {
+            VkWriteDescriptorSet cameraSetWrite = {
                 .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
                 .dstSet = descriptorSets[i],
                 .dstBinding = 0,
                 .dstArrayElement = 0,
                 .descriptorCount = 1,
                 .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                .pBufferInfo = &vpBufferInfo};
+                .pBufferInfo = &cameraBufferInfo};
 
-            std::vector<VkWriteDescriptorSet> setWrites = {vpSetWrite};
+            VkDescriptorBufferInfo lightingBufferInfo = {
+                .buffer = lightingUniformBuffer[i],
+                .offset = 0,
+                .range = sizeof(UboLighting)};
+
+            VkWriteDescriptorSet lightingSetWrite = {
+                .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+                .dstSet = descriptorSets[i],
+                .dstBinding = 1,
+                .dstArrayElement = 0,
+                .descriptorCount = 1,
+                .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                .pBufferInfo = &lightingBufferInfo};
+
+            std::vector<VkWriteDescriptorSet> setWrites = {cameraSetWrite, lightingSetWrite};
 
             vkUpdateDescriptorSets(device, static_cast<uint32_t>(setWrites.size()), setWrites.data(), 0, nullptr);
         }
@@ -1588,10 +1614,15 @@ namespace VE
 
         for (size_t i = 0; i < swapChainImages.size(); i++)
         {
-            if (vpUniformBuffer[i])
-                vkDestroyBuffer(device, vpUniformBuffer[i], nullptr);
-            if (vpUniformBufferMemory[i])
-                vkFreeMemory(device, vpUniformBufferMemory[i], nullptr);
+            if (cameraUniformBuffer[i])
+                vkDestroyBuffer(device, cameraUniformBuffer[i], nullptr);
+            if (cameraUniformBufferMemory[i])
+                vkFreeMemory(device, cameraUniformBufferMemory[i], nullptr);
+
+            if (lightingUniformBuffer[i])
+                vkDestroyBuffer(device, lightingUniformBuffer[i], nullptr);
+            if (lightingUniformBufferMemory[i])
+                vkFreeMemory(device, lightingUniformBufferMemory[i], nullptr);
         }
 
         for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)

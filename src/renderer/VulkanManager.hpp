@@ -42,7 +42,7 @@ namespace VE
             VkBuffer indexBuffer = VK_NULL_HANDLE;
             VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
 
-            size_t texIndex = INVALID_TEXTURE_INDEX;
+            uint32_t texIndex = INVALID_TEXTURE_INDEX;
         };
 
         struct ModelBuffer
@@ -102,8 +102,23 @@ namespace VE
         std::vector<VkDescriptorSet> descriptorSets;
         std::vector<VkDescriptorSet> samplerDescriptorSets;
 
-        std::vector<VkBuffer> vpUniformBuffer;
-        std::vector<VkDeviceMemory> vpUniformBufferMemory;
+        struct UboCamera
+        {
+            glm::mat4 projection;
+            glm::mat4 view;
+        };
+
+        struct UboLighting
+        {
+            glm::vec4 lightPos;
+            glm::vec4 viewPos;
+        };
+
+        std::vector<VkBuffer> cameraUniformBuffer;
+        std::vector<VkDeviceMemory> cameraUniformBufferMemory;
+
+        std::vector<VkBuffer> lightingUniformBuffer;
+        std::vector<VkDeviceMemory> lightingUniformBufferMemory;
 
         std::vector<VkBuffer> modelDUniformBuffer;
         std::vector<VkDeviceMemory> modelDUniformBufferMemory;
@@ -128,7 +143,7 @@ namespace VE
         {
             glm::mat4 model;
             uint32_t textureIndex;
-            uint32_t lightStrength;
+            float lightStrength;
         };
 
         void createInstance();

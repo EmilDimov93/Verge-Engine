@@ -40,7 +40,7 @@ namespace VE
         if (glm::length(vehicleVelocityVector) < 1.0f)
             targetYaw = cameraYaw;
 
-        cameraYaw += wrapRadToPi(targetYaw - cameraYaw) * std::exp(-float(dt) * cameraFollowDelay) + (vis.moveCameraRight - vis.moveCameraLeft) * PI * dt;
+        cameraYaw += wrapRadToPi(targetYaw - cameraYaw) * (1.0f - std::exp(-float(dt) / cameraFollowTurnDelay)) + (vis.moveCameraRight - vis.moveCameraLeft) * PI * dt;
         cameraYaw = wrapRadToPi(cameraYaw);
         cameraPitch += (vis.moveCameraUp - vis.moveCameraDown) * PI * dt;
 
@@ -52,7 +52,7 @@ namespace VE
 
         camPos = {camera.getPosition().x, camera.getPosition().y, camera.getPosition().z};
         glm::vec3 targetCamPos = {vehiclePos.x + sin(cameraYaw) * cameraFollowDistance, vehiclePos.y + sin(cameraPitch) * cameraFollowDistance + currCameraHeight, vehiclePos.z + cos(cameraYaw) * cos(cameraPitch) * cameraFollowDistance};
-        camPos = glm::mix(camPos, targetCamPos, std::exp(-float(dt) * cameraFollowDelay));
+        camPos = glm::mix(camPos, targetCamPos, 1.0f - std::exp(-float(dt) / cameraFollowDistanceDelay));
         camera.move({camPos.x, camPos.y, camPos.z});
 
         glm::vec3 dir = glm::normalize(glm::vec3(vehiclePos.x, vehiclePos.y, vehiclePos.z) - camPos);
@@ -69,9 +69,14 @@ namespace VE
         cameraFollowHeight = height;
     }
 
-    void Player::setCameraFollowDelay(float delay)
+    void Player::setCameraFollowDistanceDelay(float delay)
     {
-        cameraFollowDelay = delay;
+        cameraFollowDistanceDelay = delay;
+    }
+
+    void Player::setCameraFollowTurnDelay(float delay)
+    {
+        cameraFollowTurnDelay = delay;
     }
 
     void Player::setCameraFollowVehicle(bool shouldFollow)

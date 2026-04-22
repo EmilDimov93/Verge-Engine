@@ -32,7 +32,8 @@ namespace VE
 
         void setCameraFollowHeight(float height);
 
-        void setCameraFollowDelay(float delay);
+        void setCameraFollowDistanceDelay(float delay);
+        void setCameraFollowTurnDelay(float delay);
 
         void setCameraFollowVehicle(bool shouldFollow);
 
@@ -62,7 +63,8 @@ namespace VE
         bool isCameraFollowingVehicle = true;
         float cameraFollowDistance = 10.0f;
         float cameraFollowHeight = 3.0f;
-        float cameraFollowDelay = 500.0f;
+        float cameraFollowDistanceDelay = 0.1f;
+        float cameraFollowTurnDelay = 1.0f;
 
         float minCameraPitch = -1.2f;
         float maxCameraPitch = 0.6f;

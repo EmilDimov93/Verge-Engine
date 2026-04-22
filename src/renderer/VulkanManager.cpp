@@ -1062,7 +1062,7 @@ namespace VE
         }
     }
 
-    void VulkanManager::updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos)
+    void VulkanManager::updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor)
     {
         UboCamera uboCamera;
         uboCamera.projection = projectionMat;
@@ -1070,6 +1070,7 @@ namespace VE
 
         UboLighting uboLighting;
         uboLighting.lightPos = lightPos;
+        uboLighting.lightColor = lightColor;
         uboLighting.viewPos = glm::inverse(viewMat)[3];
 
         void *cameraData;
@@ -1495,6 +1496,7 @@ namespace VE
             removeOrphanedModel(drawData.modelInstances);
 
         glm::vec4 lightPos(0.0f);
+        glm::vec3 lightColor(1.0f);
         for (const ModelInstance &instance : drawData.modelInstances)
         {
             for (const Model &model : drawData.models)
@@ -1502,6 +1504,7 @@ namespace VE
                 if (model.getHandle() == instance.modelHandle)
                 {
                     lightPos = glm::vec4(glm::vec3(instance.modelMat[3]), instance.lightStrength);
+                    lightColor = instance.lightColor;
                     break;
                 }
             }
@@ -1510,7 +1513,7 @@ namespace VE
         }
 
         recordCommands(imageIndex, drawData.models, drawData.modelInstances, drawData.backgroundColor);
-        updateUniformBuffers(imageIndex, projectionMat, drawData.viewMat, lightPos);
+        updateUniformBuffers(imageIndex, projectionMat, drawData.viewMat, lightPos, lightColor);
 
         VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 

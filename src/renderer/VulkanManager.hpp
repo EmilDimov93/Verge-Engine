@@ -109,6 +109,7 @@ namespace VE
         struct UboLighting
         {
             glm::vec4 lightPos;
+            glm::vec3 lightColor;
             glm::vec4 viewPos;
         };
 
@@ -168,7 +169,7 @@ namespace VE
 
         void recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor);
 
-        void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos);
+        void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor);
 
         VkShaderModule createShaderModule(const std::vector<char> &code);
         static uint32_t rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);

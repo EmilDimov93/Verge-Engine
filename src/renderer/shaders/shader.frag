@@ -9,6 +9,7 @@ layout(location = 5) flat in float fragLightStrength;
 
 layout(set = 0, binding = 1) uniform UboLighting {
     vec4 lightPos;
+    vec3 lightColor;
     vec4 viewPos;
 } uboLighting;
 
@@ -20,7 +21,7 @@ void main(){
     vec3 base = (fragTextureIndex == 0) ? fragCol : texture(textureSampler, fragTex).rgb;
 
     if (fragLightStrength > 0.0) {
-        outColor = vec4(1.0);
+        outColor = vec4(uboLighting.lightColor, 1.0);
         return;
     }
 
@@ -38,6 +39,9 @@ void main(){
     float spec = pow(max(dot(N, H), 0.0), 32.0);
 
     float intensity = uboLighting.lightPos.w;
-    vec3 color = base * (0.3 + 0.5 * diff * intensity) + vec3(0.3) * spec * intensity;
+    vec3 ambient  = base * 0.3;
+    vec3 diffuse  = base * uboLighting.lightColor * diff * intensity * 0.5;
+    vec3 specular = uboLighting.lightColor * spec * intensity * 0.3;
+    vec3 color    = ambient + diffuse + specular;
     outColor = vec4(color, 1.0);
 }

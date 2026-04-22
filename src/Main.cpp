@@ -9,7 +9,7 @@ using namespace VE;
 class VergeEngine
 {
 public:
-    VergeEngine() : renderer({"Example", {1200, 600}}) {}
+    VergeEngine() : renderer({"Example", {2560, 1570}}) {}
 
     void run()
     {
@@ -98,7 +98,7 @@ private:
         player1 = scene.addPlayer(car1);
 
         // Prop
-        scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 3.0f, 30.0f}}, 1.0f);
+        scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 30.0f, 30.0f}}, 3.0f, {1.0f, 0.5f, 0.08f, 1.0f});
 
         // Triggers
         TriggerTypeCreateInfo sTriggerType = {};

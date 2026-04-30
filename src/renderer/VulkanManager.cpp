@@ -7,6 +7,7 @@
 
 #include "../shared/Log.hpp"
 #include "../shared/version.hpp"
+#include "../shared/local.hpp"
 
 #include <GLFW/glfw3.h>
 #include <array>
@@ -69,6 +70,17 @@ namespace VE
             .ppEnabledLayerNames = validationLayers,
             .enabledExtensionCount = static_cast<uint32_t>(extensions.size()),
             .ppEnabledExtensionNames = extensions.data()};
+
+        if (DEVELOPER_MODE)
+        {
+            instanceCreateInfo.enabledLayerCount = 1;
+            instanceCreateInfo.ppEnabledLayerNames = validationLayers;
+        }
+        else
+        {
+            instanceCreateInfo.enabledLayerCount = 0;
+            instanceCreateInfo.ppEnabledLayerNames = nullptr;
+        }
 
         vkCheck(vkCreateInstance(&instanceCreateInfo, nullptr, &instance), {'V', 200});
     }

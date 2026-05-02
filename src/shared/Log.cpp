@@ -14,9 +14,9 @@ namespace VE
 
     static constexpr size_t LOG_MESSAGE_LIMIT = 1e5;
 
-    constexpr bool isEntryError(int num)
+    static inline bool isEntryError(ErrorCode entry)
     {
-        return ((num / 100) % 10) == 2;
+        return ((entry.number / 100) % 10) == 2;
     }
 
     std::vector<ErrorCode> Log::entries;
@@ -24,6 +24,7 @@ namespace VE
     bool Log::hasNewMessagesFlag = false;
     size_t Log::clearedEntriesCount = 0;
     LogOutputMode Log::outputMode = LOG_OUTPUT_MODE_FILE_AND_CONSOLE;
+    std::mutex Log::mutex;
 
     const std::map<std::pair<char, uint16_t>, std::string> ErrorCode::messages = LOG_MESSAGES;
 
@@ -56,7 +57,7 @@ namespace VE
         {
             if (i >= entries.size())
                 continue;
-            if (!isEntryError(entries[i].number))
+            if (!isEntryError(entries[i]))
             {
                 entries.erase(entries.begin() + i);
                 clearedEntriesCount++;
@@ -66,6 +67,8 @@ namespace VE
 
     void Log::add(char letter, uint16_t number)
     {
+        std::lock_guard<std::mutex> lock(mutex);
+
         entries.push_back(ErrorCode{letter, number});
         hasNewMessagesFlag = true;
         newMessageCount++;
@@ -75,19 +78,17 @@ namespace VE
             std::cout << "LOG: " << entries.back().getMessage() << std::endl;
         }
 
-        if (isEntryError(number))
-        {
+        if (isEntryError(entries.back()))
             induceCrash();
-        }
 
         if (entries.size() > LOG_MESSAGE_LIMIT)
-        {
             freeLogSpace();
-        }
     }
 
     std::vector<std::string> Log::getNewMessages()
     {
+        std::lock_guard<std::mutex> lock(mutex);
+
         std::vector<std::string> newMessages;
         for (size_t i = entries.size() - newMessageCount; i < entries.size(); i++)
         {

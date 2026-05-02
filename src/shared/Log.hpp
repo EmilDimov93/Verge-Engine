@@ -8,6 +8,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <mutex>
 
 namespace VE
 {
@@ -68,6 +69,7 @@ namespace VE
         static bool hasNewMessagesFlag;
         static size_t clearedEntriesCount;
         static LogOutputMode outputMode;
+        static std::mutex mutex;
 
         static void writeToLogFile();
         static void freeLogSpace();

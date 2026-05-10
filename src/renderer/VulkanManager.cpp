@@ -186,7 +186,7 @@ namespace VE
         return image;
     }
 
-    VkResult copyImageBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkImage image, uint32_t width, uint32_t height)
+    VkResult copyImageBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkImage image, uint32_t width, uint32_t height, std::mutex &graphicsQueueMutex, VkFence fence)
     {
         VkCommandBufferAllocateInfo allocInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
@@ -231,11 +231,14 @@ namespace VE
             .commandBufferCount = 1,
             .pCommandBuffers = &transferCommandBuffer};
 
-        res = vkQueueSubmit(transferQueue, 1, &submitInfo, VK_NULL_HANDLE);
-        if (res != VK_SUCCESS)
-            return res;
+        {
+            std::lock_guard<std::mutex> lock(graphicsQueueMutex);
+            res = vkQueueSubmit(transferQueue, 1, &submitInfo, fence);
+            if (res != VK_SUCCESS)
+                return res;
+        }
 
-        res = vkQueueWaitIdle(transferQueue);
+        res = vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX);
         if (res != VK_SUCCESS)
             return res;
 
@@ -244,7 +247,7 @@ namespace VE
         return VK_SUCCESS;
     }
 
-    VkResult transitionImageLayout(VkDevice device, VkQueue queue, VkCommandPool commandPool, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout)
+    VkResult transitionImageLayout(VkDevice device, VkQueue queue, VkCommandPool commandPool, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, std::mutex &graphicsQueueMutex, VkFence fence)
     {
         VkCommandBufferAllocateInfo allocInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
@@ -311,11 +314,14 @@ namespace VE
             .commandBufferCount = 1,
             .pCommandBuffers = &commandBuffer};
 
-        res = vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
-        if (res != VK_SUCCESS)
-            return res;
+        {
+            std::lock_guard<std::mutex> lock(graphicsQueueMutex);
+            res = vkQueueSubmit(queue, 1, &submitInfo, fence);
+            if (res != VK_SUCCESS)
+                return res;
+        }
 
-        res = vkQueueWaitIdle(queue);
+        res = vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX);
         if (res != VK_SUCCESS)
             return res;
 
@@ -342,15 +348,34 @@ namespace VE
         VkDeviceMemory texImageMemory;
         texImage = createImage(1, 1, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texImageMemory);
 
-        vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPool, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL), {'V', 240});
-        vkCheck(copyImageBuffer(device, graphicsQueue, graphicsCommandPool, stagingBuffer, texImage, 1, 1), {'V', 239});
-        vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPool, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL), {'V', 240});
+        VkCommandPool threadLocalCommandPool = VK_NULL_HANDLE;
+        VkCommandPoolCreateInfo s_commandPool = {
+            .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+            .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
+            .queueFamilyIndex = graphicsQueueFamilyIndex};
+        vkCheck(vkCreateCommandPool(device, &s_commandPool, nullptr, &threadLocalCommandPool), {'V', 208});
 
-        textureImages.push_back(texImage);
-        textureImageMemory.push_back(texImageMemory);
+        VkFence uploadFence = VK_NULL_HANDLE;
+        VkFenceCreateInfo s_fence = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
+        vkCheck(vkCreateFence(device, &s_fence, nullptr, &uploadFence), {'V', 216});
+
+        vkCheck(transitionImageLayout(device, graphicsQueue, threadLocalCommandPool, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
+        vkCheck(vkResetFences(device, 1, &uploadFence), {'V', 232});
+        vkCheck(copyImageBuffer(device, graphicsQueue, threadLocalCommandPool, stagingBuffer, texImage, 1, 1, graphicsQueueMutex, uploadFence), {'V', 239});
+        vkCheck(vkResetFences(device, 1, &uploadFence), {'V', 232});
+        vkCheck(transitionImageLayout(device, graphicsQueue, threadLocalCommandPool, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
+
+        {
+            std::lock_guard<std::mutex> lock(textureMutex);
+            textureImages.push_back(texImage);
+            textureImageMemory.push_back(texImageMemory);
+        }
 
         vkDestroyBuffer(device, stagingBuffer, nullptr);
         vkFreeMemory(device, stagingBufferMemory, nullptr);
+
+        vkDestroyFence(device, uploadFence, nullptr);
+        vkDestroyCommandPool(device, threadLocalCommandPool, nullptr);
 
         VkImageViewCreateInfo imageViewCreateInfo{};
         imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -362,9 +387,12 @@ namespace VE
 
         VkImageView imageView;
         vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &imageView), {'V', 205});
-        textureImageViews.push_back(imageView);
 
-        createTextureDescriptor(imageView);
+        {
+            std::lock_guard<std::mutex> lock(textureMutex);
+            textureImageViews.push_back(imageView);
+            createTextureDescriptor(imageView);
+        }
     }
 
     size_t VulkanManager::createTextureImage(std::string fileName)
@@ -390,35 +418,63 @@ namespace VE
 
         texImage = createImage(width, height, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texImageMemory);
 
-        vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPool, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL), {'V', 240});
+        VkCommandPool threadLocalCommandPool = VK_NULL_HANDLE;
+        VkCommandPoolCreateInfo s_commandPool = {
+            .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+            .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
+            .queueFamilyIndex = graphicsQueueFamilyIndex};
+        vkCheck(vkCreateCommandPool(device, &s_commandPool, nullptr, &threadLocalCommandPool), {'V', 208});
 
-        vkCheck(copyImageBuffer(device, graphicsQueue, graphicsCommandPool, imageStagingBuffer, texImage, width, height), {'V', 239});
+        VkFence uploadFence = VK_NULL_HANDLE;
+        VkFenceCreateInfo s_fence = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
+        vkCheck(vkCreateFence(device, &s_fence, nullptr, &uploadFence), {'V', 216});
 
-        vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPool, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL), {'V', 240});
+        vkCheck(transitionImageLayout(device, graphicsQueue, threadLocalCommandPool, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
+        vkCheck(vkResetFences(device, 1, &uploadFence), {'V', 232});
+        vkCheck(copyImageBuffer(device, graphicsQueue, threadLocalCommandPool, imageStagingBuffer, texImage, width, height, graphicsQueueMutex, uploadFence), {'V', 239});
+        vkCheck(vkResetFences(device, 1, &uploadFence), {'V', 232});
+        vkCheck(transitionImageLayout(device, graphicsQueue, threadLocalCommandPool, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
 
-        textureImages.push_back(texImage);
-        textureImageMemory.push_back(texImageMemory);
+        size_t resultIndex;
+        {
+            std::lock_guard<std::mutex> lock(textureMutex);
+            textureImages.push_back(texImage);
+            textureImageMemory.push_back(texImageMemory);
+            resultIndex = textureImages.size() - 1;
+        }
 
         vkDestroyBuffer(device, imageStagingBuffer, nullptr);
         vkFreeMemory(device, imageStagingBufferMemory, nullptr);
 
-        return textureImages.size() - 1;
+        vkDestroyFence(device, uploadFence, nullptr);
+        vkDestroyCommandPool(device, threadLocalCommandPool, nullptr);
+
+        return resultIndex;
     }
 
     size_t VulkanManager::createTexture(std::string fileName)
     {
         // Temporary
-        if (samplerDescriptorSets.size() >= MAX_OBJECTS)
         {
-            Log::add('V', 120);
-            return INVALID_TEXTURE_INDEX;
+            std::lock_guard<std::mutex> lock(textureMutex);
+            if (samplerDescriptorSets.size() >= MAX_OBJECTS)
+            {
+                Log::add('V', 120);
+                return INVALID_TEXTURE_INDEX;
+            }
         }
 
         size_t textureImageLoc = createTextureImage(fileName);
 
+        VkImage sourceImage;
+        {
+            std::lock_guard<std::mutex> lock(textureMutex);
+            sourceImage = textureImages[textureImageLoc];
+        }
+
         VkImageViewCreateInfo imageViewCreateInfo{};
         imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        imageViewCreateInfo.image = textureImages[textureImageLoc];
+        imageViewCreateInfo.image = sourceImage;
         imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
         imageViewCreateInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
         imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -434,9 +490,11 @@ namespace VE
         VkImageView imageView;
         vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &imageView), {'V', 205});
 
-        textureImageViews.push_back(imageView);
-
-        return createTextureDescriptor(imageView);
+        {
+            std::lock_guard<std::mutex> lock(textureMutex);
+            textureImageViews.push_back(imageView);
+            return createTextureDescriptor(imageView);
+        }
     }
 
     size_t VulkanManager::createTextureDescriptor(VkImageView textureImageView)
@@ -563,7 +621,6 @@ namespace VE
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
 
-        graphicsQueueFamilyIndex = 0;
         int i = 0;
         for (const auto &queueFamily : queueFamilies)
         {
@@ -1147,7 +1204,7 @@ namespace VE
         }
     }
 
-    VkResult copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize)
+    VkResult copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize, std::mutex &graphicsQueueMutex, VkFence fence)
     {
         VkResult res;
 
@@ -1188,11 +1245,14 @@ namespace VE
             .commandBufferCount = 1,
             .pCommandBuffers = &transferCommandBuffer};
 
-        res = vkQueueSubmit(transferQueue, 1, &submitInfo, VK_NULL_HANDLE);
-        if (res != VK_SUCCESS)
-            return res;
+        {
+            std::lock_guard<std::mutex> lock(graphicsQueueMutex);
+            res = vkQueueSubmit(transferQueue, 1, &submitInfo, fence);
+            if (res != VK_SUCCESS)
+                return res;
+        }
 
-        res = vkQueueWaitIdle(transferQueue);
+        res = vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX);
         if (res != VK_SUCCESS)
             return res;
 
@@ -1217,11 +1277,24 @@ namespace VE
 
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &meshBuffer.vertexBuffer, &meshBuffer.vertexBufferMemory);
 
-        // Should be transferQueue and transferCommandPool?
-        vkCheck(copyBuffer(device, graphicsQueue, graphicsCommandPool, stagingBuffer, meshBuffer.vertexBuffer, bufferSize), {'V', 224});
+        VkCommandPool threadLocalCommandPool = VK_NULL_HANDLE;
+        VkCommandPoolCreateInfo s_commandPool = {
+            .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+            .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
+            .queueFamilyIndex = graphicsQueueFamilyIndex};
+        vkCheck(vkCreateCommandPool(device, &s_commandPool, nullptr, &threadLocalCommandPool), {'V', 208});
+
+        VkFence uploadFence = VK_NULL_HANDLE;
+        VkFenceCreateInfo s_fence = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
+        vkCheck(vkCreateFence(device, &s_fence, nullptr, &uploadFence), {'V', 216});
+
+        vkCheck(copyBuffer(device, graphicsQueue, threadLocalCommandPool, stagingBuffer, meshBuffer.vertexBuffer, bufferSize, graphicsQueueMutex, uploadFence), {'V', 224});
 
         vkDestroyBuffer(device, stagingBuffer, nullptr);
         vkFreeMemory(device, stagingBufferMemory, nullptr);
+
+        vkDestroyFence(device, uploadFence, nullptr);
+        vkDestroyCommandPool(device, threadLocalCommandPool, nullptr);
     }
 
     void VulkanManager::createIndexBuffer(MeshBuffer &meshBuffer, const std::vector<uint32_t> &indices)
@@ -1239,11 +1312,24 @@ namespace VE
 
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &meshBuffer.indexBuffer, &meshBuffer.indexBufferMemory);
 
-        // Should be transferQueue and transferCommandPool?
-        vkCheck(copyBuffer(device, graphicsQueue, graphicsCommandPool, stagingBuffer, meshBuffer.indexBuffer, bufferSize), {'V', 224});
+        VkCommandPool threadLocalCommandPool = VK_NULL_HANDLE;
+        VkCommandPoolCreateInfo s_commandPool = {
+            .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+            .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
+            .queueFamilyIndex = graphicsQueueFamilyIndex};
+        vkCheck(vkCreateCommandPool(device, &s_commandPool, nullptr, &threadLocalCommandPool), {'V', 208});
+
+        VkFence uploadFence = VK_NULL_HANDLE;
+        VkFenceCreateInfo s_fence = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
+        vkCheck(vkCreateFence(device, &s_fence, nullptr, &uploadFence), {'V', 216});
+
+        vkCheck(copyBuffer(device, graphicsQueue, threadLocalCommandPool, stagingBuffer, meshBuffer.indexBuffer, bufferSize, graphicsQueueMutex, uploadFence), {'V', 224});
 
         vkDestroyBuffer(device, stagingBuffer, nullptr);
         vkFreeMemory(device, stagingBufferMemory, nullptr);
+
+        vkDestroyFence(device, uploadFence, nullptr);
+        vkDestroyCommandPool(device, threadLocalCommandPool, nullptr);
     }
 
     void VulkanManager::initModelBuffer(const Model &model)
@@ -1251,10 +1337,6 @@ namespace VE
         ModelBuffer newModelBuffer(model.getHandle());
 
         newModelBuffer.version = model.getVersion();
-
-        modelBuffers.push_back(newModelBuffer);
-
-        ModelBuffer &modelBuffer = modelBuffers.back();
 
         for (const Mesh &mesh : model.getMeshes())
         {
@@ -1265,12 +1347,15 @@ namespace VE
             createVertexBuffer(newMeshBuffer, mesh.getVertices());
             createIndexBuffer(newMeshBuffer, mesh.getIndices());
 
-            modelBuffer.meshBuffers.push_back(newMeshBuffer);
-
             if (!mesh.getTextureFilePath().empty())
-            {
-                modelBuffer.meshBuffers.back().texIndex = createTexture(mesh.getTextureFilePath());
-            }
+                newMeshBuffer.texIndex = createTexture(mesh.getTextureFilePath());
+
+            newModelBuffer.meshBuffers.push_back(newMeshBuffer);
+        }
+
+        {
+            std::lock_guard<std::recursive_mutex> lock(modelMutex);
+            modelBuffers.push_back(newModelBuffer);
         }
     }
 
@@ -1294,8 +1379,10 @@ namespace VE
 
     void VulkanManager::updateModelBuffer(ModelBuffer &modelBuffer, const Model &model)
     {
-        if (device != VK_NULL_HANDLE)
+        {
+            std::lock_guard<std::mutex> lock(graphicsQueueMutex);
             vkCheck(vkDeviceWaitIdle(device), {'V', 235});
+        }
 
         for (MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
             destroyMeshBuffer(meshBuffer);
@@ -1505,7 +1592,10 @@ namespace VE
         vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex), {'V', 230});
 
         if (drawData.modelRemovedThisFrame)
+        {
+            std::lock_guard<std::recursive_mutex> lock(modelMutex);
             removeOrphanedModel(drawData.modelInstances);
+        }
 
         glm::vec4 lightPos(0.0f);
         glm::vec3 lightColor(1.0f);
@@ -1524,7 +1614,11 @@ namespace VE
                 break;
         }
 
-        recordCommands(imageIndex, drawData.models, drawData.modelInstances, drawData.backgroundColor);
+        {
+            std::lock_guard<std::recursive_mutex> lock(modelMutex);
+            recordCommands(imageIndex, drawData.models, drawData.modelInstances, drawData.backgroundColor);
+        }
+
         updateUniformBuffers(imageIndex, projectionMat, drawData.viewMat, lightPos, lightColor);
 
         VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
@@ -1539,7 +1633,10 @@ namespace VE
             .signalSemaphoreCount = 1,
             .pSignalSemaphores = &renderFinishedSemaphores[currentFrame]};
 
-        vkCheck(vkQueueSubmit(graphicsQueue, 1, &submitInfo, drawFences[currentFrame]), {'V', 233});
+        {
+            std::lock_guard<std::mutex> lock(graphicsQueueMutex);
+            vkCheck(vkQueueSubmit(graphicsQueue, 1, &submitInfo, drawFences[currentFrame]), {'V', 233});
+        }
 
         VkPresentInfoKHR presentInfo = {
             .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
@@ -1549,9 +1646,11 @@ namespace VE
             .pSwapchains = &swapChain,
             .pImageIndices = &imageIndex};
 
-        vkCheck(vkQueuePresentKHR(presentQueue, &presentInfo), {'V', 234});
-
-        vkCheck(vkQueueWaitIdle(presentQueue), {'V', 238});
+        {
+            std::lock_guard<std::mutex> lock(graphicsQueueMutex);
+            vkCheck(vkQueuePresentKHR(presentQueue, &presentInfo), {'V', 234});
+            vkCheck(vkQueueWaitIdle(presentQueue), {'V', 238});
+        }
 
         currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
     }

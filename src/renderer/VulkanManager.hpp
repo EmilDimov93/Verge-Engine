@@ -10,6 +10,7 @@
 
 #include <vulkan/vulkan.h>
 #include <vector>
+#include <mutex>
 
 #include <GLFW/glfw3.h>
 
@@ -75,7 +76,7 @@ namespace VE
         VkQueue graphicsQueue = VK_NULL_HANDLE;
         VkQueue presentQueue = VK_NULL_HANDLE;
 
-        int32_t graphicsQueueFamilyIndex = -1;
+        uint32_t graphicsQueueFamilyIndex = 0;
 
         VkSwapchainKHR swapChain = VK_NULL_HANDLE;
         VkFormat swapChainImageFormat;
@@ -137,6 +138,10 @@ namespace VE
         std::vector<VkSemaphore> imageAvailableSemaphores;
         std::vector<VkSemaphore> renderFinishedSemaphores;
         std::vector<VkFence> drawFences;
+
+        std::mutex graphicsQueueMutex;
+        std::recursive_mutex modelMutex;
+        std::mutex textureMutex;
 
         struct PushData
         {

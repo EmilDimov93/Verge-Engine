@@ -65,7 +65,7 @@ namespace VE
         void removeOrphanedModel(const std::vector<ModelInstance> &modelInstances);
         void destroyMeshBuffer(MeshBuffer &meshBuffer);
 
-        int currentFrame = 0;
+        uint32_t currentFrame = 0;
 
         VkInstance instance = VK_NULL_HANDLE;
         VkSurfaceKHR surface = VK_NULL_HANDLE;
@@ -174,6 +174,8 @@ namespace VE
         void createDescriptorSets();
 
         void createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory);
+
+        void syncModelBuffers(const std::vector<Model> &models);
 
         void recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor);
 

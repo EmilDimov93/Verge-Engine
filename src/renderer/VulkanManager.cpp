@@ -1148,7 +1148,7 @@ namespace VE
 
     void VulkanManager::createCommandBuffers()
     {
-        commandBuffers.resize(swapChainFramebuffers.size());
+        commandBuffers.resize(MAX_FRAME_DRAWS);
 
         VkCommandBufferAllocateInfo commandBufferAllocInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
@@ -1162,7 +1162,7 @@ namespace VE
     void VulkanManager::createSemaphores()
     {
         imageAvailableSemaphores.resize(MAX_FRAME_DRAWS);
-        renderFinishedSemaphores.resize(MAX_FRAME_DRAWS);
+        renderFinishedSemaphores.resize(swapChainImages.size());
         VkSemaphoreCreateInfo semaphoreCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
 
@@ -1173,8 +1173,12 @@ namespace VE
         for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
         {
             vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &imageAvailableSemaphores[i]), {'V', 215});
-            vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores[i]), {'V', 215});
             vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &drawFences[i]), {'V', 216});
+        }
+
+        for (size_t i = 0; i < swapChainImages.size(); i++)
+        {
+            vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores[i]), {'V', 215});
         }
     }
 
@@ -1452,29 +1456,9 @@ namespace VE
         modelBuffer.version = model.getVersion();
     }
 
-    void VulkanManager::recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor)
+    void VulkanManager::syncModelBuffers(const std::vector<Model> &models)
     {
-        VkCommandBufferBeginInfo commandBufferBeginInfo = {
-            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
-
-        vkCheck(vkBeginCommandBuffer(commandBuffers[currentImage], &commandBufferBeginInfo), {'V', 213});
-
-        VkRenderPassBeginInfo renderPassBeginInfo{};
-        renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassBeginInfo.renderPass = renderPass;
-        renderPassBeginInfo.framebuffer = swapChainFramebuffers[currentImage];
-        renderPassBeginInfo.renderArea.offset = {0, 0};
-        renderPassBeginInfo.renderArea.extent = swapChainExtent;
-
-        std::array<VkClearValue, 2> clearValues = {};
-        clearValues[0].color = {backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f};
-        clearValues[1].depthStencil.depth = 1.0f;
-        renderPassBeginInfo.pClearValues = clearValues.data();
-        renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-
-        vkCmdBeginRenderPass(commandBuffers[currentImage], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-        vkCmdBindPipeline(commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+        std::vector<const Model *> modelsToInit;
 
         for (const Model &model : models)
         {
@@ -1493,10 +1477,55 @@ namespace VE
             }
 
             if (!modelBufferFound)
-            {
-                initModelBuffer(model);
-            }
+                modelsToInit.push_back(&model);
         }
+
+        if (modelsToInit.size() == 1)
+        {
+            initModelBuffer(*modelsToInit.front());
+        }
+        else if (modelsToInit.size() > 1)
+        {
+            modelMutex.unlock();
+
+            std::vector<std::thread> workers;
+            workers.reserve(modelsToInit.size());
+            for (const Model *modelPtr : modelsToInit)
+            {
+                workers.emplace_back([this, modelPtr]
+                                     { initModelBuffer(*modelPtr); });
+            }
+
+            for (std::thread &w : workers)
+                w.join();
+
+            modelMutex.lock();
+        }
+    }
+
+    void VulkanManager::recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor)
+    {
+        VkCommandBufferBeginInfo commandBufferBeginInfo = {
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
+
+        vkCheck(vkBeginCommandBuffer(commandBuffers[currentFrame], &commandBufferBeginInfo), {'V', 213});
+
+        VkRenderPassBeginInfo renderPassBeginInfo{};
+        renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassBeginInfo.renderPass = renderPass;
+        renderPassBeginInfo.framebuffer = swapChainFramebuffers[currentImage];
+        renderPassBeginInfo.renderArea.offset = {0, 0};
+        renderPassBeginInfo.renderArea.extent = swapChainExtent;
+
+        std::array<VkClearValue, 2> clearValues = {};
+        clearValues[0].color = {backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f};
+        clearValues[1].depthStencil.depth = 1.0f;
+        renderPassBeginInfo.pClearValues = clearValues.data();
+        renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+
+        vkCmdBeginRenderPass(commandBuffers[currentFrame], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+        vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
         for (const ModelInstance &instance : modelInstances)
         {
@@ -1508,22 +1537,22 @@ namespace VE
                     {
                         VkBuffer vertexBuffers[] = {meshBuffer.vertexBuffer};
                         VkDeviceSize offsets[] = {0};
-                        vkCmdBindVertexBuffers(commandBuffers[currentImage], 0, 1, vertexBuffers, offsets);
+                        vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
 
-                        vkCmdBindIndexBuffer(commandBuffers[currentImage], meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+                        vkCmdBindIndexBuffer(commandBuffers[currentFrame], meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
                         PushData pushData;
                         pushData.model = instance.modelMat;
                         pushData.textureIndex = meshBuffer.texIndex;
                         pushData.lightStrength = instance.lightStrength;
 
-                        vkCmdPushConstants(commandBuffers[currentImage], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushData), &pushData);
+                        vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushData), &pushData);
 
-                        std::array<VkDescriptorSet, 2> descriptorSetGroup = {descriptorSets[currentImage], samplerDescriptorSets[meshBuffer.texIndex]};
+                        std::array<VkDescriptorSet, 2> descriptorSetGroup = {descriptorSets[currentFrame], samplerDescriptorSets[meshBuffer.texIndex]};
 
-                        vkCmdBindDescriptorSets(commandBuffers[currentImage], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
+                        vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
 
-                        vkCmdDrawIndexed(commandBuffers[currentImage], meshBuffer.indexCount, 1, 0, 0, 0);
+                        vkCmdDrawIndexed(commandBuffers[currentFrame], meshBuffer.indexCount, 1, 0, 0, 0);
                     }
 
                     break;
@@ -1531,9 +1560,9 @@ namespace VE
             }
         }
 
-        vkCmdEndRenderPass(commandBuffers[currentImage]);
+        vkCmdEndRenderPass(commandBuffers[currentFrame]);
 
-        vkCheck(vkEndCommandBuffer(commandBuffers[currentImage]), {'V', 213});
+        vkCheck(vkEndCommandBuffer(commandBuffers[currentFrame]), {'V', 213});
     }
 
     void VulkanManager::createUniformBuffers()
@@ -1636,10 +1665,11 @@ namespace VE
     void VulkanManager::drawFrame(const DrawData &drawData, const glm::mat4 projectionMat)
     {
         vkCheck(vkWaitForFences(device, 1, &drawFences[currentFrame], VK_TRUE, UINT64_MAX), {'V', 231});
-        vkCheck(vkResetFences(device, 1, &drawFences[currentFrame]), {'V', 232});
 
         uint32_t imageIndex;
         vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex), {'V', 230});
+
+        vkCheck(vkResetFences(device, 1, &drawFences[currentFrame]), {'V', 232});
 
         if (drawData.modelRemovedThisFrame)
         {
@@ -1666,10 +1696,11 @@ namespace VE
 
         {
             std::lock_guard<std::recursive_mutex> lock(modelMutex);
+            syncModelBuffers(drawData.models);
             recordCommands(imageIndex, drawData.models, drawData.modelInstances, drawData.backgroundColor);
         }
 
-        updateUniformBuffers(imageIndex, projectionMat, drawData.viewMat, lightPos, lightColor);
+        updateUniformBuffers(currentFrame, projectionMat, drawData.viewMat, lightPos, lightColor);
 
         VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
@@ -1679,9 +1710,9 @@ namespace VE
             .pWaitSemaphores = &imageAvailableSemaphores[currentFrame],
             .pWaitDstStageMask = waitStages,
             .commandBufferCount = 1,
-            .pCommandBuffers = &commandBuffers[imageIndex],
+            .pCommandBuffers = &commandBuffers[currentFrame],
             .signalSemaphoreCount = 1,
-            .pSignalSemaphores = &renderFinishedSemaphores[currentFrame]};
+            .pSignalSemaphores = &renderFinishedSemaphores[imageIndex]};
 
         {
             std::lock_guard<std::mutex> lock(graphicsQueueMutex);
@@ -1691,7 +1722,7 @@ namespace VE
         VkPresentInfoKHR presentInfo = {
             .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
             .waitSemaphoreCount = 1,
-            .pWaitSemaphores = &renderFinishedSemaphores[currentFrame],
+            .pWaitSemaphores = &renderFinishedSemaphores[imageIndex],
             .swapchainCount = 1,
             .pSwapchains = &swapChain,
             .pImageIndices = &imageIndex};
@@ -1699,7 +1730,6 @@ namespace VE
         {
             std::lock_guard<std::mutex> lock(graphicsQueueMutex);
             vkCheck(vkQueuePresentKHR(presentQueue, &presentInfo), {'V', 234});
-            vkCheck(vkQueueWaitIdle(presentQueue), {'V', 238});
         }
 
         currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
@@ -1788,12 +1818,16 @@ namespace VE
 
         for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
         {
-            if (renderFinishedSemaphores[i])
-                vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
             if (imageAvailableSemaphores[i])
                 vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
             if (drawFences[i])
                 vkDestroyFence(device, drawFences[i], nullptr);
+        }
+
+        for (size_t i = 0; i < swapChainImages.size(); i++)
+        {
+            if (renderFinishedSemaphores[i])
+                vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
         }
 
         if (graphicsCommandPool)

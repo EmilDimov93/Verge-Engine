@@ -186,7 +186,7 @@ namespace VE
         return image;
     }
 
-    VkResult copyImageBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkImage image, uint32_t width, uint32_t height, std::mutex &graphicsQueueMutex, VkFence fence)
+    VkResult copyImageBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkImage image, uint32_t width, uint32_t height, std::mutex &transferQueueMutex, VkFence fence)
     {
         VkCommandBufferAllocateInfo allocInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
@@ -232,7 +232,7 @@ namespace VE
             .pCommandBuffers = &transferCommandBuffer};
 
         {
-            std::lock_guard<std::mutex> lock(graphicsQueueMutex);
+            std::lock_guard<std::mutex> lock(transferQueueMutex);
             res = vkQueueSubmit(transferQueue, 1, &submitInfo, fence);
             if (res != VK_SUCCESS)
                 return res;
@@ -348,22 +348,29 @@ namespace VE
         VkDeviceMemory texImageMemory;
         texImage = createImage(1, 1, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texImageMemory);
 
-        VkCommandPool threadLocalCommandPool = VK_NULL_HANDLE;
-        VkCommandPoolCreateInfo s_commandPool = {
+        VkCommandPool graphicsCommandPoolLocal = VK_NULL_HANDLE;
+        VkCommandPoolCreateInfo graphicsPoolCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
             .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
             .queueFamilyIndex = graphicsQueueFamilyIndex};
-        vkCheck(vkCreateCommandPool(device, &s_commandPool, nullptr, &threadLocalCommandPool), {'V', 208});
+        vkCheck(vkCreateCommandPool(device, &graphicsPoolCreateInfo, nullptr, &graphicsCommandPoolLocal), {'V', 208});
+
+        VkCommandPool transferCommandPoolLocal = VK_NULL_HANDLE;
+        VkCommandPoolCreateInfo transferPoolCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+            .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
+            .queueFamilyIndex = transferQueueFamilyIndex};
+        vkCheck(vkCreateCommandPool(device, &transferPoolCreateInfo, nullptr, &transferCommandPoolLocal), {'V', 208});
 
         VkFence uploadFence = VK_NULL_HANDLE;
-        VkFenceCreateInfo s_fence = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
-        vkCheck(vkCreateFence(device, &s_fence, nullptr, &uploadFence), {'V', 216});
+        VkFenceCreateInfo fenceCreateInfo = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
+        vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &uploadFence), {'V', 216});
 
-        vkCheck(transitionImageLayout(device, graphicsQueue, threadLocalCommandPool, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
+        vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
         vkCheck(vkResetFences(device, 1, &uploadFence), {'V', 232});
-        vkCheck(copyImageBuffer(device, graphicsQueue, threadLocalCommandPool, stagingBuffer, texImage, 1, 1, graphicsQueueMutex, uploadFence), {'V', 239});
+        vkCheck(copyImageBuffer(device, transferQueue, transferCommandPoolLocal, stagingBuffer, texImage, 1, 1, transferQueueMutex, uploadFence), {'V', 239});
         vkCheck(vkResetFences(device, 1, &uploadFence), {'V', 232});
-        vkCheck(transitionImageLayout(device, graphicsQueue, threadLocalCommandPool, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
+        vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
 
         {
             std::lock_guard<std::mutex> lock(textureMutex);
@@ -375,7 +382,8 @@ namespace VE
         vkFreeMemory(device, stagingBufferMemory, nullptr);
 
         vkDestroyFence(device, uploadFence, nullptr);
-        vkDestroyCommandPool(device, threadLocalCommandPool, nullptr);
+        vkDestroyCommandPool(device, graphicsCommandPoolLocal, nullptr);
+        vkDestroyCommandPool(device, transferCommandPoolLocal, nullptr);
 
         VkImageViewCreateInfo imageViewCreateInfo{};
         imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -418,22 +426,29 @@ namespace VE
 
         texImage = createImage(width, height, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texImageMemory);
 
-        VkCommandPool threadLocalCommandPool = VK_NULL_HANDLE;
-        VkCommandPoolCreateInfo s_commandPool = {
+        VkCommandPool graphicsCommandPoolLocal = VK_NULL_HANDLE;
+        VkCommandPoolCreateInfo graphicsPoolCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
             .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
             .queueFamilyIndex = graphicsQueueFamilyIndex};
-        vkCheck(vkCreateCommandPool(device, &s_commandPool, nullptr, &threadLocalCommandPool), {'V', 208});
+        vkCheck(vkCreateCommandPool(device, &graphicsPoolCreateInfo, nullptr, &graphicsCommandPoolLocal), {'V', 208});
+
+        VkCommandPool transferCommandPoolLocal = VK_NULL_HANDLE;
+        VkCommandPoolCreateInfo transferPoolCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+            .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
+            .queueFamilyIndex = transferQueueFamilyIndex};
+        vkCheck(vkCreateCommandPool(device, &transferPoolCreateInfo, nullptr, &transferCommandPoolLocal), {'V', 208});
 
         VkFence uploadFence = VK_NULL_HANDLE;
-        VkFenceCreateInfo s_fence = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
-        vkCheck(vkCreateFence(device, &s_fence, nullptr, &uploadFence), {'V', 216});
+        VkFenceCreateInfo fenceCreateInfo = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
+        vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &uploadFence), {'V', 216});
 
-        vkCheck(transitionImageLayout(device, graphicsQueue, threadLocalCommandPool, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
+        vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
         vkCheck(vkResetFences(device, 1, &uploadFence), {'V', 232});
-        vkCheck(copyImageBuffer(device, graphicsQueue, threadLocalCommandPool, imageStagingBuffer, texImage, width, height, graphicsQueueMutex, uploadFence), {'V', 239});
+        vkCheck(copyImageBuffer(device, transferQueue, transferCommandPoolLocal, imageStagingBuffer, texImage, width, height, transferQueueMutex, uploadFence), {'V', 239});
         vkCheck(vkResetFences(device, 1, &uploadFence), {'V', 232});
-        vkCheck(transitionImageLayout(device, graphicsQueue, threadLocalCommandPool, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
+        vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
 
         size_t resultIndex;
         {
@@ -447,7 +462,8 @@ namespace VE
         vkFreeMemory(device, imageStagingBufferMemory, nullptr);
 
         vkDestroyFence(device, uploadFence, nullptr);
-        vkDestroyCommandPool(device, threadLocalCommandPool, nullptr);
+        vkDestroyCommandPool(device, graphicsCommandPoolLocal, nullptr);
+        vkDestroyCommandPool(device, transferCommandPoolLocal, nullptr);
 
         return resultIndex;
     }
@@ -532,6 +548,7 @@ namespace VE
 
     VkImage VulkanManager::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory *imageMemory)
     {
+        std::array<uint32_t, 2> queueFamilyIndices = {graphicsQueueFamilyIndex, transferQueueFamilyIndex};
         VkImageCreateInfo imageCreateInfo = {};
         imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
         imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -545,7 +562,9 @@ namespace VE
         imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         imageCreateInfo.usage = useFlags;
         imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-        imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        imageCreateInfo.sharingMode = VK_SHARING_MODE_CONCURRENT;
+        imageCreateInfo.queueFamilyIndexCount = 2;
+        imageCreateInfo.pQueueFamilyIndices = queueFamilyIndices.data();
 
         VkImage image;
         vkCheck(vkCreateImage(device, &imageCreateInfo, nullptr, &image), {'V', 222});
@@ -632,20 +651,48 @@ namespace VE
             i++;
         }
 
+        transferQueueFamilyIndex = graphicsQueueFamilyIndex;
+        int j = 0;
+        for (const auto &queueFamily : queueFamilies)
+        {
+            bool hasTransfer = queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT;
+            bool hasGraphics = queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT;
+            if (hasTransfer && !hasGraphics && queueFamily.queueCount > 0)
+            {
+                transferQueueFamilyIndex = j;
+                break;
+            }
+            j++;
+        }
+
+        std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+
         float queuePriority = 1.0f;
-        VkDeviceQueueCreateInfo queueCreateInfo = {
+        VkDeviceQueueCreateInfo graphicsQueueCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
             .queueFamilyIndex = static_cast<uint32_t>(graphicsQueueFamilyIndex),
             .queueCount = 1,
             .pQueuePriorities = &queuePriority};
+
+        queueCreateInfos.push_back(graphicsQueueCreateInfo);
+
+        if (transferQueueFamilyIndex != static_cast<uint32_t>(graphicsQueueFamilyIndex))
+        {
+            VkDeviceQueueCreateInfo transferQueueCreateInfo = {
+                .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                .queueFamilyIndex = transferQueueFamilyIndex,
+                .queueCount = 1,
+                .pQueuePriorities = &queuePriority};
+            queueCreateInfos.push_back(transferQueueCreateInfo);
+        }
 
         const char *deviceExtensions[] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
         VkPhysicalDeviceFeatures deviceFeatures = {};
         deviceFeatures.samplerAnisotropy = VK_TRUE;
         VkDeviceCreateInfo deviceCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-            .queueCreateInfoCount = 1,
-            .pQueueCreateInfos = &queueCreateInfo,
+            .queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
+            .pQueueCreateInfos = queueCreateInfos.data(),
             .enabledExtensionCount = 1,
             .ppEnabledExtensionNames = deviceExtensions,
             .pEnabledFeatures = &deviceFeatures};
@@ -653,6 +700,7 @@ namespace VE
         vkCheck(vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &device), {'V', 203});
 
         vkGetDeviceQueue(device, graphicsQueueFamilyIndex, 0, &graphicsQueue);
+        vkGetDeviceQueue(device, transferQueueFamilyIndex, 0, &transferQueue);
         presentQueue = graphicsQueue;
     }
 
@@ -1047,7 +1095,6 @@ namespace VE
 
         vkCheck(vkCreateDescriptorSetLayout(device, &layoutCreateInfo, nullptr, &descriptorSetLayout), {'V', 217});
 
-        // Texture sampler
         VkDescriptorSetLayoutBinding samplerLayoutBinding = {
             .binding = 0,
             .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
@@ -1155,11 +1202,14 @@ namespace VE
 
     void VulkanManager::createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory)
     {
+        std::array<uint32_t, 2> queueFamilyIndices = {graphicsQueueFamilyIndex, transferQueueFamilyIndex};
         VkBufferCreateInfo bufferCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
             .size = bufferSize,
             .usage = bufferUsageFlags,
-            .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
+            .sharingMode = VK_SHARING_MODE_CONCURRENT,
+            .queueFamilyIndexCount = 2,
+            .pQueueFamilyIndices = queueFamilyIndices.data()};
 
         vkCheck(vkCreateBuffer(device, &bufferCreateInfo, nullptr, buffer), {'V', 218});
 
@@ -1204,7 +1254,7 @@ namespace VE
         }
     }
 
-    VkResult copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize, std::mutex &graphicsQueueMutex, VkFence fence)
+    VkResult copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize, std::mutex &transferQueueMutex, VkFence fence)
     {
         VkResult res;
 
@@ -1246,7 +1296,7 @@ namespace VE
             .pCommandBuffers = &transferCommandBuffer};
 
         {
-            std::lock_guard<std::mutex> lock(graphicsQueueMutex);
+            std::lock_guard<std::mutex> lock(transferQueueMutex);
             res = vkQueueSubmit(transferQueue, 1, &submitInfo, fence);
             if (res != VK_SUCCESS)
                 return res;
@@ -1278,17 +1328,17 @@ namespace VE
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &meshBuffer.vertexBuffer, &meshBuffer.vertexBufferMemory);
 
         VkCommandPool threadLocalCommandPool = VK_NULL_HANDLE;
-        VkCommandPoolCreateInfo s_commandPool = {
+        VkCommandPoolCreateInfo commandPoolCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
             .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
-            .queueFamilyIndex = graphicsQueueFamilyIndex};
-        vkCheck(vkCreateCommandPool(device, &s_commandPool, nullptr, &threadLocalCommandPool), {'V', 208});
+            .queueFamilyIndex = transferQueueFamilyIndex};
+        vkCheck(vkCreateCommandPool(device, &commandPoolCreateInfo, nullptr, &threadLocalCommandPool), {'V', 208});
 
         VkFence uploadFence = VK_NULL_HANDLE;
-        VkFenceCreateInfo s_fence = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
-        vkCheck(vkCreateFence(device, &s_fence, nullptr, &uploadFence), {'V', 216});
+        VkFenceCreateInfo fenceCreateInfo = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
+        vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &uploadFence), {'V', 216});
 
-        vkCheck(copyBuffer(device, graphicsQueue, threadLocalCommandPool, stagingBuffer, meshBuffer.vertexBuffer, bufferSize, graphicsQueueMutex, uploadFence), {'V', 224});
+        vkCheck(copyBuffer(device, transferQueue, threadLocalCommandPool, stagingBuffer, meshBuffer.vertexBuffer, bufferSize, transferQueueMutex, uploadFence), {'V', 224});
 
         vkDestroyBuffer(device, stagingBuffer, nullptr);
         vkFreeMemory(device, stagingBufferMemory, nullptr);
@@ -1313,17 +1363,17 @@ namespace VE
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &meshBuffer.indexBuffer, &meshBuffer.indexBufferMemory);
 
         VkCommandPool threadLocalCommandPool = VK_NULL_HANDLE;
-        VkCommandPoolCreateInfo s_commandPool = {
+        VkCommandPoolCreateInfo commandPoolCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
             .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
-            .queueFamilyIndex = graphicsQueueFamilyIndex};
-        vkCheck(vkCreateCommandPool(device, &s_commandPool, nullptr, &threadLocalCommandPool), {'V', 208});
+            .queueFamilyIndex = transferQueueFamilyIndex};
+        vkCheck(vkCreateCommandPool(device, &commandPoolCreateInfo, nullptr, &threadLocalCommandPool), {'V', 208});
 
         VkFence uploadFence = VK_NULL_HANDLE;
-        VkFenceCreateInfo s_fence = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
-        vkCheck(vkCreateFence(device, &s_fence, nullptr, &uploadFence), {'V', 216});
+        VkFenceCreateInfo fenceCreateInfo = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
+        vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &uploadFence), {'V', 216});
 
-        vkCheck(copyBuffer(device, graphicsQueue, threadLocalCommandPool, stagingBuffer, meshBuffer.indexBuffer, bufferSize, graphicsQueueMutex, uploadFence), {'V', 224});
+        vkCheck(copyBuffer(device, transferQueue, threadLocalCommandPool, stagingBuffer, meshBuffer.indexBuffer, bufferSize, transferQueueMutex, uploadFence), {'V', 224});
 
         vkDestroyBuffer(device, stagingBuffer, nullptr);
         vkFreeMemory(device, stagingBufferMemory, nullptr);

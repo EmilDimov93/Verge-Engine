@@ -75,8 +75,10 @@ namespace VE
 
         VkQueue graphicsQueue = VK_NULL_HANDLE;
         VkQueue presentQueue = VK_NULL_HANDLE;
+        VkQueue transferQueue = VK_NULL_HANDLE;
 
         uint32_t graphicsQueueFamilyIndex = 0;
+        uint32_t transferQueueFamilyIndex = 0;
 
         VkSwapchainKHR swapChain = VK_NULL_HANDLE;
         VkFormat swapChainImageFormat;
@@ -140,6 +142,7 @@ namespace VE
         std::vector<VkFence> drawFences;
 
         std::mutex graphicsQueueMutex;
+        std::mutex transferQueueMutex;
         std::recursive_mutex modelMutex;
         std::mutex textureMutex;
 

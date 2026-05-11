@@ -21,8 +21,10 @@ namespace VE
 
     VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize)
     {
+        this->window = window;
+
         createInstance();
-        createSurface(window);
+        createSurface();
         pickPhysicalDevice();
         createLogicalDevice();
         createSwapChain(windowSize);
@@ -85,7 +87,7 @@ namespace VE
         vkCheck(vkCreateInstance(&instanceCreateInfo, nullptr, &instance), {'V', 200});
     }
 
-    void VulkanManager::createSurface(GLFWwindow *window)
+    void VulkanManager::createSurface()
     {
         vkCheck(glfwCreateWindowSurface(instance, window, nullptr, &surface), {'V', 201});
     }
@@ -932,6 +934,17 @@ namespace VE
             .depthBoundsTestEnable = VK_FALSE,
             .stencilTestEnable = VK_FALSE};
 
+        std::vector<VkDynamicState> dynamicStates = {
+            VK_DYNAMIC_STATE_VIEWPORT,
+            VK_DYNAMIC_STATE_SCISSOR
+        };
+
+        VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+            .dynamicStateCount = static_cast<uint32_t>(dynamicStates.size()),
+            .pDynamicStates = dynamicStates.data()
+        };
+
         VkGraphicsPipelineCreateInfo pipelineCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
             .stageCount = 2,
@@ -943,7 +956,7 @@ namespace VE
             .pMultisampleState = &multiSamplingCreateInfo,
             .pDepthStencilState = &depthStencilCreateInfo,
             .pColorBlendState = &colorBlendingCreateInfo,
-            .pDynamicState = nullptr,
+            .pDynamicState = &dynamicStateCreateInfo,
             .layout = pipelineLayout,
             .renderPass = renderPass,
             .subpass = 0,
@@ -1527,6 +1540,22 @@ namespace VE
 
         vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
+        VkViewport viewport = {
+            .x = 0.0f,
+            .y = 0.0f,
+            .width = static_cast<float>(swapChainExtent.width),
+            .height = static_cast<float>(swapChainExtent.height),
+            .minDepth = 0.0f,
+            .maxDepth = 1.0f
+        };
+        vkCmdSetViewport(commandBuffers[currentFrame], 0, 1, &viewport);
+
+        VkRect2D scissor = {
+            .offset = {0, 0},
+            .extent = swapChainExtent
+        };
+        vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
+
         for (const ModelInstance &instance : modelInstances)
         {
             for (const ModelBuffer &modelBuffer : modelBuffers)
@@ -1662,12 +1691,67 @@ namespace VE
         }
     }
 
+    void VulkanManager::recreateSwapChain()
+    {
+        int width = 0, height = 0;
+        glfwGetFramebufferSize(window, &width, &height);
+        while (width == 0 || height == 0)
+        {
+            glfwGetFramebufferSize(window, &width, &height);
+            glfwWaitEvents();
+        }
+
+        vkDeviceWaitIdle(device);
+
+        if (swapChain)
+        {
+            for (auto framebuffer : swapChainFramebuffers)
+            {
+                if (framebuffer)
+                    vkDestroyFramebuffer(device, framebuffer, nullptr);
+            }
+
+            if (depthBufferImageView)
+                vkDestroyImageView(device, depthBufferImageView, nullptr);
+            if (depthBufferImage)
+                vkDestroyImage(device, depthBufferImage, nullptr);
+            if (depthBufferImageMemory)
+                vkFreeMemory(device, depthBufferImageMemory, nullptr);
+
+            for (auto imageView : swapChainImageViews)
+            {
+                if (imageView)
+                    vkDestroyImageView(device, imageView, nullptr);
+            }
+
+            vkDestroySwapchainKHR(device, swapChain, nullptr);
+        }
+
+        Size2 newSize = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+
+        createSwapChain(newSize);
+        createImageViews();
+        createDepthBufferImage();
+        createFramebuffers();
+    }
+
     void VulkanManager::drawFrame(const DrawData &drawData, const glm::mat4 projectionMat)
     {
         vkCheck(vkWaitForFences(device, 1, &drawFences[currentFrame], VK_TRUE, UINT64_MAX), {'V', 231});
 
         uint32_t imageIndex;
-        vkCheck(vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex), {'V', 230});
+        VkResult imageResult = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+        if (imageResult == VK_ERROR_OUT_OF_DATE_KHR)
+        {
+            recreateSwapChain();
+            framebufferResized = false;
+            return;
+        }
+        else if (imageResult != VK_SUCCESS && imageResult != VK_SUBOPTIMAL_KHR)
+        {
+            Log::add('V', 230);
+        }
 
         vkCheck(vkResetFences(device, 1, &drawFences[currentFrame]), {'V', 232});
 
@@ -1729,7 +1813,17 @@ namespace VE
 
         {
             std::lock_guard<std::mutex> lock(graphicsQueueMutex);
-            vkCheck(vkQueuePresentKHR(presentQueue, &presentInfo), {'V', 234});
+            VkResult presentResult = vkQueuePresentKHR(presentQueue, &presentInfo);
+
+            if (presentResult == VK_ERROR_OUT_OF_DATE_KHR || presentResult == VK_SUBOPTIMAL_KHR || framebufferResized)
+            {
+                recreateSwapChain();
+                framebufferResized = false;
+            }
+            else if (presentResult != VK_SUCCESS)
+            {
+                Log::add('V', 234);
+            }
         }
 
         currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;

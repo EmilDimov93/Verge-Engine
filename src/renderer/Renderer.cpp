@@ -14,6 +14,18 @@ namespace VE
         Log::init(info.logOutputMode);
         fps.setTarget(info.targetFps);
         aspectRatio = window.getAspectRatio();
+
+        glfwSetWindowUserPointer(window.getReference(), this);
+
+        glfwSetFramebufferSizeCallback(window.getReference(), [](GLFWwindow *window, int width, int height)
+                                       {
+                                        Renderer *renderer = reinterpret_cast<Renderer*>(glfwGetWindowUserPointer(window));
+    
+                                        if (height == 0) return; 
+
+                                        renderer->aspectRatio = static_cast<float>(width) / static_cast<float>(height);
+                                        
+                                        renderer->vulkan.markFramebufferResized(); });
     }
 
     bool Renderer::isOpen()

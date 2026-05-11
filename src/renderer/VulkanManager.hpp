@@ -32,6 +32,8 @@ namespace VE
 
         ~VulkanManager();
 
+        void markFramebufferResized() { framebufferResized = true; };
+
     private:
         struct MeshBuffer
         {
@@ -67,6 +69,8 @@ namespace VE
 
         uint32_t currentFrame = 0;
 
+        GLFWwindow *window = nullptr;
+
         VkInstance instance = VK_NULL_HANDLE;
         VkSurfaceKHR surface = VK_NULL_HANDLE;
 
@@ -83,6 +87,8 @@ namespace VE
         VkSwapchainKHR swapChain = VK_NULL_HANDLE;
         VkFormat swapChainImageFormat;
         VkExtent2D swapChainExtent;
+
+        bool framebufferResized = false;
 
         std::vector<VkImage> swapChainImages;
         std::vector<VkImageView> swapChainImageViews;
@@ -154,7 +160,7 @@ namespace VE
         };
 
         void createInstance();
-        void createSurface(GLFWwindow *window);
+        void createSurface();
         void pickPhysicalDevice();
         void createLogicalDevice();
         void createSwapChain(Size2 windowSize);
@@ -172,6 +178,8 @@ namespace VE
         void createUniformBuffers();
         void createDescriptorPool();
         void createDescriptorSets();
+
+        void recreateSwapChain();
 
         void createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory);
 

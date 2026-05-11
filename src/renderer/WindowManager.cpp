@@ -28,7 +28,6 @@ namespace VE
         }
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
         window = glfwCreateWindow(this->size.w, this->size.h, name.c_str(), nullptr, nullptr);
         if (!window)

@@ -7,9 +7,11 @@
 
 #include "../../shared/Log.hpp"
 
+#include "../../../ext/stb_image/stb_image.h"
+
 namespace VE
 {
-    stbi_uc *Renderer::loadTextureFile(std::string fileName, int *width, int *height, VkDeviceSize *imageSize)
+    stbi_uc *loadTextureFile(std::string fileName, int *width, int *height, VkDeviceSize *imageSize)
     {
         int channelCount;
 

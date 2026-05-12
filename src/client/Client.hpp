@@ -1,8 +1,8 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
+#include "renderer/Renderer.hpp"
 #include "WindowManager.hpp"
-#include "Renderer.hpp"
 #include "AudioManager.hpp"
 #include "Input.hpp"
 #include "FPSManager.hpp"

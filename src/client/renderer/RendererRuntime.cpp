@@ -202,34 +202,6 @@ namespace VE
         vkUnmapMemory(device, lightingUniformBufferMemory[imageIndex]);
     }
 
-    void Renderer::removeOrphanedModel(const std::vector<ModelInstance> &modelInstances)
-    {
-        for (std::vector<ModelBuffer>::iterator it = modelBuffers.begin(); it != modelBuffers.end();)
-        {
-            bool hasInstance = false;
-            for (const ModelInstance &instance : modelInstances)
-            {
-                if (instance.modelHandle == it->handle)
-                {
-                    hasInstance = true;
-                    break;
-                }
-            }
-
-            if (!hasInstance)
-            {
-                for (MeshBuffer &meshBuffer : it->meshBuffers)
-                    destroyMeshBuffer(meshBuffer);
-
-                it = modelBuffers.erase(it);
-            }
-            else
-            {
-                ++it;
-            }
-        }
-    }
-
     void Renderer::recreateSwapChain()
     {
         int width = 0, height = 0;

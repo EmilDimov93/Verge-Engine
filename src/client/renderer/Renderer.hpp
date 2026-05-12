@@ -6,19 +6,17 @@
 #include "../../shared/DrawData.hpp"
 #include "../../shared/definitions.hpp"
 
-#include "../../../ext/stb_image/stb_image.h"
-
 #include <vulkan/vulkan.h>
+#include <GLFW/glfw3.h>
+
 #include <vector>
 #include <mutex>
-
-#include <GLFW/glfw3.h>
 
 namespace VE
 {
     class ErrorCode;
 
-    constexpr uint32_t INVALID_TEXTURE_INDEX = 0;
+    static constexpr uint32_t INVALID_TEXTURE_INDEX = 0;
 
     class Renderer
     {
@@ -27,20 +25,21 @@ namespace VE
 
         void drawFrame(const DrawData &drawData, const glm::mat4 projectionMat);
 
-        void vkCheck(VkResult res, ErrorCode errorCode);
-
         ~Renderer();
 
         void markFramebufferResized() { framebufferResized = true; };
 
     private:
+        static constexpr uint32_t MAX_FRAME_DRAWS = 2;
+        static constexpr uint32_t MAX_OBJECTS = 100; // Temporary
+
         struct MeshBuffer
         {
-            uint64_t vertexCount = 0;
+            uint32_t vertexCount = 0;
             VkBuffer vertexBuffer = VK_NULL_HANDLE;
             VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;
 
-            uint64_t indexCount = 0;
+            uint32_t indexCount = 0;
             VkBuffer indexBuffer = VK_NULL_HANDLE;
             VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
 
@@ -53,23 +52,37 @@ namespace VE
 
             std::vector<MeshBuffer> meshBuffers;
 
-            uint64_t version = 0;
+            uint32_t version = 0;
 
             ModelBuffer(ModelHandle handle) : handle(handle) {}
         };
 
         std::vector<ModelBuffer> modelBuffers;
-        void createVertexBuffer(MeshBuffer &meshBuffer, const std::vector<Vertex> &vertices);
-        void createIndexBuffer(MeshBuffer &meshBuffer, const std::vector<uint32_t> &indices);
-        void initModelBuffer(const Model &model);
-        void updateModelBuffer(ModelBuffer &modelBuffer, const Model &model);
-        void removeOrphanedModel(const std::vector<ModelInstance> &modelInstances);
-        void destroyMeshBuffer(MeshBuffer &meshBuffer);
 
-        uint32_t currentFrame = 0;
+        struct UboCamera
+        {
+            glm::mat4 projection;
+            glm::mat4 view;
+        };
+        std::vector<VkBuffer> cameraUniformBuffer;
+        std::vector<VkDeviceMemory> cameraUniformBufferMemory;
 
-        const uint8_t MAX_FRAME_DRAWS = 2;
-        const uint8_t MAX_OBJECTS = 20; // Temporary
+        struct UboLighting
+        {
+            glm::vec4 lightPos;
+            glm::vec3 lightColor;
+            glm::vec4 viewPos;
+        };
+        std::vector<VkBuffer> lightingUniformBuffer;
+        std::vector<VkDeviceMemory> lightingUniformBufferMemory;
+
+        struct PushData
+        {
+            glm::mat4 model;
+            uint32_t textureIndex;
+            float lightStrength;
+        };
+        VkPushConstantRange pushConstantRange;
 
         GLFWwindow *window = nullptr;
 
@@ -89,12 +102,11 @@ namespace VE
         VkSwapchainKHR swapChain = VK_NULL_HANDLE;
         VkFormat swapChainImageFormat;
         VkExtent2D swapChainExtent;
-
-        bool framebufferResized = false;
-
         std::vector<VkImage> swapChainImages;
         std::vector<VkImageView> swapChainImageViews;
         std::vector<VkFramebuffer> swapChainFramebuffers;
+
+        VkCommandPool graphicsCommandPool = VK_NULL_HANDLE;
         std::vector<VkCommandBuffer> commandBuffers;
 
         VkImage depthBufferImage = VK_NULL_HANDLE;
@@ -103,35 +115,12 @@ namespace VE
         VkFormat depthFormat;
 
         VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+         VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
+         std::vector<VkDescriptorSet> descriptorSets;
+
         VkDescriptorSetLayout samplerSetLayout = VK_NULL_HANDLE;
-        VkPushConstantRange pushConstantRange;
-
-        VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
         VkDescriptorPool samplerDescriptorPool = VK_NULL_HANDLE;
-        std::vector<VkDescriptorSet> descriptorSets;
         std::vector<VkDescriptorSet> samplerDescriptorSets;
-
-        struct UboCamera
-        {
-            glm::mat4 projection;
-            glm::mat4 view;
-        };
-
-        struct UboLighting
-        {
-            glm::vec4 lightPos;
-            glm::vec3 lightColor;
-            glm::vec4 viewPos;
-        };
-
-        std::vector<VkBuffer> cameraUniformBuffer;
-        std::vector<VkDeviceMemory> cameraUniformBufferMemory;
-
-        std::vector<VkBuffer> lightingUniformBuffer;
-        std::vector<VkDeviceMemory> lightingUniformBufferMemory;
-
-        std::vector<VkBuffer> modelDUniformBuffer;
-        std::vector<VkDeviceMemory> modelDUniformBufferMemory;
 
         VkSampler textureSampler;
         std::vector<VkImage> textureImages;
@@ -143,8 +132,6 @@ namespace VE
 
         VkRenderPass renderPass = VK_NULL_HANDLE;
 
-        VkCommandPool graphicsCommandPool = VK_NULL_HANDLE;
-
         std::vector<VkSemaphore> imageAvailableSemaphores;
         std::vector<VkSemaphore> renderFinishedSemaphores;
         std::vector<VkFence> drawFences;
@@ -154,13 +141,10 @@ namespace VE
         std::recursive_mutex modelMutex;
         std::mutex textureMutex;
 
-        struct PushData
-        {
-            glm::mat4 model;
-            uint32_t textureIndex;
-            float lightStrength;
-        };
+        uint32_t currentFrame = 0;
+        bool framebufferResized = false;
 
+        // Init
         void createInstance();
         void createSurface();
         void pickPhysicalDevice();
@@ -181,24 +165,30 @@ namespace VE
         void createDescriptorPool();
         void createDescriptorSets();
 
+        // Runtime
         void recreateSwapChain();
-
-        void createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory);
-        VkResult copyBuffer(VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize, VkFence fence) const;
-
-        void syncModelBuffers(const std::vector<Model> &models);
-
         void recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor);
-
         void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor);
 
-        VkShaderModule createShaderModule(const std::vector<char> &code);
+        // Helpers
+        static void vkCheck(VkResult res, ErrorCode errorCode);
+        void createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory) const;
+        VkResult copyBuffer(VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize, VkFence fence) const;
+        static std::vector<char> readFile(const std::string &fileName);
+        VkShaderModule createShaderModule(const std::vector<char> &code) const;
         static uint32_t rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
 
-        static std::vector<char> readFile(const std::string &fileName);
-
+        // Models
+        void syncModelBuffers(const std::vector<Model> &models);
+        void createVertexBuffer(MeshBuffer &meshBuffer, const std::vector<Vertex> &vertices);
+        void createIndexBuffer(MeshBuffer &meshBuffer, const std::vector<uint32_t> &indices);
+        void initModelBuffer(const Model &model);
+        void updateModelBuffer(ModelBuffer &modelBuffer, const Model &model);
+        void removeOrphanedModel(const std::vector<ModelInstance> &modelInstances);
+        void destroyMeshBuffer(MeshBuffer &meshBuffer);
+        
+        // Textures
         void createFallbackTexture();
-        stbi_uc *loadTextureFile(std::string fileName, int *width, int *height, VkDeviceSize *imageSize);
         size_t createTextureImage(std::string fileName);
         size_t createTexture(std::string fileName);
         size_t createTextureDescriptor(VkImageView textureImageView);

@@ -75,7 +75,21 @@ namespace VE
         return fileBuffer;
     }
 
-    void Renderer::createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory)
+    VkShaderModule Renderer::createShaderModule(const std::vector<char> &code) const
+    {
+        VkShaderModuleCreateInfo shaderModuleCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+            .codeSize = code.size(),
+            .pCode = reinterpret_cast<const uint32_t *>(code.data())};
+
+        VkShaderModule shaderModule;
+
+        vkCheck(vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr, &shaderModule), {'V', 209});
+
+        return shaderModule;
+    }
+
+    void Renderer::createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory) const
     {
         std::array<uint32_t, 2> queueFamilyIndices = {graphicsQueueFamilyIndex, transferQueueFamilyIndex};
         VkBufferCreateInfo bufferCreateInfo = {

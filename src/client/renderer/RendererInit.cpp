@@ -288,20 +288,6 @@ namespace VE
         }
     }
 
-    VkShaderModule Renderer::createShaderModule(const std::vector<char> &code)
-    {
-        VkShaderModuleCreateInfo shaderModuleCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-            .codeSize = code.size(),
-            .pCode = reinterpret_cast<const uint32_t *>(code.data())};
-
-        VkShaderModule shaderModule;
-
-        vkCheck(vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr, &shaderModule), {'V', 209});
-
-        return shaderModule;
-    }
-
     void Renderer::createGraphicsPipeline()
     {
         std::vector<char> vertexShaderCode = readFile("shaders/vert.spv");

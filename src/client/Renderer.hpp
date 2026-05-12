@@ -21,16 +21,16 @@ namespace VE
 
     constexpr uint32_t INVALID_TEXTURE_INDEX = 0;
 
-    class VulkanManager
+    class Renderer
     {
     public:
-        VulkanManager(GLFWwindow *window, Size2 windowSize);
+        Renderer(GLFWwindow *window, Size2 windowSize);
 
         void drawFrame(const DrawData &drawData, const glm::mat4 projectionMat);
 
         void vkCheck(VkResult res, ErrorCode errorCode);
 
-        ~VulkanManager();
+        ~Renderer();
 
         void markFramebufferResized() { framebufferResized = true; };
 

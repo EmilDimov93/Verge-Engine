@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0
 
 #include "WindowManager.hpp"
-#include "VulkanManager.hpp"
+#include "Renderer.hpp"
 #include "AudioManager.hpp"
 #include "Input.hpp"
 #include "FPSManager.hpp"
@@ -14,7 +14,7 @@ namespace VE
 
     constexpr size_t KEYBIND_COUNT = 2;
 
-    struct RendererCreateInfo
+    struct ClientCreateInfo
     {
         std::string projectName = "Verge Engine Program";
         Size2 windowSize = {};
@@ -43,10 +43,10 @@ namespace VE
         Keybind moveCameraDown[KEYBIND_COUNT];
     };
 
-    class Renderer
+    class Client
     {
     public:
-        Renderer(const RendererCreateInfo &info = {});
+        Client(const ClientCreateInfo &info = {});
 
         bool isOpen();
 
@@ -55,7 +55,7 @@ namespace VE
         VehicleInputState getVIS();
         void setVehicleKeybinds(const VehicleKeybinds &keybinds);
 
-        ~Renderer();
+        ~Client();
 
         milliseconds_t getFrameTime() const;
         uint32_t getFps() const;
@@ -79,7 +79,7 @@ namespace VE
     private:
         // Window & Rendering
         WindowManager window;
-        VulkanManager vulkan;
+        Renderer renderer;
         FpsManager fps;
 
         float aspectRatio = 1.0f;

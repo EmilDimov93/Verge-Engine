@@ -1,7 +1,7 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#include "renderer/Renderer.hpp"
+#include "client/Client.hpp"
 #include "scene/Scene.hpp"
 
 using namespace VE;
@@ -9,32 +9,32 @@ using namespace VE;
 class VergeEngine
 {
 public:
-    VergeEngine() : renderer({"Example", {400, 400}}) {}
+    VergeEngine() : client({"Example", {400, 400}}) {}
 
     void run()
     {
         setupScene();
 
-        setupRenderer();
+        setupClient();
 
-        while (renderer.isOpen())
+        while (client.isOpen())
         {
-            renderer.tick(scene.getDrawData(player1), scene.getAudioData(player1));
+            client.tick(scene.getDrawData(player1), scene.getAudioData(player1));
 
-            scene.tick(renderer.getFrameTime(), {{player1, renderer.getVIS()}});
+            scene.tick(client.getFrameTime(), {{player1, client.getVIS()}});
         }
     }
 
 private:
-    Renderer renderer;
+    Client client;
     Scene scene;
 
     PlayerHandle player1;
     VehicleHandle car1;
 
-    void setupRenderer()
+    void setupClient()
     {
-        renderer.setTargetFps(240);
+        client.setTargetFps(240);
 
         VehicleKeybinds keybinds{};
 
@@ -66,9 +66,9 @@ private:
         keybinds.moveCameraUp[1] = CONTROLLER_AXIS_RY_POSITIVE;
         keybinds.moveCameraDown[1] = CONTROLLER_AXIS_RY_NEGATIVE;
 
-        renderer.setVehicleKeybinds(keybinds);
+        client.setVehicleKeybinds(keybinds);
 
-        renderer.setSteerInputSmoothing(0.9f);
+        client.setSteerInputSmoothing(0.9f);
     }
 
     void setupScene()

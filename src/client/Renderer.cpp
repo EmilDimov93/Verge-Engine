@@ -3,7 +3,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 
-#include "VulkanManager.hpp"
+#include "Renderer.hpp"
 
 #include "../shared/Log.hpp"
 #include "../shared/version.hpp"
@@ -19,7 +19,7 @@ namespace VE
     const uint8_t MAX_FRAME_DRAWS = 2;
     const uint8_t MAX_OBJECTS = 20; // Temporary
 
-    VulkanManager::VulkanManager(GLFWwindow *window, Size2 windowSize)
+    Renderer::Renderer(GLFWwindow *window, Size2 windowSize)
     {
         this->window = window;
 
@@ -48,7 +48,7 @@ namespace VE
         Log::add('V', 000);
     }
 
-    void VulkanManager::createInstance()
+    void Renderer::createInstance()
     {
         VkApplicationInfo appInfo = {
             .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
@@ -87,12 +87,12 @@ namespace VE
         vkCheck(vkCreateInstance(&instanceCreateInfo, nullptr, &instance), {'V', 200});
     }
 
-    void VulkanManager::createSurface()
+    void Renderer::createSurface()
     {
         vkCheck(glfwCreateWindowSurface(instance, window, nullptr, &surface), {'V', 201});
     }
 
-    uint32_t VulkanManager::rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface)
+    uint32_t Renderer::rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface)
     {
         VkPhysicalDeviceProperties props;
         VkPhysicalDeviceFeatures features;
@@ -123,7 +123,7 @@ namespace VE
         int32_t graphicsFamily = -1;
         int32_t presentationFamily = -1;
         int i = 0;
-        for (const auto &queueFamily : queueFamilies)
+        for (const VkQueueFamilyProperties &queueFamily : queueFamilies)
         {
             if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
             {
@@ -174,7 +174,7 @@ namespace VE
         return -1;
     }
 
-    stbi_uc *VulkanManager::loadTextureFile(std::string fileName, int *width, int *height, VkDeviceSize *imageSize)
+    stbi_uc *Renderer::loadTextureFile(std::string fileName, int *width, int *height, VkDeviceSize *imageSize)
     {
         int channelCount;
 
@@ -332,7 +332,7 @@ namespace VE
         return VK_SUCCESS;
     }
 
-    void VulkanManager::createFallbackTexture()
+    void Renderer::createFallbackTexture()
     {
         uint32_t whitePixel = 0xFFFFFFFF;
         VkDeviceSize imageSize = 4;
@@ -405,7 +405,7 @@ namespace VE
         }
     }
 
-    size_t VulkanManager::createTextureImage(std::string fileName)
+    size_t Renderer::createTextureImage(std::string fileName)
     {
         int width, height;
         VkDeviceSize imageSize;
@@ -470,7 +470,7 @@ namespace VE
         return resultIndex;
     }
 
-    size_t VulkanManager::createTexture(std::string fileName)
+    size_t Renderer::createTexture(std::string fileName)
     {
         // Temporary
         {
@@ -515,7 +515,7 @@ namespace VE
         }
     }
 
-    size_t VulkanManager::createTextureDescriptor(VkImageView textureImageView)
+    size_t Renderer::createTextureDescriptor(VkImageView textureImageView)
     {
         VkDescriptorSet descriptorSet;
 
@@ -548,7 +548,7 @@ namespace VE
         return samplerDescriptorSets.size() - 1;
     }
 
-    VkImage VulkanManager::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory *imageMemory)
+    VkImage Renderer::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory *imageMemory)
     {
         std::array<uint32_t, 2> queueFamilyIndices = {graphicsQueueFamilyIndex, transferQueueFamilyIndex};
         VkImageCreateInfo imageCreateInfo = {};
@@ -585,7 +585,7 @@ namespace VE
         return image;
     }
 
-    void VulkanManager::createTextureSampler()
+    void Renderer::createTextureSampler()
     {
         VkSamplerCreateInfo samplerCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
@@ -606,7 +606,7 @@ namespace VE
         vkCheck(vkCreateSampler(device, &samplerCreateInfo, nullptr, &textureSampler), {'V', 226});
     }
 
-    void VulkanManager::pickPhysicalDevice()
+    void Renderer::pickPhysicalDevice()
     {
         uint32_t deviceCount = 0;
         vkCheck(vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr), {'V', 202});
@@ -619,7 +619,7 @@ namespace VE
         vkCheck(vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data()), {'V', 202});
 
         int bestScore = 0;
-        for (auto device : devices)
+        for (VkPhysicalDevice device : devices)
         {
             int score = rateDevice(device, surface);
             if (score > bestScore)
@@ -635,7 +635,7 @@ namespace VE
         }
     }
 
-    void VulkanManager::createLogicalDevice()
+    void Renderer::createLogicalDevice()
     {
         uint32_t queueFamilyCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
@@ -643,7 +643,7 @@ namespace VE
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
 
         int i = 0;
-        for (const auto &queueFamily : queueFamilies)
+        for (const VkQueueFamilyProperties &queueFamily : queueFamilies)
         {
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
             {
@@ -655,7 +655,7 @@ namespace VE
 
         transferQueueFamilyIndex = graphicsQueueFamilyIndex;
         int j = 0;
-        for (const auto &queueFamily : queueFamilies)
+        for (const VkQueueFamilyProperties &queueFamily : queueFamilies)
         {
             bool hasTransfer = queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT;
             bool hasGraphics = queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT;
@@ -672,13 +672,13 @@ namespace VE
         float queuePriority = 1.0f;
         VkDeviceQueueCreateInfo graphicsQueueCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-            .queueFamilyIndex = static_cast<uint32_t>(graphicsQueueFamilyIndex),
+            .queueFamilyIndex = graphicsQueueFamilyIndex,
             .queueCount = 1,
             .pQueuePriorities = &queuePriority};
 
         queueCreateInfos.push_back(graphicsQueueCreateInfo);
 
-        if (transferQueueFamilyIndex != static_cast<uint32_t>(graphicsQueueFamilyIndex))
+        if (transferQueueFamilyIndex != graphicsQueueFamilyIndex)
         {
             VkDeviceQueueCreateInfo transferQueueCreateInfo = {
                 .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
@@ -706,7 +706,7 @@ namespace VE
         presentQueue = graphicsQueue;
     }
 
-    void VulkanManager::createSwapChain(Size2 windowSize)
+    void Renderer::createSwapChain(Size2 windowSize)
     {
         VkSurfaceCapabilitiesKHR capabilities;
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities);
@@ -740,7 +740,7 @@ namespace VE
         vkGetSwapchainImagesKHR(device, swapChain, &swapChainImageCount, swapChainImages.data());
     }
 
-    void VulkanManager::createImageViews()
+    void Renderer::createImageViews()
     {
         swapChainImageViews.resize(swapChainImages.size());
         for (size_t i = 0; i < swapChainImages.size(); i++)
@@ -763,7 +763,7 @@ namespace VE
         }
     }
 
-    VkShaderModule VulkanManager::createShaderModule(const std::vector<char> &code)
+    VkShaderModule Renderer::createShaderModule(const std::vector<char> &code)
     {
         VkShaderModuleCreateInfo shaderModuleCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
@@ -799,7 +799,7 @@ namespace VE
         return fileBuffer;
     }
 
-    void VulkanManager::createGraphicsPipeline()
+    void Renderer::createGraphicsPipeline()
     {
         std::vector<char> vertexShaderCode = readFile("shaders/vert.spv");
         std::vector<char> fragmentShaderCode = readFile("shaders/frag.spv");
@@ -969,7 +969,7 @@ namespace VE
         vkDestroyShaderModule(device, fragmentShaderModule, nullptr);
     }
 
-    void VulkanManager::createDepthBufferImage()
+    void Renderer::createDepthBufferImage()
     {
         depthBufferImage = createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &depthBufferImageMemory);
 
@@ -990,7 +990,7 @@ namespace VE
         vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &depthBufferImageView), {'V', 205});
     }
 
-    void VulkanManager::createRenderPass()
+    void Renderer::createRenderPass()
     {
         VkAttachmentDescription colorAttachment{
             .format = swapChainImageFormat,
@@ -1083,7 +1083,7 @@ namespace VE
         vkCheck(vkCreateRenderPass(device, &renderPassCreateInfo, nullptr, &renderPass), {'V', 206});
     }
 
-    void VulkanManager::createDescriptorSetLayout()
+    void Renderer::createDescriptorSetLayout()
     {
         VkDescriptorSetLayoutBinding cameraLayoutBinding = {
             .binding = 0,
@@ -1123,14 +1123,14 @@ namespace VE
         vkCheck(vkCreateDescriptorSetLayout(device, &textureLayoutCreateInfo, nullptr, &samplerSetLayout), {'V', 217});
     }
 
-    void VulkanManager::createPushConstantRange()
+    void Renderer::createPushConstantRange()
     {
         pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
         pushConstantRange.offset = 0;
         pushConstantRange.size = sizeof(PushData);
     }
 
-    void VulkanManager::createFramebuffers()
+    void Renderer::createFramebuffers()
     {
         swapChainFramebuffers.resize(swapChainImageViews.size());
         for (size_t i = 0; i < swapChainImageViews.size(); i++)
@@ -1149,7 +1149,7 @@ namespace VE
         }
     }
 
-    void VulkanManager::createCommandPool()
+    void Renderer::createCommandPool()
     {
         VkCommandPoolCreateInfo graphicsCommandPoolCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
@@ -1159,7 +1159,7 @@ namespace VE
         vkCheck(vkCreateCommandPool(device, &graphicsCommandPoolCreateInfo, nullptr, &graphicsCommandPool), {'V', 208});
     }
 
-    void VulkanManager::createCommandBuffers()
+    void Renderer::createCommandBuffers()
     {
         commandBuffers.resize(MAX_FRAME_DRAWS);
 
@@ -1172,7 +1172,7 @@ namespace VE
         vkCheck(vkAllocateCommandBuffers(device, &commandBufferAllocInfo, commandBuffers.data()), {'V', 212});
     }
 
-    void VulkanManager::createSemaphores()
+    void Renderer::createSemaphores()
     {
         imageAvailableSemaphores.resize(MAX_FRAME_DRAWS);
         renderFinishedSemaphores.resize(swapChainImages.size());
@@ -1195,7 +1195,7 @@ namespace VE
         }
     }
 
-    void VulkanManager::updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor)
+    void Renderer::updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor)
     {
         UboCamera uboCamera;
         uboCamera.projection = projectionMat;
@@ -1217,7 +1217,7 @@ namespace VE
         vkUnmapMemory(device, lightingUniformBufferMemory[imageIndex]);
     }
 
-    void VulkanManager::createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory)
+    void Renderer::createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory)
     {
         std::array<uint32_t, 2> queueFamilyIndices = {graphicsQueueFamilyIndex, transferQueueFamilyIndex};
         VkBufferCreateInfo bufferCreateInfo = {
@@ -1243,9 +1243,9 @@ namespace VE
         vkCheck(vkBindBufferMemory(device, *buffer, *bufferMemory, 0), {'V', 218});
     }
 
-    void VulkanManager::removeOrphanedModel(const std::vector<ModelInstance> &modelInstances)
+    void Renderer::removeOrphanedModel(const std::vector<ModelInstance> &modelInstances)
     {
-        for (auto it = modelBuffers.begin(); it != modelBuffers.end();)
+        for (std::vector<ModelBuffer>::iterator it = modelBuffers.begin(); it != modelBuffers.end();)
         {
             bool hasInstance = false;
             for (const ModelInstance &instance : modelInstances)
@@ -1328,7 +1328,7 @@ namespace VE
         return VK_SUCCESS;
     }
 
-    void VulkanManager::createVertexBuffer(MeshBuffer &meshBuffer, const std::vector<Vertex> &vertices)
+    void Renderer::createVertexBuffer(MeshBuffer &meshBuffer, const std::vector<Vertex> &vertices)
     {
         VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
 
@@ -1364,7 +1364,7 @@ namespace VE
         vkDestroyCommandPool(device, threadLocalCommandPool, nullptr);
     }
 
-    void VulkanManager::createIndexBuffer(MeshBuffer &meshBuffer, const std::vector<uint32_t> &indices)
+    void Renderer::createIndexBuffer(MeshBuffer &meshBuffer, const std::vector<uint32_t> &indices)
     {
         VkDeviceSize bufferSize = sizeof(uint32_t) * indices.size();
 
@@ -1399,7 +1399,7 @@ namespace VE
         vkDestroyCommandPool(device, threadLocalCommandPool, nullptr);
     }
 
-    void VulkanManager::initModelBuffer(const Model &model)
+    void Renderer::initModelBuffer(const Model &model)
     {
         ModelBuffer newModelBuffer(model.getHandle());
 
@@ -1426,7 +1426,7 @@ namespace VE
         }
     }
 
-    void VulkanManager::destroyMeshBuffer(MeshBuffer &meshBuffer)
+    void Renderer::destroyMeshBuffer(MeshBuffer &meshBuffer)
     {
         if (meshBuffer.vertexBuffer)
             vkDestroyBuffer(device, meshBuffer.vertexBuffer, nullptr);
@@ -1444,7 +1444,7 @@ namespace VE
         meshBuffer.indexBufferMemory = VK_NULL_HANDLE;
     }
 
-    void VulkanManager::updateModelBuffer(ModelBuffer &modelBuffer, const Model &model)
+    void Renderer::updateModelBuffer(ModelBuffer &modelBuffer, const Model &model)
     {
         {
             std::lock_guard<std::mutex> lock(graphicsQueueMutex);
@@ -1469,7 +1469,7 @@ namespace VE
         modelBuffer.version = model.getVersion();
     }
 
-    void VulkanManager::syncModelBuffers(const std::vector<Model> &models)
+    void Renderer::syncModelBuffers(const std::vector<Model> &models)
     {
         std::vector<const Model *> modelsToInit;
 
@@ -1516,7 +1516,7 @@ namespace VE
         }
     }
 
-    void VulkanManager::recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor)
+    void Renderer::recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor)
     {
         VkCommandBufferBeginInfo commandBufferBeginInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
@@ -1594,7 +1594,7 @@ namespace VE
         vkCheck(vkEndCommandBuffer(commandBuffers[currentFrame]), {'V', 213});
     }
 
-    void VulkanManager::createUniformBuffers()
+    void Renderer::createUniformBuffers()
     {
         VkDeviceSize cameraBufferSize = sizeof(UboCamera);
         VkDeviceSize lightingBufferSize = sizeof(UboLighting);
@@ -1612,7 +1612,7 @@ namespace VE
         }
     }
 
-    void VulkanManager::createDescriptorPool()
+    void Renderer::createDescriptorPool()
     {
         VkDescriptorPoolSize uniformPoolSize = {
             .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
@@ -1641,7 +1641,7 @@ namespace VE
         vkCheck(vkCreateDescriptorPool(device, &samplerPoolCreateInfo, nullptr, &samplerDescriptorPool), {'V', 219});
     }
 
-    void VulkanManager::createDescriptorSets()
+    void Renderer::createDescriptorSets()
     {
         descriptorSets.resize(swapChainImages.size());
 
@@ -1691,7 +1691,7 @@ namespace VE
         }
     }
 
-    void VulkanManager::recreateSwapChain()
+    void Renderer::recreateSwapChain()
     {
         int width = 0, height = 0;
         glfwGetFramebufferSize(window, &width, &height);
@@ -1705,7 +1705,7 @@ namespace VE
 
         if (swapChain)
         {
-            for (auto framebuffer : swapChainFramebuffers)
+            for (VkFramebuffer framebuffer : swapChainFramebuffers)
             {
                 if (framebuffer)
                     vkDestroyFramebuffer(device, framebuffer, nullptr);
@@ -1718,7 +1718,7 @@ namespace VE
             if (depthBufferImageMemory)
                 vkFreeMemory(device, depthBufferImageMemory, nullptr);
 
-            for (auto imageView : swapChainImageViews)
+            for (VkImageView imageView : swapChainImageViews)
             {
                 if (imageView)
                     vkDestroyImageView(device, imageView, nullptr);
@@ -1735,7 +1735,7 @@ namespace VE
         createFramebuffers();
     }
 
-    void VulkanManager::drawFrame(const DrawData &drawData, const glm::mat4 projectionMat)
+    void Renderer::drawFrame(const DrawData &drawData, const glm::mat4 projectionMat)
     {
         vkCheck(vkWaitForFences(device, 1, &drawFences[currentFrame], VK_TRUE, UINT64_MAX), {'V', 231});
 
@@ -1829,7 +1829,7 @@ namespace VE
         currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
     }
 
-    void VulkanManager::vkCheck(VkResult res, ErrorCode errorCode)
+    void Renderer::vkCheck(VkResult res, ErrorCode errorCode)
     {
         switch (res)
         {
@@ -1855,7 +1855,7 @@ namespace VE
         }
     }
 
-    VulkanManager::~VulkanManager()
+    Renderer::~Renderer()
     {
         if (device != VK_NULL_HANDLE)
             vkCheck(vkDeviceWaitIdle(device), {'V', 235});
@@ -1927,7 +1927,7 @@ namespace VE
         if (graphicsCommandPool)
             vkDestroyCommandPool(device, graphicsCommandPool, nullptr);
 
-        for (auto fb : swapChainFramebuffers)
+        for (VkFramebuffer fb : swapChainFramebuffers)
             if (fb)
                 vkDestroyFramebuffer(device, fb, nullptr);
         swapChainFramebuffers.clear();
@@ -1941,7 +1941,7 @@ namespace VE
         if (renderPass)
             vkDestroyRenderPass(device, renderPass, nullptr);
 
-        for (auto iv : swapChainImageViews)
+        for (VkImageView iv : swapChainImageViews)
             if (iv)
                 vkDestroyImageView(device, iv, nullptr);
         swapChainImageViews.clear();

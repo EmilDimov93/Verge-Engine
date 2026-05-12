@@ -10,12 +10,12 @@ add_executable(VergeEngine
     
     src/shared/Log.cpp
 
-    src/renderer/Renderer.cpp
-    src/renderer/WindowManager.cpp
-    src/renderer/VulkanManager.cpp
-    src/renderer/AudioManager.cpp
-    src/renderer/Input.cpp
-    src/renderer/FpsManager.cpp
+    src/client/Client.cpp
+    src/client/WindowManager.cpp
+    src/client/Renderer.cpp
+    src/client/AudioManager.cpp
+    src/client/Input.cpp
+    src/client/FpsManager.cpp
 
     src/scene/SceneCore.cpp
     src/scene/SceneActors.cpp

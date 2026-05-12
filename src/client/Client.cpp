@@ -1,14 +1,14 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#include "Renderer.hpp"
+#include "Client.hpp"
 
 #include "../shared/Log.hpp"
 
 namespace VE
 {
 
-    Renderer::Renderer(const RendererCreateInfo &info) : window(info.windowSize, info.projectName), vulkan(window.getReference(), window.getSize())
+    Client::Client(const ClientCreateInfo &info) : window(info.windowSize, info.projectName), renderer(window.getReference(), window.getSize())
     {
         Input::init(window.getReference());
         Log::init(info.logOutputMode);
@@ -19,25 +19,25 @@ namespace VE
 
         glfwSetFramebufferSizeCallback(window.getReference(), [](GLFWwindow *window, int width, int height)
                                        {
-                                        Renderer *renderer = reinterpret_cast<Renderer*>(glfwGetWindowUserPointer(window));
+                                        Client *client = reinterpret_cast<Client*>(glfwGetWindowUserPointer(window));
     
                                         if (height == 0) return; 
 
-                                        renderer->aspectRatio = static_cast<float>(width) / static_cast<float>(height);
+                                        client->aspectRatio = static_cast<float>(width) / static_cast<float>(height);
                                         
-                                        renderer->vulkan.markFramebufferResized(); });
+                                        client->renderer.markFramebufferResized(); });
     }
 
-    bool Renderer::isOpen()
+    bool Client::isOpen()
     {
         return window.isOpen();
     }
 
-    void Renderer::tick(const DrawData &drawData, const AudioData &audioData)
+    void Client::tick(const DrawData &drawData, const AudioData &audioData)
     {
         Input::refresh();
 
-        vulkan.drawFrame(drawData, getProjectionMat());
+        renderer.drawFrame(drawData, getProjectionMat());
 
         audio.tick(audioData, volume);
 
@@ -87,7 +87,7 @@ namespace VE
         return maxValue;
     }
 
-    VehicleInputState Renderer::getVIS()
+    VehicleInputState Client::getVIS()
     {
         float dt = fps.getFrameTime();
 
@@ -190,38 +190,38 @@ namespace VE
         return vis;
     }
 
-    void Renderer::setVehicleKeybinds(const VehicleKeybinds &keybinds)
+    void Client::setVehicleKeybinds(const VehicleKeybinds &keybinds)
     {
         this->keybinds = keybinds;
     }
 
-    Renderer::~Renderer()
+    Client::~Client()
     {
         Log::end();
     }
 
-    milliseconds_t Renderer::getFrameTime() const
+    milliseconds_t Client::getFrameTime() const
     {
         return fps.getFrameTime();
     }
 
-    uint32_t Renderer::getFps() const
+    uint32_t Client::getFps() const
     {
         return fps.getFps();
     }
 
-    void Renderer::setTargetFps(uint16_t target)
+    void Client::setTargetFps(uint16_t target)
     {
         fps.setTarget(target);
     }
 
-    void Renderer::setVolume(float volume)
+    void Client::setVolume(float volume)
     {
         if (volume >= 0 && volume <= 1.0f)
             this->volume = volume;
     }
 
-    void Renderer::setFOV(float fov)
+    void Client::setFOV(float fov)
     {
         if (fov > 0.0f && fov < 180.0f)
             this->fov = fov;
@@ -229,7 +229,7 @@ namespace VE
             Log::add('R', 200);
     }
 
-    void Renderer::setzNear(float zNear)
+    void Client::setzNear(float zNear)
     {
         if (zNear > 0.0f)
             this->zNear = zNear;
@@ -237,7 +237,7 @@ namespace VE
             Log::add('R', 201);
     }
 
-    void Renderer::setZFar(float zFar)
+    void Client::setZFar(float zFar)
     {
         if (zFar > zNear)
             this->zFar = zFar;
@@ -245,14 +245,14 @@ namespace VE
             Log::add('R', 202);
     }
 
-    glm::mat4 Renderer::getProjectionMat() const
+    glm::mat4 Client::getProjectionMat() const
     {
         glm::mat4 projectionMat = glm::perspective(glm::radians(fov), aspectRatio, zNear, zFar);
         projectionMat[1][1] *= -1;
         return projectionMat;
     }
 
-    float Renderer::getVolume() const
+    float Client::getVolume() const
     {
         return volume;
     }

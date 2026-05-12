@@ -12,19 +12,23 @@ add_executable(VergeEngine
 
     src/client/Client.cpp
     src/client/WindowManager.cpp
-    src/client/Renderer.cpp
     src/client/AudioManager.cpp
     src/client/Input.cpp
     src/client/FpsManager.cpp
+    src/client/renderer/RendererInit.cpp
+    src/client/renderer/RendererRuntime.cpp
+    src/client/renderer/RendererHelpers.cpp
+    src/client/renderer/RendererModels.cpp
+    src/client/renderer/RendererTextures.cpp
 
     src/scene/SceneCore.cpp
     src/scene/SceneActors.cpp
     src/scene/Player.cpp
+    src/scene/Camera.cpp
     src/scene/actors/VehicleCore.cpp
     src/scene/actors/VehiclePhysics.cpp
     src/scene/actors/Prop.cpp
     src/scene/actors/Trigger.cpp
-    src/scene/Camera.cpp
 )
 
 target_include_directories(VergeEngine PRIVATE

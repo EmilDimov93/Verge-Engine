@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include "../shared/DrawData.hpp"
-#include "../shared/definitions.hpp"
+#include "../../shared/DrawData.hpp"
+#include "../../shared/definitions.hpp"
 
-#include "../../ext/stb_image/stb_image.h"
+#include "../../../ext/stb_image/stb_image.h"
 
 #include <vulkan/vulkan.h>
 #include <vector>
@@ -16,7 +16,6 @@
 
 namespace VE
 {
-
     class ErrorCode;
 
     constexpr uint32_t INVALID_TEXTURE_INDEX = 0;
@@ -68,6 +67,9 @@ namespace VE
         void destroyMeshBuffer(MeshBuffer &meshBuffer);
 
         uint32_t currentFrame = 0;
+
+        const uint8_t MAX_FRAME_DRAWS = 2;
+        const uint8_t MAX_OBJECTS = 20; // Temporary
 
         GLFWwindow *window = nullptr;
 
@@ -148,7 +150,7 @@ namespace VE
         std::vector<VkFence> drawFences;
 
         std::mutex graphicsQueueMutex;
-        std::mutex transferQueueMutex;
+        mutable std::mutex transferQueueMutex;
         std::recursive_mutex modelMutex;
         std::mutex textureMutex;
 
@@ -182,6 +184,7 @@ namespace VE
         void recreateSwapChain();
 
         void createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory);
+        VkResult copyBuffer(VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize, VkFence fence) const;
 
         void syncModelBuffers(const std::vector<Model> &models);
 
@@ -191,6 +194,8 @@ namespace VE
 
         VkShaderModule createShaderModule(const std::vector<char> &code);
         static uint32_t rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
+
+        static std::vector<char> readFile(const std::string &fileName);
 
         void createFallbackTexture();
         stbi_uc *loadTextureFile(std::string fileName, int *width, int *height, VkDeviceSize *imageSize);

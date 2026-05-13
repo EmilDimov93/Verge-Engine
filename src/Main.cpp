@@ -9,7 +9,7 @@ using namespace VE;
 class VergeEngine
 {
 public:
-    VergeEngine() : client({"Example", {400, 400}}) {}
+    VergeEngine() : client({"Example", {2560, 1570}}) {}
 
     void run()
     {

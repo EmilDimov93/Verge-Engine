@@ -8,6 +8,7 @@ layout(location = 3) in vec3 normal;
 layout(set = 0, binding = 0) uniform UboCamera {
     mat4 projection;
     mat4 view;
+    mat4 lightSpaceMat;
 } uboCamera;
 
 layout(push_constant) uniform PushModel {
@@ -22,6 +23,7 @@ layout(location = 2) flat out uint fragTextureIndex;
 layout(location = 3) out vec3 fragWorldPos;
 layout(location = 4) out vec3 fragNormal;
 layout(location = 5) flat out float fragLightStrength;
+layout(location = 6) out vec4 fragPosLightSpace;
 
 void main(){
     vec4 worldPos = pushModel.model * vec4(pos, 1.0);
@@ -33,4 +35,5 @@ void main(){
     fragWorldPos = worldPos.xyz;
     fragNormal = mat3(pushModel.model) * normal;
     fragLightStrength = pushModel.lightStrength;
+    fragPosLightSpace = uboCamera.lightSpaceMat * pushModel.model * vec4(pos, 1.0);
 }

@@ -32,6 +32,8 @@ namespace VE
     private:
         static constexpr uint32_t MAX_FRAME_DRAWS = 2;
         static constexpr uint32_t MAX_OBJECTS = 100; // Temporary
+        
+        static constexpr Size2 shadowMapExtent = {4096, 4096};
 
         struct MeshBuffer
         {
@@ -63,6 +65,7 @@ namespace VE
         {
             glm::mat4 projection;
             glm::mat4 view;
+            glm::mat4 lightSpaceMat;
         };
         std::vector<VkBuffer> cameraUniformBuffer;
         std::vector<VkDeviceMemory> cameraUniformBufferMemory;
@@ -82,7 +85,12 @@ namespace VE
             uint32_t textureIndex;
             float lightStrength;
         };
-        VkPushConstantRange pushConstantRange;
+
+        struct ShadowPushData
+        {
+            glm::mat4 model;
+            glm::mat4 lightSpaceMat;
+        };
 
         GLFWwindow *window = nullptr;
 
@@ -114,9 +122,20 @@ namespace VE
         VkImageView depthBufferImageView = VK_NULL_HANDLE;
         VkFormat depthFormat;
 
+        VkRenderPass shadowRenderPass = VK_NULL_HANDLE;
+        VkPipeline shadowPipeline = VK_NULL_HANDLE;
+        VkPipelineLayout shadowPipelineLayout = VK_NULL_HANDLE;
+
+        VkImage shadowDepthBufferImage = VK_NULL_HANDLE;
+        VkDeviceMemory shadowDepthBufferImageMemory = VK_NULL_HANDLE;
+        VkImageView shadowDepthBufferImageView = VK_NULL_HANDLE;
+        VkFramebuffer shadowFramebuffer = VK_NULL_HANDLE;
+        VkFormat shadowDepthFormat;
+        VkSampler shadowSampler = VK_NULL_HANDLE;
+
         VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
-         VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
-         std::vector<VkDescriptorSet> descriptorSets;
+        VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
+        std::vector<VkDescriptorSet> descriptorSets;
 
         VkDescriptorSetLayout samplerSetLayout = VK_NULL_HANDLE;
         VkDescriptorPool samplerDescriptorPool = VK_NULL_HANDLE;
@@ -153,7 +172,6 @@ namespace VE
         void createImageViews();
         void createRenderPass();
         void createDescriptorSetLayout();
-        void createPushConstantRange();
         void createGraphicsPipeline();
         void createDepthBufferImage();
         void createFramebuffers();
@@ -164,11 +182,17 @@ namespace VE
         void createUniformBuffers();
         void createDescriptorPool();
         void createDescriptorSets();
+        void createShadowDepthBufferImage();
+        void createShadowRenderPass();
+        void createShadowPipeline();
+        void createShadowFramebuffer();
+        void createShadowSampler();
 
         // Runtime
         void recreateSwapChain();
-        void recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor);
-        void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor);
+        void recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat);
+        void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat);
+        void recordShadowPass(const std::vector<Model>& models, const std::vector<ModelInstance>& modelInstances, const glm::mat4& lightSpaceMat);
 
         // Helpers
         static void vkCheck(VkResult res, ErrorCode errorCode);
@@ -186,7 +210,7 @@ namespace VE
         void updateModelBuffer(ModelBuffer &modelBuffer, const Model &model);
         void removeOrphanedModel(const std::vector<ModelInstance> &modelInstances);
         void destroyMeshBuffer(MeshBuffer &meshBuffer);
-        
+
         // Textures
         void createFallbackTexture();
         size_t createTextureImage(std::string fileName);

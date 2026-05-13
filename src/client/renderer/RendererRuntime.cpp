@@ -10,12 +10,14 @@
 
 namespace VE
 {
-    void Renderer::recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor)
+    void Renderer::recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat)
     {
         VkCommandBufferBeginInfo commandBufferBeginInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
 
         vkCheck(vkBeginCommandBuffer(commandBuffers[currentFrame], &commandBufferBeginInfo), {'V', 213});
+
+        recordShadowPass(models, modelInstances, lightSpaceMat);
 
         VkRenderPassBeginInfo renderPassBeginInfo{};
         renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -129,13 +131,18 @@ namespace VE
                 break;
         }
 
+        glm::mat4 lightView = glm::lookAt(glm::vec3(lightPos), glm::vec3(0.0f), glm::vec3(0, 1, 0));
+        glm::mat4 lightProjection = glm::orthoZO(-50.f, 50.f, -50.f, 50.f, 1.f, 200.f);
+        lightProjection[1][1] *= -1;
+        glm::mat4 lightSpaceMat = lightProjection * lightView;
+
+        updateUniformBuffers(currentFrame, projectionMat, drawData.viewMat, lightPos, lightColor, lightSpaceMat);
+
         {
             std::lock_guard<std::recursive_mutex> lock(modelMutex);
             syncModelBuffers(drawData.models);
-            recordCommands(imageIndex, drawData.models, drawData.modelInstances, drawData.backgroundColor);
+            recordCommands(imageIndex, drawData.models, drawData.modelInstances, drawData.backgroundColor, lightSpaceMat);
         }
-
-        updateUniformBuffers(currentFrame, projectionMat, drawData.viewMat, lightPos, lightColor);
 
         VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
@@ -180,11 +187,12 @@ namespace VE
         currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
     }
 
-    void Renderer::updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor)
+    void Renderer::updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat)
     {
         UboCamera uboCamera;
         uboCamera.projection = projectionMat;
         uboCamera.view = viewMat;
+        uboCamera.lightSpaceMat = lightSpaceMat;
 
         UboLighting uboLighting;
         uboLighting.lightPos = lightPos;
@@ -200,6 +208,53 @@ namespace VE
         vkCheck(vkMapMemory(device, lightingUniformBufferMemory[imageIndex], 0, sizeof(UboLighting), 0, &lightingData), {'V', 236});
         memcpy(lightingData, &uboLighting, sizeof(UboLighting));
         vkUnmapMemory(device, lightingUniformBufferMemory[imageIndex]);
+    }
+
+    void Renderer::recordShadowPass(const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, const glm::mat4 &lightSpaceMat)
+    {
+        VkRenderPassBeginInfo renderPassBeginInfo{};
+        renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassBeginInfo.renderPass = shadowRenderPass;
+        renderPassBeginInfo.framebuffer = shadowFramebuffer;
+        renderPassBeginInfo.renderArea.offset = {0, 0};
+        renderPassBeginInfo.renderArea.extent = {shadowMapExtent.w, shadowMapExtent.h};
+
+        VkClearValue clearValue{};
+        clearValue.depthStencil.depth = 1.0f;
+        renderPassBeginInfo.pClearValues = &clearValue;
+        renderPassBeginInfo.clearValueCount = 1;
+
+        vkCmdBeginRenderPass(commandBuffers[currentFrame], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+        vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, shadowPipeline);
+
+        for (const ModelInstance &instance : modelInstances)
+        {
+            for (const ModelBuffer &modelBuffer : modelBuffers)
+            {
+                if (instance.modelHandle == modelBuffer.handle)
+                {
+                    for (const MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
+                    {
+                        VkBuffer vertexBuffers[] = {meshBuffer.vertexBuffer};
+                        VkDeviceSize offsets[] = {0};
+                        vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
+                        vkCmdBindIndexBuffer(commandBuffers[currentFrame], meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+
+                        ShadowPushData pushData{};
+                        pushData.model = instance.modelMat;
+                        pushData.lightSpaceMat = lightSpaceMat;
+
+                        vkCmdPushConstants(commandBuffers[currentFrame], shadowPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ShadowPushData), &pushData);
+
+                        vkCmdDrawIndexed(commandBuffers[currentFrame], meshBuffer.indexCount, 1, 0, 0, 0);
+                    }
+                    break;
+                }
+            }
+        }
+
+        vkCmdEndRenderPass(commandBuffers[currentFrame]);
     }
 
     void Renderer::recreateSwapChain()

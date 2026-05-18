@@ -12,29 +12,60 @@ namespace VE
 {
     void Renderer::recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat)
     {
+        const VkCommandBuffer commandBuffer = commandBuffers[currentFrame];
+
         VkCommandBufferBeginInfo commandBufferBeginInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
 
-        vkCheck(vkBeginCommandBuffer(commandBuffers[currentFrame], &commandBufferBeginInfo), {'V', 213});
+        vkCheck(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo), {'V', 213});
 
         recordShadowPass(models, modelInstances, lightSpaceMat);
 
-        VkRenderPassBeginInfo renderPassBeginInfo{};
-        renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassBeginInfo.renderPass = renderPass;
-        renderPassBeginInfo.framebuffer = swapChainFramebuffers[currentImage];
-        renderPassBeginInfo.renderArea.offset = {0, 0};
-        renderPassBeginInfo.renderArea.extent = swapChainExtent;
+        VkImageMemoryBarrier imageMemoryBarrier{};
+        imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imageMemoryBarrier.image = swapChainImages[currentImage];
+        imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+        imageMemoryBarrier.subresourceRange.levelCount = 1;
+        imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+        imageMemoryBarrier.subresourceRange.layerCount = 1;
+        imageMemoryBarrier.srcAccessMask = 0;
+        imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
-        std::array<VkClearValue, 2> clearValues = {};
-        clearValues[0].color = {backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f};
-        clearValues[1].depthStencil.depth = 1.0f;
-        renderPassBeginInfo.pClearValues = clearValues.data();
-        renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 
-        vkCmdBeginRenderPass(commandBuffers[currentFrame], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+        VkRenderingAttachmentInfo colorAttachment{};
+        colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        colorAttachment.imageView = swapChainImageViews[currentImage];
+        colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colorAttachment.clearValue = {{{backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a}}};
 
-        vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+        VkRenderingAttachmentInfo depthAttachment{};
+        depthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        depthAttachment.imageView = depthBufferImageView;
+        depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        depthAttachment.clearValue.depthStencil = {1.0f, 0};
+
+        VkRenderingInfo renderingInfo{};
+        renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+        renderingInfo.renderArea.offset = {0, 0};
+        renderingInfo.renderArea.extent = swapChainExtent;
+        renderingInfo.layerCount = 1;
+        renderingInfo.colorAttachmentCount = 1;
+        renderingInfo.pColorAttachments = &colorAttachment;
+        renderingInfo.pDepthAttachment = &depthAttachment;
+
+        vkCmdBeginRendering(commandBuffer, &renderingInfo);
+
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
         VkViewport viewport = {
             .x = 0.0f,
@@ -43,12 +74,12 @@ namespace VE
             .height = static_cast<float>(swapChainExtent.height),
             .minDepth = 0.0f,
             .maxDepth = 1.0f};
-        vkCmdSetViewport(commandBuffers[currentFrame], 0, 1, &viewport);
+        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
         VkRect2D scissor = {
             .offset = {0, 0},
             .extent = swapChainExtent};
-        vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
+        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
         for (const ModelInstance &instance : modelInstances)
         {
@@ -60,22 +91,22 @@ namespace VE
                     {
                         VkBuffer vertexBuffers[] = {meshBuffer.vertexBuffer};
                         VkDeviceSize offsets[] = {0};
-                        vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
+                        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
-                        vkCmdBindIndexBuffer(commandBuffers[currentFrame], meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+                        vkCmdBindIndexBuffer(commandBuffer, meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
                         PushData pushData;
                         pushData.model = instance.modelMat;
                         pushData.textureIndex = meshBuffer.texIndex;
                         pushData.lightStrength = instance.lightStrength;
 
-                        vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushData), &pushData);
+                        vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushData), &pushData);
 
                         std::array<VkDescriptorSet, 2> descriptorSetGroup = {descriptorSets[currentFrame], samplerDescriptorSets[meshBuffer.texIndex]};
 
-                        vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
+                        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
 
-                        vkCmdDrawIndexed(commandBuffers[currentFrame], meshBuffer.indexCount, 1, 0, 0, 0);
+                        vkCmdDrawIndexed(commandBuffer, meshBuffer.indexCount, 1, 0, 0, 0);
                     }
 
                     break;
@@ -83,9 +114,16 @@ namespace VE
             }
         }
 
-        vkCmdEndRenderPass(commandBuffers[currentFrame]);
+        vkCmdEndRendering(commandBuffer);
 
-        vkCheck(vkEndCommandBuffer(commandBuffers[currentFrame]), {'V', 213});
+        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        imageMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        imageMemoryBarrier.dstAccessMask = 0;
+
+        vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+
+        vkCheck(vkEndCommandBuffer(commandBuffer), {'V', 213});
     }
 
     void Renderer::drawFrame(const DrawData &drawData, const glm::mat4 projectionMat)
@@ -212,21 +250,43 @@ namespace VE
 
     void Renderer::recordShadowPass(const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, const glm::mat4 &lightSpaceMat)
     {
-        VkRenderPassBeginInfo renderPassBeginInfo{};
-        renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassBeginInfo.renderPass = shadowRenderPass;
-        renderPassBeginInfo.framebuffer = shadowFramebuffer;
-        renderPassBeginInfo.renderArea.offset = {0, 0};
-        renderPassBeginInfo.renderArea.extent = {shadowMapExtent.w, shadowMapExtent.h};
+        const VkCommandBuffer commandBuffer = commandBuffers[currentFrame];
 
-        VkClearValue clearValue{};
-        clearValue.depthStencil.depth = 1.0f;
-        renderPassBeginInfo.pClearValues = &clearValue;
-        renderPassBeginInfo.clearValueCount = 1;
+        VkImageMemoryBarrier imageMemoryBarrier{};
+        imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imageMemoryBarrier.image = shadowDepthBufferImage;
+        imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+        imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+        imageMemoryBarrier.subresourceRange.levelCount = 1;
+        imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+        imageMemoryBarrier.subresourceRange.layerCount = 1;
+        imageMemoryBarrier.srcAccessMask = 0;
+        imageMemoryBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-        vkCmdBeginRenderPass(commandBuffers[currentFrame], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 
-        vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, shadowPipeline);
+        VkRenderingAttachmentInfo shadowDepthAttachment{};
+        shadowDepthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        shadowDepthAttachment.imageView = shadowDepthBufferImageView;
+        shadowDepthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        shadowDepthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        shadowDepthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        shadowDepthAttachment.clearValue.depthStencil = {1.0f, 0};
+
+        VkRenderingInfo shadowRenderingInfo{};
+        shadowRenderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+        shadowRenderingInfo.renderArea.offset = {0, 0};
+        shadowRenderingInfo.renderArea.extent = {shadowMapExtent.w, shadowMapExtent.h};
+        shadowRenderingInfo.layerCount = 1;
+        shadowRenderingInfo.pDepthAttachment = &shadowDepthAttachment;
+
+        vkCmdBeginRendering(commandBuffer, &shadowRenderingInfo);
+
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shadowPipeline);
 
         for (const ModelInstance &instance : modelInstances)
         {
@@ -238,23 +298,30 @@ namespace VE
                     {
                         VkBuffer vertexBuffers[] = {meshBuffer.vertexBuffer};
                         VkDeviceSize offsets[] = {0};
-                        vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
-                        vkCmdBindIndexBuffer(commandBuffers[currentFrame], meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+                        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+                        vkCmdBindIndexBuffer(commandBuffer, meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
                         ShadowPushData pushData{};
                         pushData.model = instance.modelMat;
                         pushData.lightSpaceMat = lightSpaceMat;
 
-                        vkCmdPushConstants(commandBuffers[currentFrame], shadowPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ShadowPushData), &pushData);
+                        vkCmdPushConstants(commandBuffer, shadowPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ShadowPushData), &pushData);
 
-                        vkCmdDrawIndexed(commandBuffers[currentFrame], meshBuffer.indexCount, 1, 0, 0, 0);
+                        vkCmdDrawIndexed(commandBuffer, meshBuffer.indexCount, 1, 0, 0, 0);
                     }
                     break;
                 }
             }
         }
 
-        vkCmdEndRenderPass(commandBuffers[currentFrame]);
+        vkCmdEndRendering(commandBuffer);
+
+        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageMemoryBarrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+        vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
     }
 
     void Renderer::recreateSwapChain()
@@ -271,12 +338,6 @@ namespace VE
 
         if (swapChain)
         {
-            for (VkFramebuffer framebuffer : swapChainFramebuffers)
-            {
-                if (framebuffer)
-                    vkDestroyFramebuffer(device, framebuffer, nullptr);
-            }
-
             if (depthBufferImageView)
                 vkDestroyImageView(device, depthBufferImageView, nullptr);
             if (depthBufferImage)
@@ -298,6 +359,5 @@ namespace VE
         createSwapChain(newSize);
         createImageViews();
         createDepthBufferImage();
-        createFramebuffers();
     }
 }

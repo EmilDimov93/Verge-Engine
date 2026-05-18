@@ -112,7 +112,6 @@ namespace VE
         VkExtent2D swapChainExtent;
         std::vector<VkImage> swapChainImages;
         std::vector<VkImageView> swapChainImageViews;
-        std::vector<VkFramebuffer> swapChainFramebuffers;
 
         VkCommandPool graphicsCommandPool = VK_NULL_HANDLE;
         std::vector<VkCommandBuffer> commandBuffers;
@@ -122,14 +121,12 @@ namespace VE
         VkImageView depthBufferImageView = VK_NULL_HANDLE;
         VkFormat depthFormat;
 
-        VkRenderPass shadowRenderPass = VK_NULL_HANDLE;
         VkPipeline shadowPipeline = VK_NULL_HANDLE;
         VkPipelineLayout shadowPipelineLayout = VK_NULL_HANDLE;
 
         VkImage shadowDepthBufferImage = VK_NULL_HANDLE;
         VkDeviceMemory shadowDepthBufferImageMemory = VK_NULL_HANDLE;
         VkImageView shadowDepthBufferImageView = VK_NULL_HANDLE;
-        VkFramebuffer shadowFramebuffer = VK_NULL_HANDLE;
         VkFormat shadowDepthFormat;
         VkSampler shadowSampler = VK_NULL_HANDLE;
 
@@ -148,8 +145,6 @@ namespace VE
 
         VkPipeline graphicsPipeline = VK_NULL_HANDLE;
         VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-
-        VkRenderPass renderPass = VK_NULL_HANDLE;
 
         std::vector<VkSemaphore> imageAvailableSemaphores;
         std::vector<VkSemaphore> renderFinishedSemaphores;
@@ -170,11 +165,10 @@ namespace VE
         void createLogicalDevice();
         void createSwapChain(Size2 windowSize);
         void createImageViews();
-        void createRenderPass();
         void createDescriptorSetLayout();
         void createGraphicsPipeline();
+        void findDepthFormat();
         void createDepthBufferImage();
-        void createFramebuffers();
         void createCommandPool();
         void createCommandBuffers();
         void createTextureSampler();
@@ -183,9 +177,7 @@ namespace VE
         void createDescriptorPool();
         void createDescriptorSets();
         void createShadowDepthBufferImage();
-        void createShadowRenderPass();
         void createShadowPipeline();
-        void createShadowFramebuffer();
         void createShadowSampler();
 
         // Runtime

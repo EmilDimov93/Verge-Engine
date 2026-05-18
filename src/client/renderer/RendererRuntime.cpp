@@ -10,16 +10,85 @@
 
 namespace VE
 {
-    void Renderer::recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat)
+    void Renderer::recordShadowPass(const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, const glm::mat4 &lightSpaceMat)
     {
         const VkCommandBuffer commandBuffer = commandBuffers[currentFrame];
 
-        VkCommandBufferBeginInfo commandBufferBeginInfo = {
-            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
+        VkImageMemoryBarrier imageMemoryBarrier{};
+        imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imageMemoryBarrier.image = shadowDepthBufferImage;
+        imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+        imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+        imageMemoryBarrier.subresourceRange.levelCount = 1;
+        imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+        imageMemoryBarrier.subresourceRange.layerCount = 1;
+        imageMemoryBarrier.srcAccessMask = 0;
+        imageMemoryBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-        vkCheck(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo), {'V', 213});
+        vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 
-        recordShadowPass(models, modelInstances, lightSpaceMat);
+        VkRenderingAttachmentInfo shadowDepthAttachment{};
+        shadowDepthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        shadowDepthAttachment.imageView = shadowDepthBufferImageView;
+        shadowDepthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        shadowDepthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        shadowDepthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        shadowDepthAttachment.clearValue.depthStencil = {1.0f, 0};
+
+        VkRenderingInfo shadowRenderingInfo{};
+        shadowRenderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+        shadowRenderingInfo.renderArea.offset = {0, 0};
+        shadowRenderingInfo.renderArea.extent = {shadowMapExtent.w, shadowMapExtent.h};
+        shadowRenderingInfo.layerCount = 1;
+        shadowRenderingInfo.pDepthAttachment = &shadowDepthAttachment;
+
+        vkCmdBeginRendering(commandBuffer, &shadowRenderingInfo);
+
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shadowPipeline);
+
+        for (const ModelInstance &instance : modelInstances)
+        {
+            for (const ModelBuffer &modelBuffer : modelBuffers)
+            {
+                if (instance.modelHandle == modelBuffer.handle)
+                {
+                    for (const MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
+                    {
+                        VkBuffer vertexBuffers[] = {meshBuffer.vertexBuffer};
+                        VkDeviceSize offsets[] = {0};
+                        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+                        vkCmdBindIndexBuffer(commandBuffer, meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+
+                        ShadowPushData pushData{};
+                        pushData.model = instance.modelMat;
+                        pushData.lightSpaceMat = lightSpaceMat;
+
+                        vkCmdPushConstants(commandBuffer, shadowPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ShadowPushData), &pushData);
+
+                        vkCmdDrawIndexed(commandBuffer, meshBuffer.indexCount, 1, 0, 0, 0);
+                    }
+                    break;
+                }
+            }
+        }
+
+        vkCmdEndRendering(commandBuffer);
+
+        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageMemoryBarrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+        vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+    }
+
+    void Renderer::recordMainPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat)
+    {
+        const VkCommandBuffer commandBuffer = commandBuffers[currentFrame];
 
         VkImageMemoryBarrier imageMemoryBarrier{};
         imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -122,8 +191,6 @@ namespace VE
         imageMemoryBarrier.dstAccessMask = 0;
 
         vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
-
-        vkCheck(vkEndCommandBuffer(commandBuffer), {'V', 213});
     }
 
     void Renderer::drawFrame(const DrawData &drawData, const glm::mat4 projectionMat)
@@ -176,21 +243,33 @@ namespace VE
 
         updateUniformBuffers(currentFrame, projectionMat, drawData.viewMat, lightPos, lightColor, lightSpaceMat);
 
+        const VkCommandBuffer commandBuffer = commandBuffers[currentFrame];
+
         {
             std::lock_guard<std::recursive_mutex> lock(modelMutex);
             syncModelBuffers(drawData.models);
-            recordCommands(imageIndex, drawData.models, drawData.modelInstances, drawData.backgroundColor, lightSpaceMat);
+
+            VkCommandBufferBeginInfo commandBufferBeginInfo{};
+            commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+            vkCheck(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo), {'V', 213});
+
+            recordShadowPass(drawData.models, drawData.modelInstances, lightSpaceMat);
+
+            recordMainPass(imageIndex, drawData.models, drawData.modelInstances, drawData.backgroundColor, lightSpaceMat);
+
+            vkCheck(vkEndCommandBuffer(commandBuffer), {'V', 213});
         }
 
-        VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+        VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
         VkSubmitInfo submitInfo = {
             .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
             .waitSemaphoreCount = 1,
             .pWaitSemaphores = &imageAvailableSemaphores[currentFrame],
-            .pWaitDstStageMask = waitStages,
+            .pWaitDstStageMask = &waitStage,
             .commandBufferCount = 1,
-            .pCommandBuffers = &commandBuffers[currentFrame],
+            .pCommandBuffers = &commandBuffer,
             .signalSemaphoreCount = 1,
             .pSignalSemaphores = &renderFinishedSemaphores[imageIndex]};
 
@@ -246,82 +325,6 @@ namespace VE
         vkCheck(vkMapMemory(device, lightingUniformBufferMemory[imageIndex], 0, sizeof(UboLighting), 0, &lightingData), {'V', 236});
         memcpy(lightingData, &uboLighting, sizeof(UboLighting));
         vkUnmapMemory(device, lightingUniformBufferMemory[imageIndex]);
-    }
-
-    void Renderer::recordShadowPass(const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, const glm::mat4 &lightSpaceMat)
-    {
-        const VkCommandBuffer commandBuffer = commandBuffers[currentFrame];
-
-        VkImageMemoryBarrier imageMemoryBarrier{};
-        imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        imageMemoryBarrier.image = shadowDepthBufferImage;
-        imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-        imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
-        imageMemoryBarrier.subresourceRange.levelCount = 1;
-        imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
-        imageMemoryBarrier.subresourceRange.layerCount = 1;
-        imageMemoryBarrier.srcAccessMask = 0;
-        imageMemoryBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
-        vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
-
-        VkRenderingAttachmentInfo shadowDepthAttachment{};
-        shadowDepthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-        shadowDepthAttachment.imageView = shadowDepthBufferImageView;
-        shadowDepthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        shadowDepthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        shadowDepthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        shadowDepthAttachment.clearValue.depthStencil = {1.0f, 0};
-
-        VkRenderingInfo shadowRenderingInfo{};
-        shadowRenderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
-        shadowRenderingInfo.renderArea.offset = {0, 0};
-        shadowRenderingInfo.renderArea.extent = {shadowMapExtent.w, shadowMapExtent.h};
-        shadowRenderingInfo.layerCount = 1;
-        shadowRenderingInfo.pDepthAttachment = &shadowDepthAttachment;
-
-        vkCmdBeginRendering(commandBuffer, &shadowRenderingInfo);
-
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shadowPipeline);
-
-        for (const ModelInstance &instance : modelInstances)
-        {
-            for (const ModelBuffer &modelBuffer : modelBuffers)
-            {
-                if (instance.modelHandle == modelBuffer.handle)
-                {
-                    for (const MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
-                    {
-                        VkBuffer vertexBuffers[] = {meshBuffer.vertexBuffer};
-                        VkDeviceSize offsets[] = {0};
-                        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-                        vkCmdBindIndexBuffer(commandBuffer, meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-
-                        ShadowPushData pushData{};
-                        pushData.model = instance.modelMat;
-                        pushData.lightSpaceMat = lightSpaceMat;
-
-                        vkCmdPushConstants(commandBuffer, shadowPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ShadowPushData), &pushData);
-
-                        vkCmdDrawIndexed(commandBuffer, meshBuffer.indexCount, 1, 0, 0, 0);
-                    }
-                    break;
-                }
-            }
-        }
-
-        vkCmdEndRendering(commandBuffer);
-
-        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageMemoryBarrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-        imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-        vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
     }
 
     void Renderer::recreateSwapChain()

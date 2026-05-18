@@ -182,9 +182,9 @@ namespace VE
 
         // Runtime
         void recreateSwapChain();
-        void recordCommands(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat);
-        void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat);
         void recordShadowPass(const std::vector<Model>& models, const std::vector<ModelInstance>& modelInstances, const glm::mat4& lightSpaceMat);
+        void recordMainPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat);
+        void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat);
 
         // Helpers
         static void vkCheck(VkResult res, ErrorCode errorCode);

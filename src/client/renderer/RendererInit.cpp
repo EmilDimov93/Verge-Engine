@@ -99,9 +99,7 @@ namespace VE
 
         score += props.limits.maxImageDimension2D;
 
-        bool supportsRequiredExtentions = features.samplerAnisotropy && features.geometryShader;
-
-        if (!supportsRequiredExtentions)
+        if (!features.samplerAnisotropy)
             return 0;
 
         uint32_t queueFamilyCount = 0;

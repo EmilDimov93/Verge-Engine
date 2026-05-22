@@ -164,28 +164,35 @@ namespace VE
         void createSurface();
         void pickPhysicalDevice();
         void createLogicalDevice();
-        void createSwapChain(Size2 windowSize);
-        void createImageViews();
-        void createDescriptorSetLayout();
-        void createGraphicsPipeline();
-        void findDepthFormat();
-        void createDepthBufferImage();
+
         void createCommandPool();
         void createCommandBuffers();
+
+        void createSwapChain(Size2 windowSize);
+        void createImageViews();
+
+        void findDepthFormat();
+        void createShadowSampler();
         void createTextureSampler();
-        void createSemaphores();
+        
+        void createDepthBufferImage();
+        void createShadowDepthBufferImage();
+        
+        void createDescriptorSetLayout();
+        void createGraphicsPipeline();
+        void createShadowPipeline();
+
         void createUniformBuffers();
         void createUniformDescriptorPool();
         void createDescriptorSets();
-        void createShadowDepthBufferImage();
-        void createShadowPipeline();
-        void createShadowSampler();
+
+        void createSemaphores();
 
         // Runtime
-        void recreateSwapChain();
         void recordShadowPass(const std::vector<Model>& models, const std::vector<ModelInstance>& modelInstances, const glm::mat4& lightSpaceMat);
         void recordMainPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat);
         void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat);
+        void recreateSwapChain();
 
         // Helpers
         static void vkCheck(VkResult res, ErrorCode errorCode);

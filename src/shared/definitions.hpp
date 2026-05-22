@@ -42,6 +42,12 @@ namespace VE
     struct ModelInstanceTag
     {
     };
+    struct WidgetTag
+    {
+    };
+    struct WidgetInstanceTag
+    {
+    };
     struct PlayerTag
     {
     };
@@ -57,6 +63,8 @@ namespace VE
 
     using ModelHandle = Handle<ModelTag>;
     using ModelInstanceHandle = Handle<ModelInstanceTag>;
+    using WidgetHandle = Handle<WidgetTag>;
+    using WidgetInstanceHandle = Handle<WidgetInstanceTag>;
     using PlayerHandle = Handle<PlayerTag>;
     using VehicleHandle = Handle<VehicleTag>;
     using PropHandle = Handle<PropTag>;

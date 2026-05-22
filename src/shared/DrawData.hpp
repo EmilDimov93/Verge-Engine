@@ -76,6 +76,42 @@ namespace VE
             : handle(handle), modelHandle(modelHandle), modelMat(modelMat), lightStrength(lightStrength), lightColor(lightColor) {}
     };
 
+    class Widget
+    {
+    public:
+        Widget(WidgetHandle handle, Mesh& mesh) : handle(handle), mesh(mesh) {}
+
+        void update(const Mesh &mesh)
+        {
+            this->mesh = mesh;
+
+            version++;
+        }
+
+        WidgetHandle getHandle() const { return handle; };
+        uint64_t getVersion() const { return version; }
+        const Mesh &getMesh() const { return mesh; }
+
+    private:
+        WidgetHandle handle;
+
+        uint64_t version = 1;
+
+        Mesh mesh;
+    };
+
+    struct WidgetInstance
+    {
+        WidgetInstanceHandle handle;
+
+        WidgetHandle widgetHandle;
+
+        glm::mat4 modelMat;
+
+        WidgetInstance(WidgetInstanceHandle handle, WidgetHandle widgetHandle, glm::mat4 modelMat)
+            : handle(handle), widgetHandle(widgetHandle), modelMat(modelMat) {}
+    };
+
     struct DrawData
     {
         const std::vector<Model> &models;

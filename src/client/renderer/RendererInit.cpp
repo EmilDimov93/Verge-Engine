@@ -19,21 +19,28 @@ namespace VE
         createSurface();
         pickPhysicalDevice();
         createLogicalDevice();
-        createSwapChain(windowSize);
-        createImageViews();
-        createDescriptorSetLayout();
-        findDepthFormat();
-        createShadowDepthBufferImage();
-        createShadowSampler();
-        createGraphicsPipeline();
-        createShadowPipeline();
-        createDepthBufferImage();
+
         createCommandPool();
         createCommandBuffers();
+
+        createSwapChain(windowSize);
+        createImageViews();
+
+        findDepthFormat();
+        createShadowSampler();
         createTextureSampler();
+        
+        createDepthBufferImage();
+        createShadowDepthBufferImage();
+        
+        createDescriptorSetLayout();
+        createGraphicsPipeline();
+        createShadowPipeline();
+        
         createUniformBuffers();
         createUniformDescriptorPool();
         createDescriptorSets();
+
         createSemaphores();
 
         createFallbackTexture();

@@ -77,8 +77,8 @@ private:
 
         // Vehicle
         VehicleCreateInfo carInfo = {};
-        carInfo.bodyModelHandle = scene.loadFile("models/X2/car.obj");
-        carInfo.wheelModelHandle = scene.loadFile("models/X2/wheel.obj");
+        carInfo.bodyModelHandle = scene.addMesh("models/X2/car.obj");
+        carInfo.wheelModelHandle = scene.addMesh("models/X2/wheel.obj");
         carInfo.wheelOffset = {1.05f, 0.5f, 1.8f};
         carInfo.peakTorqueNm = 480;
         carInfo.weightKg = 1540;
@@ -98,11 +98,11 @@ private:
         player1 = scene.addPlayer(car1);
 
         // Prop
-        scene.addProp(scene.loadFile("models/cow.obj"), {{-10.0f, 30.0f, 30.0f}}, 3.0f, {1.0f, 1.0f, 1.0f, 1.0f});
+        scene.addProp(scene.addMesh("models/cow.obj"), {{-10.0f, 30.0f, 30.0f}}, 3.0f, {1.0f, 1.0f, 1.0f, 1.0f});
 
         // Triggers
         TriggerTypeCreateInfo sTriggerType = {};
-        sTriggerType.modelHandle = scene.loadFile("models/checkpoint.obj");
+        sTriggerType.modelHandle = scene.addMesh("models/checkpoint.obj");
         sTriggerType.hitboxShape = HITBOX_SHAPE_SPHERE;
         sTriggerType.hitboxSize = 10.0f;
         sTriggerType.isAutoDestroy = true;

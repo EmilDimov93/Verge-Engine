@@ -31,7 +31,7 @@ namespace VE
 
         AudioData getAudioData(PlayerHandle playerHandle);
 
-        ModelHandle loadFile(const std::string &filePath);
+        ModelHandle addMesh(const std::string &filePath);
 
         PlayerHandle addPlayer(VehicleHandle vehicleHandle);
         void removePlayer(PlayerHandle handle);
@@ -82,11 +82,6 @@ namespace VE
         std::vector<EngineAudioRequest> engineAudioRequests;
         std::vector<LayeredEngineAudioRequest> layeredEngineAudioRequests;
         std::vector<AudioRequest> oneShotAudioRequests;
-
-        ModelHandle loadOBJ(const std::string &filePath);
-        ModelHandle loadFBX(const std::string &filePath);
-        ModelHandle loadGLB(const std::string &filePath);
-        ModelHandle loadGLTF(const std::string &filePath);
 
         void setModelMat(ModelInstanceHandle modelInstanceHandle, glm::mat4 newModel);
 

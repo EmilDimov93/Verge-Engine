@@ -42,7 +42,7 @@ namespace VE
         VkRenderingInfo shadowRenderingInfo{};
         shadowRenderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
         shadowRenderingInfo.renderArea.offset = {0, 0};
-        shadowRenderingInfo.renderArea.extent = {shadowMapExtent.w, shadowMapExtent.h};
+        shadowRenderingInfo.renderArea.extent = {SHADOW_MAP_EXTENT.w, SHADOW_MAP_EXTENT.h};
         shadowRenderingInfo.layerCount = 1;
         shadowRenderingInfo.pDepthAttachment = &shadowDepthAttachment;
 

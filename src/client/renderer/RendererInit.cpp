@@ -32,7 +32,7 @@ namespace VE
         createCommandBuffers();
         createTextureSampler();
         createUniformBuffers();
-        createDescriptorPool();
+        createUniformDescriptorPool();
         createDescriptorSets();
         createSemaphores();
 
@@ -626,7 +626,7 @@ namespace VE
         }
     }
 
-    void Renderer::createDescriptorPool()
+    void Renderer::createUniformDescriptorPool()
     {
         VkDescriptorPoolSize uniformPoolSize = {
             .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
@@ -645,18 +645,6 @@ namespace VE
             .pPoolSizes = descriptorPoolSizes.data()};
 
         vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &descriptorPool), {'V', 219});
-
-        VkDescriptorPoolSize samplerPoolSize = {
-            .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            .descriptorCount = MAX_OBJECTS};
-
-        VkDescriptorPoolCreateInfo samplerPoolCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-            .maxSets = MAX_OBJECTS,
-            .poolSizeCount = 1,
-            .pPoolSizes = &samplerPoolSize};
-
-        vkCheck(vkCreateDescriptorPool(device, &samplerPoolCreateInfo, nullptr, &samplerDescriptorPool), {'V', 219});
     }
 
     void Renderer::createDescriptorSets()
@@ -725,7 +713,7 @@ namespace VE
 
     void Renderer::createShadowDepthBufferImage()
     {
-        shadowDepthBufferImage = createImage(shadowMapExtent.w, shadowMapExtent.h, shadowDepthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &shadowDepthBufferImageMemory);
+        shadowDepthBufferImage = createImage(SHADOW_MAP_EXTENT.w, SHADOW_MAP_EXTENT.h, shadowDepthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &shadowDepthBufferImageMemory);
 
         VkImageViewCreateInfo imageViewCreateInfo{};
         imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -788,8 +776,8 @@ namespace VE
             .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
             .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST};
 
-        VkViewport viewport = {0, 0, (float)shadowMapExtent.w, (float)shadowMapExtent.h, 0, 1};
-        VkRect2D scissors = {{0, 0}, {shadowMapExtent.w, shadowMapExtent.h}};
+        VkViewport viewport = {0, 0, (float)SHADOW_MAP_EXTENT.w, (float)SHADOW_MAP_EXTENT.h, 0, 1};
+        VkRect2D scissors = {{0, 0}, {SHADOW_MAP_EXTENT.w, SHADOW_MAP_EXTENT.h}};
         VkPipelineViewportStateCreateInfo viewportStateCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
             .viewportCount = 1,
@@ -880,6 +868,10 @@ namespace VE
         if (textureSampler)
             vkDestroySampler(device, textureSampler, nullptr);
 
+        for(VkDescriptorPool samplerDescriptorPool : samplerDescriptorPools)
+            if (samplerDescriptorPool)
+                vkDestroyDescriptorPool(device, samplerDescriptorPool, nullptr);
+
         for (VkImage &image : textureImages)
             vkDestroyImage(device, image, nullptr);
 
@@ -906,8 +898,6 @@ namespace VE
 
         if (descriptorPool)
             vkDestroyDescriptorPool(device, descriptorPool, nullptr);
-        if (samplerDescriptorPool)
-            vkDestroyDescriptorPool(device, samplerDescriptorPool, nullptr);
         if (descriptorSetLayout)
             vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 

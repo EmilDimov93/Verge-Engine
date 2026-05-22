@@ -309,16 +309,6 @@ namespace VE
 
     size_t Renderer::createTexture(std::string fileName)
     {
-        // Temporary
-        {
-            std::lock_guard<std::mutex> lock(textureMutex);
-            if (samplerDescriptorSets.size() >= MAX_OBJECTS)
-            {
-                Log::add('V', 120);
-                return INVALID_TEXTURE_INDEX;
-            }
-        }
-
         size_t textureImageLoc = createTextureImage(fileName);
 
         VkImage sourceImage;
@@ -354,15 +344,47 @@ namespace VE
 
     size_t Renderer::createTextureDescriptor(VkImageView textureImageView)
     {
+        const auto createDescriptorPool = [&]()
+        {
+            VkDescriptorPoolSize poolSize = {
+                .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                .descriptorCount = TEXTURE_SAMPLER_POOL_CHUNK_SIZE};
+
+            VkDescriptorPoolCreateInfo poolCreateInfo = {
+                .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+                .maxSets = TEXTURE_SAMPLER_POOL_CHUNK_SIZE,
+                .poolSizeCount = 1,
+                .pPoolSizes = &poolSize};
+
+            VkDescriptorPool pool;
+            vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &pool);
+            return pool;
+        };
+
+        if (samplerDescriptorPools.empty())
+            samplerDescriptorPools.emplace_back(createDescriptorPool());
+
         VkDescriptorSet descriptorSet;
 
         VkDescriptorSetAllocateInfo setAllocInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-            .descriptorPool = samplerDescriptorPool,
+            .descriptorPool = samplerDescriptorPools.back(),
             .descriptorSetCount = 1,
             .pSetLayouts = &samplerSetLayout};
 
-        vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, &descriptorSet), {'V', 220});
+        VkResult result = vkAllocateDescriptorSets(device, &setAllocInfo, &descriptorSet);
+
+        if (result == VK_ERROR_OUT_OF_POOL_MEMORY || result == VK_ERROR_FRAGMENTED_POOL)
+        {
+            samplerDescriptorPools.emplace_back(createDescriptorPool());
+
+            setAllocInfo.descriptorPool = samplerDescriptorPools.back();
+            vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, &descriptorSet), {'V', 220});
+        }
+        else
+        {
+            vkCheck(result, {'V', 220});
+        }
 
         VkDescriptorImageInfo imageInfo = {
             .sampler = textureSampler,

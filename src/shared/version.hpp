@@ -3,4 +3,4 @@
 
 #pragma once
 
-#define VERGE_ENGINE_VERSION 406
+#define VERGE_ENGINE_VERSION 407

@@ -31,9 +31,10 @@ namespace VE
 
     private:
         static constexpr uint32_t MAX_FRAME_DRAWS = 2;
-        static constexpr uint32_t MAX_OBJECTS = 100; // Temporary
         
-        static constexpr Size2 shadowMapExtent = {4096, 4096};
+        static constexpr Size2 SHADOW_MAP_EXTENT = {4096, 4096};
+
+        static constexpr uint32_t TEXTURE_SAMPLER_POOL_CHUNK_SIZE = 1e3;
 
         struct MeshBuffer
         {
@@ -135,7 +136,7 @@ namespace VE
         std::vector<VkDescriptorSet> descriptorSets;
 
         VkDescriptorSetLayout samplerSetLayout = VK_NULL_HANDLE;
-        VkDescriptorPool samplerDescriptorPool = VK_NULL_HANDLE;
+        std::vector<VkDescriptorPool> samplerDescriptorPools;
         std::vector<VkDescriptorSet> samplerDescriptorSets;
 
         VkSampler textureSampler;
@@ -174,7 +175,7 @@ namespace VE
         void createTextureSampler();
         void createSemaphores();
         void createUniformBuffers();
-        void createDescriptorPool();
+        void createUniformDescriptorPool();
         void createDescriptorSets();
         void createShadowDepthBufferImage();
         void createShadowPipeline();

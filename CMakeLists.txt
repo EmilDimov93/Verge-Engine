@@ -29,6 +29,8 @@ add_executable(VergeEngine
     src/scene/actors/VehiclePhysics.cpp
     src/scene/actors/Prop.cpp
     src/scene/actors/Trigger.cpp
+
+    src/ui/WidgetManager.cpp
 )
 
 target_include_directories(VergeEngine PRIVATE

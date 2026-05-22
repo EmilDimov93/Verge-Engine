@@ -193,7 +193,7 @@ namespace VE
         vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
     }
 
-    void Renderer::drawFrame(const DrawData &drawData, const glm::mat4 projectionMat)
+    void Renderer::drawFrame(const SceneDrawData &sceneDrawData, const UIDrawData &uiDrawData, const glm::mat4 projectionMat)
     {
         vkCheck(vkWaitForFences(device, 1, &drawFences[currentFrame], VK_TRUE, UINT64_MAX), {'V', 231});
 
@@ -213,17 +213,17 @@ namespace VE
 
         vkCheck(vkResetFences(device, 1, &drawFences[currentFrame]), {'V', 232});
 
-        if (drawData.modelRemovedThisFrame)
+        if (sceneDrawData.modelRemovedThisFrame)
         {
             std::lock_guard<std::recursive_mutex> lock(modelMutex);
-            removeOrphanedModel(drawData.modelInstances);
+            removeOrphanedModel(sceneDrawData.modelInstances);
         }
 
         glm::vec4 lightPos(0.0f);
         glm::vec3 lightColor(1.0f);
-        for (const ModelInstance &instance : drawData.modelInstances)
+        for (const ModelInstance &instance : sceneDrawData.modelInstances)
         {
-            for (const Model &model : drawData.models)
+            for (const Model &model : sceneDrawData.models)
             {
                 if (model.getHandle() == instance.modelHandle)
                 {
@@ -241,22 +241,22 @@ namespace VE
         lightProjection[1][1] *= -1;
         glm::mat4 lightSpaceMat = lightProjection * lightView;
 
-        updateUniformBuffers(currentFrame, projectionMat, drawData.viewMat, lightPos, lightColor, lightSpaceMat);
+        updateUniformBuffers(currentFrame, projectionMat, sceneDrawData.viewMat, lightPos, lightColor, lightSpaceMat);
 
         const VkCommandBuffer commandBuffer = commandBuffers[currentFrame];
 
         {
             std::lock_guard<std::recursive_mutex> lock(modelMutex);
-            syncModelBuffers(drawData.models);
+            syncModelBuffers(sceneDrawData.models);
 
             VkCommandBufferBeginInfo commandBufferBeginInfo{};
             commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
             vkCheck(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo), {'V', 213});
 
-            recordShadowPass(drawData.models, drawData.modelInstances, lightSpaceMat);
+            recordShadowPass(sceneDrawData.models, sceneDrawData.modelInstances, lightSpaceMat);
 
-            recordMainPass(imageIndex, drawData.models, drawData.modelInstances, drawData.backgroundColor, lightSpaceMat);
+            recordMainPass(imageIndex, sceneDrawData.models, sceneDrawData.modelInstances, sceneDrawData.backgroundColor, lightSpaceMat);
 
             vkCheck(vkEndCommandBuffer(commandBuffer), {'V', 213});
         }

@@ -3,14 +3,14 @@
 
 #include "Scene.hpp"
 
-#include "HandleFactory.hpp"
+#include "../shared/HandleFactory.hpp"
 
 #include <glm/gtc/random.hpp>
 
 namespace VE
 {
 
-    DrawData Scene::getDrawData(PlayerHandle playerHandle)
+    SceneDrawData Scene::getDrawData(PlayerHandle playerHandle) const
     {
         for (const std::unique_ptr<Controller> &controller : controllers)
         {
@@ -18,7 +18,7 @@ namespace VE
             {
                 if (player->getHandle() == playerHandle)
                 {
-                    DrawData drawData(models, modelInstances, player->getCameraViewMat(), environment.backgroundColor, modelRemovedThisFrame);
+                    SceneDrawData drawData(models, modelInstances, player->getCameraViewMat(), environment.backgroundColor, modelRemovedThisFrame);
                     return drawData;
                 }
             }
@@ -61,9 +61,7 @@ namespace VE
     ModelInstanceHandle Scene::addModelInstance(ModelHandle modelHandle)
     {
         if (modelHandle == INVALID_MODEL_HANDLE)
-        {
             Log::add('S', 201);
-        }
 
         bool foundModel = false;
         for (const Model &model : models)
@@ -76,9 +74,7 @@ namespace VE
         }
 
         if (!foundModel)
-        {
             Log::add('S', 201);
-        }
 
         modelInstances.emplace_back(HandleFactory<ModelInstanceHandle>::getNewHandle(), modelHandle, glm::mat4(1.0f));
 

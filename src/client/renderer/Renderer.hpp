@@ -22,7 +22,7 @@ namespace VE
     public:
         Renderer(GLFWwindow *window, Size2 windowSize);
 
-        void drawFrame(const DrawData &drawData, const glm::mat4 projectionMat);
+        void drawFrame(const SceneDrawData &sceneDrawData, const UIDrawData &uiDrawData, const glm::mat4 projectionMat);
 
         ~Renderer();
 

@@ -15,6 +15,8 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'E', 001}, "Verge Engine exited successfully"},
 
     {{'E', 100}, "Temporary code"},
+    {{'E', 101}, "Unsupported file type"},
+    {{'E', 102}, "File not found"},
 
     {{'E', 200}, "Verge Engine crashed"},
 
@@ -89,8 +91,8 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'M', 200}, "Miniaudio initialization failed"},
 
     // Scene
-    {{'S', 100}, "Unsupported file type"},
-    {{'S', 101}, "File not found"},
+    // {'S', 100} removed
+    // {'S', 101} removed
     // {'S', 102} removed
     {{'S', 103}, "Out of bounds access to vehicle list"},
     {{'S', 200}, "Handle limit exceeded: too many objects"},
@@ -136,6 +138,9 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     // {'A', 191} removed
     {{'A', 192}, "Surface: invalid friction value"},
     {{'A', 193}, "Surface: invalid color value"},
-    {{'A', 194}, "Surface: invalid color distortion value"}};
+    {{'A', 194}, "Surface: invalid color distortion value"},
+
+    // Widget
+    {{'W', 200}, "Invalid widget handle"}};
 
 }

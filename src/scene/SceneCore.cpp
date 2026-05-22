@@ -3,7 +3,7 @@
 
 #include "Scene.hpp"
 
-#include "HandleFactory.hpp"
+#include "../shared/HandleFactory.hpp"
 
 #include "../shared/MeshLoader.hpp"
 #include "../shared/Log.hpp"
@@ -214,13 +214,13 @@ namespace VE
             removeTrigger(handle);
     }
 
-    ModelHandle Scene::addMesh(const std::string &filePath)
+    ModelHandle Scene::addModel(const std::string &filePath)
     {
         std::string ext = std::filesystem::path(filePath).extension().string();
 
         if (ext != ".obj")
         {
-            Log::add('S', 100);
+            Log::add('E', 101);
             return INVALID_MODEL_HANDLE;
         }
 
@@ -230,7 +230,7 @@ namespace VE
 
         if(meshes.empty())
         {
-            Log::add('S', 101);
+            Log::add('E', 102);
             return INVALID_MODEL_HANDLE;
         }
 

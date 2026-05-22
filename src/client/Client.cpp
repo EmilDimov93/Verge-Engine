@@ -33,11 +33,11 @@ namespace VE
         return window.isOpen();
     }
 
-    void Client::tick(const DrawData &drawData, const AudioData &audioData)
+    void Client::tick(const SceneDrawData &sceneDrawData, const AudioData &audioData, const UIDrawData &uiDrawData)
     {
         Input::refresh();
 
-        renderer.drawFrame(drawData, getProjectionMat());
+        renderer.drawFrame(sceneDrawData, uiDrawData, getProjectionMat());
 
         audio.tick(audioData, volume);
 

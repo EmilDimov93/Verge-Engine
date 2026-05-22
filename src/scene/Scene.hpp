@@ -27,11 +27,11 @@ namespace VE
         Prop &prop(PropHandle handle);
         Trigger &trigger(TriggerHandle handle);
 
-        DrawData getDrawData(PlayerHandle playerHandle);
+        SceneDrawData getDrawData(PlayerHandle playerHandle) const;
 
         AudioData getAudioData(PlayerHandle playerHandle);
 
-        ModelHandle addMesh(const std::string &filePath);
+        ModelHandle addModel(const std::string &filePath);
 
         PlayerHandle addPlayer(VehicleHandle vehicleHandle);
         void removePlayer(PlayerHandle handle);

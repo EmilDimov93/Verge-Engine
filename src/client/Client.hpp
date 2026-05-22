@@ -50,7 +50,7 @@ namespace VE
 
         bool isOpen();
 
-        void tick(const DrawData &drawData, const AudioData &audioData);
+        void tick(const SceneDrawData &sceneDrawData, const AudioData &audioData, const UIDrawData &uiDrawData = UIDrawData{});
 
         VehicleInputState getVIS();
         void setVehicleKeybinds(const VehicleKeybinds &keybinds);

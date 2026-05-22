@@ -79,25 +79,25 @@ namespace VE
     class Widget
     {
     public:
-        Widget(WidgetHandle handle, Mesh& mesh) : handle(handle), mesh(mesh) {}
+        Widget(WidgetHandle handle, const std::vector<Mesh> &meshes) : handle(handle), meshes(meshes) {}
 
-        void update(const Mesh &mesh)
+        void update(const std::vector<Mesh> &meshes)
         {
-            this->mesh = mesh;
+            this->meshes = meshes;
 
             version++;
         }
 
         WidgetHandle getHandle() const { return handle; };
         uint64_t getVersion() const { return version; }
-        const Mesh &getMesh() const { return mesh; }
+        const std::vector<Mesh> &getMeshes() const { return meshes; }
 
     private:
         WidgetHandle handle;
 
         uint64_t version = 1;
 
-        Mesh mesh;
+        std::vector<Mesh> meshes;
     };
 
     struct WidgetInstance
@@ -112,7 +112,7 @@ namespace VE
             : handle(handle), widgetHandle(widgetHandle), modelMat(modelMat) {}
     };
 
-    struct DrawData
+    struct SceneDrawData
     {
         const std::vector<Model> &models;
         const std::vector<ModelInstance> &modelInstances;
@@ -123,12 +123,31 @@ namespace VE
 
         const bool modelRemovedThisFrame;
 
-        DrawData(const std::vector<Model> &models,
-                 const std::vector<ModelInstance> &modelInstances,
-                 const glm::mat4 viewMat,
-                 const color_t backgroundColor,
-                 const bool modelRemovedThisFrame)
+        SceneDrawData(const std::vector<Model> &models,
+                      const std::vector<ModelInstance> &modelInstances,
+                      const glm::mat4 viewMat,
+                      const color_t backgroundColor,
+                      const bool modelRemovedThisFrame)
             : models(models), modelInstances(modelInstances), viewMat(viewMat), backgroundColor(backgroundColor), modelRemovedThisFrame(modelRemovedThisFrame) {}
+    };
+
+    struct UIDrawData
+    {
+        const std::vector<Widget> &widgets;
+        const std::vector<WidgetInstance> &widgetInstances;
+
+        const bool isValid;
+
+        UIDrawData()
+        : widgets(emptyWidgets), widgetInstances(emptyInstances), isValid(false) {}
+
+        UIDrawData(const std::vector<Widget> &widgets,
+                   const std::vector<WidgetInstance> &widgetInstances)
+            : widgets(widgets), widgetInstances(widgetInstances), isValid(true) {}
+
+    private:
+        static inline const std::vector<Widget> emptyWidgets{};
+        static inline const std::vector<WidgetInstance> emptyInstances{};
     };
 
 }

@@ -71,6 +71,7 @@ namespace VE
     using TriggerHandle = Handle<TriggerTag>;
 
     constexpr ModelHandle INVALID_MODEL_HANDLE{0};
+    constexpr WidgetHandle INVALID_WIDGET_HANDLE{0};
 
     using milliseconds_t = double;
     using color_t = glm::vec4;

@@ -87,7 +87,7 @@ namespace VE
 
         struct UboUI
         {
-            glm::mat4 orthographicProj, model;
+            glm::mat4 orthographicProj;
         };
 
         struct PushData
@@ -101,6 +101,11 @@ namespace VE
         {
             glm::mat4 model;
             glm::mat4 lightSpaceMat;
+        };
+
+        struct UIPushData
+        {
+            glm::mat4 model;
         };
 
         // Initial

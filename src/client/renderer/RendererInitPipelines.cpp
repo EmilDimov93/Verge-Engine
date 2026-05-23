@@ -383,12 +383,17 @@ namespace VE
             .attachmentCount = 1,
             .pAttachments = &colorBlendAttachmentState};
 
+        VkPushConstantRange pushConstantRange;
+        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        pushConstantRange.offset = 0;
+        pushConstantRange.size = sizeof(UIPushData);
+
         VkPipelineLayoutCreateInfo pipelineLayout = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
             .setLayoutCount = 1,
             .pSetLayouts = &uiDescriptorSetLayout,
-            .pushConstantRangeCount = 0,
-            .pPushConstantRanges = nullptr};
+            .pushConstantRangeCount = 1,
+            .pPushConstantRanges = &pushConstantRange};
 
         vkCheck(vkCreatePipelineLayout(device, &pipelineLayout, nullptr, &uiPipelineLayout), {'V', 210});
 

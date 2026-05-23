@@ -341,16 +341,12 @@ namespace VE
             .minDepth = 0.0f,
             .maxDepth = 1.0f};
 
-        VkRect2D scissor = {
-            .offset = {0, 0},
-            .extent = swapChainExtent};
-
-        VkPipelineViewportStateCreateInfo viewportState = {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
-            .viewportCount = 1,
-            .pViewports = &viewport,
-            .scissorCount = 1,
-            .pScissors = &scissor};
+        VkPipelineViewportStateCreateInfo viewportState{};
+        viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+        viewportState.viewportCount = 1;
+        viewportState.scissorCount = 1;
+        viewportState.pViewports = nullptr;
+        viewportState.pScissors = nullptr;
 
         VkPipelineRasterizationStateCreateInfo rasterizationState = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
@@ -397,6 +393,15 @@ namespace VE
 
         vkCheck(vkCreatePipelineLayout(device, &pipelineLayout, nullptr, &uiPipelineLayout), {'V', 210});
 
+        std::vector<VkDynamicState> dynamicStates = {
+            VK_DYNAMIC_STATE_VIEWPORT,
+            VK_DYNAMIC_STATE_SCISSOR};
+
+        VkPipelineDynamicStateCreateInfo dynamicState{};
+        dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+        dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+        dynamicState.pDynamicStates = dynamicStates.data();
+
         VkPipelineRenderingCreateInfo pipelineRendering{};
         pipelineRendering.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
         pipelineRendering.colorAttachmentCount = 1;
@@ -414,7 +419,7 @@ namespace VE
             .pMultisampleState = &multisampleState,
             .pDepthStencilState = nullptr,
             .pColorBlendState = &colorBlendState,
-            .pDynamicState = nullptr,
+            .pDynamicState = &dynamicState,
             .layout = uiPipelineLayout,
             .renderPass = VK_NULL_HANDLE,
             .subpass = 0,

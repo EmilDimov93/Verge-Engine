@@ -3,6 +3,7 @@
 
 #include "client/Client.hpp"
 #include "scene/Scene.hpp"
+#include "ui/UI.hpp"
 
 using namespace VE;
 
@@ -14,12 +15,12 @@ public:
     void run()
     {
         setupScene();
-
+        setupUI();
         setupClient();
 
         while (client.isOpen())
         {
-            client.tick(scene.getDrawData(player1), scene.getAudioData(player1));
+            client.tick(scene.getDrawData(player1), scene.getAudioData(player1), ui.getWidgetData());
 
             scene.tick(client.getFrameTime(), {{player1, client.getVIS()}});
         }
@@ -28,6 +29,7 @@ public:
 private:
     Client client;
     Scene scene;
+    UI ui;
 
     PlayerHandle player1;
     VehicleHandle car1;
@@ -145,6 +147,11 @@ private:
         }
 
         scene.addSurface(surfaceSize, surfaceTypeMap, heightMap, 0.2f);
+    }
+
+    void setupUI()
+    {
+        ui.addWidgetInstance(ui.addWidget("models/button.obj"), {-0.85f, 0.85f});
     }
 };
 

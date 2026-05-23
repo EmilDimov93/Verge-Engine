@@ -1,7 +1,7 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#include "WidgetManager.hpp"
+#include "UI.hpp"
 
 #include "../shared/HandleFactory.hpp"
 
@@ -9,13 +9,13 @@
 
 namespace VE
 {
-    UIDrawData WidgetManager::getWidgetData() const
+    UIDrawData UI::getWidgetData() const
     {
         UIDrawData drawData(widgets, widgetInstances);
         return drawData;
     }
 
-    WidgetHandle WidgetManager::addWidget(const std::string &filePath)
+    WidgetHandle UI::addWidget(const std::string &filePath)
     {
         std::string ext = std::filesystem::path(filePath).extension().string();
 
@@ -40,7 +40,7 @@ namespace VE
         return newWidgetHandle;
     }
 
-    WidgetInstanceHandle WidgetManager::addWidgetInstance(WidgetHandle widgetHandle)
+    WidgetInstanceHandle UI::addWidgetInstance(WidgetHandle widgetHandle, glm::vec2 coords)
     {
         if (widgetHandle == INVALID_WIDGET_HANDLE)
             Log::add('W', 200);
@@ -58,7 +58,7 @@ namespace VE
         if (!foundWidget)
             Log::add('W', 200);
 
-        widgetInstances.emplace_back(HandleFactory<WidgetInstanceHandle>::getNewHandle(), widgetHandle, glm::mat4(1.0f));
+        widgetInstances.emplace_back(HandleFactory<WidgetInstanceHandle>::getNewHandle(), widgetHandle, glm::translate(glm::mat4(1.f), glm::vec3(coords.x, coords.y, 0.0f)));
 
         return widgetInstances.back().handle;
     }

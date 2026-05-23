@@ -8,14 +8,14 @@
 
 namespace VE
 {
-    class WidgetManager
+    class UI
     {
     public:
         UIDrawData getWidgetData() const;
 
         WidgetHandle addWidget(const std::string &filePath);
 
-        WidgetInstanceHandle addWidgetInstance(WidgetHandle handle);
+        WidgetInstanceHandle addWidgetInstance(WidgetHandle handle, glm::vec2 coords);
 
     private:
         std::vector<Widget> widgets;

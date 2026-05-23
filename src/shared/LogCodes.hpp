@@ -14,7 +14,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'E', 000}, "All resources loaded! Welcome!"},
     {{'E', 001}, "Verge Engine exited successfully"},
 
-    {{'E', 100}, "Temporary code"},
+    {{'E', 100}, "Feature not currently supported"},
     {{'E', 101}, "Unsupported file type"},
     {{'E', 102}, "File not found"},
 

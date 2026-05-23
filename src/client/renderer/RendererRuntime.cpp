@@ -86,6 +86,29 @@ namespace VE
         vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
     }
 
+    void Renderer::updateModelUniformBuffers(uint32_t currentFrame, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat)
+    {
+        UboCamera uboCamera;
+        uboCamera.projection = projectionMat;
+        uboCamera.view = viewMat;
+        uboCamera.lightSpaceMat = lightSpaceMat;
+
+        void *cameraData;
+        vkCheck(vkMapMemory(device, cameraUniformBufferMemory[currentFrame], 0, sizeof(UboCamera), 0, &cameraData), {'V', 236});
+        memcpy(cameraData, &uboCamera, sizeof(UboCamera));
+        vkUnmapMemory(device, cameraUniformBufferMemory[currentFrame]);
+
+        UboLighting uboLighting;
+        uboLighting.lightPos = lightPos;
+        uboLighting.lightColor = lightColor;
+        uboLighting.viewPos = glm::inverse(viewMat)[3];
+
+        void *lightingData;
+        vkCheck(vkMapMemory(device, lightingUniformBufferMemory[currentFrame], 0, sizeof(UboLighting), 0, &lightingData), {'V', 236});
+        memcpy(lightingData, &uboLighting, sizeof(UboLighting));
+        vkUnmapMemory(device, lightingUniformBufferMemory[currentFrame]);
+    }
+
     void Renderer::recordMainPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat)
     {
         const VkCommandBuffer commandBuffer = commandBuffers[currentFrame];
@@ -193,6 +216,111 @@ namespace VE
         vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
     }
 
+    void Renderer::updateUIUniformBuffers(uint32_t currentFrame)
+    {
+        UboUI uboUI;
+        uboUI.orthographicProj = glm::ortho(-1.0f, 1.0f, 1.0f, -1.0f);
+
+        void *uiData;
+        vkCheck(vkMapMemory(device, uiUniformBuffersMemory[currentFrame], 0, sizeof(UboUI), 0, &uiData), {'V', 236});
+        memcpy(uiData, &uboUI, sizeof(UboUI));
+        vkUnmapMemory(device, uiUniformBuffersMemory[currentFrame]);
+    }
+
+    void Renderer::recordUIPass(uint32_t currentImage, const std::vector<Widget> &widgets, const std::vector<WidgetInstance> &widgetInstances)
+    {
+        const VkCommandBuffer commandBuffer = commandBuffers[currentFrame];
+
+        VkImageMemoryBarrier imageMemoryBarrier{};
+        imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imageMemoryBarrier.image = swapChainImages[currentImage];
+        imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+        imageMemoryBarrier.subresourceRange.levelCount = 1;
+        imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+        imageMemoryBarrier.subresourceRange.layerCount = 1;
+        imageMemoryBarrier.srcAccessMask = 0;
+        imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+        vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+
+        VkRenderingAttachmentInfo colorAttachment{};
+        colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        colorAttachment.imageView = swapChainImageViews[currentImage];
+        colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+
+        VkRenderingInfo renderingInfo{};
+        renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+        renderingInfo.renderArea.offset = {0, 0};
+        renderingInfo.renderArea.extent = swapChainExtent;
+        renderingInfo.layerCount = 1;
+        renderingInfo.colorAttachmentCount = 1;
+        renderingInfo.pColorAttachments = &colorAttachment;
+        renderingInfo.pDepthAttachment = nullptr;
+
+        vkCmdBeginRendering(commandBuffer, &renderingInfo);
+
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, uiPipeline);
+
+        VkViewport viewport = {
+            .x = 0.0f,
+            .y = 0.0f,
+            .width = static_cast<float>(swapChainExtent.width),
+            .height = static_cast<float>(swapChainExtent.height),
+            .minDepth = 0.0f,
+            .maxDepth = 1.0f};
+        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+        VkRect2D scissor = {
+            .offset = {0, 0},
+            .extent = swapChainExtent};
+        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+        for (const WidgetInstance &instance : widgetInstances)
+        {
+            for (const WidgetBuffer &widgetBuffer : widgetBuffers)
+            {
+                if (instance.widgetHandle == widgetBuffer.handle)
+                {
+                    for (const MeshBuffer &meshBuffer : widgetBuffer.meshBuffers)
+                    {
+                        VkBuffer vertexBuffers[] = {meshBuffer.vertexBuffer};
+                        VkDeviceSize offsets[] = {0};
+                        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+                        vkCmdBindIndexBuffer(commandBuffer, meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+
+                        UIPushData pushData;
+                        pushData.model = instance.modelMat;
+
+                        vkCmdPushConstants(commandBuffer, uiPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UIPushData), &pushData);
+
+                        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, uiPipelineLayout, 0, 1, &uiDescriptorSets[currentFrame], 0, nullptr);
+
+                        vkCmdDrawIndexed(commandBuffer, meshBuffer.indexCount, 1, 0, 0, 0);
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        vkCmdEndRendering(commandBuffer);
+
+        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        imageMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        imageMemoryBarrier.dstAccessMask = 0;
+
+        vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+    }
+
     void Renderer::drawFrame(const SceneDrawData &sceneDrawData, const UIDrawData &uiDrawData, const glm::mat4 projectionMat)
     {
         vkCheck(vkWaitForFences(device, 1, &drawFences[currentFrame], VK_TRUE, UINT64_MAX), {'V', 231});
@@ -241,25 +369,33 @@ namespace VE
         lightProjection[1][1] *= -1;
         glm::mat4 lightSpaceMat = lightProjection * lightView;
 
-        updateUniformBuffers(currentFrame, projectionMat, sceneDrawData.viewMat, lightPos, lightColor, lightSpaceMat);
+        updateModelUniformBuffers(currentFrame, projectionMat, sceneDrawData.viewMat, lightPos, lightColor, lightSpaceMat);
+        updateUIUniformBuffers(currentFrame);
 
         const VkCommandBuffer commandBuffer = commandBuffers[currentFrame];
+
+        VkCommandBufferBeginInfo commandBufferBeginInfo{};
+        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+        vkCheck(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo), {'V', 213});
 
         {
             std::lock_guard<std::recursive_mutex> lock(modelMutex);
             syncModelBuffers(sceneDrawData.models);
 
-            VkCommandBufferBeginInfo commandBufferBeginInfo{};
-            commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-            vkCheck(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo), {'V', 213});
-
             recordShadowPass(sceneDrawData.models, sceneDrawData.modelInstances, lightSpaceMat);
 
             recordMainPass(imageIndex, sceneDrawData.models, sceneDrawData.modelInstances, sceneDrawData.backgroundColor, lightSpaceMat);
-
-            vkCheck(vkEndCommandBuffer(commandBuffer), {'V', 213});
         }
+
+        {
+            std::lock_guard<std::recursive_mutex> lock(widgetMutex);
+            syncWidgetBuffers(uiDrawData.widgets);
+
+            recordUIPass(imageIndex, uiDrawData.widgets, uiDrawData.widgetInstances);
+        }
+
+        vkCheck(vkEndCommandBuffer(commandBuffer), {'V', 213});
 
         VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
@@ -302,29 +438,6 @@ namespace VE
         }
 
         currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
-    }
-
-    void Renderer::updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat)
-    {
-        UboCamera uboCamera;
-        uboCamera.projection = projectionMat;
-        uboCamera.view = viewMat;
-        uboCamera.lightSpaceMat = lightSpaceMat;
-
-        UboLighting uboLighting;
-        uboLighting.lightPos = lightPos;
-        uboLighting.lightColor = lightColor;
-        uboLighting.viewPos = glm::inverse(viewMat)[3];
-
-        void *cameraData;
-        vkCheck(vkMapMemory(device, cameraUniformBufferMemory[imageIndex], 0, sizeof(UboCamera), 0, &cameraData), {'V', 236});
-        memcpy(cameraData, &uboCamera, sizeof(UboCamera));
-        vkUnmapMemory(device, cameraUniformBufferMemory[imageIndex]);
-
-        void *lightingData;
-        vkCheck(vkMapMemory(device, lightingUniformBufferMemory[imageIndex], 0, sizeof(UboLighting), 0, &lightingData), {'V', 236});
-        memcpy(lightingData, &uboLighting, sizeof(UboLighting));
-        vkUnmapMemory(device, lightingUniformBufferMemory[imageIndex]);
     }
 
     void Renderer::recreateSwapChain()

@@ -20,6 +20,7 @@ add_executable(VergeEngine
     src/client/renderer/RendererRuntime.cpp
     src/client/renderer/RendererHelpers.cpp
     src/client/renderer/RendererModels.cpp
+    src/client/renderer/RendererUI.cpp
     src/client/renderer/RendererTextures.cpp
 
     src/scene/SceneCore.cpp
@@ -31,7 +32,7 @@ add_executable(VergeEngine
     src/scene/actors/Prop.cpp
     src/scene/actors/Trigger.cpp
 
-    src/ui/WidgetManager.cpp
+    src/ui/UI.cpp
 )
 
 target_include_directories(VergeEngine PRIVATE

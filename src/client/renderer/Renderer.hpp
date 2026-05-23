@@ -182,6 +182,7 @@ namespace VE
         std::mutex graphicsQueueMutex;
         mutable std::mutex transferQueueMutex;
         std::recursive_mutex modelMutex;
+        std::recursive_mutex widgetMutex;
         std::mutex textureMutex;
 
         // Runtime
@@ -237,8 +238,10 @@ namespace VE
 
         // Runtime
         void recordShadowPass(const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, const glm::mat4 &lightSpaceMat);
+        void updateModelUniformBuffers(uint32_t currentFrame, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat);
         void recordMainPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat);
-        void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat);
+        void updateUIUniformBuffers(uint32_t currentFrame);
+        void recordUIPass(uint32_t currentImage, const std::vector<Widget> &widgets, const std::vector<WidgetInstance> &widgetInstances);
         void recreateSwapChain();
 
         // Helpers
@@ -256,7 +259,11 @@ namespace VE
         void initModelBuffer(const Model &model);
         void updateModelBuffer(ModelBuffer &modelBuffer, const Model &model);
         void removeOrphanedModel(const std::vector<ModelInstance> &modelInstances);
-        void destroyMeshBuffer(MeshBuffer &meshBuffer);
+        void destroyMeshBuffer(MeshBuffer &meshBuffer) const;
+
+        // UI
+        void syncWidgetBuffers(const std::vector<Widget> &widgets);
+        void initWidgetBuffer(const Widget &widget);
 
         // Textures
         void createFallbackTexture();

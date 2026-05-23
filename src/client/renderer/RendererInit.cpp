@@ -398,13 +398,13 @@ namespace VE
         VkDeviceSize cameraBufferSize = sizeof(UboCamera);
         VkDeviceSize lightingBufferSize = sizeof(UboLighting);
 
-        cameraUniformBuffer.resize(swapChainImages.size());
-        cameraUniformBufferMemory.resize(swapChainImages.size());
+        cameraUniformBuffer.resize(MAX_FRAME_DRAWS);
+        cameraUniformBufferMemory.resize(MAX_FRAME_DRAWS);
 
-        lightingUniformBuffer.resize(swapChainImages.size());
-        lightingUniformBufferMemory.resize(swapChainImages.size());
+        lightingUniformBuffer.resize(MAX_FRAME_DRAWS);
+        lightingUniformBufferMemory.resize(MAX_FRAME_DRAWS);
 
-        for (size_t i = 0; i < swapChainImages.size(); i++)
+        for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
         {
             createBuffer(cameraBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &cameraUniformBuffer[i], &cameraUniformBufferMemory[i]);
             createBuffer(lightingBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &lightingUniformBuffer[i], &lightingUniformBufferMemory[i]);
@@ -419,13 +419,13 @@ namespace VE
 
         VkDescriptorPoolSize shadowPoolSize = {
             .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            .descriptorCount = static_cast<uint32_t>(swapChainImages.size())};
+            .descriptorCount = MAX_FRAME_DRAWS};
 
         std::array<VkDescriptorPoolSize, 2> descriptorPoolSizes = {uniformPoolSize, shadowPoolSize};
 
         VkDescriptorPoolCreateInfo poolCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-            .maxSets = static_cast<uint32_t>(swapChainImages.size()),
+            .maxSets = MAX_FRAME_DRAWS,
             .poolSizeCount = static_cast<uint32_t>(descriptorPoolSizes.size()),
             .pPoolSizes = descriptorPoolSizes.data()};
 
@@ -434,19 +434,19 @@ namespace VE
 
     void Renderer::createModelDescriptorSets()
     {
-        modelDescriptorSets.resize(swapChainImages.size());
+        modelDescriptorSets.resize(MAX_FRAME_DRAWS);
 
-        std::vector<VkDescriptorSetLayout> setLayouts(swapChainImages.size(), modelDescriptorSetLayout);
+        std::vector<VkDescriptorSetLayout> setLayouts(MAX_FRAME_DRAWS, modelDescriptorSetLayout);
 
         VkDescriptorSetAllocateInfo setAllocInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
             .descriptorPool = modelDescriptorPool,
-            .descriptorSetCount = static_cast<uint32_t>(swapChainImages.size()),
+            .descriptorSetCount = MAX_FRAME_DRAWS,
             .pSetLayouts = setLayouts.data()};
 
         vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, modelDescriptorSets.data()), {'V', 220});
 
-        for (size_t i = 0; i < swapChainImages.size(); i++)
+        for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
         {
             VkDescriptorBufferInfo cameraBufferInfo = {
                 .buffer = cameraUniformBuffer[i],
@@ -555,10 +555,10 @@ namespace VE
     {
         VkDeviceSize uiUniformBufferSize = sizeof(UboUI);
 
-        uiUniformBuffers.resize(swapChainImages.size());
-        uiUniformBuffersMemory.resize(swapChainImages.size());
+        uiUniformBuffers.resize(MAX_FRAME_DRAWS);
+        uiUniformBuffersMemory.resize(MAX_FRAME_DRAWS);
 
-        for (size_t i = 0; i < swapChainImages.size(); i++)
+        for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
             createBuffer(uiUniformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &uiUniformBuffers[i], &uiUniformBuffersMemory[i]);
     }
 
@@ -570,7 +570,7 @@ namespace VE
 
         VkDescriptorPoolCreateInfo poolCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-            .maxSets = static_cast<uint32_t>(swapChainImages.size()),
+            .maxSets = MAX_FRAME_DRAWS,
             .poolSizeCount = 1,
             .pPoolSizes = &poolSize};
 
@@ -579,19 +579,19 @@ namespace VE
 
     void Renderer::createUIDescriptorSets()
     {
-        uiDescriptorSets.resize(swapChainImages.size());
+        uiDescriptorSets.resize(MAX_FRAME_DRAWS);
 
-        std::vector<VkDescriptorSetLayout> setLayouts(swapChainImages.size(), uiDescriptorSetLayout);
+        std::vector<VkDescriptorSetLayout> setLayouts(MAX_FRAME_DRAWS, uiDescriptorSetLayout);
 
         VkDescriptorSetAllocateInfo setAllocInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
             .descriptorPool = uiDescriptorPool,
-            .descriptorSetCount = static_cast<uint32_t>(swapChainImages.size()),
+            .descriptorSetCount = MAX_FRAME_DRAWS,
             .pSetLayouts = setLayouts.data()};
 
         vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, uiDescriptorSets.data()), {'V', 220});
 
-        for (size_t i = 0; i < swapChainImages.size(); i++)
+        for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
         {
             VkDescriptorBufferInfo uiBufferInfo = {
                 .buffer = uiUniformBuffers[i],
@@ -610,6 +610,25 @@ namespace VE
             vkUpdateDescriptorSets(device, 1, &uiSetWrite, 0, nullptr);
         }
     }
+
+    void Renderer::destroyMeshBuffer(MeshBuffer &meshBuffer) const
+    {
+        if (meshBuffer.vertexBuffer)
+            vkDestroyBuffer(device, meshBuffer.vertexBuffer, nullptr);
+        if (meshBuffer.vertexBufferMemory)
+            vkFreeMemory(device, meshBuffer.vertexBufferMemory, nullptr);
+
+        if (meshBuffer.indexBuffer)
+            vkDestroyBuffer(device, meshBuffer.indexBuffer, nullptr);
+        if (meshBuffer.indexBufferMemory)
+            vkFreeMemory(device, meshBuffer.indexBufferMemory, nullptr);
+
+        meshBuffer.vertexBuffer = VK_NULL_HANDLE;
+        meshBuffer.vertexBufferMemory = VK_NULL_HANDLE;
+        meshBuffer.indexBuffer = VK_NULL_HANDLE;
+        meshBuffer.indexBufferMemory = VK_NULL_HANDLE;
+    }
+
 
     Renderer::~Renderer()
     {
@@ -634,6 +653,10 @@ namespace VE
             for (MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
                 destroyMeshBuffer(meshBuffer);
 
+        for (WidgetBuffer &widgetBuffer : widgetBuffers)
+            for (MeshBuffer &meshBuffer : widgetBuffer.meshBuffers)
+                destroyMeshBuffer(meshBuffer);
+
         for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
         {
             if (imageAvailableSemaphores[i])
@@ -647,7 +670,7 @@ namespace VE
 
         if (uiDescriptorPool)
             vkDestroyDescriptorPool(device, uiDescriptorPool, nullptr);
-        for (size_t i = 0; i < swapChainImages.size(); i++)
+        for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
         {
             if (uiUniformBuffers[i])
                 vkDestroyBuffer(device, uiUniformBuffers[i], nullptr);
@@ -663,7 +686,7 @@ namespace VE
 
         if (modelDescriptorPool)
             vkDestroyDescriptorPool(device, modelDescriptorPool, nullptr);
-        for (size_t i = 0; i < swapChainImages.size(); i++)
+        for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
         {
             if (cameraUniformBuffer[i])
                 vkDestroyBuffer(device, cameraUniformBuffer[i], nullptr);

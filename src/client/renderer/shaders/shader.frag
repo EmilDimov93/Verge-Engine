@@ -1,6 +1,6 @@
 #version 450
 
-layout(location = 0) flat in vec3 fragCol;
+layout(location = 0) flat in vec4 fragCol;
 layout(location = 1) in vec2 fragTex;
 layout(location = 2) flat in uint fragTextureIndex;
 layout(location = 3) in vec3 fragWorldPos;
@@ -29,7 +29,7 @@ float calcShadow(vec4 posLightSpace) {
 }
 
 void main(){
-    vec3 base = (fragTextureIndex == 0) ? fragCol : texture(textureSampler, fragTex).rgb;
+    vec4 base = (fragTextureIndex == 0) ? fragCol : texture(textureSampler, fragTex);
 
     if (fragLightStrength > 0.0) {
         outColor = vec4(uboLighting.lightColor, 1.0);
@@ -37,7 +37,7 @@ void main(){
     }
 
     if (uboLighting.lightPos.w == 0) {
-        outColor = vec4(base, 1.0);
+        outColor = base;
         return;
     }
 
@@ -50,9 +50,10 @@ void main(){
     float spec = pow(max(dot(normalDir, halfVector), 0.0), 32.0);
 
     float intensity = uboLighting.lightPos.w;
-    vec3 ambient = base * 0.3;
-    vec3 diffuse = base * uboLighting.lightColor * diff * intensity * 0.5;
+    vec3 baseRgb = base.rgb;
+    vec3 ambient = baseRgb * 0.3;
+    vec3 diffuse = baseRgb * uboLighting.lightColor * diff * intensity * 0.5;
     vec3 specular = uboLighting.lightColor * spec * intensity * 0.3;
     vec3 color = ambient + (diffuse + specular) * (1.0 - calcShadow(fragPosLightSpace));
-    outColor = vec4(color, 1.0);
+    outColor = vec4(color, base.a);
 }

@@ -208,4 +208,53 @@ namespace VE
 
         return image;
     }
+
+    uint32_t Renderer::rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface)
+    {
+        VkPhysicalDeviceProperties props;
+        VkPhysicalDeviceFeatures features;
+        vkGetPhysicalDeviceProperties(device, &props);
+        vkGetPhysicalDeviceFeatures(device, &features);
+
+        int score = 0;
+
+        if (props.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+            score += 1000;
+
+        score += props.limits.maxImageDimension2D;
+
+        if (!features.samplerAnisotropy)
+            return 0;
+
+        uint32_t queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+        int32_t graphicsFamily = -1;
+        int32_t presentationFamily = -1;
+        int i = 0;
+        for (const VkQueueFamilyProperties &queueFamily : queueFamilies)
+        {
+            if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+                graphicsFamily = i;
+
+            VkBool32 presentationSupport = false;
+            if (vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentationSupport) != VK_SUCCESS)
+                Log::add('V', 214);
+
+            if (queueFamily.queueCount > 0 && presentationSupport)
+                presentationFamily = i;
+
+            if (graphicsFamily >= 0 && presentationFamily >= 0)
+                break;
+
+            i++;
+        }
+
+        if (graphicsFamily < 0 || presentationFamily < 0)
+            return 0;
+
+        return score;
+    }
 }

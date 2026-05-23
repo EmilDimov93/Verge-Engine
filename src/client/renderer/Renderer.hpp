@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 
 #include <vector>
+#include <array>
 #include <mutex>
 
 namespace VE
@@ -30,7 +31,7 @@ namespace VE
 
     private:
         static constexpr uint32_t MAX_FRAME_DRAWS = 2;
-        
+
         static constexpr Size2 SHADOW_MAP_EXTENT = {4096, 4096};
 
         static constexpr uint32_t TEXTURE_SAMPLER_POOL_CHUNK_SIZE = 1e3;
@@ -59,7 +60,16 @@ namespace VE
             ModelBuffer(ModelHandle handle) : handle(handle) {}
         };
 
-        std::vector<ModelBuffer> modelBuffers;
+        struct WidgetBuffer
+        {
+            WidgetHandle handle;
+
+            std::vector<MeshBuffer> meshBuffers;
+
+            uint32_t version = 0;
+
+            WidgetBuffer(WidgetHandle handle) : handle(handle) {}
+        };
 
         struct UboCamera
         {
@@ -67,8 +77,6 @@ namespace VE
             glm::mat4 view;
             glm::mat4 lightSpaceMat;
         };
-        std::vector<VkBuffer> cameraUniformBuffer;
-        std::vector<VkDeviceMemory> cameraUniformBufferMemory;
 
         struct UboLighting
         {
@@ -76,8 +84,11 @@ namespace VE
             glm::vec3 lightColor;
             glm::vec4 viewPos;
         };
-        std::vector<VkBuffer> lightingUniformBuffer;
-        std::vector<VkDeviceMemory> lightingUniformBufferMemory;
+
+        struct UboUI
+        {
+            glm::mat4 orthographicProj, model;
+        };
 
         struct PushData
         {
@@ -92,6 +103,7 @@ namespace VE
             glm::mat4 lightSpaceMat;
         };
 
+        // Initial
         GLFWwindow *window = nullptr;
 
         VkInstance instance = VK_NULL_HANDLE;
@@ -107,6 +119,7 @@ namespace VE
         uint32_t graphicsQueueFamilyIndex = 0;
         uint32_t transferQueueFamilyIndex = 0;
 
+        // SwapChain
         VkSwapchainKHR swapChain = VK_NULL_HANDLE;
         VkFormat swapChainImageFormat;
         VkExtent2D swapChainExtent;
@@ -116,11 +129,13 @@ namespace VE
         VkCommandPool graphicsCommandPool = VK_NULL_HANDLE;
         std::vector<VkCommandBuffer> commandBuffers;
 
+        // Depth buffer
         VkImage depthBufferImage = VK_NULL_HANDLE;
         VkDeviceMemory depthBufferImageMemory = VK_NULL_HANDLE;
         VkImageView depthBufferImageView = VK_NULL_HANDLE;
         VkFormat depthFormat;
 
+        // Pipeline 1: Shadow
         VkPipeline shadowPipeline = VK_NULL_HANDLE;
         VkPipelineLayout shadowPipelineLayout = VK_NULL_HANDLE;
 
@@ -130,10 +145,21 @@ namespace VE
         VkFormat shadowDepthFormat;
         VkSampler shadowSampler = VK_NULL_HANDLE;
 
+        // Pipeline 2: Main
+        VkPipeline graphicsPipeline = VK_NULL_HANDLE;
+        VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
         VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
         VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
         std::vector<VkDescriptorSet> descriptorSets;
 
+        // Pipeline 3: UI
+        VkPipeline uiPipeline = VK_NULL_HANDLE;
+        VkPipelineLayout uiPipelineLayout = VK_NULL_HANDLE;
+        VkDescriptorSetLayout uiDescriptorSetLayout = VK_NULL_HANDLE;
+        VkDescriptorPool uiDescriptorPool = VK_NULL_HANDLE;
+        std::vector<VkDescriptorSet> uiDescriptorSets;
+
+        // Textures
         VkDescriptorSetLayout samplerSetLayout = VK_NULL_HANDLE;
         std::vector<VkDescriptorPool> samplerDescriptorPools;
         std::vector<VkDescriptorSet> samplerDescriptorSets;
@@ -143,9 +169,7 @@ namespace VE
         std::vector<VkDeviceMemory> textureImageMemory;
         std::vector<VkImageView> textureImageViews;
 
-        VkPipeline graphicsPipeline = VK_NULL_HANDLE;
-        VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-
+        // Synchronization
         std::vector<VkSemaphore> imageAvailableSemaphores;
         std::vector<VkSemaphore> renderFinishedSemaphores;
         std::vector<VkFence> drawFences;
@@ -155,8 +179,21 @@ namespace VE
         std::recursive_mutex modelMutex;
         std::mutex textureMutex;
 
+        // Runtime
         uint32_t currentFrame = 0;
         bool framebufferResized = false;
+
+        std::vector<ModelBuffer> modelBuffers;
+        std::vector<WidgetBuffer> widgetBuffers;
+
+        std::vector<VkBuffer> cameraUniformBuffer;
+        std::vector<VkDeviceMemory> cameraUniformBufferMemory;
+
+        std::vector<VkBuffer> lightingUniformBuffer;
+        std::vector<VkDeviceMemory> lightingUniformBufferMemory;
+
+        std::vector<VkBuffer> uiUniformBuffers;
+        std::vector<VkDeviceMemory> uiUniformBuffersMemory;
 
         // Init
         void createInstance();
@@ -173,10 +210,10 @@ namespace VE
         void findDepthFormat();
         void createShadowSampler();
         void createTextureSampler();
-        
+
         void createDepthBufferImage();
         void createShadowDepthBufferImage();
-        
+
         void createDescriptorSetLayout();
         void createGraphicsPipeline();
         void createShadowPipeline();
@@ -187,8 +224,14 @@ namespace VE
 
         void createSemaphores();
 
+        void createUIDescriptorSetLayout();
+        void createUIPipeline();
+        void createUIUniformBuffers();
+        void createUIDescriptorPool();
+        void createUIDescriptorSets();
+
         // Runtime
-        void recordShadowPass(const std::vector<Model>& models, const std::vector<ModelInstance>& modelInstances, const glm::mat4& lightSpaceMat);
+        void recordShadowPass(const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, const glm::mat4 &lightSpaceMat);
         void recordMainPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat);
         void updateUniformBuffers(uint32_t imageIndex, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat);
         void recreateSwapChain();

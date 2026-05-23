@@ -16,6 +16,7 @@ add_executable(VergeEngine
     src/client/Input.cpp
     src/client/FpsManager.cpp
     src/client/renderer/RendererInit.cpp
+    src/client/renderer/RendererInitPipelines.cpp
     src/client/renderer/RendererRuntime.cpp
     src/client/renderer/RendererHelpers.cpp
     src/client/renderer/RendererModels.cpp

@@ -58,6 +58,12 @@ if($compileShaders){
     & $glslang -V "src/client/renderer/shaders/shadow.vert" -o "build/$config/shaders/shadowVert.spv"
     if ($LASTEXITCODE -ne 0) { exit 1 }
 
+    & $glslang -V "src/client/renderer/shaders/ui.vert" -o "build/$config/shaders/uiVert.spv"
+    if ($LASTEXITCODE -ne 0) { exit 1 }
+
+    & $glslang -V "src/client/renderer/shaders/ui.frag" -o "build/$config/shaders/uiFrag.spv"
+    if ($LASTEXITCODE -ne 0) { exit 1 }
+
     Write-Host "Shaders compiled" -ForegroundColor Blue
 }
 

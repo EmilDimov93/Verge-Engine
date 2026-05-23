@@ -1,7 +1,7 @@
 #version 450
 
 layout(location = 0) in vec3 pos;
-layout(location = 1) in vec3 col;
+layout(location = 1) in vec4 col;
 layout(location = 2) in vec2 tex;
 layout(location = 3) in vec3 normal;
 
@@ -17,7 +17,7 @@ layout(push_constant) uniform PushModel {
     float lightStrength;
 }pushModel;
 
-layout(location = 0) out vec3 fragCol;
+layout(location = 0) out vec4 fragCol;
 layout(location = 1) out vec2 fragTex;
 layout(location = 2) flat out uint fragTextureIndex;
 layout(location = 3) out vec3 fragWorldPos;

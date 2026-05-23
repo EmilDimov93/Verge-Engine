@@ -6,19 +6,29 @@
 #include "../shared/MeshLoader.hpp"
 #include "../shared/DrawData.hpp"
 
+#include <unordered_map>
+
 namespace VE
 {
     class UI
     {
     public:
+        void tick(bool mouseBtnClicked, Position2 mousePos);
+
         UIDrawData getWidgetData() const;
 
         WidgetHandle addWidget(const std::string &filePath);
 
-        WidgetInstanceHandle addWidgetInstance(WidgetHandle handle, glm::vec2 coords);
+        WidgetInstanceHandle addWidgetInstance(WidgetHandle handle, glm::vec2 coords, const std::function<void()>& callback = nullptr);
+
+        void setCallback(WidgetInstanceHandle handle, const std::function<void()>& callback);
 
     private:
         std::vector<Widget> widgets;
         std::vector<WidgetInstance> widgetInstances;
+
+        std::unordered_map<WidgetInstanceHandle, std::function<void()>> callbacks;
+
+        bool checkCursorCollision(WidgetInstanceHandle handle, Position2 mousePos) const;
     };
 }

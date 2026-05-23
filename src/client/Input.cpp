@@ -8,15 +8,15 @@
 namespace VE
 {
 
-    Input::KeyState Input::mouseBtnStates[MOUSE_BTN_COUNT] = {};
-    Input::KeyState Input::keyStates[KEY_COUNT] = {};
+    KeyState Input::mouseBtnStates[MOUSE_BTN_COUNT] = {};
+    KeyState Input::keyStates[KEY_COUNT] = {};
 
     Position2 Input::mousePosition = {0, 0};
 
     int Input::controllerId = GLFW_JOYSTICK_1;
     bool Input::controllerConnected = false;
 
-    std::vector<Input::KeyState> Input::controllerBtnStates;
+    std::vector<KeyState> Input::controllerBtnStates;
     std::vector<float> Input::controllerAxes;
 
     float Input::axisDeadZone = 0.1f;

@@ -33,13 +33,17 @@ namespace VE
         return window.isOpen();
     }
 
-    void Client::tick(const SceneDrawData &sceneDrawData, const AudioData &audioData, const UIDrawData &uiDrawData)
+    void Client::tick(const SceneDrawData &sceneDrawData, const AudioData &audioData)
     {
         Input::refresh();
 
-        renderer.drawFrame(sceneDrawData, uiDrawData, getProjectionMat());
+        renderer.drawFrame(sceneDrawData, ui.getWidgetData(), getProjectionMat());
 
         audio.tick(audioData, volume);
+
+        Position2 mousePos = Input::getMousePos();
+        Size2 windowSize = window.getSize();
+        ui.tick(Input::isPressed(MOUSE_BTN_LEFT), Position2(2 * mousePos.x / windowSize.w - 1, 2 * mousePos.y / windowSize.h - 1));
 
         fps.sync();
     }

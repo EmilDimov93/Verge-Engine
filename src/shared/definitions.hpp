@@ -9,7 +9,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <limits>
-
+#include <functional>
 #include <vector>
 
 namespace VE
@@ -189,4 +189,16 @@ namespace VE
         return angleRad - PI;
     }
 
+}
+
+namespace std
+{
+    template <typename Tag>
+    struct hash<VE::Handle<Tag>>
+    {
+        size_t operator()(const VE::Handle<Tag> &handle) const noexcept
+        {
+            return hash<uint64_t>{}(handle.getValue());
+        }
+    };
 }

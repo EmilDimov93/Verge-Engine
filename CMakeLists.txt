@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(VergeEngine 
-    src/Main.cpp
+    src/Example.cpp
     
     src/shared/Log.cpp
 

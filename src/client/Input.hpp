@@ -9,6 +9,15 @@
 
 namespace VE
 {
+    enum KeyState
+    {
+        KEY_STATE_DOWN,
+        KEY_STATE_UP,
+        KEY_STATE_PRESSED,
+        KEY_STATE_RELEASED
+    };
+
+    using ButtonState = KeyState;
 
     enum Key
     {
@@ -155,14 +164,6 @@ namespace VE
         static bool isReleased(ControllerBtn btn);
 
         static float getAxis(ControllerAxis axis);
-
-        enum KeyState
-        {
-            KEY_STATE_DOWN,
-            KEY_STATE_UP,
-            KEY_STATE_PRESSED,
-            KEY_STATE_RELEASED
-        };
 
     private:
         static KeyState keyStates[KEY_COUNT];

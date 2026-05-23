@@ -219,7 +219,7 @@ namespace VE
     void Renderer::updateUIUniformBuffers(uint32_t currentFrame)
     {
         UboUI uboUI;
-        uboUI.orthographicProj = glm::ortho(-1.0f, 1.0f, 1.0f, -1.0f);
+        uboUI.orthographicProj = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f);
 
         void *uiData;
         vkCheck(vkMapMemory(device, uiUniformBuffersMemory[currentFrame], 0, sizeof(UboUI), 0, &uiData), {'V', 236});

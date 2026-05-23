@@ -7,6 +7,8 @@
 #include "Input.hpp"
 #include "FPSManager.hpp"
 
+#include "../ui/UI.hpp"
+
 #include "../shared/Log.hpp"
 
 namespace VE
@@ -50,7 +52,7 @@ namespace VE
 
         bool isOpen();
 
-        void tick(const SceneDrawData &sceneDrawData, const AudioData &audioData, const UIDrawData &uiDrawData = UIDrawData{});
+        void tick(const SceneDrawData &sceneDrawData, const AudioData &audioData);
 
         VehicleInputState getVIS();
         void setVehicleKeybinds(const VehicleKeybinds &keybinds);
@@ -75,6 +77,8 @@ namespace VE
         void setFOV(float fov);
         void setzNear(float zNear);
         void setZFar(float zFar);
+
+        UI ui;
 
     private:
         // Window & Rendering

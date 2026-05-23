@@ -3,14 +3,13 @@
 
 #include "client/Client.hpp"
 #include "scene/Scene.hpp"
-#include "ui/UI.hpp"
 
 using namespace VE;
 
 class VergeEngine
 {
 public:
-    VergeEngine() : client({"Example", {2560, 1570}}) {}
+    VergeEngine() : client({"Example", {2560, 1100}}) {}
 
     void run()
     {
@@ -20,7 +19,7 @@ public:
 
         while (client.isOpen())
         {
-            client.tick(scene.getDrawData(player1), scene.getAudioData(player1), ui.getWidgetData());
+            client.tick(scene.getDrawData(player1), scene.getAudioData(player1));
 
             scene.tick(client.getFrameTime(), {{player1, client.getVIS()}});
         }
@@ -29,7 +28,6 @@ public:
 private:
     Client client;
     Scene scene;
-    UI ui;
 
     PlayerHandle player1;
     VehicleHandle car1;
@@ -151,7 +149,7 @@ private:
 
     void setupUI()
     {
-        ui.addWidgetInstance(ui.addWidget("models/button.obj"), {-0.85f, 0.85f});
+        client.ui.addWidgetInstance(client.ui.addWidget("models/button.obj"), {-0.85f, -0.85f}, [&](){ std::cout << "Button Clicked!" << std::endl; });
     }
 };
 

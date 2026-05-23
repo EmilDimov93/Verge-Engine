@@ -134,7 +134,7 @@ namespace VE
 
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
 
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, modelPipeline);
 
         VkViewport viewport = {
             .x = 0.0f,
@@ -169,11 +169,11 @@ namespace VE
                         pushData.textureIndex = meshBuffer.texIndex;
                         pushData.lightStrength = instance.lightStrength;
 
-                        vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushData), &pushData);
+                        vkCmdPushConstants(commandBuffer, modelPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushData), &pushData);
 
-                        std::array<VkDescriptorSet, 2> descriptorSetGroup = {descriptorSets[currentFrame], samplerDescriptorSets[meshBuffer.texIndex]};
+                        std::array<VkDescriptorSet, 2> descriptorSetGroup = {modelDescriptorSets[currentFrame], samplerDescriptorSets[meshBuffer.texIndex]};
 
-                        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
+                        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, modelPipelineLayout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
 
                         vkCmdDrawIndexed(commandBuffer, meshBuffer.indexCount, 1, 0, 0, 0);
                     }

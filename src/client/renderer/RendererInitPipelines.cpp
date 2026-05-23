@@ -7,7 +7,7 @@
 
 namespace VE
 {
-    void Renderer::createGraphicsPipeline()
+    void Renderer::createModelPipeline()
     {
         std::vector<char> vertexShaderCode = readFile("shaders/vert.spv");
         std::vector<char> fragmentShaderCode = readFile("shaders/frag.spv");
@@ -121,7 +121,7 @@ namespace VE
             .attachmentCount = 1,
             .pAttachments = &colorState};
 
-        std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts = {descriptorSetLayout, samplerSetLayout};
+        std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts = {modelDescriptorSetLayout, samplerSetLayout};
 
         VkPushConstantRange pushConstantRange;
         pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -134,7 +134,7 @@ namespace VE
             .pushConstantRangeCount = 1,
             .pPushConstantRanges = &pushConstantRange};
 
-        vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout), {'V', 210});
+        vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &modelPipelineLayout), {'V', 210});
 
         VkPipelineDepthStencilStateCreateInfo depthStencilCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
@@ -172,13 +172,13 @@ namespace VE
             .pDepthStencilState = &depthStencilCreateInfo,
             .pColorBlendState = &colorBlendingCreateInfo,
             .pDynamicState = &dynamicStateCreateInfo,
-            .layout = pipelineLayout,
+            .layout = modelPipelineLayout,
             .renderPass = VK_NULL_HANDLE,
             .subpass = 0,
             .basePipelineHandle = VK_NULL_HANDLE,
             .basePipelineIndex = -1};
 
-        vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &graphicsPipeline), {'V', 211});
+        vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &modelPipeline), {'V', 211});
 
         vkDestroyShaderModule(device, vertexShaderModule, nullptr);
         vkDestroyShaderModule(device, fragmentShaderModule, nullptr);

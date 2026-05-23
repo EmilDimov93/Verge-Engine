@@ -12,7 +12,7 @@ namespace VE
     Renderer::Renderer(GLFWwindow *window, Size2 windowSize)
     {
         this->window = window;
-        
+
         createInstance();
         createSurface();
         pickPhysicalDevice();
@@ -31,16 +31,16 @@ namespace VE
         createDepthBufferImage();
         createShadowDepthBufferImage();
 
-        createDescriptorSetLayout();
-        createGraphicsPipeline();
         createShadowPipeline();
+
+        createModelDescriptorSetLayout();
+        createModelPipeline();
+        createModelUniformBuffers();
+        createModelDescriptorPool();
+        createModelDescriptorSets();
+
         createUIDescriptorSetLayout();
         createUIPipeline();
-
-        createUniformBuffers();
-        createUniformDescriptorPool();
-        createDescriptorSets();
-
         createUIUniformBuffers();
         createUIDescriptorPool();
         createUIDescriptorSets();
@@ -300,7 +300,7 @@ namespace VE
         vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &depthBufferImageView), {'V', 205});
     }
 
-    void Renderer::createDescriptorSetLayout()
+    void Renderer::createModelDescriptorSetLayout()
     {
         VkDescriptorSetLayoutBinding cameraLayoutBinding = {
             .binding = 0,
@@ -330,7 +330,7 @@ namespace VE
             .bindingCount = static_cast<uint32_t>(layoutBindings.size()),
             .pBindings = layoutBindings.data()};
 
-        vkCheck(vkCreateDescriptorSetLayout(device, &layoutCreateInfo, nullptr, &descriptorSetLayout), {'V', 217});
+        vkCheck(vkCreateDescriptorSetLayout(device, &layoutCreateInfo, nullptr, &modelDescriptorSetLayout), {'V', 217});
 
         VkDescriptorSetLayoutBinding samplerLayoutBinding = {
             .binding = 0,
@@ -393,7 +393,7 @@ namespace VE
         }
     }
 
-    void Renderer::createUniformBuffers()
+    void Renderer::createModelUniformBuffers()
     {
         VkDeviceSize cameraBufferSize = sizeof(UboCamera);
         VkDeviceSize lightingBufferSize = sizeof(UboLighting);
@@ -411,7 +411,7 @@ namespace VE
         }
     }
 
-    void Renderer::createUniformDescriptorPool()
+    void Renderer::createModelDescriptorPool()
     {
         VkDescriptorPoolSize uniformPoolSize = {
             .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
@@ -429,22 +429,22 @@ namespace VE
             .poolSizeCount = static_cast<uint32_t>(descriptorPoolSizes.size()),
             .pPoolSizes = descriptorPoolSizes.data()};
 
-        vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &descriptorPool), {'V', 219});
+        vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &modelDescriptorPool), {'V', 219});
     }
 
-    void Renderer::createDescriptorSets()
+    void Renderer::createModelDescriptorSets()
     {
-        descriptorSets.resize(swapChainImages.size());
+        modelDescriptorSets.resize(swapChainImages.size());
 
-        std::vector<VkDescriptorSetLayout> setLayouts(swapChainImages.size(), descriptorSetLayout);
+        std::vector<VkDescriptorSetLayout> setLayouts(swapChainImages.size(), modelDescriptorSetLayout);
 
         VkDescriptorSetAllocateInfo setAllocInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-            .descriptorPool = descriptorPool,
+            .descriptorPool = modelDescriptorPool,
             .descriptorSetCount = static_cast<uint32_t>(swapChainImages.size()),
             .pSetLayouts = setLayouts.data()};
 
-        vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, descriptorSets.data()), {'V', 220});
+        vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, modelDescriptorSets.data()), {'V', 220});
 
         for (size_t i = 0; i < swapChainImages.size(); i++)
         {
@@ -455,7 +455,7 @@ namespace VE
 
             VkWriteDescriptorSet cameraSetWrite = {
                 .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstSet = descriptorSets[i],
+                .dstSet = modelDescriptorSets[i],
                 .dstBinding = 0,
                 .dstArrayElement = 0,
                 .descriptorCount = 1,
@@ -469,7 +469,7 @@ namespace VE
 
             VkWriteDescriptorSet lightingSetWrite = {
                 .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstSet = descriptorSets[i],
+                .dstSet = modelDescriptorSets[i],
                 .dstBinding = 1,
                 .dstArrayElement = 0,
                 .descriptorCount = 1,
@@ -483,7 +483,7 @@ namespace VE
 
             VkWriteDescriptorSet shadowSetWrite = {
                 .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstSet = descriptorSets[i],
+                .dstSet = modelDescriptorSets[i],
                 .dstBinding = 2,
                 .dstArrayElement = 0,
                 .descriptorCount = 1,
@@ -616,13 +616,37 @@ namespace VE
         if (device != VK_NULL_HANDLE)
             vkCheck(vkDeviceWaitIdle(device), {'V', 235});
 
-        if (uiPipeline)
-            vkDestroyPipeline(device, uiPipeline, nullptr);
-        if (uiPipelineLayout)
-            vkDestroyPipelineLayout(device, uiPipelineLayout, nullptr);
-        if (uiDescriptorSetLayout)
-            vkDestroyDescriptorSetLayout(device, uiDescriptorSetLayout, nullptr);
+        if (samplerSetLayout)
+            vkDestroyDescriptorSetLayout(device, samplerSetLayout, nullptr);
 
+        for (VkImageView &imageView : textureImageViews)
+            vkDestroyImageView(device, imageView, nullptr);
+        for (VkImage &image : textureImages)
+            vkDestroyImage(device, image, nullptr);
+        for (VkDeviceMemory &imageMemory : textureImageMemory)
+            vkFreeMemory(device, imageMemory, nullptr);
+
+        for (VkDescriptorPool samplerDescriptorPool : samplerDescriptorPools)
+            if (samplerDescriptorPool)
+                vkDestroyDescriptorPool(device, samplerDescriptorPool, nullptr);
+
+        for (ModelBuffer &modelBuffer : modelBuffers)
+            for (MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
+                destroyMeshBuffer(meshBuffer);
+
+        for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+        {
+            if (imageAvailableSemaphores[i])
+                vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
+            if (drawFences[i])
+                vkDestroyFence(device, drawFences[i], nullptr);
+        }
+        for (size_t i = 0; i < swapChainImages.size(); i++)
+            if (renderFinishedSemaphores[i])
+                vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
+
+        if (uiDescriptorPool)
+            vkDestroyDescriptorPool(device, uiDescriptorPool, nullptr);
         for (size_t i = 0; i < swapChainImages.size(); i++)
         {
             if (uiUniformBuffers[i])
@@ -630,62 +654,15 @@ namespace VE
             if (uiUniformBuffersMemory[i])
                 vkFreeMemory(device, uiUniformBuffersMemory[i], nullptr);
         }
+        if (uiPipeline)
+            vkDestroyPipeline(device, uiPipeline, nullptr);
+        if (uiPipelineLayout)
+            vkDestroyPipelineLayout(device, uiPipelineLayout, nullptr);
+        if (uiDescriptorSetLayout)
+            vkDestroyDescriptorSetLayout(device, uiDescriptorSetLayout, nullptr);
 
-        if (uiDescriptorPool)
-            vkDestroyDescriptorPool(device, uiDescriptorPool, nullptr);
-
-        if (shadowPipeline)
-            vkDestroyPipeline(device, shadowPipeline, nullptr);
-        if (shadowPipelineLayout)
-            vkDestroyPipelineLayout(device, shadowPipelineLayout, nullptr);
-        if (shadowSampler)
-            vkDestroySampler(device, shadowSampler, nullptr);
-        if (shadowDepthBufferImageView)
-            vkDestroyImageView(device, shadowDepthBufferImageView, nullptr);
-        if (shadowDepthBufferImage)
-            vkDestroyImage(device, shadowDepthBufferImage, nullptr);
-        if (shadowDepthBufferImageMemory)
-            vkFreeMemory(device, shadowDepthBufferImageMemory, nullptr);
-
-        if (samplerSetLayout)
-            vkDestroyDescriptorSetLayout(device, samplerSetLayout, nullptr);
-
-        if (textureSampler)
-            vkDestroySampler(device, textureSampler, nullptr);
-
-        for (VkDescriptorPool samplerDescriptorPool : samplerDescriptorPools)
-            if (samplerDescriptorPool)
-                vkDestroyDescriptorPool(device, samplerDescriptorPool, nullptr);
-
-        for (VkImage &image : textureImages)
-            vkDestroyImage(device, image, nullptr);
-
-        for (VkDeviceMemory &imageMemory : textureImageMemory)
-            vkFreeMemory(device, imageMemory, nullptr);
-
-        for (VkImageView &imageView : textureImageViews)
-            vkDestroyImageView(device, imageView, nullptr);
-
-        for (ModelBuffer &modelBuffer : modelBuffers)
-        {
-            for (MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
-                destroyMeshBuffer(meshBuffer);
-        }
-
-        if (depthBufferImageView)
-            vkDestroyImageView(device, depthBufferImageView, nullptr);
-
-        if (depthBufferImage)
-            vkDestroyImage(device, depthBufferImage, nullptr);
-
-        if (depthBufferImageMemory)
-            vkFreeMemory(device, depthBufferImageMemory, nullptr);
-
-        if (descriptorPool)
-            vkDestroyDescriptorPool(device, descriptorPool, nullptr);
-        if (descriptorSetLayout)
-            vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
-
+        if (modelDescriptorPool)
+            vkDestroyDescriptorPool(device, modelDescriptorPool, nullptr);
         for (size_t i = 0; i < swapChainImages.size(); i++)
         {
             if (cameraUniformBuffer[i])
@@ -698,29 +675,37 @@ namespace VE
             if (lightingUniformBufferMemory[i])
                 vkFreeMemory(device, lightingUniformBufferMemory[i], nullptr);
         }
+        if (modelPipeline)
+            vkDestroyPipeline(device, modelPipeline, nullptr);
+        if (modelPipelineLayout)
+            vkDestroyPipelineLayout(device, modelPipelineLayout, nullptr);
+        if (modelDescriptorSetLayout)
+            vkDestroyDescriptorSetLayout(device, modelDescriptorSetLayout, nullptr);
 
-        for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
-        {
-            if (imageAvailableSemaphores[i])
-                vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
-            if (drawFences[i])
-                vkDestroyFence(device, drawFences[i], nullptr);
-        }
+        if (shadowPipeline)
+            vkDestroyPipeline(device, shadowPipeline, nullptr);
+        if (shadowPipelineLayout)
+            vkDestroyPipelineLayout(device, shadowPipelineLayout, nullptr);
 
-        for (size_t i = 0; i < swapChainImages.size(); i++)
-        {
-            if (renderFinishedSemaphores[i])
-                vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
-        }
+        if (shadowDepthBufferImageView)
+            vkDestroyImageView(device, shadowDepthBufferImageView, nullptr);
+        if (shadowDepthBufferImage)
+            vkDestroyImage(device, shadowDepthBufferImage, nullptr);
+        if (shadowDepthBufferImageMemory)
+            vkFreeMemory(device, shadowDepthBufferImageMemory, nullptr);
 
-        if (graphicsCommandPool)
-            vkDestroyCommandPool(device, graphicsCommandPool, nullptr);
+        if (depthBufferImageView)
+            vkDestroyImageView(device, depthBufferImageView, nullptr);
+        if (depthBufferImage)
+            vkDestroyImage(device, depthBufferImage, nullptr);
+        if (depthBufferImageMemory)
+            vkFreeMemory(device, depthBufferImageMemory, nullptr);
 
-        if (graphicsPipeline)
-            vkDestroyPipeline(device, graphicsPipeline, nullptr);
+        if (textureSampler)
+            vkDestroySampler(device, textureSampler, nullptr);
 
-        if (pipelineLayout)
-            vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+        if (shadowSampler)
+            vkDestroySampler(device, shadowSampler, nullptr);
 
         for (VkImageView iv : swapChainImageViews)
             if (iv)
@@ -729,6 +714,9 @@ namespace VE
 
         if (swapChain)
             vkDestroySwapchainKHR(device, swapChain, nullptr);
+
+        if (graphicsCommandPool)
+            vkDestroyCommandPool(device, graphicsCommandPool, nullptr);
 
         if (device)
             vkDestroyDevice(device, nullptr);

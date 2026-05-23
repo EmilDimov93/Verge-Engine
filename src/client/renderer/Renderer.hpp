@@ -151,11 +151,11 @@ namespace VE
         VkSampler shadowSampler = VK_NULL_HANDLE;
 
         // Pipeline 2: Main
-        VkPipeline graphicsPipeline = VK_NULL_HANDLE;
-        VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-        VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
-        VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
-        std::vector<VkDescriptorSet> descriptorSets;
+        VkPipeline modelPipeline = VK_NULL_HANDLE;
+        VkPipelineLayout modelPipelineLayout = VK_NULL_HANDLE;
+        VkDescriptorSetLayout modelDescriptorSetLayout = VK_NULL_HANDLE;
+        VkDescriptorPool modelDescriptorPool = VK_NULL_HANDLE;
+        std::vector<VkDescriptorSet> modelDescriptorSets;
 
         // Pipeline 3: UI
         VkPipeline uiPipeline = VK_NULL_HANDLE;
@@ -219,13 +219,13 @@ namespace VE
         void createDepthBufferImage();
         void createShadowDepthBufferImage();
 
-        void createDescriptorSetLayout();
-        void createGraphicsPipeline();
+        void createModelDescriptorSetLayout();
+        void createModelPipeline();
         void createShadowPipeline();
 
-        void createUniformBuffers();
-        void createUniformDescriptorPool();
-        void createDescriptorSets();
+        void createModelUniformBuffers();
+        void createModelDescriptorPool();
+        void createModelDescriptorSets();
 
         void createSemaphores();
 

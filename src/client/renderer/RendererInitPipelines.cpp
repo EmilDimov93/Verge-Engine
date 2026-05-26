@@ -7,35 +7,53 @@
 
 namespace VE
 {
+    constexpr VkVertexInputBindingDescription DEFAULT_BINDING_DESCRIPTION = {
+        .binding = 0,
+        .stride = sizeof(Vertex),
+        .inputRate = VK_VERTEX_INPUT_RATE_VERTEX};
+
+    constexpr VkPipelineInputAssemblyStateCreateInfo DEFAULT_INPUT_ASSEMBLY_CREATE_INFO = {
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
+        .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+        .primitiveRestartEnable = VK_FALSE};
+
+    constexpr VkPipelineMultisampleStateCreateInfo DEFAULT_MULTISAMPLE_CREATE_INFO = {
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+        .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT,
+        .sampleShadingEnable = VK_FALSE};
+
+    constexpr std::array<VkDynamicState, 2> DEFAULT_DYNAMIC_STATE = {
+        VK_DYNAMIC_STATE_VIEWPORT,
+        VK_DYNAMIC_STATE_SCISSOR};
+
+    constexpr VkPipelineDynamicStateCreateInfo DEFAULT_DYNAMIC_STATE_CREATE_INFO = {
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+        .dynamicStateCount = 2,
+        .pDynamicStates = DEFAULT_DYNAMIC_STATE.data()};
+
+    constexpr VkPipelineViewportStateCreateInfo DEFAULT_VIEWPORT_STATE_CREATE_INFO = {
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
+        .viewportCount = 1,
+        .scissorCount = 1};
+
     void Renderer::createModelPipeline()
     {
-        std::vector<char> vertexShaderCode = readFile("shaders/vert.spv");
-        std::vector<char> fragmentShaderCode = readFile("shaders/frag.spv");
+        VkShaderModule vertexShaderModule = createShaderModule(readFile("shaders/vert.spv"));
+        VkShaderModule fragmentShaderModule = createShaderModule(readFile("shaders/frag.spv"));
 
-        if (vertexShaderCode.empty() || fragmentShaderCode.empty())
-            Log::add('V', 221);
-
-        VkShaderModule vertexShaderModule = createShaderModule(vertexShaderCode);
-        VkShaderModule fragmentShaderModule = createShaderModule(fragmentShaderCode);
-
-        VkPipelineShaderStageCreateInfo vertexShaderStageCreateInfo = {
+        VkPipelineShaderStageCreateInfo vertexShaderStage = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .stage = VK_SHADER_STAGE_VERTEX_BIT,
             .module = vertexShaderModule,
             .pName = "main"};
 
-        VkPipelineShaderStageCreateInfo fragmentShaderStageCreateInfo = {
+        VkPipelineShaderStageCreateInfo fragmentShaderStage = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .stage = VK_SHADER_STAGE_FRAGMENT_BIT,
             .module = fragmentShaderModule,
             .pName = "main"};
 
-        VkPipelineShaderStageCreateInfo shaderStages[] = {vertexShaderStageCreateInfo, fragmentShaderStageCreateInfo};
-
-        VkVertexInputBindingDescription bindingDescription = {
-            .binding = 0,
-            .stride = sizeof(Vertex),
-            .inputRate = VK_VERTEX_INPUT_RATE_VERTEX};
+        VkPipelineShaderStageCreateInfo shaderStages[] = {vertexShaderStage, fragmentShaderStage};
 
         std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions;
 
@@ -62,33 +80,9 @@ namespace VE
         VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
             .vertexBindingDescriptionCount = 1,
-            .pVertexBindingDescriptions = &bindingDescription,
+            .pVertexBindingDescriptions = &DEFAULT_BINDING_DESCRIPTION,
             .vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size()),
             .pVertexAttributeDescriptions = attributeDescriptions.data()};
-
-        VkPipelineInputAssemblyStateCreateInfo inputAssembly = {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
-            .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-            .primitiveRestartEnable = VK_FALSE};
-
-        VkViewport viewport = {
-            .x = 0.0f,
-            .y = 0.0f,
-            .width = (float)swapChainExtent.width,
-            .height = (float)swapChainExtent.height,
-            .minDepth = 0.0f,
-            .maxDepth = 1.0f};
-
-        VkRect2D scissor = {
-            .offset = {0, 0},
-            .extent = VkExtent2D(swapChainExtent.width, swapChainExtent.height)};
-
-        VkPipelineViewportStateCreateInfo viewportStateCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
-            .viewportCount = 1,
-            .pViewports = &viewport,
-            .scissorCount = 1,
-            .pScissors = &scissor};
 
         VkPipelineRasterizationStateCreateInfo rasterizerCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
@@ -99,11 +93,6 @@ namespace VE
             .frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
             .depthBiasEnable = VK_FALSE,
             .lineWidth = 1.0f};
-
-        VkPipelineMultisampleStateCreateInfo multiSamplingCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
-            .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT,
-            .sampleShadingEnable = VK_FALSE};
 
         VkPipelineColorBlendAttachmentState colorState = {
             .blendEnable = VK_TRUE,
@@ -144,15 +133,6 @@ namespace VE
             .depthBoundsTestEnable = VK_FALSE,
             .stencilTestEnable = VK_FALSE};
 
-        std::vector<VkDynamicState> dynamicStates = {
-            VK_DYNAMIC_STATE_VIEWPORT,
-            VK_DYNAMIC_STATE_SCISSOR};
-
-        VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
-            .dynamicStateCount = static_cast<uint32_t>(dynamicStates.size()),
-            .pDynamicStates = dynamicStates.data()};
-
         VkPipelineRenderingCreateInfo pipelineRenderingCreateInfo{};
         pipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
         pipelineRenderingCreateInfo.colorAttachmentCount = 1;
@@ -165,13 +145,13 @@ namespace VE
             .stageCount = 2,
             .pStages = shaderStages,
             .pVertexInputState = &vertexInputCreateInfo,
-            .pInputAssemblyState = &inputAssembly,
-            .pViewportState = &viewportStateCreateInfo,
+            .pInputAssemblyState = &DEFAULT_INPUT_ASSEMBLY_CREATE_INFO,
+            .pViewportState = &DEFAULT_VIEWPORT_STATE_CREATE_INFO,
             .pRasterizationState = &rasterizerCreateInfo,
-            .pMultisampleState = &multiSamplingCreateInfo,
+            .pMultisampleState = &DEFAULT_MULTISAMPLE_CREATE_INFO,
             .pDepthStencilState = &depthStencilCreateInfo,
             .pColorBlendState = &colorBlendingCreateInfo,
-            .pDynamicState = &dynamicStateCreateInfo,
+            .pDynamicState = &DEFAULT_DYNAMIC_STATE_CREATE_INFO,
             .layout = modelPipelineLayout,
             .renderPass = VK_NULL_HANDLE,
             .subpass = 0,
@@ -186,39 +166,22 @@ namespace VE
 
     void Renderer::createShadowPipeline()
     {
-        std::vector<char> code = readFile("shaders/shadowVert.spv");
-        if (code.empty())
-            Log::add('V', 221);
-        VkShaderModule vertexShader = createShaderModule(code);
+        VkShaderModule vertexShaderModule = createShaderModule(readFile("shaders/shadowVert.spv"));
 
-        VkPipelineShaderStageCreateInfo stage = {
+        VkPipelineShaderStageCreateInfo vertexShaderStage = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .stage = VK_SHADER_STAGE_VERTEX_BIT,
-            .module = vertexShader,
+            .module = vertexShaderModule,
             .pName = "main"};
 
-        VkVertexInputBindingDescription binding = {0, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX};
         VkVertexInputAttributeDescription attribute = {0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, pos)};
 
         VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
             .vertexBindingDescriptionCount = 1,
-            .pVertexBindingDescriptions = &binding,
+            .pVertexBindingDescriptions = &DEFAULT_BINDING_DESCRIPTION,
             .vertexAttributeDescriptionCount = 1,
             .pVertexAttributeDescriptions = &attribute};
-
-        VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
-            .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST};
-
-        VkViewport viewport = {0, 0, (float)SHADOW_MAP_EXTENT.w, (float)SHADOW_MAP_EXTENT.h, 0, 1};
-        VkRect2D scissors = {{0, 0}, {SHADOW_MAP_EXTENT.w, SHADOW_MAP_EXTENT.h}};
-        VkPipelineViewportStateCreateInfo viewportStateCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
-            .viewportCount = 1,
-            .pViewports = &viewport,
-            .scissorCount = 1,
-            .pScissors = &scissors};
 
         VkPipelineRasterizationStateCreateInfo rasterizationStateCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
@@ -230,9 +193,22 @@ namespace VE
             .depthBiasSlopeFactor = 1.75f,
             .lineWidth = 1.0f};
 
-        VkPipelineMultisampleStateCreateInfo multisampleStateCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
-            .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT};
+        VkViewport viewport = {
+            0.0f, 0.0f,
+            static_cast<float>(SHADOW_MAP_EXTENT.w),
+            static_cast<float>(SHADOW_MAP_EXTENT.h),
+            0.0f, 1.0f};
+
+        VkRect2D scissor = {
+            {0, 0},
+            {SHADOW_MAP_EXTENT.w, SHADOW_MAP_EXTENT.h}};
+
+        VkPipelineViewportStateCreateInfo viewportStateCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
+            .viewportCount = 1,
+            .pViewports = &viewport,
+            .scissorCount = 1,
+            .pScissors = &scissor};
 
         VkPipelineDepthStencilStateCreateInfo depthStencilStateCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
@@ -263,12 +239,12 @@ namespace VE
             .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
             .pNext = &pipelineRenderingCreateInfo,
             .stageCount = 1,
-            .pStages = &stage,
+            .pStages = &vertexShaderStage,
             .pVertexInputState = &vertexInputStateCreateInfo,
-            .pInputAssemblyState = &inputAssemblyStateCreateInfo,
+            .pInputAssemblyState = &DEFAULT_INPUT_ASSEMBLY_CREATE_INFO,
             .pViewportState = &viewportStateCreateInfo,
             .pRasterizationState = &rasterizationStateCreateInfo,
-            .pMultisampleState = &multisampleStateCreateInfo,
+            .pMultisampleState = &DEFAULT_MULTISAMPLE_CREATE_INFO,
             .pDepthStencilState = &depthStencilStateCreateInfo,
             .pColorBlendState = &colorBlendStateCreateInfo,
             .layout = shadowPipelineLayout,
@@ -276,42 +252,30 @@ namespace VE
             .subpass = 0};
         vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &shadowPipeline), {'V', 211});
 
-        vkDestroyShaderModule(device, vertexShader, nullptr);
+        vkDestroyShaderModule(device, vertexShaderModule, nullptr);
     }
 
     void Renderer::createPostPipeline()
     {
-        auto vertCode = readFile("shaders/postVert.spv");
-        auto fragCode = readFile("shaders/postFrag.spv");
+        VkShaderModule vertexShaderModule = createShaderModule(readFile("shaders/postVert.spv"));
+        VkShaderModule fragmentShaderModule = createShaderModule(readFile("shaders/postFrag.spv"));
 
-        VkShaderModule vertModule = createShaderModule(vertCode);
-        VkShaderModule fragModule = createShaderModule(fragCode);
+        VkPipelineShaderStageCreateInfo vertexShaderStage{};
+        vertexShaderStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        vertexShaderStage.stage = VK_SHADER_STAGE_VERTEX_BIT;
+        vertexShaderStage.module = vertexShaderModule;
+        vertexShaderStage.pName = "main";
 
-        VkPipelineShaderStageCreateInfo vertStage{};
-        vertStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        vertStage.stage = VK_SHADER_STAGE_VERTEX_BIT;
-        vertStage.module = vertModule;
-        vertStage.pName = "main";
+        VkPipelineShaderStageCreateInfo fragmentShaderStage{};
+        fragmentShaderStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        fragmentShaderStage.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+        fragmentShaderStage.module = fragmentShaderModule;
+        fragmentShaderStage.pName = "main";
 
-        VkPipelineShaderStageCreateInfo fragStage{};
-        fragStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        fragStage.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-        fragStage.module = fragModule;
-        fragStage.pName = "main";
-
-        VkPipelineShaderStageCreateInfo stages[] = {vertStage, fragStage};
+        VkPipelineShaderStageCreateInfo stages[] = {vertexShaderStage, fragmentShaderStage};
 
         VkPipelineVertexInputStateCreateInfo vertexInput{};
         vertexInput.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-
-        VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-        inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-
-        VkPipelineViewportStateCreateInfo viewportState{};
-        viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-        viewportState.viewportCount = 1;
-        viewportState.scissorCount = 1;
 
         VkPipelineRasterizationStateCreateInfo rasterizer{};
         rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
@@ -319,10 +283,6 @@ namespace VE
         rasterizer.lineWidth = 1.0f;
         rasterizer.cullMode = VK_CULL_MODE_NONE;
         rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-
-        VkPipelineMultisampleStateCreateInfo multisample{};
-        multisample.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-        multisample.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
         VkPipelineDepthStencilStateCreateInfo depthStencil{};
         depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
@@ -337,12 +297,6 @@ namespace VE
         blendState.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
         blendState.attachmentCount = 1;
         blendState.pAttachments = &blendAttachment;
-
-        VkDynamicState dynamicStates[] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
-        VkPipelineDynamicStateCreateInfo dynamicState{};
-        dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-        dynamicState.dynamicStateCount = 2;
-        dynamicState.pDynamicStates = dynamicStates;
 
         VkPipelineLayoutCreateInfo layoutInfo{};
         layoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -362,31 +316,25 @@ namespace VE
         pipelineInfo.stageCount = 2;
         pipelineInfo.pStages = stages;
         pipelineInfo.pVertexInputState = &vertexInput;
-        pipelineInfo.pInputAssemblyState = &inputAssembly;
-        pipelineInfo.pViewportState = &viewportState;
+        pipelineInfo.pInputAssemblyState = &DEFAULT_INPUT_ASSEMBLY_CREATE_INFO;
+        pipelineInfo.pViewportState = &DEFAULT_VIEWPORT_STATE_CREATE_INFO;
         pipelineInfo.pRasterizationState = &rasterizer;
-        pipelineInfo.pMultisampleState = &multisample;
+        pipelineInfo.pMultisampleState = &DEFAULT_MULTISAMPLE_CREATE_INFO;
         pipelineInfo.pDepthStencilState = &depthStencil;
         pipelineInfo.pColorBlendState = &blendState;
-        pipelineInfo.pDynamicState = &dynamicState;
+        pipelineInfo.pDynamicState = &DEFAULT_DYNAMIC_STATE_CREATE_INFO;
         pipelineInfo.layout = postPipelineLayout;
 
         vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &postPipeline), {'V', 248});
 
-        vkDestroyShaderModule(device, vertModule, nullptr);
-        vkDestroyShaderModule(device, fragModule, nullptr);
+        vkDestroyShaderModule(device, vertexShaderModule, nullptr);
+        vkDestroyShaderModule(device, fragmentShaderModule, nullptr);
     }
 
     void Renderer::createUIPipeline()
     {
-        std::vector<char> vertexShaderCode = readFile("shaders/uiVert.spv");
-        std::vector<char> fragmentShaderCode = readFile("shaders/uiFrag.spv");
-
-        if (vertexShaderCode.empty() || fragmentShaderCode.empty())
-            Log::add('V', 221);
-
-        VkShaderModule vertexShaderModule = createShaderModule(vertexShaderCode);
-        VkShaderModule fragmentShaderModule = createShaderModule(fragmentShaderCode);
+        VkShaderModule vertexShaderModule = createShaderModule(readFile("shaders/uiVert.spv"));
+        VkShaderModule fragmentShaderModule = createShaderModule(readFile("shaders/uiFrag.spv"));
 
         VkPipelineShaderStageCreateInfo vertexShaderStage = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
@@ -401,11 +349,6 @@ namespace VE
             .pName = "main"};
 
         std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages = {vertexShaderStage, fragmentShaderStage};
-
-        VkVertexInputBindingDescription bindingDescription = {
-            .binding = 0,
-            .stride = sizeof(Vertex),
-            .inputRate = VK_VERTEX_INPUT_RATE_VERTEX};
 
         std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions;
 
@@ -422,29 +365,9 @@ namespace VE
         VkPipelineVertexInputStateCreateInfo vertexInputState = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
             .vertexBindingDescriptionCount = 1,
-            .pVertexBindingDescriptions = &bindingDescription,
+            .pVertexBindingDescriptions = &DEFAULT_BINDING_DESCRIPTION,
             .vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size()),
             .pVertexAttributeDescriptions = attributeDescriptions.data()};
-
-        VkPipelineInputAssemblyStateCreateInfo inputAssemblyState = {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
-            .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-            .primitiveRestartEnable = VK_FALSE};
-
-        VkViewport viewport = {
-            .x = 0.0f,
-            .y = 0.0f,
-            .width = static_cast<float>(swapChainExtent.width),
-            .height = static_cast<float>(swapChainExtent.height),
-            .minDepth = 0.0f,
-            .maxDepth = 1.0f};
-
-        VkPipelineViewportStateCreateInfo viewportState{};
-        viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-        viewportState.viewportCount = 1;
-        viewportState.scissorCount = 1;
-        viewportState.pViewports = nullptr;
-        viewportState.pScissors = nullptr;
 
         VkPipelineRasterizationStateCreateInfo rasterizationState = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
@@ -455,11 +378,6 @@ namespace VE
             .frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
             .depthBiasEnable = VK_FALSE,
             .lineWidth = 1.0f};
-
-        VkPipelineMultisampleStateCreateInfo multisampleState = {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
-            .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT,
-            .sampleShadingEnable = VK_FALSE};
 
         VkPipelineColorBlendAttachmentState colorBlendAttachmentState = {
             .blendEnable = VK_TRUE,
@@ -491,15 +409,6 @@ namespace VE
 
         vkCheck(vkCreatePipelineLayout(device, &pipelineLayout, nullptr, &uiPipelineLayout), {'V', 210});
 
-        std::vector<VkDynamicState> dynamicStates = {
-            VK_DYNAMIC_STATE_VIEWPORT,
-            VK_DYNAMIC_STATE_SCISSOR};
-
-        VkPipelineDynamicStateCreateInfo dynamicState{};
-        dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-        dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
-        dynamicState.pDynamicStates = dynamicStates.data();
-
         VkPipelineRenderingCreateInfo pipelineRendering{};
         pipelineRendering.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
         pipelineRendering.colorAttachmentCount = 1;
@@ -511,13 +420,13 @@ namespace VE
             .stageCount = 2,
             .pStages = shaderStages.data(),
             .pVertexInputState = &vertexInputState,
-            .pInputAssemblyState = &inputAssemblyState,
-            .pViewportState = &viewportState,
+            .pInputAssemblyState = &DEFAULT_INPUT_ASSEMBLY_CREATE_INFO,
+            .pViewportState = &DEFAULT_VIEWPORT_STATE_CREATE_INFO,
             .pRasterizationState = &rasterizationState,
-            .pMultisampleState = &multisampleState,
+            .pMultisampleState = &DEFAULT_MULTISAMPLE_CREATE_INFO,
             .pDepthStencilState = nullptr,
             .pColorBlendState = &colorBlendState,
-            .pDynamicState = &dynamicState,
+            .pDynamicState = &DEFAULT_DYNAMIC_STATE_CREATE_INFO,
             .layout = uiPipelineLayout,
             .renderPass = VK_NULL_HANDLE,
             .subpass = 0,

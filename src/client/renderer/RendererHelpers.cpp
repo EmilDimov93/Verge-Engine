@@ -77,6 +77,9 @@ namespace VE
 
     VkShaderModule Renderer::createShaderModule(const std::vector<char> &code) const
     {
+        if (code.empty())
+            Log::add('V', 221);
+
         VkShaderModuleCreateInfo shaderModuleCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
             .codeSize = code.size(),

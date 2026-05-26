@@ -58,6 +58,12 @@ if($compileShaders){
     & $glslang -V "src/client/renderer/shaders/shadow.vert" -o "build/$config/shaders/shadowVert.spv"
     if ($LASTEXITCODE -ne 0) { exit 1 }
 
+    & $glslang -V "src/client/renderer/shaders/post.vert" -o "build/$config/shaders/postVert.spv"
+    if ($LASTEXITCODE -ne 0) { exit 1 }
+
+    & $glslang -V "src/client/renderer/shaders/post.frag" -o "build/$config/shaders/postFrag.spv"
+    if ($LASTEXITCODE -ne 0) { exit 1 }
+
     & $glslang -V "src/client/renderer/shaders/ui.vert" -o "build/$config/shaders/uiVert.spv"
     if ($LASTEXITCODE -ne 0) { exit 1 }
 

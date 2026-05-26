@@ -124,6 +124,11 @@ namespace VE
         uint32_t graphicsQueueFamilyIndex = 0;
         uint32_t transferQueueFamilyIndex = 0;
 
+        // Pre-post images
+        std::vector<VkImage> prePostImages;
+        std::vector<VkImageView> prePostImageViews;
+        std::vector<VkDeviceMemory> prePostImagesMemory;
+
         // SwapChain
         VkSwapchainKHR swapChain = VK_NULL_HANDLE;
         VkFormat swapChainImageFormat;
@@ -200,6 +205,13 @@ namespace VE
 
         std::vector<VkBuffer> uiUniformBuffers;
         std::vector<VkDeviceMemory> uiUniformBuffersMemory;
+        
+        VkPipeline postPipeline = VK_NULL_HANDLE;
+        VkPipelineLayout postPipelineLayout = VK_NULL_HANDLE;
+        VkDescriptorPool postDescriptorPool = VK_NULL_HANDLE;
+        VkDescriptorSetLayout postDescriptorSetLayout = VK_NULL_HANDLE;
+        std::vector<VkDescriptorSet> postDescriptorSets;
+        VkSampler postSampler = VK_NULL_HANDLE;
 
         // Init
         void createInstance();
@@ -228,18 +240,26 @@ namespace VE
         void createModelDescriptorPool();
         void createModelDescriptorSets();
 
-        void createSemaphores();
+        void createPostSampler();
+        void createPostDescriptorPool();
+        void createPostDescriptorSetLayout();
+        void createPostDescriptorSets();
+        void createPostPipeline();
 
+        void createPrePostImages();
         void createUIDescriptorSetLayout();
         void createUIPipeline();
         void createUIUniformBuffers();
         void createUIDescriptorPool();
         void createUIDescriptorSets();
 
+        void createSemaphores();
+
         // Runtime
         void recordShadowPass(const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, const glm::mat4 &lightSpaceMat);
         void updateModelUniformBuffers(uint32_t currentFrame, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat);
         void recordMainPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat);
+        void recordPostPass(uint32_t currentImage);
         void updateUIUniformBuffers(uint32_t currentFrame);
         void recordUIPass(uint32_t currentImage, const std::vector<Widget> &widgets, const std::vector<WidgetInstance> &widgetInstances);
         void recreateSwapChain();

@@ -24,6 +24,8 @@ namespace VE
         createSwapChain(windowSize);
         createImageViews();
 
+        createPrePostImages();
+
         findDepthFormat();
         createShadowSampler();
         createTextureSampler();
@@ -38,6 +40,12 @@ namespace VE
         createModelUniformBuffers();
         createModelDescriptorPool();
         createModelDescriptorSets();
+
+        createPostDescriptorPool();
+        createPostSampler();
+        createPostDescriptorSetLayout();
+        createPostPipeline();
+        createPostDescriptorSets();
 
         createUIDescriptorSetLayout();
         createUIPipeline();
@@ -230,6 +238,33 @@ namespace VE
         vkGetSwapchainImagesKHR(device, swapChain, &swapChainImageCount, nullptr);
         swapChainImages.resize(swapChainImageCount);
         vkGetSwapchainImagesKHR(device, swapChain, &swapChainImageCount, swapChainImages.data());
+    }
+
+    void Renderer::createPrePostImages()
+    {
+        prePostImages.resize(swapChainImages.size());
+        prePostImagesMemory.resize(swapChainImages.size());
+        prePostImageViews.resize(swapChainImages.size());
+        for (size_t i = 0; i < swapChainImages.size(); i++)
+        {
+            prePostImages[i] = createImage(swapChainExtent.width, swapChainExtent.height, swapChainImageFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_SHARING_MODE_EXCLUSIVE, &prePostImagesMemory[i]);
+
+            VkImageViewCreateInfo imageViewCreateInfo{};
+            imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            imageViewCreateInfo.image = prePostImages[i];
+            imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+            imageViewCreateInfo.format = swapChainImageFormat;
+            imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+            imageViewCreateInfo.subresourceRange.levelCount = 1;
+            imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+            imageViewCreateInfo.subresourceRange.layerCount = 1;
+            vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &prePostImageViews[i]), {'V', 205});
+        }
     }
 
     void Renderer::createImageViews()
@@ -611,6 +646,94 @@ namespace VE
         }
     }
 
+    void Renderer::createPostSampler()
+    {
+        VkSamplerCreateInfo samplerCreateInfo{};
+        samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
+        samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
+        samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerCreateInfo.anisotropyEnable = VK_FALSE;
+        samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
+        samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
+        samplerCreateInfo.compareEnable = VK_FALSE;
+        samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        samplerCreateInfo.mipLodBias = 0.0f;
+        samplerCreateInfo.minLod = 0.0f;
+        samplerCreateInfo.maxLod = 0.0f;
+
+        vkCheck(vkCreateSampler(device, &samplerCreateInfo, nullptr, &postSampler), {'V', 226});
+    }
+
+    void Renderer::createPostDescriptorPool()
+    {
+        VkDescriptorPoolSize poolSize = {
+            .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            .descriptorCount = static_cast<uint32_t>(swapChainImages.size())};
+
+        VkDescriptorPoolCreateInfo poolCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+            .maxSets = static_cast<uint32_t>(swapChainImages.size()),
+            .poolSizeCount = 1,
+            .pPoolSizes = &poolSize};
+
+        vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &postDescriptorPool), {'V', 219});
+    }
+
+    void Renderer::createPostDescriptorSetLayout()
+    {
+        VkDescriptorSetLayoutBinding sceneColorBinding{};
+        sceneColorBinding.binding = 0;
+        sceneColorBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        sceneColorBinding.descriptorCount = 1;
+        sceneColorBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        sceneColorBinding.pImmutableSamplers = nullptr;
+
+        VkDescriptorSetLayoutCreateInfo layoutInfo{};
+        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = 1;
+        layoutInfo.pBindings = &sceneColorBinding;
+
+        vkCheck(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &postDescriptorSetLayout), {'V', 217});
+    }
+
+    void Renderer::createPostDescriptorSets()
+    {
+        const size_t imageCount = swapChainImages.size();
+
+        std::vector<VkDescriptorSetLayout> layouts(imageCount, postDescriptorSetLayout);
+
+        VkDescriptorSetAllocateInfo allocateInfo{};
+        allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocateInfo.descriptorPool = postDescriptorPool;
+        allocateInfo.descriptorSetCount = static_cast<uint32_t>(imageCount);
+        allocateInfo.pSetLayouts = layouts.data();
+
+        postDescriptorSets.resize(imageCount);
+        vkCheck(vkAllocateDescriptorSets(device, &allocateInfo, postDescriptorSets.data()), {'V', 220});
+
+        for (size_t i = 0; i < postDescriptorSets.size(); i++)
+        {
+            VkDescriptorImageInfo imageInfo{};
+            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            imageInfo.imageView = prePostImageViews[i];
+            imageInfo.sampler = postSampler;
+
+            VkWriteDescriptorSet postSetWrite{};
+            postSetWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            postSetWrite.dstSet = postDescriptorSets[i];
+            postSetWrite.dstBinding = 0;
+            postSetWrite.dstArrayElement = 0;
+            postSetWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            postSetWrite.descriptorCount = 1;
+            postSetWrite.pImageInfo = &imageInfo;
+
+            vkUpdateDescriptorSets(device, 1, &postSetWrite, 0, nullptr);
+        }
+    }
+
     void Renderer::destroyMeshBuffer(MeshBuffer &meshBuffer) const
     {
         if (meshBuffer.vertexBuffer)
@@ -628,7 +751,6 @@ namespace VE
         meshBuffer.indexBuffer = VK_NULL_HANDLE;
         meshBuffer.indexBufferMemory = VK_NULL_HANDLE;
     }
-
 
     Renderer::~Renderer()
     {
@@ -684,6 +806,17 @@ namespace VE
         if (uiDescriptorSetLayout)
             vkDestroyDescriptorSetLayout(device, uiDescriptorSetLayout, nullptr);
 
+        if (postDescriptorPool)
+            vkDestroyDescriptorPool(device, postDescriptorPool, nullptr);
+        if (postPipeline)
+            vkDestroyPipeline(device, postPipeline, nullptr);
+        if (postPipelineLayout)
+            vkDestroyPipelineLayout(device, postPipelineLayout, nullptr);
+        if (postDescriptorSetLayout)
+            vkDestroyDescriptorSetLayout(device, postDescriptorSetLayout, nullptr);
+        if (postSampler)
+            vkDestroySampler(device, postSampler, nullptr);
+
         if (modelDescriptorPool)
             vkDestroyDescriptorPool(device, modelDescriptorPool, nullptr);
         for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
@@ -729,6 +862,16 @@ namespace VE
 
         if (shadowSampler)
             vkDestroySampler(device, shadowSampler, nullptr);
+
+        for (size_t i = 0; i < prePostImageViews.size(); i++)
+        {
+            if (prePostImageViews[i])
+                vkDestroyImageView(device, prePostImageViews[i], nullptr);
+            if (prePostImages[i])
+                vkDestroyImage(device, prePostImages[i], nullptr);
+            if (prePostImagesMemory[i])
+                vkFreeMemory(device, prePostImagesMemory[i], nullptr);
+        }
 
         for (VkImageView iv : swapChainImageViews)
             if (iv)

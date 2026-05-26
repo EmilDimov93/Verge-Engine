@@ -56,7 +56,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'V', 223}, "Vulkan failed to find supported image format"},
     {{'V', 224}, "Vulkan failed to copy buffer"},
     {{'V', 225}, "STB Image failed to load image"},
-    {{'V', 226}, "Vulkan failed to create texture sampler"},
+    {{'V', 226}, "Vulkan failed to create sampler"},
     {{'V', 229}, "Vulkan failed to initialize mesh"},
     {{'V', 230}, "Vulkan failed to acquire swapchain image"},
     {{'V', 231}, "Vulkan failed to wait for fence"},

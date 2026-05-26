@@ -714,6 +714,11 @@ namespace VE
         postDescriptorSets.resize(imageCount);
         vkCheck(vkAllocateDescriptorSets(device, &allocateInfo, postDescriptorSets.data()), {'V', 220});
 
+        updatePostDescriptorSets();
+    }
+
+    void Renderer::updatePostDescriptorSets()
+    {
         for (size_t i = 0; i < postDescriptorSets.size(); i++)
         {
             VkDescriptorImageInfo imageInfo{};

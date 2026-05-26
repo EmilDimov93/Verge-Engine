@@ -263,6 +263,7 @@ namespace VE
         void updateUIUniformBuffers(uint32_t currentFrame);
         void recordUIPass(uint32_t currentImage, const std::vector<Widget> &widgets, const std::vector<WidgetInstance> &widgetInstances);
         void recreateSwapChain();
+        void updatePostDescriptorSets();
 
         // Helpers
         static void vkCheck(VkResult res, ErrorCode errorCode);

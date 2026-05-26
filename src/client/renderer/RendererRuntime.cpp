@@ -547,6 +547,8 @@ namespace VE
 
         createSwapChain(newSize);
         createImageViews();
+        createPrePostImages();
+        updatePostDescriptorSets();
         createDepthBufferImage();
     }
 }

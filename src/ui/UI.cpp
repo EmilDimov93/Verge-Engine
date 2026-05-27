@@ -91,7 +91,7 @@ namespace VE
 
     bool UI::checkCursorCollision(WidgetInstanceHandle handle, Position2 mousePos) const
     {
-        const WidgetInstance *foundInstance;
+        const WidgetInstance *foundInstance = nullptr;
         for (const WidgetInstance &instance : widgetInstances)
         {
             if (instance.handle == handle)
@@ -101,7 +101,7 @@ namespace VE
             }
         }
 
-        const Widget *foundWidget;
+        const Widget *foundWidget = nullptr;
         for (const Widget &widget : widgets)
         {
             if (widget.getHandle() == foundInstance->widgetHandle)

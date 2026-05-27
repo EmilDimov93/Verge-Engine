@@ -2,22 +2,34 @@
 
 Verge Engine is a Vulkan-based C++ engine for realistic vehicle simulations
 
-**Warning:** Currently in active development - not ready for use
+**Note:** Verge Engine is under active development and not yet usable as a finished product. To experiment with the current state, see [run.ps1](run.ps1)
 
-<img width="1273" height="775" alt="VergeExample" src="https://github.com/user-attachments/assets/695e0074-a229-4f4c-9486-3ff956f58344" />
+<img width="1265" height="734" alt="verge_showcase" src="https://github.com/user-attachments/assets/18ad1f0e-20e9-4b24-bfc8-64426b72d3b5" />
 
-### Includes:
-- Vulkan rendering
-- Vehicle physics
-- Simple collision system
-- 3D spatial audio with miniaudio
-- Input system with GLFW
-- Heightmap surface, props and triggers
-- Logging system
+## Features
+#### Rendering with Vulkan
+   - Dynamic shadows
+   - Lighting (Blinn-Phong)
+   - UI
+   - Textures
+   - Real-time multi-threaded model loading
+#### Vehicle physics
+   - User-configurable engine and gearbox simulation
+   - Animated wheels
+   - Collisions
+#### Audio with miniaudio
+   - 3D spatial audio
+   - Layered engine audio
+#### Input system with GLFW
+   - Keyboard, gamepad and steering wheel support
+#### World
+   - Heightmap terrain
+   - Props
+   - Triggers
 
-### Dependencies:
+## Dependencies
 - Vulkan (Rendering)
 - GLFW (Window and input)
-- Miniaudio (Audio)
-- GLM (Math)
-- stb_image (Texture loading)
+- [Miniaudio](ext/miniaudio) (Audio)
+- [GLM](ext/glm) (Math)
+- [stb_image](ext/stb_image) (Texture loading)

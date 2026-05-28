@@ -270,6 +270,12 @@ namespace VE
             .extent = swapChainExtent};
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
+        PostPushData pushData;
+        pushData.vignetteRadius = 0.9f;
+        pushData.vignetteStrength = 0.8f;
+
+        vkCmdPushConstants(commandBuffer, postPipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PostPushData), &pushData);
+
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, postPipelineLayout, 0, 1, &postDescriptorSets[currentImage], 0, nullptr);
 
         vkCmdDraw(commandBuffer, 3, 1, 0, 0);

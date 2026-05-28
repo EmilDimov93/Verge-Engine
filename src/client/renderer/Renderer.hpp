@@ -108,6 +108,11 @@ namespace VE
             glm::mat4 model;
         };
 
+        struct PostPushData
+        {
+            float vignetteStrength, vignetteRadius;
+        };
+
         // Initial
         GLFWwindow *window = nullptr;
 

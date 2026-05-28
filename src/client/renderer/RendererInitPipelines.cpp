@@ -298,10 +298,16 @@ namespace VE
         blendState.attachmentCount = 1;
         blendState.pAttachments = &blendAttachment;
 
+        VkPushConstantRange pushConstantRange;
+        pushConstantRange.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        pushConstantRange.offset = 0;
+        pushConstantRange.size = sizeof(PostPushData);
         VkPipelineLayoutCreateInfo layoutInfo{};
         layoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         layoutInfo.setLayoutCount = 1;
         layoutInfo.pSetLayouts = &postDescriptorSetLayout;
+        layoutInfo.pushConstantRangeCount = 1;
+        layoutInfo.pPushConstantRanges = &pushConstantRange;
 
         vkCheck(vkCreatePipelineLayout(device, &layoutInfo, nullptr, &postPipelineLayout), {'V', 247});
 

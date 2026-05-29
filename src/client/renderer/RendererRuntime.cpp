@@ -273,6 +273,7 @@ namespace VE
         PostPushData pushData;
         pushData.vignetteRadius = 0.9f;
         pushData.vignetteStrength = 0.8f;
+        pushData.dithering = 1u;
 
         vkCmdPushConstants(commandBuffer, postPipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PostPushData), &pushData);
 

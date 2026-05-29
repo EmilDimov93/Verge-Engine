@@ -111,6 +111,7 @@ namespace VE
         struct PostPushData
         {
             float vignetteStrength, vignetteRadius;
+            uint32_t dithering;
         };
 
         // Initial

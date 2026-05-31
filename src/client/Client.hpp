@@ -11,7 +11,6 @@
 
 namespace VE
 {
-
     constexpr size_t KEYBIND_COUNT = 2;
 
     struct ClientCreateInfo
@@ -52,6 +51,8 @@ namespace VE
 
         void tick(const SceneDrawData &sceneDrawData, const AudioData &audioData);
 
+        void bindPostEffects(PostEffects effects) { bindedEffects = effects; };
+
         VehicleInputState getVIS();
         void setVehicleKeybinds(const VehicleKeybinds &keybinds);
 
@@ -83,6 +84,8 @@ namespace VE
         WindowManager window;
         Renderer renderer;
         FpsManager fps;
+
+        PostEffects bindedEffects;
 
         float aspectRatio = 1.0f;
         float fov = 60.0f;

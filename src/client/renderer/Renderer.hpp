@@ -39,7 +39,7 @@ namespace VE
     public:
         Renderer(GLFWwindow *window, Size2 windowSize);
 
-        void drawFrame(const SceneDrawData &sceneDrawData, const UIDrawData &uiDrawData, const glm::mat4 projectionMat);
+        void drawFrame(const SceneDrawData &sceneDrawData, const UIDrawData &uiDrawData, const glm::mat4 projectionMat, const PostEffects& postEffects);
 
         ~Renderer();
 
@@ -160,7 +160,7 @@ namespace VE
         // Runtime
         VkCommandPool commandPool = VK_NULL_HANDLE;
         std::array<VkCommandBuffer, FRAMES_IN_FLIGHT> commandBuffers;
-        
+
         uint32_t currentFrame = 0;
         bool framebufferResized = false;
 
@@ -261,7 +261,7 @@ namespace VE
         void recordShadowPass(const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, const glm::mat4 &lightSpaceMat);
         void updateModelUniformBuffers(uint32_t currentFrame, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat);
         void recordMainPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat);
-        void recordPostPass(uint32_t currentImage);
+        void recordPostPass(uint32_t currentImage, const PostEffects& postEffects);
         void updateUIUniformBuffers(uint32_t currentFrame);
         void recordUIPass(uint32_t currentImage, const std::vector<Widget> &widgets, const std::vector<WidgetInstance> &widgetInstances);
         void recreateSwapChain();

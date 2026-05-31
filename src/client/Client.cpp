@@ -37,7 +37,7 @@ namespace VE
     {
         Input::refresh();
 
-        renderer.drawFrame(sceneDrawData, ui.getWidgetData(), getProjectionMat());
+        renderer.drawFrame(sceneDrawData, ui.getWidgetData(), getProjectionMat(), bindedEffects);
 
         audio.tick(audioData, volume);
 

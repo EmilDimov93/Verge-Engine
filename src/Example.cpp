@@ -17,8 +17,15 @@ public:
         setupUI();
         setupClient();
 
+        PostEffects effects;
+        effects.vignetteStrength = 0.8f;
+        effects.vignetteRadius = 0.9f;
+        effects.dithering = true;
+
         while (client.isOpen())
         {
+            client.bindPostEffects(effects);
+
             client.tick(scene.getDrawData(player1), scene.getAudioData(player1));
 
             scene.tick(client.getFrameTime(), {{player1, client.getVIS()}});

@@ -150,4 +150,10 @@ namespace VE
         static inline const std::vector<WidgetInstance> emptyInstances{};
     };
 
+    struct PostEffects
+    {
+        float vignetteStrength = 0.f;
+        float vignetteRadius = 1.f;
+        bool dithering = false;
+    };
 }

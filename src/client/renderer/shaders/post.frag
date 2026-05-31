@@ -25,7 +25,7 @@ void main()
     vec4 base = texture(prePostImage, inUV);
 
     float distFromCenter = length(inUV - 0.5);
-    float vignetteFactor = smoothstep(pushPost.vignetteRadius, pushPost.vignetteRadius - 0.5, distFromCenter);
+    float vignetteFactor = 1.0 - smoothstep(pushPost.vignetteRadius - 0.5, pushPost.vignetteRadius, distFromCenter);
     base *= mix(1.0, vignetteFactor, pushPost.vignetteStrength);
 
     if(pushPost.dithering != 0u)

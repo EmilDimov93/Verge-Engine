@@ -216,7 +216,7 @@ namespace VE
         vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
     }
 
-    void Renderer::recordPostPass(uint32_t currentImage, const PostEffects& postEffects)
+    void Renderer::recordPostPass(uint32_t currentImage, const PostEffects &postEffects)
     {
         const VkCommandBuffer commandBuffer = commandBuffers[currentFrame];
 
@@ -273,7 +273,9 @@ namespace VE
         PostPushData pushData;
         pushData.vignetteStrength = postEffects.vignetteStrength;
         pushData.vignetteRadius = postEffects.vignetteRadius;
-        pushData.dithering = postEffects.dithering;
+
+        pushData.flags = 0u;
+        pushData.flags |= postEffects.dithering ? POST_EFFECT_DITHERING_BIT : 0u;
 
         vkCmdPushConstants(commandBuffer, postPipeline.layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PostPushData), &pushData);
 
@@ -389,7 +391,7 @@ namespace VE
         vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
     }
 
-    void Renderer::drawFrame(const SceneDrawData &sceneDrawData, const UIDrawData &uiDrawData, const glm::mat4 projectionMat, const PostEffects& postEffects)
+    void Renderer::drawFrame(const SceneDrawData &sceneDrawData, const UIDrawData &uiDrawData, const glm::mat4 projectionMat, const PostEffects &postEffects)
     {
         vkCheck(vkWaitForFences(device, 1, &drawFences[currentFrame], VK_TRUE, UINT64_MAX), {'V', 231});
 
@@ -532,7 +534,7 @@ namespace VE
             vkDestroySwapchainKHR(device, swapChain, nullptr);
         }
 
-        for (ImageAttachment& attachment : prePostAttachments)
+        for (ImageAttachment &attachment : prePostAttachments)
             destroyImageAttachment(attachment);
 
         createSwapChain(Size2(static_cast<uint32_t>(width), static_cast<uint32_t>(height)));

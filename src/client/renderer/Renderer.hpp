@@ -124,10 +124,11 @@ namespace VE
             glm::mat4 model;
         };
 
+        static constexpr uint32_t POST_EFFECT_DITHERING_BIT = 1u << 0;
         struct PostPushData
         {
             float vignetteStrength, vignetteRadius;
-            uint32_t dithering;
+            uint32_t flags;
         };
 
         // Initial

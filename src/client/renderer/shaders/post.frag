@@ -2,10 +2,11 @@
 
 layout(set = 0, binding = 0) uniform sampler2D prePostImage;
 
+const uint POST_EFFECT_DITHERING_BIT = 1u << 0;
 layout(push_constant) uniform PushPost {
     float vignetteStrength;
     float vignetteRadius;
-    uint dithering;
+    uint flags;
 } pushPost;
 
 layout(location = 0) in vec2 inUV;
@@ -28,7 +29,7 @@ void main()
     float vignetteFactor = 1.0 - smoothstep(pushPost.vignetteRadius - 0.5, pushPost.vignetteRadius, distFromCenter);
     base *= mix(1.0, vignetteFactor, pushPost.vignetteStrength);
 
-    if(pushPost.dithering != 0u)
+    if((pushPost.flags & POST_EFFECT_DITHERING_BIT) != 0u)
     {
         int matrixIndex = (int(gl_FragCoord.x) % 4) + (int(gl_FragCoord.y) % 4) * 4;
         vec3 ditheredColor = base.xyz + (bayerMatrix4x4[matrixIndex] - 0.5) / colorLevels;

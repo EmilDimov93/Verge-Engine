@@ -46,7 +46,7 @@ namespace VE
         void markFramebufferResized() { framebufferResized = true; };
 
     private:
-        static constexpr uint32_t MAX_FRAME_DRAWS = 2;
+        static constexpr uint32_t FRAMES_IN_FLIGHT = 2;
 
         static constexpr Size2 SHADOW_MAP_EXTENT = {4096, 4096};
 
@@ -150,17 +150,22 @@ namespace VE
         std::vector<ImageAttachment> prePostAttachments;
 
         // SwapChain
-        VkSwapchainKHR swapChain = VK_NULL_HANDLE;
-        VkFormat swapChainImageFormat;
-        VkExtent2D swapChainExtent;
+        VkSwapchainKHR swapChain = VK_NULL_HANDLE;VkExtent2D swapChainExtent;
         std::vector<VkImage> swapChainImages;
         std::vector<VkImageView> swapChainImageViews;
         uint32_t swapChainImageCount;
-
-        VkCommandPool graphicsCommandPool = VK_NULL_HANDLE;
-        std::vector<VkCommandBuffer> commandBuffers;
-
+        VkFormat swapChainImageFormat;
         VkFormat depthFormat;
+
+        // Runtime
+        VkCommandPool commandPool = VK_NULL_HANDLE;
+        std::array<VkCommandBuffer, FRAMES_IN_FLIGHT> commandBuffers;
+        
+        uint32_t currentFrame = 0;
+        bool framebufferResized = false;
+
+        std::vector<ModelBuffer> modelBuffers;
+        std::vector<WidgetBuffer> widgetBuffers;
 
         // Pipeline 1: Shadow
         GraphicsPipeline shadowPipeline;
@@ -173,47 +178,43 @@ namespace VE
 
         ImageAttachment depthAttachment;
 
+        std::array<VkBuffer, FRAMES_IN_FLIGHT> cameraUniformBuffer;
+        std::array<VkDeviceMemory, FRAMES_IN_FLIGHT> cameraUniformBufferMemory;
+
+        std::array<VkBuffer, FRAMES_IN_FLIGHT> lightingUniformBuffer;
+        std::array<VkDeviceMemory, FRAMES_IN_FLIGHT> lightingUniformBufferMemory;
+
         // Pipeline 3: UI
         GraphicsPipeline uiPipeline;
 
+        std::array<VkBuffer, FRAMES_IN_FLIGHT> uiUniformBuffers;
+        std::array<VkDeviceMemory, FRAMES_IN_FLIGHT> uiUniformBuffersMemory;
+
         // Pipeline 4: Post-processing
         GraphicsPipeline postPipeline;
+
         VkSampler postSampler = VK_NULL_HANDLE;
 
         // Textures
-        VkDescriptorSetLayout samplerSetLayout = VK_NULL_HANDLE;
-        std::vector<VkDescriptorPool> samplerDescriptorPools;
-        std::vector<VkDescriptorSet> samplerDescriptorSets;
-
-        std::vector<ImageAttachment> textureAttachments;
-        VkSampler textureSampler;
+        struct TextureResources
+        {
+            std::vector<ImageAttachment> attachments;
+            VkSampler sampler = VK_NULL_HANDLE;
+            VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+            std::vector<VkDescriptorPool> descriptorPools;
+            std::vector<VkDescriptorSet> descriptorSets;
+        }textures;
 
         // Synchronization
-        std::vector<VkSemaphore> imageAvailableSemaphores;
+        std::array<VkSemaphore, FRAMES_IN_FLIGHT> imageAvailableSemaphores;
         std::vector<VkSemaphore> renderFinishedSemaphores;
-        std::vector<VkFence> drawFences;
+        std::array<VkFence, FRAMES_IN_FLIGHT> drawFences;
 
         std::mutex graphicsQueueMutex;
         mutable std::mutex transferQueueMutex;
         std::recursive_mutex modelMutex;
         std::recursive_mutex widgetMutex;
         std::mutex textureMutex;
-
-        // Runtime
-        uint32_t currentFrame = 0;
-        bool framebufferResized = false;
-
-        std::vector<ModelBuffer> modelBuffers;
-        std::vector<WidgetBuffer> widgetBuffers;
-
-        std::vector<VkBuffer> cameraUniformBuffer;
-        std::vector<VkDeviceMemory> cameraUniformBufferMemory;
-
-        std::vector<VkBuffer> lightingUniformBuffer;
-        std::vector<VkDeviceMemory> lightingUniformBufferMemory;
-
-        std::vector<VkBuffer> uiUniformBuffers;
-        std::vector<VkDeviceMemory> uiUniformBuffersMemory;
 
         // Init
         void createInstance();
@@ -273,7 +274,7 @@ namespace VE
         static std::vector<char> readFile(const std::string &fileName);
         VkShaderModule createShaderModule(const std::vector<char> &code) const;
         static uint32_t rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
-        void destroyImageAttachment(ImageAttachment& attachment) const;
+        void destroyImageAttachment(ImageAttachment &attachment) const;
 
         // Models
         void syncModelBuffers(const std::vector<Model> &models);

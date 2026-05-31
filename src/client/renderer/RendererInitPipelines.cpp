@@ -110,7 +110,7 @@ namespace VE
             .attachmentCount = 1,
             .pAttachments = &colorState};
 
-        std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts = {modelPipeline.descriptorSetLayout, samplerSetLayout};
+        std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts = {modelPipeline.descriptorSetLayout, textures.descriptorSetLayout};
 
         VkPushConstantRange pushConstantRange;
         pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;

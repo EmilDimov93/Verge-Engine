@@ -194,7 +194,7 @@ namespace VE
 
                         vkCmdPushConstants(commandBuffer, modelPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushData), &pushData);
 
-                        std::array<VkDescriptorSet, 2> descriptorSetGroup = {modelPipeline.descriptorSets[currentFrame], samplerDescriptorSets[meshBuffer.texIndex]};
+                        std::array<VkDescriptorSet, 2> descriptorSetGroup = {modelPipeline.descriptorSets[currentFrame], textures.descriptorSets[meshBuffer.texIndex]};
 
                         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, modelPipeline.layout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
 
@@ -506,7 +506,7 @@ namespace VE
             }
         }
 
-        currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
+        currentFrame = (currentFrame + 1) % FRAMES_IN_FLIGHT;
     }
 
     void Renderer::recreateSwapChain()

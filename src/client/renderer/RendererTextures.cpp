@@ -224,7 +224,7 @@ namespace VE
 
         {
             std::lock_guard<std::mutex> lock(textureMutex);
-            textureAttachments.push_back({texImage, texImageMemory, imageView});
+            textures.attachments.push_back({texImage, texImageMemory, imageView});
             createTextureDescriptor(imageView);
         }
 
@@ -286,8 +286,8 @@ namespace VE
         size_t resultIndex;
         {
             std::lock_guard<std::mutex> lock(textureMutex);
-            textureAttachments.push_back({texImage, texImageMemory, VK_NULL_HANDLE});
-            resultIndex = textureAttachments.size() - 1;
+            textures.attachments.push_back({texImage, texImageMemory, VK_NULL_HANDLE});
+            resultIndex = textures.attachments.size() - 1;
         }
 
         vkDestroyBuffer(device, imageStagingBuffer, nullptr);
@@ -307,7 +307,7 @@ namespace VE
         VkImage sourceImage;
         {
             std::lock_guard<std::mutex> lock(textureMutex);
-            sourceImage = textureAttachments[textureImageLoc].image;
+            sourceImage = textures.attachments[textureImageLoc].image;
         }
 
         VkImageViewCreateInfo imageViewCreateInfo{};
@@ -330,7 +330,7 @@ namespace VE
 
         {
             std::lock_guard<std::mutex> lock(textureMutex);
-            textureAttachments[textureImageLoc].imageView = imageView;
+            textures.attachments[textureImageLoc].imageView = imageView;
             return createTextureDescriptor(imageView);
         }
     }
@@ -354,24 +354,24 @@ namespace VE
             return pool;
         };
 
-        if (samplerDescriptorPools.empty())
-            samplerDescriptorPools.emplace_back(createDescriptorPool());
+        if (textures.descriptorPools.empty())
+            textures.descriptorPools.emplace_back(createDescriptorPool());
 
         VkDescriptorSet descriptorSet;
 
         VkDescriptorSetAllocateInfo setAllocInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-            .descriptorPool = samplerDescriptorPools.back(),
+            .descriptorPool = textures.descriptorPools.back(),
             .descriptorSetCount = 1,
-            .pSetLayouts = &samplerSetLayout};
+            .pSetLayouts = &textures.descriptorSetLayout};
 
         VkResult result = vkAllocateDescriptorSets(device, &setAllocInfo, &descriptorSet);
 
         if (result == VK_ERROR_OUT_OF_POOL_MEMORY || result == VK_ERROR_FRAGMENTED_POOL)
         {
-            samplerDescriptorPools.emplace_back(createDescriptorPool());
+            textures.descriptorPools.emplace_back(createDescriptorPool());
 
-            setAllocInfo.descriptorPool = samplerDescriptorPools.back();
+            setAllocInfo.descriptorPool = textures.descriptorPools.back();
             vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, &descriptorSet), {'V', 220});
         }
         else
@@ -380,7 +380,7 @@ namespace VE
         }
 
         VkDescriptorImageInfo imageInfo = {
-            .sampler = textureSampler,
+            .sampler = textures.sampler,
             .imageView = textureImageView,
             .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
 
@@ -395,9 +395,9 @@ namespace VE
 
         vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
 
-        samplerDescriptorSets.push_back(descriptorSet);
+        textures.descriptorSets.push_back(descriptorSet);
 
-        return samplerDescriptorSets.size() - 1;
+        return textures.descriptorSets.size() - 1;
     }
 
     void Renderer::createTextureSampler()
@@ -418,6 +418,6 @@ namespace VE
             .borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK,
             .unnormalizedCoordinates = VK_FALSE};
 
-        vkCheck(vkCreateSampler(device, &samplerCreateInfo, nullptr, &textureSampler), {'V', 226});
+        vkCheck(vkCreateSampler(device, &samplerCreateInfo, nullptr, &textures.sampler), {'V', 226});
     }
 }

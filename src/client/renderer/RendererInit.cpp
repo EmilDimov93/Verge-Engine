@@ -370,7 +370,7 @@ namespace VE
             .bindingCount = 1,
             .pBindings = &samplerLayoutBinding};
 
-        vkCheck(vkCreateDescriptorSetLayout(device, &textureLayoutCreateInfo, nullptr, &samplerSetLayout), {'V', 217});
+        vkCheck(vkCreateDescriptorSetLayout(device, &textureLayoutCreateInfo, nullptr, &textures.descriptorSetLayout), {'V', 217});
     }
 
     void Renderer::createCommandPool()
@@ -380,16 +380,14 @@ namespace VE
             .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
             .queueFamilyIndex = static_cast<uint32_t>(graphicsQueueFamilyIndex)};
 
-        vkCheck(vkCreateCommandPool(device, &graphicsCommandPoolCreateInfo, nullptr, &graphicsCommandPool), {'V', 208});
+        vkCheck(vkCreateCommandPool(device, &graphicsCommandPoolCreateInfo, nullptr, &commandPool), {'V', 208});
     }
 
     void Renderer::createCommandBuffers()
     {
-        commandBuffers.resize(MAX_FRAME_DRAWS);
-
         VkCommandBufferAllocateInfo commandBufferAllocInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-            .commandPool = graphicsCommandPool,
+            .commandPool = commandPool,
             .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
             .commandBufferCount = static_cast<uint32_t>(commandBuffers.size())};
 
@@ -398,16 +396,14 @@ namespace VE
 
     void Renderer::createSemaphores()
     {
-        imageAvailableSemaphores.resize(MAX_FRAME_DRAWS);
         renderFinishedSemaphores.resize(swapChainImageCount);
         VkSemaphoreCreateInfo semaphoreCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
 
-        drawFences.resize(MAX_FRAME_DRAWS);
         VkFenceCreateInfo fenceCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
             .flags = VK_FENCE_CREATE_SIGNALED_BIT};
-        for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+        for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
             vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &imageAvailableSemaphores[i]), {'V', 215});
             vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &drawFences[i]), {'V', 216});
@@ -424,13 +420,7 @@ namespace VE
         VkDeviceSize cameraBufferSize = sizeof(UboCamera);
         VkDeviceSize lightingBufferSize = sizeof(UboLighting);
 
-        cameraUniformBuffer.resize(MAX_FRAME_DRAWS);
-        cameraUniformBufferMemory.resize(MAX_FRAME_DRAWS);
-
-        lightingUniformBuffer.resize(MAX_FRAME_DRAWS);
-        lightingUniformBufferMemory.resize(MAX_FRAME_DRAWS);
-
-        for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+        for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
             createBuffer(cameraBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &cameraUniformBuffer[i], &cameraUniformBufferMemory[i]);
             createBuffer(lightingBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &lightingUniformBuffer[i], &lightingUniformBufferMemory[i]);
@@ -445,13 +435,13 @@ namespace VE
 
         VkDescriptorPoolSize shadowPoolSize = {
             .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            .descriptorCount = MAX_FRAME_DRAWS};
+            .descriptorCount = FRAMES_IN_FLIGHT};
 
         std::array<VkDescriptorPoolSize, 2> descriptorPoolSizes = {uniformPoolSize, shadowPoolSize};
 
         VkDescriptorPoolCreateInfo poolCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-            .maxSets = MAX_FRAME_DRAWS,
+            .maxSets = FRAMES_IN_FLIGHT,
             .poolSizeCount = static_cast<uint32_t>(descriptorPoolSizes.size()),
             .pPoolSizes = descriptorPoolSizes.data()};
 
@@ -460,19 +450,19 @@ namespace VE
 
     void Renderer::createModelDescriptorSets()
     {
-        modelPipeline.descriptorSets.resize(MAX_FRAME_DRAWS);
+        modelPipeline.descriptorSets.resize(FRAMES_IN_FLIGHT);
 
-        std::vector<VkDescriptorSetLayout> setLayouts(MAX_FRAME_DRAWS, modelPipeline.descriptorSetLayout);
+        std::vector<VkDescriptorSetLayout> setLayouts(FRAMES_IN_FLIGHT, modelPipeline.descriptorSetLayout);
 
         VkDescriptorSetAllocateInfo setAllocInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
             .descriptorPool = modelPipeline.descriptorPool,
-            .descriptorSetCount = MAX_FRAME_DRAWS,
+            .descriptorSetCount = FRAMES_IN_FLIGHT,
             .pSetLayouts = setLayouts.data()};
 
         vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, modelPipeline.descriptorSets.data()), {'V', 220});
 
-        for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+        for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
             VkDescriptorBufferInfo cameraBufferInfo = {
                 .buffer = cameraUniformBuffer[i],
@@ -581,10 +571,7 @@ namespace VE
     {
         VkDeviceSize uiUniformBufferSize = sizeof(UboUI);
 
-        uiUniformBuffers.resize(MAX_FRAME_DRAWS);
-        uiUniformBuffersMemory.resize(MAX_FRAME_DRAWS);
-
-        for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+        for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
             createBuffer(uiUniformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &uiUniformBuffers[i], &uiUniformBuffersMemory[i]);
     }
 
@@ -596,7 +583,7 @@ namespace VE
 
         VkDescriptorPoolCreateInfo poolCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-            .maxSets = MAX_FRAME_DRAWS,
+            .maxSets = FRAMES_IN_FLIGHT,
             .poolSizeCount = 1,
             .pPoolSizes = &poolSize};
 
@@ -605,19 +592,19 @@ namespace VE
 
     void Renderer::createUIDescriptorSets()
     {
-        uiPipeline.descriptorSets.resize(MAX_FRAME_DRAWS);
+        uiPipeline.descriptorSets.resize(FRAMES_IN_FLIGHT);
 
-        std::vector<VkDescriptorSetLayout> setLayouts(MAX_FRAME_DRAWS, uiPipeline.descriptorSetLayout);
+        std::vector<VkDescriptorSetLayout> setLayouts(FRAMES_IN_FLIGHT, uiPipeline.descriptorSetLayout);
 
         VkDescriptorSetAllocateInfo setAllocInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
             .descriptorPool = uiPipeline.descriptorPool,
-            .descriptorSetCount = MAX_FRAME_DRAWS,
+            .descriptorSetCount = FRAMES_IN_FLIGHT,
             .pSetLayouts = setLayouts.data()};
 
         vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, uiPipeline.descriptorSets.data()), {'V', 220});
 
-        for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+        for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
             VkDescriptorBufferInfo uiBufferInfo = {
                 .buffer = uiUniformBuffers[i],
@@ -753,15 +740,15 @@ namespace VE
         if (device != VK_NULL_HANDLE)
             vkCheck(vkDeviceWaitIdle(device), {'V', 235});
 
-        if (samplerSetLayout)
-            vkDestroyDescriptorSetLayout(device, samplerSetLayout, nullptr);
-
-        for(ImageAttachment& attachment : textureAttachments)
+        if (textures.sampler)
+            vkDestroySampler(device, textures.sampler, nullptr);
+        if (textures.descriptorSetLayout)
+            vkDestroyDescriptorSetLayout(device, textures.descriptorSetLayout, nullptr);
+        for(ImageAttachment& attachment : textures.attachments)
             destroyImageAttachment(attachment);
-
-        for (VkDescriptorPool samplerDescriptorPool : samplerDescriptorPools)
-            if (samplerDescriptorPool)
-                vkDestroyDescriptorPool(device, samplerDescriptorPool, nullptr);
+        for (VkDescriptorPool pool : textures.descriptorPools)
+            if (pool)
+                vkDestroyDescriptorPool(device, pool, nullptr);
 
         for (ModelBuffer &modelBuffer : modelBuffers)
             for (MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
@@ -771,7 +758,7 @@ namespace VE
             for (MeshBuffer &meshBuffer : widgetBuffer.meshBuffers)
                 destroyMeshBuffer(meshBuffer);
 
-        for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+        for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
             if (imageAvailableSemaphores[i])
                 vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
@@ -798,7 +785,7 @@ namespace VE
         if (postSampler)
             vkDestroySampler(device, postSampler, nullptr);
 
-        for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+        for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
             if (uiUniformBuffers[i])
                 vkDestroyBuffer(device, uiUniformBuffers[i], nullptr);
@@ -807,7 +794,7 @@ namespace VE
         }
         destroyGraphicsPipeline(uiPipeline);
 
-        for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+        for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
             if (cameraUniformBuffer[i])
                 vkDestroyBuffer(device, cameraUniformBuffer[i], nullptr);
@@ -827,9 +814,6 @@ namespace VE
 
         destroyImageAttachment(depthAttachment);
 
-        if (textureSampler)
-            vkDestroySampler(device, textureSampler, nullptr);
-
         if (shadowSampler)
             vkDestroySampler(device, shadowSampler, nullptr);
 
@@ -844,8 +828,8 @@ namespace VE
         if (swapChain)
             vkDestroySwapchainKHR(device, swapChain, nullptr);
 
-        if (graphicsCommandPool)
-            vkDestroyCommandPool(device, graphicsCommandPool, nullptr);
+        if (commandPool)
+            vkDestroyCommandPool(device, commandPool, nullptr);
 
         if (device)
             vkDestroyDevice(device, nullptr);

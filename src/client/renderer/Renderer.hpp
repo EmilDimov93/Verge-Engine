@@ -5,6 +5,8 @@
 
 #include "../../shared/DrawData.hpp"
 
+#include "../../shared/Log.hpp"
+
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 
@@ -14,8 +16,6 @@
 
 namespace VE
 {
-    class ErrorCode;
-
     static constexpr uint32_t INVALID_TEXTURE_INDEX = 0;
 
     struct GraphicsPipeline
@@ -25,6 +25,13 @@ namespace VE
         VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
         VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
         std::vector<VkDescriptorSet> descriptorSets;
+    };
+
+    struct ImageAttachment
+    {
+        VkImage image = VK_NULL_HANDLE;
+        VkDeviceMemory memory = VK_NULL_HANDLE;
+        VkImageView imageView = VK_NULL_HANDLE;
     };
 
     class Renderer
@@ -140,9 +147,7 @@ namespace VE
         uint32_t transferQueueFamilyIndex = 0;
 
         // Pre-post images
-        std::vector<VkImage> prePostImages;
-        std::vector<VkImageView> prePostImageViews;
-        std::vector<VkDeviceMemory> prePostImagesMemory;
+        std::vector<ImageAttachment> prePostAttachments;
 
         // SwapChain
         VkSwapchainKHR swapChain = VK_NULL_HANDLE;
@@ -150,6 +155,7 @@ namespace VE
         VkExtent2D swapChainExtent;
         std::vector<VkImage> swapChainImages;
         std::vector<VkImageView> swapChainImageViews;
+        uint32_t swapChainImageCount;
 
         VkCommandPool graphicsCommandPool = VK_NULL_HANDLE;
         std::vector<VkCommandBuffer> commandBuffers;
@@ -159,17 +165,13 @@ namespace VE
         // Pipeline 1: Shadow
         GraphicsPipeline shadowPipeline;
 
-        VkImage shadowDepthBufferImage = VK_NULL_HANDLE;
-        VkDeviceMemory shadowDepthBufferImageMemory = VK_NULL_HANDLE;
-        VkImageView shadowDepthBufferImageView = VK_NULL_HANDLE;
+        ImageAttachment shadowDepthAttachment;
         VkSampler shadowSampler = VK_NULL_HANDLE;
 
         // Pipeline 2: Main
         GraphicsPipeline modelPipeline;
 
-        VkImage depthBufferImage = VK_NULL_HANDLE;
-        VkDeviceMemory depthBufferImageMemory = VK_NULL_HANDLE;
-        VkImageView depthBufferImageView = VK_NULL_HANDLE;
+        ImageAttachment depthAttachment;
 
         // Pipeline 3: UI
         GraphicsPipeline uiPipeline;
@@ -183,10 +185,8 @@ namespace VE
         std::vector<VkDescriptorPool> samplerDescriptorPools;
         std::vector<VkDescriptorSet> samplerDescriptorSets;
 
+        std::vector<ImageAttachment> textureAttachments;
         VkSampler textureSampler;
-        std::vector<VkImage> textureImages;
-        std::vector<VkDeviceMemory> textureImageMemory;
-        std::vector<VkImageView> textureImageViews;
 
         // Synchronization
         std::vector<VkSemaphore> imageAvailableSemaphores;
@@ -225,14 +225,13 @@ namespace VE
         void createCommandBuffers();
 
         void createSwapChain(Size2 windowSize);
-        void createImageViews();
 
         void findDepthFormat();
         void createShadowSampler();
         void createTextureSampler();
 
-        void createDepthBufferImage();
-        void createShadowDepthBufferImage();
+        void createDepthAttachment();
+        void createShadowDepthAttachment();
 
         void createModelDescriptorSetLayout();
         void createModelPipeline();
@@ -274,6 +273,7 @@ namespace VE
         static std::vector<char> readFile(const std::string &fileName);
         VkShaderModule createShaderModule(const std::vector<char> &code) const;
         static uint32_t rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
+        void destroyImageAttachment(ImageAttachment& attachment) const;
 
         // Models
         void syncModelBuffers(const std::vector<Model> &models);

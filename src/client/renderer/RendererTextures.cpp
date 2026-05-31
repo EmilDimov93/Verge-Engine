@@ -211,19 +211,6 @@ namespace VE
         vkCheck(vkResetFences(device, 1, &uploadFence), {'V', 232});
         vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
 
-        {
-            std::lock_guard<std::mutex> lock(textureMutex);
-            textureImages.push_back(texImage);
-            textureImageMemory.push_back(texImageMemory);
-        }
-
-        vkDestroyBuffer(device, stagingBuffer, nullptr);
-        vkFreeMemory(device, stagingBufferMemory, nullptr);
-
-        vkDestroyFence(device, uploadFence, nullptr);
-        vkDestroyCommandPool(device, graphicsCommandPoolLocal, nullptr);
-        vkDestroyCommandPool(device, transferCommandPoolLocal, nullptr);
-
         VkImageViewCreateInfo imageViewCreateInfo{};
         imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         imageViewCreateInfo.image = texImage;
@@ -237,9 +224,16 @@ namespace VE
 
         {
             std::lock_guard<std::mutex> lock(textureMutex);
-            textureImageViews.push_back(imageView);
+            textureAttachments.push_back({texImage, texImageMemory, imageView});
             createTextureDescriptor(imageView);
         }
+
+        vkDestroyBuffer(device, stagingBuffer, nullptr);
+        vkFreeMemory(device, stagingBufferMemory, nullptr);
+
+        vkDestroyFence(device, uploadFence, nullptr);
+        vkDestroyCommandPool(device, graphicsCommandPoolLocal, nullptr);
+        vkDestroyCommandPool(device, transferCommandPoolLocal, nullptr);
     }
 
     size_t Renderer::createTextureImage(std::string fileName)
@@ -292,9 +286,8 @@ namespace VE
         size_t resultIndex;
         {
             std::lock_guard<std::mutex> lock(textureMutex);
-            textureImages.push_back(texImage);
-            textureImageMemory.push_back(texImageMemory);
-            resultIndex = textureImages.size() - 1;
+            textureAttachments.push_back({texImage, texImageMemory, VK_NULL_HANDLE});
+            resultIndex = textureAttachments.size() - 1;
         }
 
         vkDestroyBuffer(device, imageStagingBuffer, nullptr);
@@ -314,7 +307,7 @@ namespace VE
         VkImage sourceImage;
         {
             std::lock_guard<std::mutex> lock(textureMutex);
-            sourceImage = textureImages[textureImageLoc];
+            sourceImage = textureAttachments[textureImageLoc].image;
         }
 
         VkImageViewCreateInfo imageViewCreateInfo{};
@@ -337,7 +330,7 @@ namespace VE
 
         {
             std::lock_guard<std::mutex> lock(textureMutex);
-            textureImageViews.push_back(imageView);
+            textureAttachments[textureImageLoc].imageView = imageView;
             return createTextureDescriptor(imageView);
         }
     }

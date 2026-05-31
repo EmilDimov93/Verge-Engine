@@ -20,7 +20,7 @@ namespace VE
         imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        imageMemoryBarrier.image = shadowDepthBufferImage;
+        imageMemoryBarrier.image = shadowDepthAttachment.image;
         imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
         imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
         imageMemoryBarrier.subresourceRange.levelCount = 1;
@@ -31,20 +31,20 @@ namespace VE
 
         vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 
-        VkRenderingAttachmentInfo shadowDepthAttachment{};
-        shadowDepthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-        shadowDepthAttachment.imageView = shadowDepthBufferImageView;
-        shadowDepthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        shadowDepthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        shadowDepthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        shadowDepthAttachment.clearValue.depthStencil = {1.0f, 0};
+        VkRenderingAttachmentInfo shadowDepthAttachmentInfo{};
+        shadowDepthAttachmentInfo.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        shadowDepthAttachmentInfo.imageView = shadowDepthAttachment.imageView;
+        shadowDepthAttachmentInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        shadowDepthAttachmentInfo.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        shadowDepthAttachmentInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        shadowDepthAttachmentInfo.clearValue.depthStencil = {1.0f, 0};
 
         VkRenderingInfo shadowRenderingInfo{};
         shadowRenderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
         shadowRenderingInfo.renderArea.offset = {0, 0};
         shadowRenderingInfo.renderArea.extent = {SHADOW_MAP_EXTENT.w, SHADOW_MAP_EXTENT.h};
         shadowRenderingInfo.layerCount = 1;
-        shadowRenderingInfo.pDepthAttachment = &shadowDepthAttachment;
+        shadowRenderingInfo.pDepthAttachment = &shadowDepthAttachmentInfo;
 
         vkCmdBeginRendering(commandBuffer, &shadowRenderingInfo);
 
@@ -119,7 +119,7 @@ namespace VE
         imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        imageMemoryBarrier.image = prePostImages[currentImage];
+        imageMemoryBarrier.image = prePostAttachments[currentImage].image;
         imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
         imageMemoryBarrier.subresourceRange.levelCount = 1;
@@ -132,19 +132,19 @@ namespace VE
 
         VkRenderingAttachmentInfo colorAttachment{};
         colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-        colorAttachment.imageView = prePostImageViews[currentImage];
+        colorAttachment.imageView = prePostAttachments[currentImage].imageView;
         colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachment.clearValue = {{{backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a}}};
 
-        VkRenderingAttachmentInfo depthAttachment{};
-        depthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-        depthAttachment.imageView = depthBufferImageView;
-        depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        depthAttachment.clearValue.depthStencil = {1.0f, 0};
+        VkRenderingAttachmentInfo depthAttachmentInfo{};
+        depthAttachmentInfo.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        depthAttachmentInfo.imageView = depthAttachment.imageView;
+        depthAttachmentInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        depthAttachmentInfo.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depthAttachmentInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        depthAttachmentInfo.clearValue.depthStencil = {1.0f, 0};
 
         VkRenderingInfo renderingInfo{};
         renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
@@ -153,7 +153,7 @@ namespace VE
         renderingInfo.layerCount = 1;
         renderingInfo.colorAttachmentCount = 1;
         renderingInfo.pColorAttachments = &colorAttachment;
-        renderingInfo.pDepthAttachment = &depthAttachment;
+        renderingInfo.pDepthAttachment = &depthAttachmentInfo;
 
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
 
@@ -523,38 +523,21 @@ namespace VE
 
         if (swapChain)
         {
-            if (depthBufferImageView)
-                vkDestroyImageView(device, depthBufferImageView, nullptr);
-            if (depthBufferImage)
-                vkDestroyImage(device, depthBufferImage, nullptr);
-            if (depthBufferImageMemory)
-                vkFreeMemory(device, depthBufferImageMemory, nullptr);
+            destroyImageAttachment(depthAttachment);
 
             for (VkImageView imageView : swapChainImageViews)
-            {
                 if (imageView)
                     vkDestroyImageView(device, imageView, nullptr);
-            }
 
             vkDestroySwapchainKHR(device, swapChain, nullptr);
         }
 
-        for (size_t i = 0; i < prePostImageViews.size(); i++)
-        {
-            if (prePostImageViews[i])
-                vkDestroyImageView(device, prePostImageViews[i], nullptr);
-            if (prePostImages[i])
-                vkDestroyImage(device, prePostImages[i], nullptr);
-            if (prePostImagesMemory[i])
-                vkFreeMemory(device, prePostImagesMemory[i], nullptr);
-        }
+        for (ImageAttachment& attachment : prePostAttachments)
+            destroyImageAttachment(attachment);
 
-        Size2 newSize = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
-
-        createSwapChain(newSize);
-        createImageViews();
+        createSwapChain(Size2(static_cast<uint32_t>(width), static_cast<uint32_t>(height)));
         createPrePostImages();
         updatePostDescriptorSets();
-        createDepthBufferImage();
+        createDepthAttachment();
     }
 }

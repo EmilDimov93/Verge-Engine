@@ -22,7 +22,6 @@ namespace VE
         createCommandBuffers();
 
         createSwapChain(windowSize);
-        createImageViews();
 
         createPrePostImages();
 
@@ -30,8 +29,8 @@ namespace VE
         createShadowSampler();
         createTextureSampler();
 
-        createDepthBufferImage();
-        createShadowDepthBufferImage();
+        createDepthAttachment();
+        createShadowDepthAttachment();
 
         createShadowPipeline();
 
@@ -234,43 +233,12 @@ namespace VE
 
         vkCheck(vkCreateSwapchainKHR(device, &swapchainCreateInfo, nullptr, &swapChain), {'V', 204});
 
-        uint32_t swapChainImageCount;
         vkGetSwapchainImagesKHR(device, swapChain, &swapChainImageCount, nullptr);
         swapChainImages.resize(swapChainImageCount);
         vkGetSwapchainImagesKHR(device, swapChain, &swapChainImageCount, swapChainImages.data());
-    }
 
-    void Renderer::createPrePostImages()
-    {
-        prePostImages.resize(swapChainImages.size());
-        prePostImagesMemory.resize(swapChainImages.size());
-        prePostImageViews.resize(swapChainImages.size());
-        for (size_t i = 0; i < swapChainImages.size(); i++)
-        {
-            prePostImages[i] = createImage(swapChainExtent.width, swapChainExtent.height, swapChainImageFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_SHARING_MODE_EXCLUSIVE, &prePostImagesMemory[i]);
-
-            VkImageViewCreateInfo imageViewCreateInfo{};
-            imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-            imageViewCreateInfo.image = prePostImages[i];
-            imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-            imageViewCreateInfo.format = swapChainImageFormat;
-            imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-            imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-            imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-            imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-            imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
-            imageViewCreateInfo.subresourceRange.levelCount = 1;
-            imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
-            imageViewCreateInfo.subresourceRange.layerCount = 1;
-            vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &prePostImageViews[i]), {'V', 205});
-        }
-    }
-
-    void Renderer::createImageViews()
-    {
-        swapChainImageViews.resize(swapChainImages.size());
-        for (size_t i = 0; i < swapChainImages.size(); i++)
+        swapChainImageViews.resize(swapChainImageCount);
+        for (size_t i = 0; i < swapChainImageCount; i++)
         {
             VkImageViewCreateInfo imageViewCreateInfo{};
             imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -287,6 +255,31 @@ namespace VE
             imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
             imageViewCreateInfo.subresourceRange.layerCount = 1;
             vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &swapChainImageViews[i]), {'V', 205});
+        }
+    }
+
+    void Renderer::createPrePostImages()
+    {
+        prePostAttachments.resize(swapChainImageCount);
+        for (ImageAttachment& attachment : prePostAttachments)
+        {
+            attachment.image = createImage(swapChainExtent.width, swapChainExtent.height, swapChainImageFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_SHARING_MODE_EXCLUSIVE, &attachment.memory);
+
+            VkImageViewCreateInfo imageViewCreateInfo{};
+            imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            imageViewCreateInfo.image = attachment.image;
+            imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+            imageViewCreateInfo.format = swapChainImageFormat;
+            imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+            imageViewCreateInfo.subresourceRange.levelCount = 1;
+            imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+            imageViewCreateInfo.subresourceRange.layerCount = 1;
+            vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &attachment.imageView), {'V', 205});
         }
     }
 
@@ -312,13 +305,13 @@ namespace VE
             Log::add('V', 223);
     }
 
-    void Renderer::createDepthBufferImage()
+    void Renderer::createDepthAttachment()
     {
-        depthBufferImage = createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &depthBufferImageMemory);
+        depthAttachment.image = createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &depthAttachment.memory);
 
         VkImageViewCreateInfo imageViewCreateInfo{};
         imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        imageViewCreateInfo.image = depthBufferImage;
+        imageViewCreateInfo.image = depthAttachment.image;
         imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
         imageViewCreateInfo.format = depthFormat;
         imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -330,7 +323,7 @@ namespace VE
         imageViewCreateInfo.subresourceRange.levelCount = 1;
         imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
         imageViewCreateInfo.subresourceRange.layerCount = 1;
-        vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &depthBufferImageView), {'V', 205});
+        vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &depthAttachment.imageView), {'V', 205});
     }
 
     void Renderer::createModelDescriptorSetLayout()
@@ -406,7 +399,7 @@ namespace VE
     void Renderer::createSemaphores()
     {
         imageAvailableSemaphores.resize(MAX_FRAME_DRAWS);
-        renderFinishedSemaphores.resize(swapChainImages.size());
+        renderFinishedSemaphores.resize(swapChainImageCount);
         VkSemaphoreCreateInfo semaphoreCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
 
@@ -420,7 +413,7 @@ namespace VE
             vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &drawFences[i]), {'V', 216});
         }
 
-        for (size_t i = 0; i < swapChainImages.size(); i++)
+        for (size_t i = 0; i < swapChainImageCount; i++)
         {
             vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores[i]), {'V', 215});
         }
@@ -511,7 +504,7 @@ namespace VE
 
             VkDescriptorImageInfo shadowImageInfo = {
                 .sampler = shadowSampler,
-                .imageView = shadowDepthBufferImageView,
+                .imageView = shadowDepthAttachment.imageView,
                 .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
 
             VkWriteDescriptorSet shadowSetWrite = {
@@ -529,13 +522,13 @@ namespace VE
         }
     }
 
-    void Renderer::createShadowDepthBufferImage()
+    void Renderer::createShadowDepthAttachment()
     {
-        shadowDepthBufferImage = createImage(SHADOW_MAP_EXTENT.w, SHADOW_MAP_EXTENT.h, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &shadowDepthBufferImageMemory);
+        shadowDepthAttachment.image = createImage(SHADOW_MAP_EXTENT.w, SHADOW_MAP_EXTENT.h, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &shadowDepthAttachment.memory);
 
         VkImageViewCreateInfo imageViewCreateInfo{};
         imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        imageViewCreateInfo.image = shadowDepthBufferImage;
+        imageViewCreateInfo.image = shadowDepthAttachment.image;
         imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
         imageViewCreateInfo.format = depthFormat;
         imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -547,7 +540,7 @@ namespace VE
         imageViewCreateInfo.subresourceRange.levelCount = 1;
         imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
         imageViewCreateInfo.subresourceRange.layerCount = 1;
-        vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &shadowDepthBufferImageView), {'V', 205});
+        vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &shadowDepthAttachment.imageView), {'V', 205});
     }
 
     void Renderer::createShadowSampler()
@@ -669,11 +662,11 @@ namespace VE
     {
         VkDescriptorPoolSize poolSize = {
             .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            .descriptorCount = static_cast<uint32_t>(swapChainImages.size())};
+            .descriptorCount = static_cast<uint32_t>(swapChainImageCount)};
 
         VkDescriptorPoolCreateInfo poolCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-            .maxSets = static_cast<uint32_t>(swapChainImages.size()),
+            .maxSets = static_cast<uint32_t>(swapChainImageCount),
             .poolSizeCount = 1,
             .pPoolSizes = &poolSize};
 
@@ -699,7 +692,7 @@ namespace VE
 
     void Renderer::createPostDescriptorSets()
     {
-        const size_t imageCount = swapChainImages.size();
+        const size_t imageCount = swapChainImageCount;
 
         std::vector<VkDescriptorSetLayout> layouts(imageCount, postPipeline.descriptorSetLayout);
 
@@ -721,7 +714,7 @@ namespace VE
         {
             VkDescriptorImageInfo imageInfo{};
             imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = prePostImageViews[i];
+            imageInfo.imageView = prePostAttachments[i].imageView;
             imageInfo.sampler = postSampler;
 
             VkWriteDescriptorSet postSetWrite{};
@@ -763,12 +756,8 @@ namespace VE
         if (samplerSetLayout)
             vkDestroyDescriptorSetLayout(device, samplerSetLayout, nullptr);
 
-        for (VkImageView &imageView : textureImageViews)
-            vkDestroyImageView(device, imageView, nullptr);
-        for (VkImage &image : textureImages)
-            vkDestroyImage(device, image, nullptr);
-        for (VkDeviceMemory &imageMemory : textureImageMemory)
-            vkFreeMemory(device, imageMemory, nullptr);
+        for(ImageAttachment& attachment : textureAttachments)
+            destroyImageAttachment(attachment);
 
         for (VkDescriptorPool samplerDescriptorPool : samplerDescriptorPools)
             if (samplerDescriptorPool)
@@ -789,7 +778,7 @@ namespace VE
             if (drawFences[i])
                 vkDestroyFence(device, drawFences[i], nullptr);
         }
-        for (size_t i = 0; i < swapChainImages.size(); i++)
+        for (size_t i = 0; i < swapChainImageCount; i++)
             if (renderFinishedSemaphores[i])
                 vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
 
@@ -834,19 +823,9 @@ namespace VE
 
         destroyGraphicsPipeline(shadowPipeline);
 
-        if (shadowDepthBufferImageView)
-            vkDestroyImageView(device, shadowDepthBufferImageView, nullptr);
-        if (shadowDepthBufferImage)
-            vkDestroyImage(device, shadowDepthBufferImage, nullptr);
-        if (shadowDepthBufferImageMemory)
-            vkFreeMemory(device, shadowDepthBufferImageMemory, nullptr);
+        destroyImageAttachment(shadowDepthAttachment);
 
-        if (depthBufferImageView)
-            vkDestroyImageView(device, depthBufferImageView, nullptr);
-        if (depthBufferImage)
-            vkDestroyImage(device, depthBufferImage, nullptr);
-        if (depthBufferImageMemory)
-            vkFreeMemory(device, depthBufferImageMemory, nullptr);
+        destroyImageAttachment(depthAttachment);
 
         if (textureSampler)
             vkDestroySampler(device, textureSampler, nullptr);
@@ -854,15 +833,8 @@ namespace VE
         if (shadowSampler)
             vkDestroySampler(device, shadowSampler, nullptr);
 
-        for (size_t i = 0; i < prePostImageViews.size(); i++)
-        {
-            if (prePostImageViews[i])
-                vkDestroyImageView(device, prePostImageViews[i], nullptr);
-            if (prePostImages[i])
-                vkDestroyImage(device, prePostImages[i], nullptr);
-            if (prePostImagesMemory[i])
-                vkFreeMemory(device, prePostImagesMemory[i], nullptr);
-        }
+        for (ImageAttachment& attachment : prePostAttachments)
+            destroyImageAttachment(attachment);
 
         for (VkImageView iv : swapChainImageViews)
             if (iv)

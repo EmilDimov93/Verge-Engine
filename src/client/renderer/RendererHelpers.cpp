@@ -260,4 +260,14 @@ namespace VE
 
         return score;
     }
+
+    void Renderer::destroyImageAttachment(ImageAttachment &attachment) const
+    {
+        if (attachment.imageView)
+            vkDestroyImageView(device, attachment.imageView, nullptr);
+        if (attachment.image)
+            vkDestroyImage(device, attachment.image, nullptr);
+        if (attachment.memory)
+            vkFreeMemory(device, attachment.memory, nullptr);
+    }
 }

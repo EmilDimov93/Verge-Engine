@@ -15,6 +15,7 @@ add_executable(VergeEngine
     src/client/AudioManager.cpp
     src/client/Input.cpp
     src/client/FpsManager.cpp
+    src/client/UI.cpp
     src/client/renderer/RendererInit.cpp
     src/client/renderer/RendererInitPipelines.cpp
     src/client/renderer/RendererRuntime.cpp
@@ -31,8 +32,6 @@ add_executable(VergeEngine
     src/scene/actors/VehiclePhysics.cpp
     src/scene/actors/Prop.cpp
     src/scene/actors/Trigger.cpp
-
-    src/ui/UI.cpp
 )
 
 target_include_directories(VergeEngine PRIVATE

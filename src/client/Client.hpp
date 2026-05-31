@@ -7,9 +7,7 @@
 #include "Input.hpp"
 #include "FPSManager.hpp"
 
-#include "../ui/UI.hpp"
-
-#include "../shared/Log.hpp"
+#include "UI.hpp"
 
 namespace VE
 {

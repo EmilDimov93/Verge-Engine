@@ -18,6 +18,15 @@ namespace VE
 
     static constexpr uint32_t INVALID_TEXTURE_INDEX = 0;
 
+    struct GraphicsPipeline
+    {
+        VkPipeline pipeline = VK_NULL_HANDLE;
+        VkPipelineLayout layout = VK_NULL_HANDLE;
+        VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+        VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
+        std::vector<VkDescriptorSet> descriptorSets;
+    };
+
     class Renderer
     {
     public:
@@ -145,35 +154,29 @@ namespace VE
         VkCommandPool graphicsCommandPool = VK_NULL_HANDLE;
         std::vector<VkCommandBuffer> commandBuffers;
 
-        // Depth buffer
-        VkImage depthBufferImage = VK_NULL_HANDLE;
-        VkDeviceMemory depthBufferImageMemory = VK_NULL_HANDLE;
-        VkImageView depthBufferImageView = VK_NULL_HANDLE;
         VkFormat depthFormat;
 
         // Pipeline 1: Shadow
-        VkPipeline shadowPipeline = VK_NULL_HANDLE;
-        VkPipelineLayout shadowPipelineLayout = VK_NULL_HANDLE;
+        GraphicsPipeline shadowPipeline;
 
         VkImage shadowDepthBufferImage = VK_NULL_HANDLE;
         VkDeviceMemory shadowDepthBufferImageMemory = VK_NULL_HANDLE;
         VkImageView shadowDepthBufferImageView = VK_NULL_HANDLE;
-        VkFormat shadowDepthFormat;
         VkSampler shadowSampler = VK_NULL_HANDLE;
 
         // Pipeline 2: Main
-        VkPipeline modelPipeline = VK_NULL_HANDLE;
-        VkPipelineLayout modelPipelineLayout = VK_NULL_HANDLE;
-        VkDescriptorSetLayout modelDescriptorSetLayout = VK_NULL_HANDLE;
-        VkDescriptorPool modelDescriptorPool = VK_NULL_HANDLE;
-        std::vector<VkDescriptorSet> modelDescriptorSets;
+        GraphicsPipeline modelPipeline;
+
+        VkImage depthBufferImage = VK_NULL_HANDLE;
+        VkDeviceMemory depthBufferImageMemory = VK_NULL_HANDLE;
+        VkImageView depthBufferImageView = VK_NULL_HANDLE;
 
         // Pipeline 3: UI
-        VkPipeline uiPipeline = VK_NULL_HANDLE;
-        VkPipelineLayout uiPipelineLayout = VK_NULL_HANDLE;
-        VkDescriptorSetLayout uiDescriptorSetLayout = VK_NULL_HANDLE;
-        VkDescriptorPool uiDescriptorPool = VK_NULL_HANDLE;
-        std::vector<VkDescriptorSet> uiDescriptorSets;
+        GraphicsPipeline uiPipeline;
+
+        // Pipeline 4: Post-processing
+        GraphicsPipeline postPipeline;
+        VkSampler postSampler = VK_NULL_HANDLE;
 
         // Textures
         VkDescriptorSetLayout samplerSetLayout = VK_NULL_HANDLE;
@@ -211,13 +214,6 @@ namespace VE
 
         std::vector<VkBuffer> uiUniformBuffers;
         std::vector<VkDeviceMemory> uiUniformBuffersMemory;
-        
-        VkPipeline postPipeline = VK_NULL_HANDLE;
-        VkPipelineLayout postPipelineLayout = VK_NULL_HANDLE;
-        VkDescriptorPool postDescriptorPool = VK_NULL_HANDLE;
-        VkDescriptorSetLayout postDescriptorSetLayout = VK_NULL_HANDLE;
-        std::vector<VkDescriptorSet> postDescriptorSets;
-        VkSampler postSampler = VK_NULL_HANDLE;
 
         // Init
         void createInstance();

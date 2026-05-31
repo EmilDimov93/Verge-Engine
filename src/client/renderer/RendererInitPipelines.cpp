@@ -110,7 +110,7 @@ namespace VE
             .attachmentCount = 1,
             .pAttachments = &colorState};
 
-        std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts = {modelDescriptorSetLayout, samplerSetLayout};
+        std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts = {modelPipeline.descriptorSetLayout, samplerSetLayout};
 
         VkPushConstantRange pushConstantRange;
         pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -123,7 +123,7 @@ namespace VE
             .pushConstantRangeCount = 1,
             .pPushConstantRanges = &pushConstantRange};
 
-        vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &modelPipelineLayout), {'V', 210});
+        vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &modelPipeline.layout), {'V', 210});
 
         VkPipelineDepthStencilStateCreateInfo depthStencilCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
@@ -152,13 +152,13 @@ namespace VE
             .pDepthStencilState = &depthStencilCreateInfo,
             .pColorBlendState = &colorBlendingCreateInfo,
             .pDynamicState = &DEFAULT_DYNAMIC_STATE_CREATE_INFO,
-            .layout = modelPipelineLayout,
+            .layout = modelPipeline.layout,
             .renderPass = VK_NULL_HANDLE,
             .subpass = 0,
             .basePipelineHandle = VK_NULL_HANDLE,
             .basePipelineIndex = -1};
 
-        vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &modelPipeline), {'V', 211});
+        vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &modelPipeline.pipeline), {'V', 211});
 
         vkDestroyShaderModule(device, vertexShaderModule, nullptr);
         vkDestroyShaderModule(device, fragmentShaderModule, nullptr);
@@ -227,13 +227,13 @@ namespace VE
             .pSetLayouts = nullptr,
             .pushConstantRangeCount = 1,
             .pPushConstantRanges = &pushConstantRange};
-        vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &shadowPipelineLayout), {'V', 210});
+        vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &shadowPipeline.layout), {'V', 210});
 
         VkPipelineRenderingCreateInfo pipelineRenderingCreateInfo{};
         pipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
         pipelineRenderingCreateInfo.colorAttachmentCount = 0;
         pipelineRenderingCreateInfo.pColorAttachmentFormats = nullptr;
-        pipelineRenderingCreateInfo.depthAttachmentFormat = shadowDepthFormat;
+        pipelineRenderingCreateInfo.depthAttachmentFormat = depthFormat;
 
         VkGraphicsPipelineCreateInfo pipelineCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -247,10 +247,10 @@ namespace VE
             .pMultisampleState = &DEFAULT_MULTISAMPLE_CREATE_INFO,
             .pDepthStencilState = &depthStencilStateCreateInfo,
             .pColorBlendState = &colorBlendStateCreateInfo,
-            .layout = shadowPipelineLayout,
+            .layout = shadowPipeline.layout,
             .renderPass = VK_NULL_HANDLE,
             .subpass = 0};
-        vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &shadowPipeline), {'V', 211});
+        vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &shadowPipeline.pipeline), {'V', 211});
 
         vkDestroyShaderModule(device, vertexShaderModule, nullptr);
     }
@@ -305,11 +305,11 @@ namespace VE
         VkPipelineLayoutCreateInfo layoutInfo{};
         layoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         layoutInfo.setLayoutCount = 1;
-        layoutInfo.pSetLayouts = &postDescriptorSetLayout;
+        layoutInfo.pSetLayouts = &postPipeline.descriptorSetLayout;
         layoutInfo.pushConstantRangeCount = 1;
         layoutInfo.pPushConstantRanges = &pushConstantRange;
 
-        vkCheck(vkCreatePipelineLayout(device, &layoutInfo, nullptr, &postPipelineLayout), {'V', 247});
+        vkCheck(vkCreatePipelineLayout(device, &layoutInfo, nullptr, &postPipeline.layout), {'V', 247});
 
         VkPipelineRenderingCreateInfo renderingInfo{};
         renderingInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
@@ -329,9 +329,9 @@ namespace VE
         pipelineInfo.pDepthStencilState = &depthStencil;
         pipelineInfo.pColorBlendState = &blendState;
         pipelineInfo.pDynamicState = &DEFAULT_DYNAMIC_STATE_CREATE_INFO;
-        pipelineInfo.layout = postPipelineLayout;
+        pipelineInfo.layout = postPipeline.layout;
 
-        vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &postPipeline), {'V', 248});
+        vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &postPipeline.pipeline), {'V', 248});
 
         vkDestroyShaderModule(device, vertexShaderModule, nullptr);
         vkDestroyShaderModule(device, fragmentShaderModule, nullptr);
@@ -409,11 +409,11 @@ namespace VE
         VkPipelineLayoutCreateInfo pipelineLayout = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
             .setLayoutCount = 1,
-            .pSetLayouts = &uiDescriptorSetLayout,
+            .pSetLayouts = &uiPipeline.descriptorSetLayout,
             .pushConstantRangeCount = 1,
             .pPushConstantRanges = &pushConstantRange};
 
-        vkCheck(vkCreatePipelineLayout(device, &pipelineLayout, nullptr, &uiPipelineLayout), {'V', 210});
+        vkCheck(vkCreatePipelineLayout(device, &pipelineLayout, nullptr, &uiPipeline.layout), {'V', 210});
 
         VkPipelineRenderingCreateInfo pipelineRendering{};
         pipelineRendering.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
@@ -433,13 +433,13 @@ namespace VE
             .pDepthStencilState = nullptr,
             .pColorBlendState = &colorBlendState,
             .pDynamicState = &DEFAULT_DYNAMIC_STATE_CREATE_INFO,
-            .layout = uiPipelineLayout,
+            .layout = uiPipeline.layout,
             .renderPass = VK_NULL_HANDLE,
             .subpass = 0,
             .basePipelineHandle = VK_NULL_HANDLE,
             .basePipelineIndex = -1};
 
-        vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &uiPipeline), {'V', 211});
+        vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &uiPipeline.pipeline), {'V', 211});
 
         vkDestroyShaderModule(device, vertexShaderModule, nullptr);
         vkDestroyShaderModule(device, fragmentShaderModule, nullptr);

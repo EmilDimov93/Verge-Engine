@@ -310,8 +310,6 @@ namespace VE
 
         if (depthFormat == VK_FORMAT_UNDEFINED)
             Log::add('V', 223);
-
-        shadowDepthFormat = depthFormat;
     }
 
     void Renderer::createDepthBufferImage()
@@ -365,7 +363,7 @@ namespace VE
             .bindingCount = static_cast<uint32_t>(layoutBindings.size()),
             .pBindings = layoutBindings.data()};
 
-        vkCheck(vkCreateDescriptorSetLayout(device, &layoutCreateInfo, nullptr, &modelDescriptorSetLayout), {'V', 217});
+        vkCheck(vkCreateDescriptorSetLayout(device, &layoutCreateInfo, nullptr, &modelPipeline.descriptorSetLayout), {'V', 217});
 
         VkDescriptorSetLayoutBinding samplerLayoutBinding = {
             .binding = 0,
@@ -464,22 +462,22 @@ namespace VE
             .poolSizeCount = static_cast<uint32_t>(descriptorPoolSizes.size()),
             .pPoolSizes = descriptorPoolSizes.data()};
 
-        vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &modelDescriptorPool), {'V', 219});
+        vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &modelPipeline.descriptorPool), {'V', 219});
     }
 
     void Renderer::createModelDescriptorSets()
     {
-        modelDescriptorSets.resize(MAX_FRAME_DRAWS);
+        modelPipeline.descriptorSets.resize(MAX_FRAME_DRAWS);
 
-        std::vector<VkDescriptorSetLayout> setLayouts(MAX_FRAME_DRAWS, modelDescriptorSetLayout);
+        std::vector<VkDescriptorSetLayout> setLayouts(MAX_FRAME_DRAWS, modelPipeline.descriptorSetLayout);
 
         VkDescriptorSetAllocateInfo setAllocInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-            .descriptorPool = modelDescriptorPool,
+            .descriptorPool = modelPipeline.descriptorPool,
             .descriptorSetCount = MAX_FRAME_DRAWS,
             .pSetLayouts = setLayouts.data()};
 
-        vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, modelDescriptorSets.data()), {'V', 220});
+        vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, modelPipeline.descriptorSets.data()), {'V', 220});
 
         for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
         {
@@ -490,7 +488,7 @@ namespace VE
 
             VkWriteDescriptorSet cameraSetWrite = {
                 .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstSet = modelDescriptorSets[i],
+                .dstSet = modelPipeline.descriptorSets[i],
                 .dstBinding = 0,
                 .dstArrayElement = 0,
                 .descriptorCount = 1,
@@ -504,7 +502,7 @@ namespace VE
 
             VkWriteDescriptorSet lightingSetWrite = {
                 .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstSet = modelDescriptorSets[i],
+                .dstSet = modelPipeline.descriptorSets[i],
                 .dstBinding = 1,
                 .dstArrayElement = 0,
                 .descriptorCount = 1,
@@ -518,7 +516,7 @@ namespace VE
 
             VkWriteDescriptorSet shadowSetWrite = {
                 .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstSet = modelDescriptorSets[i],
+                .dstSet = modelPipeline.descriptorSets[i],
                 .dstBinding = 2,
                 .dstArrayElement = 0,
                 .descriptorCount = 1,
@@ -533,13 +531,13 @@ namespace VE
 
     void Renderer::createShadowDepthBufferImage()
     {
-        shadowDepthBufferImage = createImage(SHADOW_MAP_EXTENT.w, SHADOW_MAP_EXTENT.h, shadowDepthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &shadowDepthBufferImageMemory);
+        shadowDepthBufferImage = createImage(SHADOW_MAP_EXTENT.w, SHADOW_MAP_EXTENT.h, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &shadowDepthBufferImageMemory);
 
         VkImageViewCreateInfo imageViewCreateInfo{};
         imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         imageViewCreateInfo.image = shadowDepthBufferImage;
         imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        imageViewCreateInfo.format = shadowDepthFormat;
+        imageViewCreateInfo.format = depthFormat;
         imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
         imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
         imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -583,7 +581,7 @@ namespace VE
             .bindingCount = 1,
             .pBindings = &uiLayoutBinding};
 
-        vkCheck(vkCreateDescriptorSetLayout(device, &uiLayoutCreateInfo, nullptr, &uiDescriptorSetLayout), {'V', 217});
+        vkCheck(vkCreateDescriptorSetLayout(device, &uiLayoutCreateInfo, nullptr, &uiPipeline.descriptorSetLayout), {'V', 217});
     }
 
     void Renderer::createUIUniformBuffers()
@@ -609,22 +607,22 @@ namespace VE
             .poolSizeCount = 1,
             .pPoolSizes = &poolSize};
 
-        vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &uiDescriptorPool), {'V', 219});
+        vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &uiPipeline.descriptorPool), {'V', 219});
     }
 
     void Renderer::createUIDescriptorSets()
     {
-        uiDescriptorSets.resize(MAX_FRAME_DRAWS);
+        uiPipeline.descriptorSets.resize(MAX_FRAME_DRAWS);
 
-        std::vector<VkDescriptorSetLayout> setLayouts(MAX_FRAME_DRAWS, uiDescriptorSetLayout);
+        std::vector<VkDescriptorSetLayout> setLayouts(MAX_FRAME_DRAWS, uiPipeline.descriptorSetLayout);
 
         VkDescriptorSetAllocateInfo setAllocInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-            .descriptorPool = uiDescriptorPool,
+            .descriptorPool = uiPipeline.descriptorPool,
             .descriptorSetCount = MAX_FRAME_DRAWS,
             .pSetLayouts = setLayouts.data()};
 
-        vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, uiDescriptorSets.data()), {'V', 220});
+        vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, uiPipeline.descriptorSets.data()), {'V', 220});
 
         for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
         {
@@ -635,7 +633,7 @@ namespace VE
 
             VkWriteDescriptorSet uiSetWrite = {
                 .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstSet = uiDescriptorSets[i],
+                .dstSet = uiPipeline.descriptorSets[i],
                 .dstBinding = 0,
                 .dstArrayElement = 0,
                 .descriptorCount = 1,
@@ -679,7 +677,7 @@ namespace VE
             .poolSizeCount = 1,
             .pPoolSizes = &poolSize};
 
-        vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &postDescriptorPool), {'V', 219});
+        vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &postPipeline.descriptorPool), {'V', 219});
     }
 
     void Renderer::createPostDescriptorSetLayout()
@@ -696,30 +694,30 @@ namespace VE
         layoutInfo.bindingCount = 1;
         layoutInfo.pBindings = &sceneColorBinding;
 
-        vkCheck(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &postDescriptorSetLayout), {'V', 217});
+        vkCheck(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &postPipeline.descriptorSetLayout), {'V', 217});
     }
 
     void Renderer::createPostDescriptorSets()
     {
         const size_t imageCount = swapChainImages.size();
 
-        std::vector<VkDescriptorSetLayout> layouts(imageCount, postDescriptorSetLayout);
+        std::vector<VkDescriptorSetLayout> layouts(imageCount, postPipeline.descriptorSetLayout);
 
         VkDescriptorSetAllocateInfo allocateInfo{};
         allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        allocateInfo.descriptorPool = postDescriptorPool;
+        allocateInfo.descriptorPool = postPipeline.descriptorPool;
         allocateInfo.descriptorSetCount = static_cast<uint32_t>(imageCount);
         allocateInfo.pSetLayouts = layouts.data();
 
-        postDescriptorSets.resize(imageCount);
-        vkCheck(vkAllocateDescriptorSets(device, &allocateInfo, postDescriptorSets.data()), {'V', 220});
+        postPipeline.descriptorSets.resize(imageCount);
+        vkCheck(vkAllocateDescriptorSets(device, &allocateInfo, postPipeline.descriptorSets.data()), {'V', 220});
 
         updatePostDescriptorSets();
     }
 
     void Renderer::updatePostDescriptorSets()
     {
-        for (size_t i = 0; i < postDescriptorSets.size(); i++)
+        for (size_t i = 0; i < postPipeline.descriptorSets.size(); i++)
         {
             VkDescriptorImageInfo imageInfo{};
             imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -728,7 +726,7 @@ namespace VE
 
             VkWriteDescriptorSet postSetWrite{};
             postSetWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            postSetWrite.dstSet = postDescriptorSets[i];
+            postSetWrite.dstSet = postPipeline.descriptorSets[i];
             postSetWrite.dstBinding = 0;
             postSetWrite.dstArrayElement = 0;
             postSetWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -795,8 +793,22 @@ namespace VE
             if (renderFinishedSemaphores[i])
                 vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
 
-        if (uiDescriptorPool)
-            vkDestroyDescriptorPool(device, uiDescriptorPool, nullptr);
+        auto destroyGraphicsPipeline = [device = device](GraphicsPipeline pipeline)
+        {
+            if (pipeline.descriptorPool)
+                vkDestroyDescriptorPool(device, pipeline.descriptorPool, nullptr);
+            if (pipeline.pipeline)
+                vkDestroyPipeline(device, pipeline.pipeline, nullptr);
+            if (pipeline.layout)
+                vkDestroyPipelineLayout(device, pipeline.layout, nullptr);
+            if (pipeline.descriptorSetLayout)
+                vkDestroyDescriptorSetLayout(device, pipeline.descriptorSetLayout, nullptr);
+        };
+
+        destroyGraphicsPipeline(postPipeline);
+        if (postSampler)
+            vkDestroySampler(device, postSampler, nullptr);
+
         for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
         {
             if (uiUniformBuffers[i])
@@ -804,26 +816,8 @@ namespace VE
             if (uiUniformBuffersMemory[i])
                 vkFreeMemory(device, uiUniformBuffersMemory[i], nullptr);
         }
-        if (uiPipeline)
-            vkDestroyPipeline(device, uiPipeline, nullptr);
-        if (uiPipelineLayout)
-            vkDestroyPipelineLayout(device, uiPipelineLayout, nullptr);
-        if (uiDescriptorSetLayout)
-            vkDestroyDescriptorSetLayout(device, uiDescriptorSetLayout, nullptr);
+        destroyGraphicsPipeline(uiPipeline);
 
-        if (postDescriptorPool)
-            vkDestroyDescriptorPool(device, postDescriptorPool, nullptr);
-        if (postPipeline)
-            vkDestroyPipeline(device, postPipeline, nullptr);
-        if (postPipelineLayout)
-            vkDestroyPipelineLayout(device, postPipelineLayout, nullptr);
-        if (postDescriptorSetLayout)
-            vkDestroyDescriptorSetLayout(device, postDescriptorSetLayout, nullptr);
-        if (postSampler)
-            vkDestroySampler(device, postSampler, nullptr);
-
-        if (modelDescriptorPool)
-            vkDestroyDescriptorPool(device, modelDescriptorPool, nullptr);
         for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
         {
             if (cameraUniformBuffer[i])
@@ -836,17 +830,9 @@ namespace VE
             if (lightingUniformBufferMemory[i])
                 vkFreeMemory(device, lightingUniformBufferMemory[i], nullptr);
         }
-        if (modelPipeline)
-            vkDestroyPipeline(device, modelPipeline, nullptr);
-        if (modelPipelineLayout)
-            vkDestroyPipelineLayout(device, modelPipelineLayout, nullptr);
-        if (modelDescriptorSetLayout)
-            vkDestroyDescriptorSetLayout(device, modelDescriptorSetLayout, nullptr);
+        destroyGraphicsPipeline(modelPipeline);
 
-        if (shadowPipeline)
-            vkDestroyPipeline(device, shadowPipeline, nullptr);
-        if (shadowPipelineLayout)
-            vkDestroyPipelineLayout(device, shadowPipelineLayout, nullptr);
+        destroyGraphicsPipeline(shadowPipeline);
 
         if (shadowDepthBufferImageView)
             vkDestroyImageView(device, shadowDepthBufferImageView, nullptr);

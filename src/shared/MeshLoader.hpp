@@ -27,6 +27,7 @@ namespace VE
         {
             color_t diffuseColor{1.0f};
             std::string diffuseTexturePath;
+            float dissolve = 1.0f;
         };
 
         std::vector<glm::vec3> positions;
@@ -75,6 +76,20 @@ namespace VE
                     std::filesystem::path resolvedPath = std::filesystem::path(mtlPath).parent_path() / texturePath;
                     materials[currentMat].diffuseTexturePath = resolvedPath.string();
                 }
+                else if (line.starts_with("d ") && !currentMat.empty())
+                {
+                    std::stringstream ss(line.substr(2));
+                    float dissolve = 1.0f;
+                    ss >> dissolve;
+                    materials[currentMat].dissolve = dissolve;
+                }
+                else if (line.starts_with("Tr ") && !currentMat.empty())
+                {
+                    std::stringstream ss(line.substr(3));
+                    float transparency = 0.0f;
+                    ss >> transparency;
+                    materials[currentMat].dissolve = 1.0f - transparency;
+                }
             }
         };
 
@@ -112,8 +127,11 @@ namespace VE
 
                 auto it = materials.find(mat);
                 if (it != materials.end())
+                {
                     currentColor = it->second.diffuseColor;
-                currentTexturePath = it->second.diffuseTexturePath;
+                    currentColor.a = (it != materials.end()) ? it->second.dissolve : 1.0f;
+                    currentTexturePath = it->second.diffuseTexturePath;
+                }
             }
             else if (line.starts_with("v "))
             {

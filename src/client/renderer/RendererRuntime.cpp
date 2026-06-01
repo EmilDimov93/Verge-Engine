@@ -402,6 +402,10 @@ namespace VE
 
                         UIPushData pushData;
                         pushData.model = instance.modelMat;
+                        const float aspect = static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);
+                        pushData.model = glm::scale(pushData.model, glm::vec3(1.0f / aspect, 1.0f, 1.0f));
+
+                        pushData.model[1][1] *= -1;
 
                         vkCmdPushConstants(commandBuffer, uiPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UIPushData), &pushData);
 

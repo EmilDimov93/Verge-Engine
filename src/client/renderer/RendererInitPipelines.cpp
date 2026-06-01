@@ -484,7 +484,7 @@ namespace VE
 
         std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages = {vertexShaderStage, fragmentShaderStage};
 
-        std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions;
+        std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions;
 
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;
@@ -495,6 +495,11 @@ namespace VE
         attributeDescriptions[1].location = 1;
         attributeDescriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
         attributeDescriptions[1].offset = offsetof(Vertex, col);
+
+        attributeDescriptions[2].binding = 0;
+        attributeDescriptions[2].location = 2;
+        attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[2].offset = offsetof(Vertex, tex);
 
         VkPipelineVertexInputStateCreateInfo vertexInputState = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
@@ -508,7 +513,7 @@ namespace VE
             .depthClampEnable = VK_FALSE,
             .rasterizerDiscardEnable = VK_FALSE,
             .polygonMode = VK_POLYGON_MODE_FILL,
-            .cullMode = VK_CULL_MODE_FRONT_BIT,
+            .cullMode = VK_CULL_MODE_BACK_BIT,
             .frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
             .depthBiasEnable = VK_FALSE,
             .lineWidth = 1.0f};
@@ -534,10 +539,12 @@ namespace VE
         pushConstantRange.offset = 0;
         pushConstantRange.size = sizeof(UIPushData);
 
+        std::array<VkDescriptorSetLayout, 2> uiSetLayouts = {uiPipeline.descriptorSetLayout, textures.descriptorSetLayout};
+
         VkPipelineLayoutCreateInfo pipelineLayout = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-            .setLayoutCount = 1,
-            .pSetLayouts = &uiPipeline.descriptorSetLayout,
+            .setLayoutCount = static_cast<uint32_t>(uiSetLayouts.size()),
+            .pSetLayouts = uiSetLayouts.data(),
             .pushConstantRangeCount = 1,
             .pPushConstantRanges = &pushConstantRange};
 

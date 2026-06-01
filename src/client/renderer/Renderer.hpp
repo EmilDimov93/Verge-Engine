@@ -124,6 +124,7 @@ namespace VE
         struct UIPushData
         {
             glm::mat4 model;
+            uint32_t textureIndex;
         };
 
         static constexpr uint32_t POST_EFFECT_DITHERING_BIT = 1u << 0;
@@ -133,7 +134,7 @@ namespace VE
             uint32_t flags;
         };
 
-        // Initial
+        // Context
         GLFWwindow *window = nullptr;
 
         VkInstance instance = VK_NULL_HANDLE;
@@ -239,6 +240,8 @@ namespace VE
 
         void createDepthAttachment();
         void createShadowDepthAttachment();
+
+        void createTextureDescriptorSetLayout();
 
         void createModelDescriptorSetLayout();
         void createModelPipeline();

@@ -34,6 +34,8 @@ namespace VE
 
         createShadowPipeline();
 
+        createTextureDescriptorSetLayout();
+
         createModelDescriptorSetLayout();
         createModelPipeline();
         createModelUniformBuffers();
@@ -359,20 +361,6 @@ namespace VE
             .pBindings = layoutBindings.data()};
 
         vkCheck(vkCreateDescriptorSetLayout(device, &layoutCreateInfo, nullptr, &modelPipeline.descriptorSetLayout), {'V', 217});
-
-        VkDescriptorSetLayoutBinding samplerLayoutBinding = {
-            .binding = 0,
-            .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            .descriptorCount = 1,
-            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
-            .pImmutableSamplers = nullptr};
-
-        VkDescriptorSetLayoutCreateInfo textureLayoutCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-            .bindingCount = 1,
-            .pBindings = &samplerLayoutBinding};
-
-        vkCheck(vkCreateDescriptorSetLayout(device, &textureLayoutCreateInfo, nullptr, &textures.descriptorSetLayout), {'V', 217});
     }
 
     void Renderer::createCommandPool()
@@ -533,6 +521,23 @@ namespace VE
         imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
         imageViewCreateInfo.subresourceRange.layerCount = 1;
         vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &shadowDepthAttachment.imageView), {'V', 205});
+    }
+
+    void Renderer::createTextureDescriptorSetLayout()
+    {
+        VkDescriptorSetLayoutBinding samplerLayoutBinding = {
+            .binding = 0,
+            .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            .descriptorCount = 1,
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+            .pImmutableSamplers = nullptr};
+
+        VkDescriptorSetLayoutCreateInfo textureLayoutCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+            .bindingCount = 1,
+            .pBindings = &samplerLayoutBinding};
+
+        vkCheck(vkCreateDescriptorSetLayout(device, &textureLayoutCreateInfo, nullptr, &textures.descriptorSetLayout), {'V', 217});
     }
 
     void Renderer::createShadowSampler()

@@ -71,6 +71,9 @@ namespace VE
             createVertexBuffer(newMeshBuffer, mesh.getVertices());
             createIndexBuffer(newMeshBuffer, mesh.getIndices());
 
+            if (!mesh.getTextureFilePath().empty())
+                newMeshBuffer.texIndex = createTexture(mesh.getTextureFilePath());
+
             newWidgetBuffer.meshBuffers.push_back(newMeshBuffer);
         }
 

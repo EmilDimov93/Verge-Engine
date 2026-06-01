@@ -402,14 +402,17 @@ namespace VE
 
                         UIPushData pushData;
                         pushData.model = instance.modelMat;
-                        const float aspect = static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);
+                        const float aspect = (float)swapChainExtent.width / (float)swapChainExtent.height;
                         pushData.model = glm::scale(pushData.model, glm::vec3(1.0f / aspect, 1.0f, 1.0f));
 
+                        pushData.textureIndex = meshBuffer.texIndex;
                         pushData.model[1][1] *= -1;
 
                         vkCmdPushConstants(commandBuffer, uiPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UIPushData), &pushData);
 
-                        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, uiPipeline.layout, 0, 1, &uiPipeline.descriptorSets[currentFrame], 0, nullptr);
+                        std::array<VkDescriptorSet, 2> descriptorSetGroup = {uiPipeline.descriptorSets[currentFrame], textures.descriptorSets[meshBuffer.texIndex]};
+
+                        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, uiPipeline.layout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
 
                         vkCmdDrawIndexed(commandBuffer, meshBuffer.indexCount, 1, 0, 0, 0);
                     }

@@ -105,7 +105,7 @@ private:
         player1 = scene.addPlayer(car1);
 
         // Prop
-        scene.addProp(scene.addModel("models/cow.obj"), {{-10.0f, 30.0f, 30.0f}}, 3.0f, {1.0f, 1.0f, 1.0f, 1.0f});
+        scene.addProp(scene.addModel("models/cow.obj"), {{-10.0f, 100.0f, 30.0f}}, 3.0f, {1.0f, 1.0f, 0.8f, 1.0f});
 
         // Triggers
         TriggerTypeCreateInfo sTriggerType = {};
@@ -114,11 +114,11 @@ private:
         sTriggerType.hitboxSize = 10.0f;
         sTriggerType.isAutoDestroy = true;
 
-        scene.addTrigger(sTriggerType, {{35.0f, 1.0f, 0.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
-        scene.addTrigger(sTriggerType, {{-35.0f, 1.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
+        scene.addTrigger(sTriggerType, {{-2.0f, 0.0f, -60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
+        scene.addTrigger(sTriggerType, {{2.0f, 0.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}});
 
         // Ground
-        SurfaceTypeIndex grassSurfaceTypeIndex = scene.addSurfaceType({0.6f, {0, 0.4f, 0}, {0, 0.05f, 0}, 0.05f});
+        SurfaceTypeIndex grassSurfaceTypeIndex = scene.addSurfaceType({0.6f, {0, 0.4f, 0}, {0, 0.02f, 0}, 0.05f});
         SurfaceTypeIndex asphaltSurfaceTypeIndex = scene.addSurfaceType({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
         SurfaceTypeIndex roadLineSurfaceTypeIndex = scene.addSurfaceType({1.0f, {1.0f, 1.0f, 1.0f}});
 

@@ -63,6 +63,8 @@ namespace VE
             VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
 
             uint32_t texIndex = INVALID_TEXTURE_INDEX;
+
+            bool isTransparent = false;
         };
 
         struct ModelBuffer
@@ -185,13 +187,16 @@ namespace VE
         std::array<VkBuffer, FRAMES_IN_FLIGHT> lightingUniformBuffer;
         std::array<VkDeviceMemory, FRAMES_IN_FLIGHT> lightingUniformBufferMemory;
 
-        // Pipeline 3: UI
+        // Pipeline 3: Transparent
+        GraphicsPipeline transparentPipeline;
+
+        // Pipeline 4: UI
         GraphicsPipeline uiPipeline;
 
         std::array<VkBuffer, FRAMES_IN_FLIGHT> uiUniformBuffers;
         std::array<VkDeviceMemory, FRAMES_IN_FLIGHT> uiUniformBuffersMemory;
 
-        // Pipeline 4: Post-processing
+        // Pipeline 5: Post-processing
         GraphicsPipeline postPipeline;
 
         VkSampler postSampler = VK_NULL_HANDLE;
@@ -237,6 +242,7 @@ namespace VE
 
         void createModelDescriptorSetLayout();
         void createModelPipeline();
+        void createTransparentPipeline();
         void createShadowPipeline();
 
         void createModelUniformBuffers();
@@ -261,7 +267,7 @@ namespace VE
         // Runtime
         void recordShadowPass(const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, const glm::mat4 &lightSpaceMat);
         void updateModelUniformBuffers(uint32_t currentFrame, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat);
-        void recordMainPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat);
+        void recordMainPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat, const glm::vec3 &cameraPosition);
         void recordPostPass(uint32_t currentImage, const PostEffects& postEffects);
         void updateUIUniformBuffers(uint32_t currentFrame);
         void recordUIPass(uint32_t currentImage, const std::vector<Widget> &widgets, const std::vector<WidgetInstance> &widgetInstances);

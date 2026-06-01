@@ -40,6 +40,8 @@ namespace VE
         createModelDescriptorPool();
         createModelDescriptorSets();
 
+        createTransparentPipeline();
+
         createPostDescriptorPool();
         createPostSampler();
         createPostDescriptorSetLayout();
@@ -806,6 +808,7 @@ namespace VE
             if (lightingUniformBufferMemory[i])
                 vkFreeMemory(device, lightingUniformBufferMemory[i], nullptr);
         }
+        destroyGraphicsPipeline(transparentPipeline);
         destroyGraphicsPipeline(modelPipeline);
 
         destroyGraphicsPipeline(shadowPipeline);

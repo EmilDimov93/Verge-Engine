@@ -135,10 +135,16 @@ namespace VE
         {
             MeshBuffer newMeshBuffer;
 
-            newMeshBuffer.vertexCount = mesh.getVertices().size();
-            newMeshBuffer.indexCount = mesh.getIndices().size();
-            createVertexBuffer(newMeshBuffer, mesh.getVertices());
-            createIndexBuffer(newMeshBuffer, mesh.getIndices());
+            const std::vector<Vertex> &vertices = mesh.getVertices();
+            const std::vector<uint32_t> &indices = mesh.getIndices();
+
+            if(!vertices.empty() && vertices[0].col.a < 1.0f)
+                newMeshBuffer.isTransparent = true;
+
+            newMeshBuffer.vertexCount = vertices.size();
+            newMeshBuffer.indexCount = indices.size();
+            createVertexBuffer(newMeshBuffer, vertices);
+            createIndexBuffer(newMeshBuffer, indices);
 
             if (!mesh.getTextureFilePath().empty())
                 newMeshBuffer.texIndex = createTexture(mesh.getTextureFilePath());
@@ -179,6 +185,7 @@ namespace VE
 
     void Renderer::removeOrphanedModel(const std::vector<ModelInstance> &modelInstances)
     {
+        vkDeviceWaitIdle(device);
         for (std::vector<ModelBuffer>::iterator it = modelBuffers.begin(); it != modelBuffers.end();)
         {
             bool hasInstance = false;

@@ -7,6 +7,7 @@
 
 #include <GLFW/glfw3.h>
 #include <array>
+#include <algorithm>
 
 namespace VE
 {
@@ -109,7 +110,7 @@ namespace VE
         vkUnmapMemory(device, lightingUniformBufferMemory[currentFrame]);
     }
 
-    void Renderer::recordMainPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat)
+    void Renderer::recordMainPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat, const glm::vec3 &cameraPosition)
     {
         const VkCommandBuffer commandBuffer = commandBuffers[currentFrame];
 
@@ -173,6 +174,36 @@ namespace VE
             .extent = swapChainExtent};
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
+        auto drawMesh = [&](const ModelInstance &instance, const MeshBuffer &meshBuffer, VkPipelineLayout pipelineLayout)
+        {
+            VkBuffer vertexBuffers[] = {meshBuffer.vertexBuffer};
+            VkDeviceSize offsets[] = {0};
+            vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+            vkCmdBindIndexBuffer(commandBuffer, meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+
+            PushData pushData;
+            pushData.model = instance.modelMat;
+            pushData.textureIndex = meshBuffer.texIndex;
+            pushData.lightStrength = instance.lightStrength;
+
+            vkCmdPushConstants(commandBuffer, modelPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushData), &pushData);
+
+            std::array<VkDescriptorSet, 2> descriptorSetGroup = {modelPipeline.descriptorSets[currentFrame], textures.descriptorSets[meshBuffer.texIndex]};
+
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, modelPipeline.layout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
+
+            vkCmdDrawIndexed(commandBuffer, meshBuffer.indexCount, 1, 0, 0, 0);
+        };
+
+        struct TransparentMesh
+        {
+            const ModelInstance *instance;
+            const MeshBuffer *meshBuffer;
+            float distanceSquared;
+        };
+        std::vector<TransparentMesh> transparentMeshes;
+
         for (const ModelInstance &instance : modelInstances)
         {
             for (const ModelBuffer &modelBuffer : modelBuffers)
@@ -181,29 +212,32 @@ namespace VE
                 {
                     for (const MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
                     {
-                        VkBuffer vertexBuffers[] = {meshBuffer.vertexBuffer};
-                        VkDeviceSize offsets[] = {0};
-                        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+                        if (meshBuffer.isTransparent)
+                        {
+                            glm::vec3 meshWorldPosition = glm::vec3(instance.modelMat[3]);
+                            float distanceSquared = glm::dot(meshWorldPosition - cameraPosition, meshWorldPosition - cameraPosition);
+                            transparentMeshes.push_back({&instance, &meshBuffer, distanceSquared});
+                            continue;
+                        }
 
-                        vkCmdBindIndexBuffer(commandBuffer, meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-
-                        PushData pushData;
-                        pushData.model = instance.modelMat;
-                        pushData.textureIndex = meshBuffer.texIndex;
-                        pushData.lightStrength = instance.lightStrength;
-
-                        vkCmdPushConstants(commandBuffer, modelPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushData), &pushData);
-
-                        std::array<VkDescriptorSet, 2> descriptorSetGroup = {modelPipeline.descriptorSets[currentFrame], textures.descriptorSets[meshBuffer.texIndex]};
-
-                        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, modelPipeline.layout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
-
-                        vkCmdDrawIndexed(commandBuffer, meshBuffer.indexCount, 1, 0, 0, 0);
+                        drawMesh(instance, meshBuffer, modelPipeline.layout);
                     }
 
                     break;
                 }
             }
+        }
+
+        if (!transparentMeshes.empty())
+        {
+            std::sort(transparentMeshes.begin(), transparentMeshes.end(),
+                [](const TransparentMesh &leftMesh, const TransparentMesh &rightMesh)
+                { return leftMesh.distanceSquared > rightMesh.distanceSquared; });
+
+            vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, transparentPipeline.pipeline);
+
+            for (const TransparentMesh &mesh : transparentMeshes)
+                drawMesh(*mesh.instance, *mesh.meshBuffer, transparentPipeline.layout);
         }
 
         vkCmdEndRendering(commandBuffer);
@@ -454,7 +488,7 @@ namespace VE
 
             recordShadowPass(sceneDrawData.models, sceneDrawData.modelInstances, lightSpaceMat);
 
-            recordMainPass(imageIndex, sceneDrawData.models, sceneDrawData.modelInstances, sceneDrawData.backgroundColor, lightSpaceMat);
+            recordMainPass(imageIndex, sceneDrawData.models, sceneDrawData.modelInstances, sceneDrawData.backgroundColor, lightSpaceMat, glm::vec3(glm::inverse(sceneDrawData.viewMat)[3]));
         }
 
         recordPostPass(imageIndex, postEffects);

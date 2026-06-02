@@ -309,6 +309,7 @@ namespace VE
         pushData.vignetteRadius = postEffects.vignetteRadius;
 
         pushData.flags = 0u;
+        pushData.flags |= postEffects.fxaa ? POST_EFFECT_FXAA_BIT : 0u;
         pushData.flags |= postEffects.dithering ? POST_EFFECT_DITHERING_BIT : 0u;
 
         vkCmdPushConstants(commandBuffer, postPipeline.layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PostPushData), &pushData);

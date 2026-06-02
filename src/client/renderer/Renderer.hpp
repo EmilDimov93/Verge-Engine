@@ -127,7 +127,8 @@ namespace VE
             uint32_t textureIndex;
         };
 
-        static constexpr uint32_t POST_EFFECT_DITHERING_BIT = 1u << 0;
+        static constexpr uint32_t POST_EFFECT_FXAA_BIT = 1u << 0;
+        static constexpr uint32_t POST_EFFECT_DITHERING_BIT = 1u << 1;
         struct PostPushData
         {
             float vignetteStrength, vignetteRadius;

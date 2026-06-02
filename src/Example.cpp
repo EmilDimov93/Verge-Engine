@@ -20,6 +20,7 @@ public:
         PostEffects effects;
         effects.vignetteStrength = 0.8f;
         effects.vignetteRadius = 0.9f;
+        effects.fxaa = true;
         effects.dithering = true;
 
         while (client.isOpen())

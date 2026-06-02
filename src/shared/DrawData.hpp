@@ -154,6 +154,7 @@ namespace VE
     {
         float vignetteStrength = 0.f;
         float vignetteRadius = 1.f;
+        float fxaa = false;
         bool dithering = false;
     };
 }

@@ -52,6 +52,8 @@ namespace VE
 
         static constexpr uint32_t TEXTURE_SAMPLER_POOL_CHUNK_SIZE = 1e3;
 
+        static constexpr char PIPELINE_CACHE_FILE_NAME[] = "pipeline_cache.bin";
+
         struct MeshBuffer
         {
             uint32_t vertexCount = 0;
@@ -151,6 +153,8 @@ namespace VE
         uint32_t graphicsQueueFamilyIndex = 0;
         uint32_t transferQueueFamilyIndex = 0;
 
+        VkPipelineCache pipelineCache = VK_NULL_HANDLE;
+
         // Pre-post images
         std::vector<ImageAttachment> prePostAttachments;
 
@@ -243,6 +247,8 @@ namespace VE
         void createShadowDepthAttachment();
 
         void createTextureDescriptorSetLayout();
+
+        void createPipelineCache();
 
         void createModelDescriptorSetLayout();
         void createModelPipeline();

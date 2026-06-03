@@ -58,9 +58,7 @@ namespace VE
         std::ifstream file(fileName, std::ios::binary | std::ios::ate);
 
         if (!file.is_open())
-        {
             return {};
-        }
 
         size_t fileSize = (size_t)file.tellg();
 

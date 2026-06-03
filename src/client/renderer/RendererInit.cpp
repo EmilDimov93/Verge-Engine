@@ -7,6 +7,8 @@
 #include "../../shared/version.hpp"
 #include "../../shared/local.hpp"
 
+#include <fstream>
+
 namespace VE
 {
     Renderer::Renderer(GLFWwindow *window, Size2 windowSize)
@@ -31,6 +33,8 @@ namespace VE
 
         createDepthAttachment();
         createShadowDepthAttachment();
+
+        createPipelineCache();
 
         createShadowPipeline();
 
@@ -265,7 +269,7 @@ namespace VE
     void Renderer::createPrePostImages()
     {
         prePostAttachments.resize(swapChainImageCount);
-        for (ImageAttachment& attachment : prePostAttachments)
+        for (ImageAttachment &attachment : prePostAttachments)
         {
             attachment.image = createImage(swapChainExtent.width, swapChainExtent.height, swapChainImageFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_SHARING_MODE_EXCLUSIVE, &attachment.memory);
 
@@ -747,11 +751,22 @@ namespace VE
         if (device != VK_NULL_HANDLE)
             vkCheck(vkDeviceWaitIdle(device), {'V', 235});
 
+        size_t pipelineCacheSize = 0;
+        vkGetPipelineCacheData(device, pipelineCache, &pipelineCacheSize, nullptr);
+        std::vector<char> outPipelineCacheData(pipelineCacheSize);
+        vkGetPipelineCacheData(device, pipelineCache, &pipelineCacheSize, outPipelineCacheData.data());
+        vkDestroyPipelineCache(device, pipelineCache, nullptr);
+        std::ofstream file(PIPELINE_CACHE_FILE_NAME, std::ios::binary | std::ios::trunc);
+        if (!file.is_open())
+            Log::add('V', 110);
+        else
+            file.write(outPipelineCacheData.data(), static_cast<std::streamsize>(pipelineCacheSize));
+
         if (textures.sampler)
             vkDestroySampler(device, textures.sampler, nullptr);
         if (textures.descriptorSetLayout)
             vkDestroyDescriptorSetLayout(device, textures.descriptorSetLayout, nullptr);
-        for(ImageAttachment& attachment : textures.attachments)
+        for (ImageAttachment &attachment : textures.attachments)
             destroyImageAttachment(attachment);
         for (VkDescriptorPool pool : textures.descriptorPools)
             if (pool)
@@ -825,7 +840,7 @@ namespace VE
         if (shadowSampler)
             vkDestroySampler(device, shadowSampler, nullptr);
 
-        for (ImageAttachment& attachment : prePostAttachments)
+        for (ImageAttachment &attachment : prePostAttachments)
             destroyImageAttachment(attachment);
 
         for (VkImageView iv : swapChainImageViews)

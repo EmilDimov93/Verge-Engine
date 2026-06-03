@@ -8,13 +8,15 @@
 namespace VE
 {
 
-    Trigger::Trigger(TriggerHandle handle, Transform transform, ModelInstanceHandle modelInstanceHandle, const TriggerTypeCreateInfo &info)
-        : handle(handle)
+    Trigger::Trigger(TriggerHandle handle, Transform transform, ModelInstanceHandle modelInstanceHandle, const TriggerTypeCreateInfo &info, const std::function<void()>& callback)
+        : handle(handle), callback_(callback)
     {
         this->modelInstanceHandle = modelInstanceHandle;
 
         if (info.hitboxShape != HITBOX_SHAPE_UNKNOWN)
+        {
             hitboxShape = info.hitboxShape;
+        }
         else
         {
             hitboxShape = HITBOX_SHAPE_PRISM;
@@ -22,7 +24,9 @@ namespace VE
         }
 
         if (info.hitboxSize > 0)
+        {
             hitboxSize = info.hitboxSize;
+        }
         else
         {
             hitboxSize = 1.0f;

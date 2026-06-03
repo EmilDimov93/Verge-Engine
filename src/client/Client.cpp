@@ -8,7 +8,7 @@
 namespace VE
 {
 
-    Client::Client(const ClientCreateInfo &info) : window(info.windowSize, info.projectName), renderer(window.getReference(), window.getSize())
+    Client::Client(const ClientCreateInfo &info) : window(info.windowSize, info.projectName), renderer(window.getReference(), window.getSize()), keybinds(0)
     {
         Input::init(window.getReference());
         Log::init(info.logOutputMode);
@@ -73,18 +73,18 @@ namespace VE
         return res;
     }
 
-    float getMaxAbsKeybindValue(const Keybind keybindArray[KEYBIND_COUNT], bool &isAxis)
+    float getMaxAbsKeybindValue(const std::vector<Keybind>& keybindArray, bool &isAxis)
     {
         float maxValue = 0.0f;
         isAxis = false;
 
-        for (int keybindIndex = 0; keybindIndex < KEYBIND_COUNT; keybindIndex++)
+        for (const Keybind& keybind : keybindArray)
         {
-            float currValue = keybindArray[keybindIndex].getValue();
+            float currValue = keybind.getValue();
             if (fabsf(currValue) > fabsf(maxValue))
             {
                 maxValue = currValue;
-                isAxis = keybindArray[keybindIndex].isAxis();
+                isAxis = keybind.isAxis();
             }
         }
 

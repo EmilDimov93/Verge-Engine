@@ -6,12 +6,12 @@
 namespace VE
 {
 
-constexpr float RADPS_TO_RPM_CONVERSION_FACTOR = 60.0f / (2.0f * PI);
+    constexpr float RADPS_TO_RPM_CONVERSION_FACTOR = 60.0f / (2.0f * PI);
 
-constexpr float SURFACE_ROLLING_COEFFICIENT = 0.015f;
+    constexpr float SURFACE_ROLLING_COEFFICIENT = 0.015f;
 
-constexpr float ENGINE_INERTIA = 0.1f;
-constexpr float ENGINE_FRICTION_COEFF = 0.0012f;
+    constexpr float ENGINE_INERTIA = 0.1f;
+    constexpr float ENGINE_FRICTION_COEFF = 0.0012f;
 
     void Vehicle::activateStarter()
     {
@@ -209,6 +209,9 @@ constexpr float ENGINE_FRICTION_COEFF = 0.0012f;
             float yawAccelerationRadps2 = yawMomentNm / yawInertiaKgM2;
 
             yawRateRadps += yawAccelerationRadps2 * (float)dt;
+
+            if (forwardSpeedMps < 0.01f)
+                yawRateRadps = 0.0f;
         }
 
         const float slope = std::atan(std::sqrt(std::tan(transform.rotation.pitch) * std::tan(transform.rotation.pitch) + std::tan(transform.rotation.roll) * std::tan(transform.rotation.roll)));

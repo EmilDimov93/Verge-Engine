@@ -192,8 +192,7 @@ namespace VE
             {
                 if (trigger.doesActorTrigger(vehicle.getTransform().position))
                 {
-                    std::cout << "Triggered: " << trigger.getHandle().getValue() << std::endl;
-                    // call callback function
+                    trigger.callback();
                     if (trigger.isAutoDestroy())
                     {
                         trigger.markForDestroy();

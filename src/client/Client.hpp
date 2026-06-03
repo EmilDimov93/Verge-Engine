@@ -11,8 +11,6 @@
 
 namespace VE
 {
-    constexpr size_t KEYBIND_COUNT = 2;
-
     struct ClientCreateInfo
     {
         std::string projectName = "Verge Engine Program";
@@ -21,25 +19,31 @@ namespace VE
         uint16_t targetFps = DEFAULT_FPS;
     };
 
-    struct VehicleKeybinds
+    class VehicleKeybinds
     {
-        Keybind throttle[KEYBIND_COUNT];
-        Keybind brake[KEYBIND_COUNT];
-        Keybind handbrake[KEYBIND_COUNT];
-        Keybind clutch[KEYBIND_COUNT];
+    public:
+        explicit VehicleKeybinds(uint32_t count)
+            : throttle(count), brake(count), handbrake(count), clutch(count), steerLeft(count), steerRight(count), shiftUp(count), shiftDown(count), startEngine(count), moveCameraLeft(count), moveCameraRight(count), moveCameraUp(count), moveCameraDown(count)
+        {
+        }
 
-        Keybind steerLeft[KEYBIND_COUNT];
-        Keybind steerRight[KEYBIND_COUNT];
+        std::vector<Keybind> throttle;
+        std::vector<Keybind> brake;
+        std::vector<Keybind> handbrake;
+        std::vector<Keybind> clutch;
 
-        Keybind shiftUp[KEYBIND_COUNT];
-        Keybind shiftDown[KEYBIND_COUNT];
+        std::vector<Keybind> steerLeft;
+        std::vector<Keybind> steerRight;
 
-        Keybind startEngine[KEYBIND_COUNT];
+        std::vector<Keybind> shiftUp;
+        std::vector<Keybind> shiftDown;
 
-        Keybind moveCameraLeft[KEYBIND_COUNT];
-        Keybind moveCameraRight[KEYBIND_COUNT];
-        Keybind moveCameraUp[KEYBIND_COUNT];
-        Keybind moveCameraDown[KEYBIND_COUNT];
+        std::vector<Keybind> startEngine;
+
+        std::vector<Keybind> moveCameraLeft;
+        std::vector<Keybind> moveCameraRight;
+        std::vector<Keybind> moveCameraUp;
+        std::vector<Keybind> moveCameraDown;
     };
 
     class Client

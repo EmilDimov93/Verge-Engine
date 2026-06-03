@@ -21,13 +21,12 @@ namespace VE
         HitboxShape hitboxShape = HITBOX_SHAPE_UNKNOWN;
         float hitboxSize = -1.0f;
         bool isAutoDestroy = false;
-        // callback function
     };
 
     class Trigger
     {
     public:
-        Trigger(TriggerHandle handle, Transform transform, ModelInstanceHandle modelInstanceHandle, const TriggerTypeCreateInfo &info);
+        Trigger(TriggerHandle handle, Transform transform, ModelInstanceHandle modelInstanceHandle, const TriggerTypeCreateInfo &info, const std::function<void()>& callback = nullptr);
 
         TriggerHandle getHandle() const;
         glm::mat4 getModelMat() const;
@@ -39,6 +38,8 @@ namespace VE
         bool isAutoDestroy() const;
         void markForDestroy();
         bool isMarkedForDestroy() const;
+
+        void callback() { if(callback_) callback_(); }
 
     private:
         TriggerHandle handle;
@@ -56,7 +57,7 @@ namespace VE
 
         glm::mat4 modelMat;
 
-        // callback function
+        std::function<void()> callback_;
     };
 
 }

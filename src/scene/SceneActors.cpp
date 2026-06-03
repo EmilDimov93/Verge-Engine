@@ -203,13 +203,13 @@ namespace VE
         return handle;
     }
 
-    TriggerHandle Scene::addTrigger(const TriggerTypeCreateInfo &info, Transform transform)
+    TriggerHandle Scene::addTrigger(const TriggerTypeCreateInfo &info, Transform transform, const std::function<void()>& callback)
     {
         TriggerHandle handle = HandleFactory<TriggerHandle>::getNewHandle();
 
         ModelInstanceHandle modelInstanceHandle = addModelInstance(info.modelHandle);
 
-        triggers.emplace_back(handle, transform, modelInstanceHandle, info);
+        triggers.emplace_back(handle, transform, modelInstanceHandle, info, callback);
 
         setModelMat(modelInstanceHandle, triggers.back().getModelMat());
 

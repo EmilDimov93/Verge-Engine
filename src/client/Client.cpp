@@ -43,7 +43,7 @@ namespace VE
 
         Position2 mousePos = Input::getMousePos();
         Size2 windowSize = window.getSize();
-        ui.tick(Input::isPressed(MOUSE_BTN_LEFT), Position2(2 * mousePos.x / windowSize.w - 1, 2 * mousePos.y / windowSize.h - 1));
+        ui.tick(Input::isPressed(MOUSE_BTN_LEFT), mousePos, window.getSize());
 
         fps.sync();
     }

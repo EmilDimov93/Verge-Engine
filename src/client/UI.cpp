@@ -11,13 +11,13 @@
 
 namespace VE
 {
-    void UI::tick(bool mouseBtnClicked, Position2 mousePos)
+    void UI::tick(bool mouseBtnClicked, Position2 mousePos, Size2 windowSize)
     {
         if (!mouseBtnClicked)
             return;
 
         for (const auto &[handle, callback] : callbacks)
-            if (checkCursorCollision(handle, mousePos))
+            if (checkCursorCollision(handle, mousePos, windowSize))
                 callback();
     }
 
@@ -52,7 +52,7 @@ namespace VE
         return newWidgetHandle;
     }
 
-    WidgetInstanceHandle UI::addWidgetInstance(WidgetHandle widgetHandle, glm::vec2 coords, const std::function<void()> &callback)
+    WidgetInstanceHandle UI::addWidgetInstance(WidgetHandle widgetHandle, glm::vec2 coords, float uniformScale, const std::function<void()> &callback)
     {
         if (widgetHandle == INVALID_WIDGET_HANDLE)
             Log::add('W', 200);
@@ -72,7 +72,7 @@ namespace VE
 
         WidgetInstanceHandle newHandle = HandleFactory<WidgetInstanceHandle>::getNewHandle();
 
-        widgetInstances.emplace_back(newHandle, widgetHandle, glm::translate(glm::mat4(1.f), glm::vec3(coords.x, coords.y, 0.0f)));
+        widgetInstances.emplace_back(newHandle, widgetHandle, coords, uniformScale);
 
         if (callback)
             callbacks.insert(std::make_pair(newHandle, callback));
@@ -89,7 +89,7 @@ namespace VE
             callbacks.emplace(handle, std::move(callback));
     }
 
-    bool UI::checkCursorCollision(WidgetInstanceHandle handle, Position2 mousePos) const
+    bool UI::checkCursorCollision(WidgetInstanceHandle handle, Position2 mousePos, Size2 windowSize) const
     {
         const WidgetInstance *foundInstance = nullptr;
         for (const WidgetInstance &instance : widgetInstances)
@@ -111,6 +111,11 @@ namespace VE
             }
         }
 
+        if (!foundInstance || !foundWidget)
+            return false;
+
+        glm::mat4 model = Transform(Position3((foundInstance->coords.x + 1) / 2 * windowSize.w, (foundInstance->coords.y + 1) / 2 * windowSize.h, 0.f), Rotation3(), Scale3(foundInstance->uniformScale)).toMat();
+
         for (const Mesh &mesh : foundWidget->getMeshes())
         {
             const std::vector<Vertex> &vertices = mesh.getVertices();
@@ -121,7 +126,7 @@ namespace VE
 
             for (const uint32_t &index : indices)
             {
-                triangle[counter] = glm::vec2(foundInstance->modelMat * glm::vec4(vertices[index].pos.x, vertices[index].pos.y, 0.0f, 1.0f));
+                triangle[counter] = glm::vec2(model * glm::vec4(vertices[index].pos.x, vertices[index].pos.y, 0.0f, 1.0f));
 
                 if (counter == 2)
                 {

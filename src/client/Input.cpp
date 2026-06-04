@@ -77,7 +77,10 @@ namespace VE
             }
         }
 
-        glfwGetCursorPos(window, &mousePosition.x, &mousePosition.y);
+        double cursorX, cursorY;
+        glfwGetCursorPos(window, &cursorX, &cursorY);
+        mousePosition.x = static_cast<float>(cursorX);
+        mousePosition.y = static_cast<float>(cursorY);
 
         controllerConnected = glfwJoystickPresent(controllerId);
 

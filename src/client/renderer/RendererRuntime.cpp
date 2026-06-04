@@ -324,7 +324,7 @@ namespace VE
     void Renderer::updateUIUniformBuffers(uint32_t currentFrame)
     {
         UboUI uboUI;
-        uboUI.orthographicProj = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f);
+        uboUI.orthographicProj = glm::ortho(0.f, (float)swapChainExtent.width, 0.f, (float)swapChainExtent.height);
 
         void *uiData;
         vkCheck(vkMapMemory(device, uiUniformBuffersMemory[currentFrame], 0, sizeof(UboUI), 0, &uiData), {'V', 236});
@@ -402,9 +402,7 @@ namespace VE
                         vkCmdBindIndexBuffer(commandBuffer, meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
                         UIPushData pushData;
-                        pushData.model = instance.modelMat;
-                        const float aspect = (float)swapChainExtent.width / (float)swapChainExtent.height;
-                        pushData.model = glm::scale(pushData.model, glm::vec3(1.0f / aspect, 1.0f, 1.0f));
+                        pushData.model = Transform(Position3((instance.coords.x + 1) / 2 * swapChainExtent.width, (instance.coords.y + 1) / 2 * swapChainExtent.height, 0.f), Rotation3(), Scale3(instance.uniformScale)).toMat();
 
                         pushData.textureIndex = meshBuffer.texIndex;
                         pushData.model[1][1] *= -1;

@@ -76,7 +76,7 @@ private:
         effects.dithering = true;
         client.bindPostEffects(effects);
 
-        client.ui.addWidgetInstance(client.ui.addWidget("models/button.obj"), {-0.85f, -0.85f}, [](){ std::cout << "Button Clicked!" << std::endl; });
+        client.ui.addWidgetInstance(client.ui.addWidget("models/button.obj"), {-0.85f, -0.85f}, 500.f, [](){ std::cout << "Button Clicked!" << std::endl; });
     }
 
     void setupScene()

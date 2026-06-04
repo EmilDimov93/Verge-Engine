@@ -83,13 +83,6 @@ namespace VE
         constexpr Size2(uint32_t width = 0, uint32_t height = 0) : w(width), h(height) {}
     };
 
-    struct Size3
-    {
-        uint32_t w, h, d;
-
-        constexpr Size3(uint32_t width = 0, uint32_t height = 0, uint32_t depth = 0) : w(width), h(height), d(depth) {}
-    };
-
     struct Position2
     {
         double x, y;
@@ -115,7 +108,8 @@ namespace VE
     {
         double x, y, z;
 
-        constexpr Scale3(double x_val = 1.0, double y_val = 1.0, double z_val = 1.0) : x(x_val), y(y_val), z(z_val) {}
+        constexpr Scale3(double x_val, double y_val, double z_val) : x(x_val), y(y_val), z(z_val) {}
+        constexpr Scale3(double uniform_val = 1.0) : x(uniform_val), y(uniform_val), z(uniform_val) {}
     };
 
     struct Transform

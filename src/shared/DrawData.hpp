@@ -106,10 +106,12 @@ namespace VE
 
         WidgetHandle widgetHandle;
 
-        glm::mat4 modelMat;
+        glm::vec2 coords;
 
-        WidgetInstance(WidgetInstanceHandle handle, WidgetHandle widgetHandle, glm::mat4 modelMat)
-            : handle(handle), widgetHandle(widgetHandle), modelMat(modelMat) {}
+        float uniformScale;
+
+        WidgetInstance(WidgetInstanceHandle handle, WidgetHandle widgetHandle, glm::vec2 coords, float uniformScale)
+            : handle(handle), widgetHandle(widgetHandle), coords(coords), uniformScale(uniformScale) {}
     };
 
     struct SceneDrawData

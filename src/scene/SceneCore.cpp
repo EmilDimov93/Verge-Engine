@@ -82,6 +82,10 @@ namespace VE
     {
         this->dt = dt;
 
+        static constexpr double maxDeltaTime = 0.25;
+        if (dt > maxDeltaTime)
+            return;
+
         vehicleRemovedThisFrame = false;
         modelRemovedThisFrame = false;
 
@@ -142,7 +146,6 @@ namespace VE
                 setModelMat(vehicle.getWheelModelInstanceHandle(static_cast<Wheel>(i)), vehicle.getWheelMat(static_cast<Wheel>(i)));
         }
 
-        // Audio
         {
             oneShotAudioRequests.clear();
 
@@ -186,31 +189,33 @@ namespace VE
             }
         }
 
-        for (Trigger &trigger : triggers)
         {
-            for (Vehicle &vehicle : vehicles)
+            for (Trigger &trigger : triggers)
             {
-                if (trigger.doesActorTrigger(vehicle.getTransform().position))
+                for (Vehicle &vehicle : vehicles)
                 {
-                    trigger.callback();
-                    if (trigger.isAutoDestroy())
+                    if (trigger.doesActorTrigger(vehicle.getTransform().position))
                     {
-                        trigger.markForDestroy();
-                        break;
+                        trigger.callback();
+                        if (trigger.isAutoDestroy())
+                        {
+                            trigger.markForDestroy();
+                            break;
+                        }
                     }
                 }
             }
-        }
 
-        std::vector<TriggerHandle> markedHandles;
-        for (const auto &trigger : triggers)
-        {
-            if (trigger.isMarkedForDestroy())
-                markedHandles.push_back(trigger.getHandle());
-        }
+            std::vector<TriggerHandle> markedHandles;
+            for (const auto &trigger : triggers)
+            {
+                if (trigger.isMarkedForDestroy())
+                    markedHandles.push_back(trigger.getHandle());
+            }
 
-        for (const auto &handle : markedHandles)
-            removeTrigger(handle);
+            for (const auto &handle : markedHandles)
+                removeTrigger(handle);
+        }
     }
 
     ModelHandle Scene::addModel(const std::string &filePath)
@@ -227,7 +232,7 @@ namespace VE
 
         std::vector<Mesh> meshes = loadOBJ(filePath);
 
-        if(meshes.empty())
+        if (meshes.empty())
         {
             Log::add('E', 102);
             return INVALID_MODEL_HANDLE;

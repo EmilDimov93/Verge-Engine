@@ -109,8 +109,8 @@ namespace VE
 
                     float gain = volumeToGain(volume) * attenuation(distance);
 
-                    float fx = cosf(audioData.playerYawRad);
-                    float fz = sinf(audioData.playerYawRad);
+                    float fx = sinf(audioData.playerYawRad);
+                    float fz = cosf(audioData.playerYawRad);
 
                     float cross = fx * dz - fz * dx;
 
@@ -209,8 +209,8 @@ namespace VE
 
                     ma_sound_set_volume(&audio.sound, gain);
 
-                    float fx = cosf(audioData.playerYawRad);
-                    float fz = sinf(audioData.playerYawRad);
+                    float fx = sinf(audioData.playerYawRad);
+                    float fz = cosf(audioData.playerYawRad);
 
                     float cross = fx * dz - fz * dx;
 
@@ -247,8 +247,8 @@ namespace VE
 
                     ma_sound_set_volume(&audio.sound, req.pitch == 0 ? 0 : gain); // If req.pitch == 0 => Engine RPM = 0
 
-                    float fx = cosf(audioData.playerYawRad);
-                    float fz = sinf(audioData.playerYawRad);
+                    float fx = sinf(audioData.playerYawRad);
+                    float fz = cosf(audioData.playerYawRad);
 
                     float cross = fx * dz - fz * dx;
 

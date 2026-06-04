@@ -87,6 +87,18 @@ namespace VE
         }
     }
 
+    float calcPan(float playerYawRad, glm::vec3 posDelta)
+    {
+        float fx = sinf(playerYawRad);
+        float fz = cosf(playerYawRad);
+
+        float cross = fx * posDelta.z - fz * posDelta.x;
+
+        float distanceXZ = std::sqrt(posDelta.x * posDelta.x + posDelta.z * posDelta.z);
+        float pan = (distanceXZ > 1e-3f) ? (cross / distanceXZ) : 0.0f;
+        return clamp(pan, -1.0f, 1.0f);
+    }
+
     void AudioManager::tick(const AudioData &audioData, float volume)
     {
         if (audioData.vehicleRemovedThisFrame)
@@ -101,22 +113,13 @@ namespace VE
                 {
                     foundAudio = true;
 
-                    float dx = req.position.x - audioData.playerPosition.x;
-                    float dy = req.position.y - audioData.playerPosition.y;
-                    float dz = req.position.z - audioData.playerPosition.z;
+                    glm::vec3 delta = req.position - audioData.playerPosition;
 
-                    float distance = std::sqrt(dx * dx + dy * dy + dz * dz);
+                    float distance = glm::length(delta);
 
                     float gain = volumeToGain(volume) * attenuation(distance);
 
-                    float fx = sinf(audioData.playerYawRad);
-                    float fz = cosf(audioData.playerYawRad);
-
-                    float cross = fx * dz - fz * dx;
-
-                    float distanceXZ = std::sqrt(dx * dx + dz * dz);
-                    float pan = (distanceXZ > 1e-3f) ? (cross / distanceXZ) : 0.0f;
-                    pan = clamp(pan, -1.0f, 1.0f);
+                    float pan = calcPan(audioData.playerYawRad, delta);
 
                     for (EngineAudioFile &file : audio.audioFiles)
                     {
@@ -199,26 +202,15 @@ namespace VE
             {
                 if (audio.is3D)
                 {
-                    float dx = audio.position.x - audioData.playerPosition.x;
-                    float dy = audio.position.y - audioData.playerPosition.y;
-                    float dz = audio.position.z - audioData.playerPosition.z;
+                    glm::vec3 delta = audio.position - audioData.playerPosition;
 
-                    float distance = std::sqrt(dx * dx + dy * dy + dz * dz);
+                    float distance = glm::length(delta);
 
                     float gain = volumeToGain(volume) * attenuation(distance);
 
                     ma_sound_set_volume(&audio.sound, gain);
 
-                    float fx = sinf(audioData.playerYawRad);
-                    float fz = cosf(audioData.playerYawRad);
-
-                    float cross = fx * dz - fz * dx;
-
-                    float distanceXZ = std::sqrt(dx * dx + dz * dz);
-                    float pan = (distanceXZ > 1e-3f) ? (cross / distanceXZ) : 0.0f;
-                    pan = clamp(pan, -1.0f, 1.0f);
-
-                    ma_sound_set_pan(&audio.sound, pan);
+                    ma_sound_set_pan(&audio.sound, calcPan(audioData.playerYawRad, delta));
                 }
 
                 ++iterator;
@@ -237,26 +229,15 @@ namespace VE
                     // Temporary: hardcoded base pitch offset
                     ma_sound_set_pitch(&audio.sound, 0.5f + req.pitch);
 
-                    float dx = req.position.x - audioData.playerPosition.x;
-                    float dy = req.position.y - audioData.playerPosition.y;
-                    float dz = req.position.z - audioData.playerPosition.z;
+                    glm::vec3 delta = req.position - audioData.playerPosition;
 
-                    float distance = std::sqrt(dx * dx + dy * dy + dz * dz);
+                    float distance = glm::length(delta);
 
                     float gain = volumeToGain(volume) * attenuation(distance);
 
                     ma_sound_set_volume(&audio.sound, req.pitch == 0 ? 0 : gain); // If req.pitch == 0 => Engine RPM = 0
 
-                    float fx = sinf(audioData.playerYawRad);
-                    float fz = cosf(audioData.playerYawRad);
-
-                    float cross = fx * dz - fz * dx;
-
-                    float distanceXZ = std::sqrt(dx * dx + dz * dz);
-                    float pan = (distanceXZ > 1e-3f) ? (cross / distanceXZ) : 0.0f;
-                    pan = clamp(pan, -1.0f, 1.0f);
-
-                    ma_sound_set_pan(&audio.sound, pan);
+                    ma_sound_set_pan(&audio.sound, calcPan(audioData.playerYawRad, delta));
 
                     break;
                 }

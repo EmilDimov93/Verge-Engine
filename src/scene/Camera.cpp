@@ -10,10 +10,7 @@ namespace VE
 
     glm::mat4 Camera::getViewMat() const
     {
-        glm::vec3 forward;
-        forward.x = cos(rotation.pitch) * sin(rotation.yaw);
-        forward.y = -sin(rotation.pitch);
-        forward.z = cos(rotation.pitch) * cos(rotation.yaw);
+        glm::vec3 forward(cos(rotation.pitch) * sin(rotation.yaw), -sin(rotation.pitch), cos(rotation.pitch) * cos(rotation.yaw));
         forward = glm::normalize(forward);
 
         glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0.0f, 1.0f, 0.0f)));

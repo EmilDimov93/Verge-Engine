@@ -56,12 +56,10 @@ namespace VE
         }
         case HITBOX_SHAPE_SPHERE:
         {
-            float dx = actorPos.x - triggerPos.x;
-            float dy = actorPos.y - triggerPos.y;
-            float dz = actorPos.z - triggerPos.z;
+            glm::vec3 delta = actorPos - triggerPos;
             float radius = hitboxSize / 2;
 
-            if (dx * dx + dy * dy + dz * dz <= radius * radius)
+            if (glm::length(delta) <= radius * radius)
                 return true;
 
             break;

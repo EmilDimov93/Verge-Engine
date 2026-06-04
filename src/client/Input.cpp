@@ -11,7 +11,7 @@ namespace VE
     KeyState Input::mouseBtnStates[MOUSE_BTN_COUNT] = {};
     KeyState Input::keyStates[KEY_COUNT] = {};
 
-    Position2 Input::mousePosition = {0, 0};
+    Position2 Input::mousePosition{0};
 
     int Input::controllerId = GLFW_JOYSTICK_1;
     bool Input::controllerConnected = false;

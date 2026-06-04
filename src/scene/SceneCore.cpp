@@ -243,7 +243,7 @@ namespace VE
         float highest = 0;
         if (surfaces.size() == 0)
         {
-            return FLOAT_MIN; // No surface
+            return FLOAT_MIN;
         }
         else
         {
@@ -293,10 +293,6 @@ namespace VE
 
         return surfaceTypes[surfaces[highestIndex].sampleSurfaceTypeIndex(point)];
     }
-
-    float Scene::sampleHeightAt(const glm::vec3 &pos) const { return sampleHeightAt(Position3(pos.x, pos.y, pos.z)); }
-
-    const SurfaceType &Scene::sampleSurfaceTypeAt(const glm::vec3 &pos) const { return sampleSurfaceTypeAt(Position3(pos.x, pos.y, pos.z)); }
 
     void Scene::setAirDensity(float airDensityKgpm3)
     {

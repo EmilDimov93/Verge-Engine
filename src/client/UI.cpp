@@ -135,9 +135,9 @@ namespace VE
                         return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
                     };
 
-                    float d1 = edgeSign({mousePos.x, mousePos.y}, triangle[0], triangle[1]);
-                    float d2 = edgeSign({mousePos.x, mousePos.y}, triangle[1], triangle[2]);
-                    float d3 = edgeSign({mousePos.x, mousePos.y}, triangle[2], triangle[0]);
+                    float d1 = edgeSign(mousePos, triangle[0], triangle[1]);
+                    float d2 = edgeSign(mousePos, triangle[1], triangle[2]);
+                    float d3 = edgeSign(mousePos, triangle[2], triangle[0]);
 
                     bool has_neg = (d1 < 0.0f) || (d2 < 0.0f) || (d3 < 0.0f);
                     bool has_pos = (d1 > 0.0f) || (d2 > 0.0f) || (d3 > 0.0f);

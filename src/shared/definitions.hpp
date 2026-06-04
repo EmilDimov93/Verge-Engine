@@ -76,25 +76,14 @@ namespace VE
     using milliseconds_t = double;
     using color_t = glm::vec4;
 
+    using Position2 = glm::vec2;
+    using Position3 = glm::vec3;
+
     struct Size2
     {
         uint32_t w, h;
 
         constexpr Size2(uint32_t width = 0, uint32_t height = 0) : w(width), h(height) {}
-    };
-
-    struct Position2
-    {
-        double x, y;
-
-        constexpr Position2(double x_val = 0.0, double y_val = 0.0) : x(x_val), y(y_val) {}
-    };
-
-    struct Position3
-    {
-        double x, y, z;
-
-        constexpr Position3(double x_val = 0.0, double y_val = 0.0, double z_val = 0.0) : x(x_val), y(y_val), z(z_val) {}
     };
 
     struct Rotation3
@@ -124,7 +113,7 @@ namespace VE
         {
             glm::mat4 mat(1.0f);
 
-            mat = glm::translate(mat, glm::vec3(static_cast<float>(position.x), static_cast<float>(position.y), static_cast<float>(position.z)));
+            mat = glm::translate(mat, position);
 
             mat = glm::rotate(mat, static_cast<float>(rotation.pitch), glm::vec3(1.0f, 0.0f, 0.0f));
             mat = glm::rotate(mat, static_cast<float>(rotation.yaw), glm::vec3(0.0f, 1.0f, 0.0f));

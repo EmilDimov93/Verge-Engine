@@ -37,7 +37,7 @@ namespace VE
         ModelHandle bodyModelHandle = INVALID_MODEL_HANDLE;
         ModelHandle wheelModelHandle = INVALID_MODEL_HANDLE;
 
-        Position3 wheelOffset = {0, 0, 0};
+        Position3 wheelOffset{0};
 
         uint32_t peakTorqueNm = 300;
 
@@ -86,12 +86,10 @@ namespace VE
         static constexpr size_t CollisionPointCount = 4;
         std::array<glm::vec3, CollisionPointCount> collisionPoints;
 
-        glm::mat4 transformMat;
-
         glm::vec3 getCollisionPointWorld(uint32_t index)
         {
             assert(index < collisionPoints.size());
-            return transformMat * glm::vec4(collisionPoints[index], 1.0f);
+            return bodyMat * glm::vec4(collisionPoints[index], 1.0f);
         }
 
         glm::vec3 getCollisionPointLocal(uint32_t index)

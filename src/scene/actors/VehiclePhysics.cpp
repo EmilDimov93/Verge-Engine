@@ -240,7 +240,6 @@ namespace VE
         float speedFactor = 1.0f / (1.0f + linearAttenuationCoefficient * forwardSpeedMps + quadraticAttenuationCoefficient * forwardSpeedMps * forwardSpeedMps);
         speedFactor = clamp(speedFactor, 0.15f, 1.0f);
 
-        // Temporary: disabled speed factor
         speedFactor = 1.0f;
 
         steeringAngleRad = vis.steer * maxSteeringAngleRad * speedFactor;

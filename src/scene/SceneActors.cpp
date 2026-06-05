@@ -18,7 +18,7 @@ namespace VE
             {
                 if (player->getHandle() == playerHandle)
                 {
-                    SceneDrawData drawData(models, modelInstances, player->getCameraViewMat(), environment.backgroundColor, modelRemovedThisFrame);
+                    SceneDrawData drawData(models, modelInstances, player->getCameraViewMat(), environment.backgroundColor, environment.outdoorBrightness, modelRemovedThisFrame);
                     return drawData;
                 }
             }

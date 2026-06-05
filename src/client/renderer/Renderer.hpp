@@ -101,8 +101,9 @@ namespace VE
         struct UboLighting
         {
             glm::vec4 lightPos;
-            glm::vec3 lightColor;
+            glm::vec4 lightColor;
             glm::vec4 viewPos;
+            float outdoorBrightness;
         };
 
         struct UboUI
@@ -276,7 +277,7 @@ namespace VE
 
         // Runtime
         void recordShadowPass(const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, const glm::mat4 &lightSpaceMat);
-        void updateModelUniformBuffers(uint32_t currentFrame, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat);
+        void updateModelUniformBuffers(uint32_t currentFrame, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat, float outdoorBrightness);
         void recordMainPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat, const glm::vec3 &cameraPosition);
         void recordPostPass(uint32_t currentImage, const PostEffects& postEffects);
         void updateUIUniformBuffers(uint32_t currentFrame);

@@ -10,8 +10,9 @@ layout(location = 6) in vec4 fragPosLightSpace;
 
 layout(set = 0, binding = 1) uniform UboLighting {
     vec4 lightPos;
-    vec3 lightColor;
+    vec4 lightColor;
     vec4 viewPos;
+    float outdoorBrightness;
 } uboLighting;
 
 layout(set = 1, binding = 0) uniform sampler2D textureSampler;
@@ -32,7 +33,7 @@ void main(){
     vec4 base = (fragTextureIndex == 0) ? fragCol : texture(textureSampler, fragTex);
 
     if (fragLightStrength > 0.0) {
-        outColor = vec4(uboLighting.lightColor, 1.0);
+        outColor = uboLighting.lightColor;
         return;
     }
 
@@ -51,9 +52,9 @@ void main(){
 
     float intensity = uboLighting.lightPos.w;
     vec3 baseRgb = base.rgb;
-    vec3 ambient = baseRgb * 0.3;
-    vec3 diffuse = baseRgb * uboLighting.lightColor * diff * intensity * 0.5;
-    vec3 specular = uboLighting.lightColor * spec * intensity * 0.3;
+    vec3 ambient = baseRgb * mix(0.02, 0.3, uboLighting.outdoorBrightness);
+    vec3 diffuse = baseRgb * uboLighting.lightColor.rgb * diff * intensity * 0.5;
+    vec3 specular = uboLighting.lightColor.rgb * spec * intensity * 0.3;
     vec3 color = ambient + (diffuse + specular) * (1.0 - calcShadow(fragPosLightSpace));
     outColor = vec4(color, base.a);
 }

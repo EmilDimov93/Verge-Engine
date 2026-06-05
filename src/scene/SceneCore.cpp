@@ -314,6 +314,11 @@ namespace VE
         environment.backgroundColor = backgroundColor;
     }
 
+    void Scene::setOutdoorBrightness(float outdoorBrightness)
+    {
+        environment.outdoorBrightness = outdoorBrightness;
+    }
+
     void Scene::playAudio(std::string fileName, float pitch)
     {
         oneShotAudioRequests.emplace_back(AudioRequest{fileName, pitch, false, {}});

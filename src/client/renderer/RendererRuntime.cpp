@@ -87,7 +87,7 @@ namespace VE
         vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
     }
 
-    void Renderer::updateModelUniformBuffers(uint32_t currentFrame, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat)
+    void Renderer::updateModelUniformBuffers(uint32_t currentFrame, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat, float outdoorBrightness)
     {
         UboCamera uboCamera;
         uboCamera.projection = projectionMat;
@@ -101,8 +101,9 @@ namespace VE
 
         UboLighting uboLighting;
         uboLighting.lightPos = lightPos;
-        uboLighting.lightColor = lightColor;
+        uboLighting.lightColor = glm::vec4(lightColor, 1.0f);
         uboLighting.viewPos = glm::inverse(viewMat)[3];
+        uboLighting.outdoorBrightness = outdoorBrightness;
 
         void *lightingData;
         vkCheck(vkMapMemory(device, lightingUniformBufferMemory[currentFrame], 0, sizeof(UboLighting), 0, &lightingData), {'V', 236});
@@ -478,7 +479,7 @@ namespace VE
         glm::mat4 lightProjection = glm::orthoZO(-50.f, 50.f, -50.f, 50.f, 1.f, 200.f);
         glm::mat4 lightSpaceMat = lightProjection * lightView;
 
-        updateModelUniformBuffers(currentFrame, projectionMat, sceneDrawData.viewMat, lightPos, lightColor, lightSpaceMat);
+        updateModelUniformBuffers(currentFrame, projectionMat, sceneDrawData.viewMat, lightPos, lightColor, lightSpaceMat, sceneDrawData.outdoorBrightness);
         updateUIUniformBuffers(currentFrame);
 
         const VkCommandBuffer commandBuffer = commandBuffers[currentFrame];

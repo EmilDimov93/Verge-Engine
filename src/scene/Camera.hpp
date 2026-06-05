@@ -20,8 +20,8 @@ namespace VE
         Rotation3 getRotation() const;
 
     private:
-        Position3 position;
-        Rotation3 rotation;
+        Position3 position{};
+        Rotation3 rotation{};
     };
 
 }

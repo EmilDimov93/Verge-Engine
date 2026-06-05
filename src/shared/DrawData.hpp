@@ -123,14 +123,17 @@ namespace VE
 
         const color_t backgroundColor;
 
+        const float outdoorBrightness;
+
         const bool modelRemovedThisFrame;
 
         SceneDrawData(const std::vector<Model> &models,
                       const std::vector<ModelInstance> &modelInstances,
                       const glm::mat4 viewMat,
                       const color_t backgroundColor,
+                      const float outdoorBrightness,
                       const bool modelRemovedThisFrame)
-            : models(models), modelInstances(modelInstances), viewMat(viewMat), backgroundColor(backgroundColor), modelRemovedThisFrame(modelRemovedThisFrame) {}
+            : models(models), modelInstances(modelInstances), viewMat(viewMat), backgroundColor(backgroundColor), outdoorBrightness(outdoorBrightness), modelRemovedThisFrame(modelRemovedThisFrame) {}
     };
 
     struct UIDrawData

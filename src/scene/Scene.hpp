@@ -52,6 +52,7 @@ namespace VE
         void setAirDensity(float airDensity);
         void setGravity(float gravity);
         void setBackgroundColor(color_t backgroundColor);
+        void setOutdoorBrightness(float outdoorBrightness);
 
         void playAudio(std::string fileName, float pitch);
         void playAudio3D(std::string fileName, float pitch, Position3 position);

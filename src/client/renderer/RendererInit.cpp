@@ -379,6 +379,8 @@ namespace VE
 
     void Renderer::createCommandBuffers()
     {
+        std::array<VkCommandBuffer, FRAMES_IN_FLIGHT> commandBuffers;
+
         VkCommandBufferAllocateInfo commandBufferAllocInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
             .commandPool = commandPool,
@@ -386,6 +388,9 @@ namespace VE
             .commandBufferCount = static_cast<uint32_t>(commandBuffers.size())};
 
         vkCheck(vkAllocateCommandBuffers(device, &commandBufferAllocInfo, commandBuffers.data()), {'V', 212});
+
+        for(uint32_t i = 0; i < FRAMES_IN_FLIGHT; i++)
+            frames[i].commandBuffer = commandBuffers[i];
     }
 
     void Renderer::createSemaphores()
@@ -399,8 +404,8 @@ namespace VE
             .flags = VK_FENCE_CREATE_SIGNALED_BIT};
         for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
-            vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &imageAvailableSemaphores[i]), {'V', 215});
-            vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &drawFences[i]), {'V', 216});
+            vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &frames[i].imageAvailableSemaphore), {'V', 215});
+            vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &frames[i].drawFence), {'V', 216});
         }
 
         for (size_t i = 0; i < swapChainImageCount; i++)
@@ -780,12 +785,12 @@ namespace VE
             for (MeshBuffer &meshBuffer : widgetBuffer.meshBuffers)
                 destroyMeshBuffer(meshBuffer);
 
-        for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
+        for (FrameData &frame : frames)
         {
-            if (imageAvailableSemaphores[i])
-                vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
-            if (drawFences[i])
-                vkDestroyFence(device, drawFences[i], nullptr);
+            if (frame.imageAvailableSemaphore)
+                vkDestroySemaphore(device, frame.imageAvailableSemaphore, nullptr);
+            if (frame.drawFence)
+                vkDestroyFence(device, frame.drawFence, nullptr);
         }
         for (size_t i = 0; i < swapChainImageCount; i++)
             if (renderFinishedSemaphores[i])

@@ -130,6 +130,15 @@ namespace VE
             uint32_t textureIndex;
         };
 
+        struct FrameData
+        {
+            VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
+            VkFence drawFence = VK_NULL_HANDLE;
+
+            VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+        };
+        std::array<FrameData, FRAMES_IN_FLIGHT> frames;
+
         static constexpr uint32_t POST_EFFECT_FXAA_BIT = 1u << 0;
         static constexpr uint32_t POST_EFFECT_DITHERING_BIT = 1u << 1;
         struct PostPushData
@@ -169,7 +178,6 @@ namespace VE
 
         // Runtime
         VkCommandPool commandPool = VK_NULL_HANDLE;
-        std::array<VkCommandBuffer, FRAMES_IN_FLIGHT> commandBuffers;
 
         uint32_t currentFrame = 0;
         bool framebufferResized = false;
@@ -219,9 +227,7 @@ namespace VE
         }textures;
 
         // Synchronization
-        std::array<VkSemaphore, FRAMES_IN_FLIGHT> imageAvailableSemaphores;
         std::vector<VkSemaphore> renderFinishedSemaphores;
-        std::array<VkFence, FRAMES_IN_FLIGHT> drawFences;
 
         std::mutex graphicsQueueMutex;
         mutable std::mutex transferQueueMutex;

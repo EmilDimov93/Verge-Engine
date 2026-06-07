@@ -13,7 +13,7 @@ namespace VE
 {
     void Renderer::recordShadowPass(const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, const glm::mat4 &lightSpaceMat)
     {
-        const VkCommandBuffer commandBuffer = commandBuffers[currentFrame];
+        const VkCommandBuffer commandBuffer = frames[currentFrame].commandBuffer;
 
         VkImageMemoryBarrier imageMemoryBarrier{};
         imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -113,7 +113,7 @@ namespace VE
 
     void Renderer::recordMainPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat, const glm::vec3 &cameraPosition)
     {
-        const VkCommandBuffer commandBuffer = commandBuffers[currentFrame];
+        const VkCommandBuffer commandBuffer = frames[currentFrame].commandBuffer;
 
         VkImageMemoryBarrier imageMemoryBarrier{};
         imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -253,7 +253,7 @@ namespace VE
 
     void Renderer::recordPostPass(uint32_t currentImage, const PostEffects &postEffects)
     {
-        const VkCommandBuffer commandBuffer = commandBuffers[currentFrame];
+        const VkCommandBuffer commandBuffer = frames[currentFrame].commandBuffer;
 
         VkImageMemoryBarrier imageMemoryBarrier{};
         imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -335,7 +335,7 @@ namespace VE
 
     void Renderer::recordUIPass(uint32_t currentImage, const std::vector<Widget> &widgets, const std::vector<WidgetInstance> &widgetInstances)
     {
-        const VkCommandBuffer commandBuffer = commandBuffers[currentFrame];
+        const VkCommandBuffer commandBuffer = frames[currentFrame].commandBuffer;
 
         VkImageMemoryBarrier imageMemoryBarrier{};
         imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -434,10 +434,10 @@ namespace VE
 
     void Renderer::drawFrame(const SceneDrawData &sceneDrawData, const UIDrawData &uiDrawData, const glm::mat4 projectionMat, const PostEffects &postEffects)
     {
-        vkCheck(vkWaitForFences(device, 1, &drawFences[currentFrame], VK_TRUE, UINT64_MAX), {'V', 231});
+        vkCheck(vkWaitForFences(device, 1, &frames[currentFrame].drawFence, VK_TRUE, UINT64_MAX), {'V', 231});
 
         uint32_t imageIndex;
-        VkResult imageResult = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+        VkResult imageResult = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, frames[currentFrame].imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
         if (imageResult == VK_ERROR_OUT_OF_DATE_KHR)
         {
@@ -450,7 +450,7 @@ namespace VE
             Log::add('V', 230);
         }
 
-        vkCheck(vkResetFences(device, 1, &drawFences[currentFrame]), {'V', 232});
+        vkCheck(vkResetFences(device, 1, &frames[currentFrame].drawFence), {'V', 232});
 
         if (sceneDrawData.modelRemovedThisFrame)
         {
@@ -482,7 +482,7 @@ namespace VE
         updateModelUniformBuffers(currentFrame, projectionMat, sceneDrawData.viewMat, lightPos, lightColor, lightSpaceMat, sceneDrawData.outdoorBrightness);
         updateUIUniformBuffers(currentFrame);
 
-        const VkCommandBuffer commandBuffer = commandBuffers[currentFrame];
+        const VkCommandBuffer commandBuffer = frames[currentFrame].commandBuffer;
 
         VkCommandBufferBeginInfo commandBufferBeginInfo{};
         commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -514,7 +514,7 @@ namespace VE
         VkSubmitInfo submitInfo = {
             .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
             .waitSemaphoreCount = 1,
-            .pWaitSemaphores = &imageAvailableSemaphores[currentFrame],
+            .pWaitSemaphores = &frames[currentFrame].imageAvailableSemaphore,
             .pWaitDstStageMask = &waitStage,
             .commandBufferCount = 1,
             .pCommandBuffers = &commandBuffer,
@@ -523,7 +523,7 @@ namespace VE
 
         {
             std::lock_guard<std::mutex> lock(graphicsQueueMutex);
-            vkCheck(vkQueueSubmit(graphicsQueue, 1, &submitInfo, drawFences[currentFrame]), {'V', 233});
+            vkCheck(vkQueueSubmit(graphicsQueue, 1, &submitInfo, frames[currentFrame].drawFence), {'V', 233});
         }
 
         VkPresentInfoKHR presentInfo = {

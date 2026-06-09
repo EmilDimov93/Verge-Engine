@@ -70,24 +70,18 @@ namespace VE
 
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &meshBuffer.vertexBuffer, &meshBuffer.vertexBufferMemory);
 
-        VkCommandPool threadLocalCommandPool = VK_NULL_HANDLE;
-        VkCommandPoolCreateInfo commandPoolCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-            .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
-            .queueFamilyIndex = transferQueueFamilyIndex};
-        vkCheck(vkCreateCommandPool(device, &commandPoolCreateInfo, nullptr, &threadLocalCommandPool), {'V', 208});
+        CommandPoolGuard transferCommandPoolLocal(device, transferQueueFamilyIndex);
 
         VkFence uploadFence = VK_NULL_HANDLE;
         VkFenceCreateInfo fenceCreateInfo = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
         vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &uploadFence), {'V', 216});
 
-        vkCheck(copyBuffer(threadLocalCommandPool, stagingBuffer, meshBuffer.vertexBuffer, bufferSize, uploadFence), {'V', 224});
+        vkCheck(copyBuffer(transferCommandPoolLocal, stagingBuffer, meshBuffer.vertexBuffer, bufferSize, uploadFence), {'V', 224});
 
         vkDestroyBuffer(device, stagingBuffer, nullptr);
         vkFreeMemory(device, stagingBufferMemory, nullptr);
 
         vkDestroyFence(device, uploadFence, nullptr);
-        vkDestroyCommandPool(device, threadLocalCommandPool, nullptr);
     }
 
     void Renderer::createIndexBuffer(MeshBuffer &meshBuffer, const std::vector<uint32_t> &indices)
@@ -105,24 +99,18 @@ namespace VE
 
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &meshBuffer.indexBuffer, &meshBuffer.indexBufferMemory);
 
-        VkCommandPool threadLocalCommandPool = VK_NULL_HANDLE;
-        VkCommandPoolCreateInfo commandPoolCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-            .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
-            .queueFamilyIndex = transferQueueFamilyIndex};
-        vkCheck(vkCreateCommandPool(device, &commandPoolCreateInfo, nullptr, &threadLocalCommandPool), {'V', 208});
+        CommandPoolGuard transferCommandPoolLocal(device, transferQueueFamilyIndex);
 
         VkFence uploadFence = VK_NULL_HANDLE;
         VkFenceCreateInfo fenceCreateInfo = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
         vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &uploadFence), {'V', 216});
 
-        vkCheck(copyBuffer(threadLocalCommandPool, stagingBuffer, meshBuffer.indexBuffer, bufferSize, uploadFence), {'V', 224});
+        vkCheck(copyBuffer(transferCommandPoolLocal, stagingBuffer, meshBuffer.indexBuffer, bufferSize, uploadFence), {'V', 224});
 
         vkDestroyBuffer(device, stagingBuffer, nullptr);
         vkFreeMemory(device, stagingBufferMemory, nullptr);
 
         vkDestroyFence(device, uploadFence, nullptr);
-        vkDestroyCommandPool(device, threadLocalCommandPool, nullptr);
     }
 
     void Renderer::initModelBuffer(const Model &model)

@@ -300,19 +300,8 @@ namespace VE
         VkDeviceMemory texImageMemory;
         texImage = createImage(1, 1, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &texImageMemory);
 
-        VkCommandPool graphicsCommandPoolLocal = VK_NULL_HANDLE;
-        VkCommandPoolCreateInfo graphicsPoolCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-            .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
-            .queueFamilyIndex = graphicsQueueFamilyIndex};
-        vkCheck(vkCreateCommandPool(device, &graphicsPoolCreateInfo, nullptr, &graphicsCommandPoolLocal), {'V', 208});
-
-        VkCommandPool transferCommandPoolLocal = VK_NULL_HANDLE;
-        VkCommandPoolCreateInfo transferPoolCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-            .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
-            .queueFamilyIndex = transferQueueFamilyIndex};
-        vkCheck(vkCreateCommandPool(device, &transferPoolCreateInfo, nullptr, &transferCommandPoolLocal), {'V', 208});
+        CommandPoolGuard graphicsCommandPoolLocal(device, graphicsQueueFamilyIndex);
+        CommandPoolGuard transferCommandPoolLocal(device, transferQueueFamilyIndex);
 
         VkFence uploadFence = VK_NULL_HANDLE;
         VkFenceCreateInfo fenceCreateInfo = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
@@ -345,8 +334,6 @@ namespace VE
         vkFreeMemory(device, stagingBufferMemory, nullptr);
 
         vkDestroyFence(device, uploadFence, nullptr);
-        vkDestroyCommandPool(device, graphicsCommandPoolLocal, nullptr);
-        vkDestroyCommandPool(device, transferCommandPoolLocal, nullptr);
     }
 
     size_t Renderer::createTextureImage(std::string fileName)
@@ -382,19 +369,8 @@ namespace VE
 
         texImage = createImage(width, height, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mipLevelCount, &texImageMemory);
 
-        VkCommandPool graphicsCommandPoolLocal = VK_NULL_HANDLE;
-        VkCommandPoolCreateInfo graphicsPoolCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-            .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
-            .queueFamilyIndex = graphicsQueueFamilyIndex};
-        vkCheck(vkCreateCommandPool(device, &graphicsPoolCreateInfo, nullptr, &graphicsCommandPoolLocal), {'V', 208});
-
-        VkCommandPool transferCommandPoolLocal = VK_NULL_HANDLE;
-        VkCommandPoolCreateInfo transferPoolCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-            .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
-            .queueFamilyIndex = transferQueueFamilyIndex};
-        vkCheck(vkCreateCommandPool(device, &transferPoolCreateInfo, nullptr, &transferCommandPoolLocal), {'V', 208});
+        CommandPoolGuard graphicsCommandPoolLocal(device, graphicsQueueFamilyIndex);
+        CommandPoolGuard transferCommandPoolLocal(device, transferQueueFamilyIndex);
 
         VkFence uploadFence = VK_NULL_HANDLE;
         VkFenceCreateInfo fenceCreateInfo = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
@@ -417,8 +393,6 @@ namespace VE
         vkFreeMemory(device, imageStagingBufferMemory, nullptr);
 
         vkDestroyFence(device, uploadFence, nullptr);
-        vkDestroyCommandPool(device, graphicsCommandPoolLocal, nullptr);
-        vkDestroyCommandPool(device, transferCommandPoolLocal, nullptr);
 
         return resultIndex;
     }

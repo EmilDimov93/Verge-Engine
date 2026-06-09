@@ -53,7 +53,7 @@ namespace VE
             vkDestroyCommandPool(device, pool, nullptr);
         }
 
-        operator VkCommandPool() const { return pool; }
+        [[nodiscard]] operator VkCommandPool() const { return pool; }
 
         private:
             VkCommandPool pool = VK_NULL_HANDLE;
@@ -320,10 +320,10 @@ namespace VE
         // Helpers
         static void vkCheck(VkResult res, ErrorCode errorCode);
         void createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory) const;
-        VkResult copyBuffer(VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize, VkFence fence) const;
-        static std::vector<char> readFile(const std::string &fileName);
-        VkShaderModule createShaderModule(const std::vector<char> &code) const;
-        static uint32_t rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
+        [[nodiscard]] VkResult copyBuffer(VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize, VkFence fence) const;
+        [[nodiscard]] static std::vector<char> readFile(const std::string &fileName);
+        [[nodiscard]] VkShaderModule createShaderModule(const std::vector<char> &code) const;
+        [[nodiscard]] static uint32_t rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
         void destroyImageAttachment(ImageAttachment &attachment) const;
 
         // Models
@@ -341,10 +341,10 @@ namespace VE
 
         // Textures
         void createFallbackTexture();
-        size_t createTextureImage(std::string fileName);
-        size_t createTexture(std::string fileName);
-        size_t createTextureDescriptor(VkImageView textureImageView);
-        VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, uint32_t mipLevelCount, VkDeviceMemory *imageMemory);
+        [[nodiscard]] size_t createTextureImage(std::string fileName);
+        [[nodiscard]] size_t createTexture(std::string fileName);
+        [[nodiscard]] size_t createTextureDescriptor(VkImageView textureImageView);
+        [[nodiscard]] VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, uint32_t mipLevelCount, VkDeviceMemory *imageMemory);
     };
 
 }

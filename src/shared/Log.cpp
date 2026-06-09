@@ -28,7 +28,7 @@ namespace VE
 
     const std::map<std::pair<char, uint16_t>, std::string> ErrorCode::messages = LOG_MESSAGES;
 
-    std::string ErrorCode::getMessage()
+    std::string ErrorCode::getMessage() const
     {
         auto it = messages.find({letter, number});
         if (it != messages.end())

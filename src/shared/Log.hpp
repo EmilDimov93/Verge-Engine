@@ -19,7 +19,7 @@ namespace VE
         char letter;
         uint16_t number;
 
-        std::string getMessage();
+        [[nodiscard]] std::string getMessage() const;
 
         ErrorCode(char newLetter, uint16_t newNumber)
         {
@@ -37,7 +37,7 @@ namespace VE
         static const std::map<std::pair<char, uint16_t>, std::string> messages;
     };
 
-    inline bool operator!=(const ErrorCode &lhs, const ErrorCode &rhs)
+    [[nodiscard]] inline bool operator!=(const ErrorCode &lhs, const ErrorCode &rhs)
     {
         return lhs.letter != rhs.letter || lhs.number != rhs.number;
     }
@@ -59,8 +59,8 @@ namespace VE
     public:
         static void init(LogOutputMode mode);
         static void add(char letter, uint16_t number);
-        static std::vector<std::string> getNewMessages();
-        static bool hasNewMessages();
+        [[nodiscard]] static std::vector<std::string> getNewMessages();
+        [[nodiscard]] static bool hasNewMessages();
         static void end();
 
     private:

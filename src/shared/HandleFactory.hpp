@@ -13,7 +13,7 @@ namespace VE
     class HandleFactory
     {
     public:
-        static HandleT getNewHandle()
+        [[nodiscard]] static HandleT getNewHandle()
         {
             if (last >= UINT64_MAX)
             {

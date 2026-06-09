@@ -14,7 +14,7 @@
 namespace VE
 {
 
-    static const std::vector<Mesh> loadOBJ(const std::string &filePath)
+    [[nodiscard]] static const std::vector<Mesh> loadOBJ(const std::string &filePath)
     {
         std::ifstream file(filePath);
         if (!file.is_open())

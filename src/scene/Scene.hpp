@@ -27,11 +27,11 @@ namespace VE
         Prop &prop(PropHandle handle);
         Trigger &trigger(TriggerHandle handle);
 
-        SceneDrawData getDrawData(PlayerHandle playerHandle) const;
+        [[nodiscard]] SceneDrawData getDrawData(PlayerHandle playerHandle) const;
 
-        AudioData getAudioData(PlayerHandle playerHandle);
+        [[nodiscard]] AudioData getAudioData(PlayerHandle playerHandle);
 
-        ModelHandle addModel(const std::string &filePath);
+        [[nodiscard]] ModelHandle addModel(const std::string &filePath);
 
         PlayerHandle addPlayer(VehicleHandle vehicleHandle);
         void removePlayer(PlayerHandle handle);
@@ -46,7 +46,7 @@ namespace VE
 
         void tick(milliseconds_t dt, std::vector<std::pair<PlayerHandle, VehicleInputState>> inputData);
 
-        SurfaceTypeIndex addSurfaceType(const SurfaceTypeCreateInfo &info);
+        [[nodiscard]] SurfaceTypeIndex addSurfaceType(const SurfaceTypeCreateInfo &info);
         void addSurface(Size2 size, const std::vector<uint32_t> &surfaceTypeMap, const std::vector<float> &heightMap, float tileSize = 1.0f, Position3 position = {});
 
         void setAirDensity(float airDensity);
@@ -86,12 +86,12 @@ namespace VE
 
         void setModelMat(ModelInstanceHandle modelInstanceHandle, glm::mat4 newModel);
 
-        ModelInstanceHandle addModelInstance(ModelHandle modleHandle);
+        [[nodiscard]] ModelInstanceHandle addModelInstance(ModelHandle modleHandle);
 
-        bool isModelInstanced(ModelHandle modelHandle) const;
+        [[nodiscard]] bool isModelInstanced(ModelHandle modelHandle) const;
 
-        float sampleHeightAt(const Position3 &point) const;
-        const SurfaceType &sampleSurfaceTypeAt(const Position3 &point) const;
+        [[nodiscard]] float sampleHeightAt(const Position3 &point) const;
+        [[nodiscard]] const SurfaceType &sampleSurfaceTypeAt(const Position3 &point) const;
 
         bool vehicleRemovedThisFrame = false;
         bool modelRemovedThisFrame = false;

@@ -15,9 +15,9 @@ namespace VE
     public:
         void tick(bool mouseBtnClicked, Position2 mousePos, Size2 windowSize);
 
-        UIDrawData getWidgetData() const;
+        [[nodiscard]] UIDrawData getWidgetData() const;
 
-        WidgetHandle addWidget(const std::string &filePath);
+        [[nodiscard]] WidgetHandle addWidget(const std::string &filePath);
 
         WidgetInstanceHandle addWidgetInstance(WidgetHandle handle, glm::vec2 coords, float uniformScale = 1.f, const std::function<void()>& callback = nullptr);
 
@@ -29,6 +29,6 @@ namespace VE
 
         std::unordered_map<WidgetInstanceHandle, std::function<void()>> callbacks;
 
-        bool checkCursorCollision(WidgetInstanceHandle handle, Position2 mousePos, Size2 windowSize) const;
+        [[nodiscard]] bool checkCursorCollision(WidgetInstanceHandle handle, Position2 mousePos, Size2 windowSize) const;
     };
 }

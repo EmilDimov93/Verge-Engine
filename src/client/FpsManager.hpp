@@ -18,8 +18,8 @@ namespace VE
         FpsManager();
         void sync();
         void setTarget(uint16_t targetFps);
-        uint16_t getFps() const;
-        double getFrameTime() const;
+        [[nodiscard]] uint16_t getFps() const;
+        [[nodiscard]] double getFrameTime() const;
 
     private:
         std::chrono::steady_clock::time_point timeAtStartOfFrame;

@@ -26,10 +26,10 @@ namespace VE
         constexpr Handle() = default;
         constexpr explicit Handle(uint64_t value) : value(value) {}
 
-        constexpr bool isValid() const { return value != INVALID; }
-        constexpr uint64_t getValue() const { return value; }
+        [[nodiscard]] constexpr bool isValid() const { return value != INVALID; }
+        [[nodiscard]] constexpr uint64_t getValue() const { return value; }
 
-        friend bool operator==(const Handle &, const Handle &) = default;
+        [[nodiscard]] friend bool operator==(const Handle &, const Handle &) = default;
 
     private:
         static constexpr uint64_t INVALID = 0;
@@ -109,7 +109,7 @@ namespace VE
 
         constexpr Transform(Position3 p = {}, Rotation3 r = {}, Scale3 s = {}) : position(p), rotation(r), scale(s) {}
 
-        glm::mat4 toMat() const
+        [[nodiscard]] glm::mat4 toMat() const
         {
             glm::mat4 mat(1.0f);
 
@@ -126,20 +126,20 @@ namespace VE
     };
 
     template <typename T>
-    inline T clamp(T v, T lo, T hi)
+    [[nodiscard]] inline T clamp(T v, T lo, T hi)
     {
         return (v < lo) ? lo : (v > hi) ? hi
                                         : v;
     }
 
     template <typename T>
-    inline T clamp01(T v)
+    [[nodiscard]] inline T clamp01(T v)
     {
         return (v < T(0)) ? T(0) : (v > T(1)) ? T(1)
                                               : v;
     }
 
-    constexpr float AvoidZero(float x)
+    [[nodiscard]] constexpr float AvoidZero(float x)
     {
         return (x == 0.0f) ? FLT_TRUE_MIN : x;
     }
@@ -164,7 +164,7 @@ namespace VE
         float moveCameraDown = 0.0f;
     };
 
-    inline float wrapRadToPi(float angleRad)
+    [[nodiscard]] inline float wrapRadToPi(float angleRad)
     {
         angleRad = std::fmod(angleRad + PI, 2.0f * PI);
         if (angleRad < 0.0f)
@@ -179,7 +179,7 @@ namespace std
     template <typename Tag>
     struct hash<VE::Handle<Tag>>
     {
-        size_t operator()(const VE::Handle<Tag> &handle) const noexcept
+        [[nodiscard]] size_t operator()(const VE::Handle<Tag> &handle) const noexcept
         {
             return hash<uint64_t>{}(handle.getValue());
         }

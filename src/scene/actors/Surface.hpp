@@ -49,7 +49,7 @@ public:
         surfaceTypeMap.resize(size.w * size.h);
     }
 
-    float sampleHeight(const Position3 &pos) const // world coordinates
+    [[nodiscard]] float sampleHeight(const Position3 &pos) const // world coordinates
     {
         if (pos.x < position.x - size.w * tileSize / 2 || pos.x > position.x + size.w * tileSize / 2 || pos.z < position.z - size.h * tileSize / 2 || pos.z > position.z + size.h * tileSize / 2)
         {
@@ -70,7 +70,7 @@ public:
         return avg;
     }
 
-    SurfaceTypeIndex sampleSurfaceTypeIndex(const Position3 &pos) const // world coordinates
+    [[nodiscard]] SurfaceTypeIndex sampleSurfaceTypeIndex(const Position3 &pos) const // world coordinates
     {
         if (pos.x < position.x - size.w * tileSize / 2 || pos.x > position.x + size.w * tileSize / 2 || pos.z < position.z - size.h * tileSize / 2 || pos.z > position.z + size.h * tileSize / 2)
         {
@@ -81,7 +81,7 @@ public:
     }
 
 private:
-    float getHeightAt(uint32_t x, uint32_t y) const // grid coordinates
+    [[nodiscard]] float getHeightAt(uint32_t x, uint32_t y) const // grid coordinates
     {
         if (x >= size.w || y >= size.h)
             return FLOAT_MIN;
@@ -89,7 +89,7 @@ private:
         return heightMap[size_t(y) * size.w + x];
     }
 
-    SurfaceTypeIndex getSurfaceTypeAt(uint32_t x, uint32_t y) const // grid coordinates
+    [[nodiscard]] SurfaceTypeIndex getSurfaceTypeAt(uint32_t x, uint32_t y) const // grid coordinates
     {
         if (x >= size.w || y >= size.h)
             return 0;

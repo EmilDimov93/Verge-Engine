@@ -56,8 +56,8 @@ private:
 
     void removeOrphanedAudio(const AudioData& audioData);
 
-    float volumeToGain(float volume) const;
-    float attenuation(float distance) const;
+    [[nodiscard]] float volumeToGain(float volume) const;
+    [[nodiscard]] float attenuation(float distance) const;
 };
 
 }

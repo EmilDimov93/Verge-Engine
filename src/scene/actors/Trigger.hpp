@@ -28,16 +28,16 @@ namespace VE
     public:
         Trigger(TriggerHandle handle, Transform transform, ModelInstanceHandle modelInstanceHandle, const TriggerTypeCreateInfo &info, const std::function<void()>& callback = nullptr);
 
-        TriggerHandle getHandle() const;
-        glm::mat4 getModelMat() const;
+        [[nodiscard]] TriggerHandle getHandle() const;
+        [[nodiscard]] glm::mat4 getModelMat() const;
 
-        ModelInstanceHandle getModelInstanceHandle() const;
+        [[nodiscard]] ModelInstanceHandle getModelInstanceHandle() const;
 
-        bool doesActorTrigger(Position3 actorPos) const;
+        [[nodiscard]] bool doesActorTrigger(Position3 actorPos) const;
 
-        bool isAutoDestroy() const;
+        [[nodiscard]] bool isAutoDestroy() const;
         void markForDestroy();
-        bool isMarkedForDestroy() const;
+        [[nodiscard]] bool isMarkedForDestroy() const;
 
         void callback() { if(callback_) callback_(); }
 

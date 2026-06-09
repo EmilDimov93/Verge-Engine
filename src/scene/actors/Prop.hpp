@@ -11,14 +11,14 @@ namespace VE
     public:
         Prop(PropHandle handle, ModelInstanceHandle modelInstanceHandle, Transform transform);
 
-        PropHandle getHandle() const;
-        glm::mat4 getModelMat() const;
+        [[nodiscard]] PropHandle getHandle() const;
+        [[nodiscard]] glm::mat4 getModelMat() const;
 
         void setTransform(Transform transform);
 
-        ModelInstanceHandle getModelInstanceHandle() const;
+        [[nodiscard]] ModelInstanceHandle getModelInstanceHandle() const;
 
-        bool hasChanges() const;
+        [[nodiscard]] bool hasChanges() const;
         void markChangesSaved();
 
     private:

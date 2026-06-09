@@ -51,22 +51,22 @@ namespace VE
     public:
         Client(const ClientCreateInfo &info = {});
 
-        bool isOpen();
+        [[nodiscard]] bool isOpen();
 
         void tick(const SceneDrawData &sceneDrawData, const AudioData &audioData);
 
         void bindPostEffects(PostEffects effects) { bindedEffects = effects; };
 
-        VehicleInputState getVIS();
+        [[nodiscard]] VehicleInputState getVIS();
         void setVehicleKeybinds(const VehicleKeybinds &keybinds);
 
         ~Client();
 
-        milliseconds_t getFrameTime() const;
-        uint32_t getFps() const;
+        [[nodiscard]] milliseconds_t getFrameTime() const;
+        [[nodiscard]] uint32_t getFps() const;
         void setTargetFps(uint16_t target);
 
-        float getVolume() const;
+        [[nodiscard]] float getVolume() const;
         void setVolume(float volume);
 
         void setThrottleInputSmoothing(float smoothing) { throttleSmoothing = clamp01(smoothing); }
@@ -96,7 +96,7 @@ namespace VE
         float zNear = 0.01f;
         float zFar = 1000.0f;
 
-        glm::mat4 getProjectionMat() const;
+        [[nodiscard]] glm::mat4 getProjectionMat() const;
 
         // Audio
         AudioManager audio;

@@ -15,13 +15,13 @@ namespace VE
     public:
         WindowManager(Size2 size, std::string name);
 
-        GLFWwindow *getReference() const;
+        [[nodiscard]] GLFWwindow *getReference() const;
 
-        Size2 getSize() const;
+        [[nodiscard]] Size2 getSize() const;
 
-        bool isOpen() const;
+        [[nodiscard]] bool isOpen() const;
 
-        float getAspectRatio() const;
+        [[nodiscard]] float getAspectRatio() const;
 
         ~WindowManager();
 

@@ -11,8 +11,8 @@ namespace VE
     class Controller
     {
     public:
-        virtual VehicleInputState getVehicleInputState() const = 0;
-        virtual VehicleHandle getVehicleHandle() const = 0;
+        [[nodiscard]] virtual VehicleInputState getVehicleInputState() const = 0;
+        [[nodiscard]] virtual VehicleHandle getVehicleHandle() const = 0;
         virtual ~Controller() = default;
     };
 

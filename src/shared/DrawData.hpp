@@ -25,9 +25,9 @@ namespace VE
     public:
         Mesh(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const std::string &textureFilePath) : vertices(vertices), indices(indices), textureFilePath(textureFilePath) {}
 
-        const std::vector<Vertex> &getVertices() const { return vertices; }
-        const std::vector<uint32_t> &getIndices() const { return indices; }
-        const std::string &getTextureFilePath() const { return textureFilePath; }
+        [[nodiscard]] const std::vector<Vertex> &getVertices() const { return vertices; }
+        [[nodiscard]] const std::vector<uint32_t> &getIndices() const { return indices; }
+        [[nodiscard]] const std::string &getTextureFilePath() const { return textureFilePath; }
 
         static inline const std::string NO_TEXTURE = "";
 
@@ -49,9 +49,9 @@ namespace VE
             version++;
         }
 
-        ModelHandle getHandle() const { return handle; };
-        uint64_t getVersion() const { return version; }
-        const std::vector<Mesh> &getMeshes() const { return meshes; }
+        [[nodiscard]] ModelHandle getHandle() const { return handle; };
+        [[nodiscard]] uint64_t getVersion() const { return version; }
+        [[nodiscard]] const std::vector<Mesh> &getMeshes() const { return meshes; }
 
     private:
         ModelHandle handle;
@@ -88,9 +88,9 @@ namespace VE
             version++;
         }
 
-        WidgetHandle getHandle() const { return handle; };
-        uint64_t getVersion() const { return version; }
-        const std::vector<Mesh> &getMeshes() const { return meshes; }
+        [[nodiscard]] WidgetHandle getHandle() const { return handle; };
+        [[nodiscard]] uint64_t getVersion() const { return version; }
+        [[nodiscard]] const std::vector<Mesh> &getMeshes() const { return meshes; }
 
     private:
         WidgetHandle handle;

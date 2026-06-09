@@ -8,7 +8,7 @@
 namespace VE
 {
 
-    inline float KelvinToCelsius(float kelvin)
+    [[nodiscard]] inline float KelvinToCelsius(float kelvin)
     {
         return kelvin - 273.15f;
     }

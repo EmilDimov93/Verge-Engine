@@ -141,29 +141,29 @@ namespace VE
         static void refresh();
 
         // Keyboard
-        static bool isDown(Key key);
-        static bool isUp(Key key);
-        static bool isPressed(Key key);
-        static bool isReleased(Key key);
+        [[nodiscard]] static bool isDown(Key key);
+        [[nodiscard]] static bool isUp(Key key);
+        [[nodiscard]] static bool isPressed(Key key);
+        [[nodiscard]] static bool isReleased(Key key);
 
         // Mouse
-        static bool isDown(MouseBtn btn);
-        static bool isUp(MouseBtn btn);
-        static bool isPressed(MouseBtn btn);
-        static bool isReleased(MouseBtn btn);
+        [[nodiscard]] static bool isDown(MouseBtn btn);
+        [[nodiscard]] static bool isUp(MouseBtn btn);
+        [[nodiscard]] static bool isPressed(MouseBtn btn);
+        [[nodiscard]] static bool isReleased(MouseBtn btn);
 
-        static Position2 getMousePos();
+        [[nodiscard]] static Position2 getMousePos();
 
         // Controller
         static void setController(uint8_t id);
         static void setAxisDeadZone(float deadZone);
 
-        static bool isDown(ControllerBtn btn);
-        static bool isUp(ControllerBtn btn);
-        static bool isPressed(ControllerBtn btn);
-        static bool isReleased(ControllerBtn btn);
+        [[nodiscard]] static bool isDown(ControllerBtn btn);
+        [[nodiscard]] static bool isUp(ControllerBtn btn);
+        [[nodiscard]] static bool isPressed(ControllerBtn btn);
+        [[nodiscard]] static bool isReleased(ControllerBtn btn);
 
-        static float getAxis(ControllerAxis axis);
+        [[nodiscard]] static float getAxis(ControllerAxis axis);
 
     private:
         static KeyState keyStates[KEY_COUNT];
@@ -202,7 +202,7 @@ namespace VE
         Keybind(ControllerBtn key) : key((uint32_t)key), axisMapping(AXIS_MAPPING_FULL), keyType(KEY_TYPE_CONTROLLER_BTN) {}
         Keybind(ControllerAxis key) : key((uint32_t)key.index), axisMapping(key.mapping), keyType(KEY_TYPE_CONTROLLER_AXIS) {}
 
-        float getValue() const
+        [[nodiscard]] float getValue() const
         {
             if (key == KEY_UNKNOWN)
                 return 0.0f;
@@ -221,12 +221,12 @@ namespace VE
             }
         }
 
-        bool isAxis() const
+        [[nodiscard]] bool isAxis() const
         {
             return keyType == KEY_TYPE_CONTROLLER_AXIS;
         }
 
-        bool isDown() const
+        [[nodiscard]] bool isDown() const
         {
             if (key == KEY_UNKNOWN)
                 return false;
@@ -243,7 +243,7 @@ namespace VE
             }
         }
 
-        bool isUp() const
+        [[nodiscard]] bool isUp() const
         {
             if (key == KEY_UNKNOWN)
                 return true;
@@ -260,7 +260,7 @@ namespace VE
             }
         }
 
-        bool isPressed() const
+        [[nodiscard]] bool isPressed() const
         {
             if (key == KEY_UNKNOWN)
                 return false;
@@ -277,7 +277,7 @@ namespace VE
             }
         }
 
-        bool isReleased() const
+        [[nodiscard]] bool isReleased() const
         {
             if (key == KEY_UNKNOWN)
                 return false;
@@ -294,7 +294,7 @@ namespace VE
             }
         }
 
-        float getAxis() const
+        [[nodiscard]] float getAxis() const
         {
             if (keyType == KEY_TYPE_CONTROLLER_AXIS)
                 return Input::getAxis(ControllerAxis(key, axisMapping));

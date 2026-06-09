@@ -86,19 +86,19 @@ namespace VE
         static constexpr size_t CollisionPointCount = 4;
         std::array<glm::vec3, CollisionPointCount> collisionPoints;
 
-        glm::vec3 getCollisionPointWorld(uint32_t index)
+        [[nodiscard]] glm::vec3 getCollisionPointWorld(uint32_t index)
         {
             assert(index < collisionPoints.size());
             return bodyMat * glm::vec4(collisionPoints[index], 1.0f);
         }
 
-        glm::vec3 getCollisionPointLocal(uint32_t index)
+        [[nodiscard]] glm::vec3 getCollisionPointLocal(uint32_t index)
         {
             assert(index < collisionPoints.size());
             return collisionPoints[index];
         }
 
-        float getMaxClimb()
+        [[nodiscard]] float getMaxClimb()
         {
             return wheelRadiusM;
         }
@@ -110,8 +110,8 @@ namespace VE
     private:
         void stallAssist();
         void cruiseControl();
-        float getTorque();
-        float calcFDriveMag();
+        [[nodiscard]] float getTorque();
+        [[nodiscard]] float calcFDriveMag();
         void calcForces(const Environment &environment);
         void steer();
         void shiftUp();
@@ -194,37 +194,34 @@ namespace VE
         glm::mat4 getBodyMat() const { return bodyMat; };
         glm::mat4 getWheelMat(Wheel wheel) const;
 
-        ModelInstanceHandle getBodyModelInstanceHandle() const { return bodyModelInstanceHandle; }
-        ModelInstanceHandle getWheelModelInstanceHandle(Wheel wheel) const { return wheelModelInstanceHandles[wheel]; }
-        Position3 getWheelOffset() const { return wheelOffset; }
-        uint32_t getPeakTorqueNm() const { return peakTorqueNm; }
-        float getWeightKg() const { return weightKg; }
-        uint32_t getGearCount() const { return gearCount; }
-        uint32_t getMaxRpm() const { return maxRpm; }
-        uint32_t getIdleRpm() const { return idleRpm; }
-        TransmissionType getTransmissionType() const { return transmissionType; }
-        float getBrakingForceN() const { return brakingForceN; }
-        float getGearRatio(uint32_t gear) const
-        {
-            return gear < gearRatios.size() ? gearRatios[gear] : 0.0f;
-        }
-        float getFinalDriveRatio() const { return finalDriveRatio; }
-        float getDrivetrainEfficiency() const { return drivetrainEfficiency; }
-        float getWheelRadius() const { return wheelRadiusM; }
-        float getDragCoeff() const { return dragCoeff; }
-        float getFrontalArea() const { return frontalAreaM2; }
-        float getMaxSteeringAngleRad() const { return maxSteeringAngleRad; }
-        float getMaxSteeringAngleDeg() const { return maxSteeringAngleRad * (PI / 180); }
-        float getTireGrip() const { return tireGrip; }
-        float getCamber() const { return camberRad; }
-        const Transform &getTransform() const { return transform; }
-        const glm::vec3 &getVelocityVector() const { return velocityMps; }
-        float getSpeedMps() const { return speedMps; }
-        float getSpeedKmph() const { return speedMps * 3.6f; }
-        float getSteeringAngleRad() const { return steeringAngleRad; }
-        float getSteeringAngleDeg() const { return steeringAngleRad * (PI / 180); }
-        uint32_t getGear() const { return gear; }
-        float getRpm() const { return rpm; }
+        [[nodiscard]] ModelInstanceHandle getBodyModelInstanceHandle() const { return bodyModelInstanceHandle; }
+        [[nodiscard]] ModelInstanceHandle getWheelModelInstanceHandle(Wheel wheel) const { return wheelModelInstanceHandles[wheel]; }
+        [[nodiscard]] Position3 getWheelOffset() const { return wheelOffset; }
+        [[nodiscard]] uint32_t getPeakTorqueNm() const { return peakTorqueNm; }
+        [[nodiscard]] float getWeightKg() const { return weightKg; }
+        [[nodiscard]] uint32_t getGearCount() const { return gearCount; }
+        [[nodiscard]] uint32_t getMaxRpm() const { return maxRpm; }
+        [[nodiscard]] uint32_t getIdleRpm() const { return idleRpm; }
+        [[nodiscard]] TransmissionType getTransmissionType() const { return transmissionType; }
+        [[nodiscard]] float getBrakingForceN() const { return brakingForceN; }
+        [[nodiscard]] float getGearRatio(uint32_t gear) const { return gear < gearRatios.size() ? gearRatios[gear] : 0.0f; }
+        [[nodiscard]] float getFinalDriveRatio() const { return finalDriveRatio; }
+        [[nodiscard]] float getDrivetrainEfficiency() const { return drivetrainEfficiency; }
+        [[nodiscard]] float getWheelRadius() const { return wheelRadiusM; }
+        [[nodiscard]] float getDragCoeff() const { return dragCoeff; }
+        [[nodiscard]] float getFrontalArea() const { return frontalAreaM2; }
+        [[nodiscard]] float getMaxSteeringAngleRad() const { return maxSteeringAngleRad; }
+        [[nodiscard]] float getMaxSteeringAngleDeg() const { return maxSteeringAngleRad * (PI / 180); }
+        [[nodiscard]] float getTireGrip() const { return tireGrip; }
+        [[nodiscard]] float getCamber() const { return camberRad; }
+        [[nodiscard]] const Transform &getTransform() const { return transform; }
+        [[nodiscard]] const glm::vec3 &getVelocityVector() const { return velocityMps; }
+        [[nodiscard]] float getSpeedMps() const { return speedMps; }
+        [[nodiscard]] float getSpeedKmph() const { return speedMps * 3.6f; }
+        [[nodiscard]] float getSteeringAngleRad() const { return steeringAngleRad; }
+        [[nodiscard]] float getSteeringAngleDeg() const { return steeringAngleRad * (PI / 180); }
+        [[nodiscard]] uint32_t getGear() const { return gear; }
+        [[nodiscard]] float getRpm() const { return rpm; }
 
         // Setters
         void setWheelOffset(Position3 value) { wheelOffset = value; }

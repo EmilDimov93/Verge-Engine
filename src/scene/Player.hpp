@@ -19,12 +19,12 @@ namespace VE
         }
 
         void setVehicleInputState(const VehicleInputState &vis);
-        VehicleInputState getVehicleInputState() const override;
+        [[nodiscard]] VehicleInputState getVehicleInputState() const override;
 
         void setVehicleHandle(VehicleHandle vehicleHandle);
-        VehicleHandle getVehicleHandle() const override;
+        [[nodiscard]] VehicleHandle getVehicleHandle() const override;
 
-        PlayerHandle getHandle() const;
+        [[nodiscard]] PlayerHandle getHandle() const;
 
         void updateCamera(milliseconds_t dt, Transform vehicleTransform, glm::vec3 vehicleVelocityVector);
 
@@ -37,11 +37,11 @@ namespace VE
 
         void setCameraFollowVehicle(bool shouldFollow);
 
-        glm::mat4 getCameraViewMat() const;
+        [[nodiscard]] glm::mat4 getCameraViewMat() const;
 
-        Position3 getCameraPosition() const;
+        [[nodiscard]] Position3 getCameraPosition() const;
 
-        float getCameraYaw() const;
+        [[nodiscard]] float getCameraYaw() const;
 
         void setMinCameraPitch(float minCameraPitch);
 

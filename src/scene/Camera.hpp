@@ -11,13 +11,13 @@ namespace VE
     class Camera
     {
     public:
-        glm::mat4 getViewMat() const;
+        [[nodiscard]] glm::mat4 getViewMat() const;
 
         void move(Position3 newPosition);
         void rotate(Rotation3 newRotation);
 
-        Position3 getPosition() const;
-        Rotation3 getRotation() const;
+        [[nodiscard]] Position3 getPosition() const;
+        [[nodiscard]] Rotation3 getRotation() const;
 
     private:
         Position3 position{};

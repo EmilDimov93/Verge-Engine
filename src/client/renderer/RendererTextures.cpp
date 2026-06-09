@@ -402,6 +402,10 @@ namespace VE
 
     void Renderer::createTextureSampler()
     {
+        VkPhysicalDeviceProperties physicalDeviceProperties{};
+        vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
+        float maxAnisotropy = physicalDeviceProperties.limits.maxSamplerAnisotropy;
+
         VkSamplerCreateInfo samplerCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
             .magFilter = VK_FILTER_LINEAR,
@@ -412,7 +416,7 @@ namespace VE
             .addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT,
             .mipLodBias = 0.0f,
             .anisotropyEnable = VK_TRUE,
-            .maxAnisotropy = 16,
+            .maxAnisotropy = maxAnisotropy,
             .minLod = 0.0f,
             .maxLod = 0.0f,
             .borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK,

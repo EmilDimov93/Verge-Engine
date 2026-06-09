@@ -29,6 +29,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'V', 103}, "Vulkan returned: VK_EVENT_SET"},
     {{'V', 104}, "Vulkan returned: VK_EVENT_RESET"},
     {{'V', 110}, "Failed to write to pipeline cache file"},
+    {{'V', 111}, "STB Image failed to load image"},
 
     {{'V', 200}, "Vulkan failed to create instance"},
     {{'V', 201}, "Vulkan failed to create window surface"},
@@ -55,7 +56,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'V', 222}, "Vulkan failed to create image"},
     {{'V', 223}, "Vulkan failed to find supported image format"},
     {{'V', 224}, "Vulkan failed to copy buffer"},
-    {{'V', 225}, "STB Image failed to load image"},
+    // {{'V', 225} removed
     {{'V', 226}, "Vulkan failed to create sampler"},
     {{'V', 227}, "Vulkan failed to create pipeline cache"},
     {{'V', 229}, "Vulkan failed to initialize mesh"},
@@ -70,6 +71,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'V', 238}, "Vulkan failed: vkQueueWaitIdle"},
     {{'V', 239}, "Vulkan failed to copy image"},
     {{'V', 240}, "Vulkan failed to transition image layout"},
+    {{'V', 241}, "Vulkan failed to generate mipmaps"},
 
     // Renderer
     {{'R', 200}, "Renderer: invalid Field Of View value"},

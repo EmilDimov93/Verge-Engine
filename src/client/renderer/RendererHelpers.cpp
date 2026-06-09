@@ -173,7 +173,7 @@ namespace VE
         return VK_SUCCESS;
     }
 
-    VkImage Renderer::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory *imageMemory)
+    VkImage Renderer::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, uint32_t mipLevelCount, VkDeviceMemory *imageMemory)
     {
         std::array<uint32_t, 2> queueFamilyIndices = {graphicsQueueFamilyIndex, transferQueueFamilyIndex};
         VkImageCreateInfo imageCreateInfo = {};
@@ -182,7 +182,7 @@ namespace VE
         imageCreateInfo.extent.width = width;
         imageCreateInfo.extent.height = height;
         imageCreateInfo.extent.depth = 1;
-        imageCreateInfo.mipLevels = 1;
+        imageCreateInfo.mipLevels = mipLevelCount;
         imageCreateInfo.arrayLayers = 1;
         imageCreateInfo.format = format;
         imageCreateInfo.tiling = tiling;

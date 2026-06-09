@@ -32,6 +32,7 @@ namespace VE
         VkImage image = VK_NULL_HANDLE;
         VkDeviceMemory memory = VK_NULL_HANDLE;
         VkImageView imageView = VK_NULL_HANDLE;
+        uint32_t mipLevelCount = 1;
     };
 
     class Renderer
@@ -318,7 +319,7 @@ namespace VE
         size_t createTextureImage(std::string fileName);
         size_t createTexture(std::string fileName);
         size_t createTextureDescriptor(VkImageView textureImageView);
-        VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, VkDeviceMemory *imageMemory);
+        VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, uint32_t mipLevelCount, VkDeviceMemory *imageMemory);
     };
 
 }

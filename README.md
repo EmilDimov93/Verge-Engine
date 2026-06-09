@@ -11,7 +11,7 @@ Verge Engine is a Vulkan-based C++ engine for realistic vehicle simulations
    - Dynamic shadows
    - Lighting (Blinn-Phong)
    - UI
-   - Textures
+   - Textures with mipmaps
    - Real-time multi-threaded model loading
    - Post-effects
 #### Vehicle physics

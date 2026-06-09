@@ -271,7 +271,7 @@ namespace VE
         prePostAttachments.resize(swapChainImageCount);
         for (ImageAttachment &attachment : prePostAttachments)
         {
-            attachment.image = createImage(swapChainExtent.width, swapChainExtent.height, swapChainImageFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_SHARING_MODE_EXCLUSIVE, &attachment.memory);
+            attachment.image = createImage(swapChainExtent.width, swapChainExtent.height, swapChainImageFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_SHARING_MODE_EXCLUSIVE, 1, &attachment.memory);
 
             VkImageViewCreateInfo imageViewCreateInfo{};
             imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -315,7 +315,7 @@ namespace VE
 
     void Renderer::createDepthAttachment()
     {
-        depthAttachment.image = createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &depthAttachment.memory);
+        depthAttachment.image = createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &depthAttachment.memory);
 
         VkImageViewCreateInfo imageViewCreateInfo{};
         imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -513,7 +513,7 @@ namespace VE
 
     void Renderer::createShadowDepthAttachment()
     {
-        shadowDepthAttachment.image = createImage(SHADOW_MAP_EXTENT.w, SHADOW_MAP_EXTENT.h, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &shadowDepthAttachment.memory);
+        shadowDepthAttachment.image = createImage(SHADOW_MAP_EXTENT.w, SHADOW_MAP_EXTENT.h, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &shadowDepthAttachment.memory);
 
         VkImageViewCreateInfo imageViewCreateInfo{};
         imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;

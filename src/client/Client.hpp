@@ -91,7 +91,6 @@ namespace VE
 
         PostEffects bindedEffects;
 
-        float aspectRatio = 1.0f;
         float fov = 60.0f;
         float zNear = 0.01f;
         float zFar = 1000.0f;

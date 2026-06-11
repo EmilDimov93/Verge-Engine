@@ -13,19 +13,6 @@ namespace VE
         Input::init(window.getReference());
         Log::init(info.logOutputMode);
         fps.setTarget(info.targetFps);
-        aspectRatio = window.getAspectRatio();
-
-        glfwSetWindowUserPointer(window.getReference(), this);
-
-        glfwSetFramebufferSizeCallback(window.getReference(), [](GLFWwindow *window, int width, int height)
-                                       {
-                                        Client *client = reinterpret_cast<Client*>(glfwGetWindowUserPointer(window));
-    
-                                        if (height == 0) return; 
-
-                                        client->aspectRatio = static_cast<float>(width) / static_cast<float>(height);
-                                        
-                                        client->renderer.markFramebufferResized(); });
     }
 
     bool Client::isOpen()
@@ -251,7 +238,7 @@ namespace VE
 
     glm::mat4 Client::getProjectionMat() const
     {
-        glm::mat4 projectionMat = glm::perspective(glm::radians(fov), aspectRatio, zNear, zFar);
+        glm::mat4 projectionMat = glm::perspective(glm::radians(fov), window.getAspectRatio(), zNear, zFar);
         projectionMat[1][1] *= -1;
         return projectionMat;
     }

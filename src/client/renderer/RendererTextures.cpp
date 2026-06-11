@@ -327,7 +327,7 @@ namespace VE
         {
             std::lock_guard<std::mutex> lock(textureMutex);
             textures.attachments.push_back({texImage, texImageMemory, imageView});
-            createTextureDescriptor(imageView);
+            (void)createTextureDescriptor(imageView);
         }
 
         vkDestroyBuffer(device, stagingBuffer, nullptr);

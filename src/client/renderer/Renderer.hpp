@@ -69,8 +69,6 @@ namespace VE
 
         ~Renderer();
 
-        void markFramebufferResized() { framebufferResized = true; };
-
     private:
         static constexpr uint32_t FRAMES_IN_FLIGHT = 2;
 
@@ -101,7 +99,7 @@ namespace VE
 
             std::vector<MeshBuffer> meshBuffers;
 
-            uint32_t version = 0;
+            uint64_t version = 0;
 
             ModelBuffer(ModelHandle handle) : handle(handle) {}
         };
@@ -112,7 +110,7 @@ namespace VE
 
             std::vector<MeshBuffer> meshBuffers;
 
-            uint32_t version = 0;
+            uint64_t version = 0;
 
             WidgetBuffer(WidgetHandle handle) : handle(handle) {}
         };
@@ -206,7 +204,6 @@ namespace VE
         VkCommandPool commandPool = VK_NULL_HANDLE;
 
         uint32_t currentFrame = 0;
-        bool framebufferResized = false;
 
         std::vector<ModelBuffer> modelBuffers;
         std::vector<WidgetBuffer> widgetBuffers;

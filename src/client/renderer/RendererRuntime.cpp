@@ -440,15 +440,9 @@ namespace VE
         VkResult imageResult = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, frames[currentFrame].imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
         if (imageResult == VK_ERROR_OUT_OF_DATE_KHR)
-        {
             recreateSwapChain();
-            framebufferResized = false;
-            return;
-        }
         else if (imageResult != VK_SUCCESS && imageResult != VK_SUBOPTIMAL_KHR)
-        {
             Log::add('V', 230);
-        }
 
         vkCheck(vkResetFences(device, 1, &frames[currentFrame].drawFence), {'V', 232});
 
@@ -538,15 +532,10 @@ namespace VE
             std::lock_guard<std::mutex> lock(graphicsQueueMutex);
             VkResult presentResult = vkQueuePresentKHR(presentQueue, &presentInfo);
 
-            if (presentResult == VK_ERROR_OUT_OF_DATE_KHR || presentResult == VK_SUBOPTIMAL_KHR || framebufferResized)
-            {
+            if (presentResult == VK_ERROR_OUT_OF_DATE_KHR || presentResult == VK_SUBOPTIMAL_KHR)
                 recreateSwapChain();
-                framebufferResized = false;
-            }
             else if (presentResult != VK_SUCCESS)
-            {
                 Log::add('V', 234);
-            }
         }
 
         currentFrame = (currentFrame + 1) % FRAMES_IN_FLIGHT;

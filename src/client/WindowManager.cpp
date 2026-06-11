@@ -31,9 +31,14 @@ namespace VE
 
         window = glfwCreateWindow(this->size.w, this->size.h, name.c_str(), nullptr, nullptr);
         if (!window)
-        {
             Log::add('G', 201);
-        }
+
+        glfwSetWindowUserPointer(window, this);
+
+        glfwSetFramebufferSizeCallback(window, [](GLFWwindow *window, int width, int height) {
+            WindowManager *windowManager = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
+            windowManager->size = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+        });
 
         Log::add('G', 000);
     }
@@ -58,7 +63,7 @@ namespace VE
         if (size.h == 0)
             return 1.0f;
 
-        return (float)size.w / (float)size.h;
+        return static_cast<float>(size.w) / static_cast<float>(size.h);
     }
 
     WindowManager::~WindowManager()

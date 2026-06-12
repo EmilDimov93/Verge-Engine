@@ -3,5 +3,6 @@ build/
 logo/
 early_dev/
 lib/
+frontend/
 desktop.ini
 git.ps1

@@ -27,42 +27,34 @@ namespace VE
 
         createPrePostImages();
 
-        findDepthFormat();
-        createShadowSampler();
-        createTextureSampler();
-
-        createDepthAttachment();
-        createShadowDepthAttachment();
+        depthFormat = findDepthFormat();
 
         createPipelineCache();
 
-        createShadowPipeline();
-
+        createTextureSampler();
         createTextureDescriptorSetLayout();
+        createFallbackTexture();
 
-        createModelDescriptorSetLayout();
-        createModelPipeline();
+        createShadowDepthAttachment();
+        createShadowPipeline();
+        
+        createDepthAttachment();
+        createShadowSampler();
         createModelUniformBuffers();
-        createModelDescriptorPool();
-        createModelDescriptorSets();
+        createModelDescriptors();
+        createModelPipeline();
 
         createTransparentPipeline();
 
-        createPostDescriptorPool();
         createPostSampler();
-        createPostDescriptorSetLayout();
+        createPostDescriptors();
         createPostPipeline();
-        createPostDescriptorSets();
 
-        createUIDescriptorSetLayout();
-        createUIPipeline();
         createUIUniformBuffers();
-        createUIDescriptorPool();
-        createUIDescriptorSets();
+        createUIDescriptors();
+        createUIPipeline();
 
-        createSemaphores();
-
-        createFallbackTexture();
+        createSyncObjects();
 
         Log::add('V', 000);
     }
@@ -266,107 +258,6 @@ namespace VE
         }
     }
 
-    void Renderer::createPrePostImages()
-    {
-        prePostAttachments.resize(swapChainImageCount);
-        for (ImageAttachment &attachment : prePostAttachments)
-        {
-            attachment.image = createImage(swapChainExtent.width, swapChainExtent.height, swapChainImageFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_SHARING_MODE_EXCLUSIVE, 1, &attachment.memory);
-
-            VkImageViewCreateInfo imageViewCreateInfo{};
-            imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-            imageViewCreateInfo.image = attachment.image;
-            imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-            imageViewCreateInfo.format = swapChainImageFormat;
-            imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-            imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-            imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-            imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-            imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
-            imageViewCreateInfo.subresourceRange.levelCount = 1;
-            imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
-            imageViewCreateInfo.subresourceRange.layerCount = 1;
-            vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &attachment.imageView), {'V', 205});
-        }
-    }
-
-    void Renderer::findDepthFormat()
-    {
-        depthFormat = VK_FORMAT_UNDEFINED;
-
-        std::vector<VkFormat> depthFormats = {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT};
-
-        for (VkFormat f : depthFormats)
-        {
-            VkFormatProperties properties;
-            vkGetPhysicalDeviceFormatProperties(physicalDevice, f, &properties);
-
-            if (properties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
-            {
-                depthFormat = f;
-                break;
-            }
-        }
-
-        if (depthFormat == VK_FORMAT_UNDEFINED)
-            Log::add('V', 223);
-    }
-
-    void Renderer::createDepthAttachment()
-    {
-        depthAttachment.image = createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &depthAttachment.memory);
-
-        VkImageViewCreateInfo imageViewCreateInfo{};
-        imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        imageViewCreateInfo.image = depthAttachment.image;
-        imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        imageViewCreateInfo.format = depthFormat;
-        imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-        imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-        imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-        imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-        imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-        imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
-        imageViewCreateInfo.subresourceRange.levelCount = 1;
-        imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
-        imageViewCreateInfo.subresourceRange.layerCount = 1;
-        vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &depthAttachment.imageView), {'V', 205});
-    }
-
-    void Renderer::createModelDescriptorSetLayout()
-    {
-        VkDescriptorSetLayoutBinding cameraLayoutBinding = {
-            .binding = 0,
-            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-            .descriptorCount = 1,
-            .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
-            .pImmutableSamplers = nullptr};
-
-        VkDescriptorSetLayoutBinding lightingLayoutBinding = {
-            .binding = 1,
-            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-            .descriptorCount = 1,
-            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
-            .pImmutableSamplers = nullptr};
-
-        VkDescriptorSetLayoutBinding shadowLayoutBinding = {
-            .binding = 2,
-            .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            .descriptorCount = 1,
-            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
-            .pImmutableSamplers = nullptr};
-
-        std::array<VkDescriptorSetLayoutBinding, 3> layoutBindings = {cameraLayoutBinding, lightingLayoutBinding, shadowLayoutBinding};
-
-        VkDescriptorSetLayoutCreateInfo layoutCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-            .bindingCount = static_cast<uint32_t>(layoutBindings.size()),
-            .pBindings = layoutBindings.data()};
-
-        vkCheck(vkCreateDescriptorSetLayout(device, &layoutCreateInfo, nullptr, &modelPipeline.descriptorSetLayout), {'V', 217});
-    }
-
     void Renderer::createCommandPool()
     {
         VkCommandPoolCreateInfo graphicsCommandPoolCreateInfo = {
@@ -393,122 +284,50 @@ namespace VE
             frames[i].commandBuffer = commandBuffers[i];
     }
 
-    void Renderer::createSemaphores()
+    void Renderer::createPrePostImages()
     {
-        renderFinishedSemaphores.resize(swapChainImageCount);
-        VkSemaphoreCreateInfo semaphoreCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
-
-        VkFenceCreateInfo fenceCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-            .flags = VK_FENCE_CREATE_SIGNALED_BIT};
-        for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
+        prePostAttachments.resize(swapChainImageCount);
+        for (ImageAttachment &attachment : prePostAttachments)
         {
-            vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &frames[i].imageAvailableSemaphore), {'V', 215});
-            vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &frames[i].drawFence), {'V', 216});
-        }
+            attachment.image = createImage(swapChainExtent.width, swapChainExtent.height, swapChainImageFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_SHARING_MODE_EXCLUSIVE, 1, &attachment.memory);
 
-        for (size_t i = 0; i < swapChainImageCount; i++)
-        {
-            vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores[i]), {'V', 215});
-        }
-    }
-
-    void Renderer::createModelUniformBuffers()
-    {
-        VkDeviceSize cameraBufferSize = sizeof(UboCamera);
-        VkDeviceSize lightingBufferSize = sizeof(UboLighting);
-
-        for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
-        {
-            createBuffer(cameraBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &cameraUniformBuffer[i], &cameraUniformBufferMemory[i]);
-            createBuffer(lightingBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &lightingUniformBuffer[i], &lightingUniformBufferMemory[i]);
+            VkImageViewCreateInfo imageViewCreateInfo{};
+            imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            imageViewCreateInfo.image = attachment.image;
+            imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+            imageViewCreateInfo.format = swapChainImageFormat;
+            imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+            imageViewCreateInfo.subresourceRange.levelCount = 1;
+            imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+            imageViewCreateInfo.subresourceRange.layerCount = 1;
+            vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &attachment.imageView), {'V', 205});
         }
     }
 
-    void Renderer::createModelDescriptorPool()
+    void Renderer::createDepthAttachment()
     {
-        VkDescriptorPoolSize uniformPoolSize = {
-            .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-            .descriptorCount = static_cast<uint32_t>(cameraUniformBuffer.size() + lightingUniformBuffer.size())};
+        depthAttachment.image = createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &depthAttachment.memory);
 
-        VkDescriptorPoolSize shadowPoolSize = {
-            .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            .descriptorCount = FRAMES_IN_FLIGHT};
-
-        std::array<VkDescriptorPoolSize, 2> descriptorPoolSizes = {uniformPoolSize, shadowPoolSize};
-
-        VkDescriptorPoolCreateInfo poolCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-            .maxSets = FRAMES_IN_FLIGHT,
-            .poolSizeCount = static_cast<uint32_t>(descriptorPoolSizes.size()),
-            .pPoolSizes = descriptorPoolSizes.data()};
-
-        vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &modelPipeline.descriptorPool), {'V', 219});
-    }
-
-    void Renderer::createModelDescriptorSets()
-    {
-        modelPipeline.descriptorSets.resize(FRAMES_IN_FLIGHT);
-
-        std::vector<VkDescriptorSetLayout> setLayouts(FRAMES_IN_FLIGHT, modelPipeline.descriptorSetLayout);
-
-        VkDescriptorSetAllocateInfo setAllocInfo = {
-            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-            .descriptorPool = modelPipeline.descriptorPool,
-            .descriptorSetCount = FRAMES_IN_FLIGHT,
-            .pSetLayouts = setLayouts.data()};
-
-        vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, modelPipeline.descriptorSets.data()), {'V', 220});
-
-        for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
-        {
-            VkDescriptorBufferInfo cameraBufferInfo = {
-                .buffer = cameraUniformBuffer[i],
-                .offset = 0,
-                .range = sizeof(UboCamera)};
-
-            VkWriteDescriptorSet cameraSetWrite = {
-                .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstSet = modelPipeline.descriptorSets[i],
-                .dstBinding = 0,
-                .dstArrayElement = 0,
-                .descriptorCount = 1,
-                .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                .pBufferInfo = &cameraBufferInfo};
-
-            VkDescriptorBufferInfo lightingBufferInfo = {
-                .buffer = lightingUniformBuffer[i],
-                .offset = 0,
-                .range = sizeof(UboLighting)};
-
-            VkWriteDescriptorSet lightingSetWrite = {
-                .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstSet = modelPipeline.descriptorSets[i],
-                .dstBinding = 1,
-                .dstArrayElement = 0,
-                .descriptorCount = 1,
-                .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                .pBufferInfo = &lightingBufferInfo};
-
-            VkDescriptorImageInfo shadowImageInfo = {
-                .sampler = shadowSampler,
-                .imageView = shadowDepthAttachment.imageView,
-                .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
-
-            VkWriteDescriptorSet shadowSetWrite = {
-                .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstSet = modelPipeline.descriptorSets[i],
-                .dstBinding = 2,
-                .dstArrayElement = 0,
-                .descriptorCount = 1,
-                .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                .pImageInfo = &shadowImageInfo};
-
-            std::vector<VkWriteDescriptorSet> setWrites = {cameraSetWrite, lightingSetWrite, shadowSetWrite};
-
-            vkUpdateDescriptorSets(device, static_cast<uint32_t>(setWrites.size()), setWrites.data(), 0, nullptr);
-        }
+        VkImageViewCreateInfo imageViewCreateInfo{};
+        imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        imageViewCreateInfo.image = depthAttachment.image;
+        imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        imageViewCreateInfo.format = depthFormat;
+        imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+        imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+        imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+        imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+        imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+        imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+        imageViewCreateInfo.subresourceRange.levelCount = 1;
+        imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+        imageViewCreateInfo.subresourceRange.layerCount = 1;
+        vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &depthAttachment.imageView), {'V', 205});
     }
 
     void Renderer::createShadowDepthAttachment()
@@ -532,204 +351,24 @@ namespace VE
         vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &shadowDepthAttachment.imageView), {'V', 205});
     }
 
-    void Renderer::createTextureDescriptorSetLayout()
+    void Renderer::createSyncObjects()
     {
-        VkDescriptorSetLayoutBinding samplerLayoutBinding = {
-            .binding = 0,
-            .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            .descriptorCount = 1,
-            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
-            .pImmutableSamplers = nullptr};
+        renderFinishedSemaphores.resize(swapChainImageCount);
+        VkSemaphoreCreateInfo semaphoreCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
 
-        VkDescriptorSetLayoutCreateInfo textureLayoutCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-            .bindingCount = 1,
-            .pBindings = &samplerLayoutBinding};
-
-        vkCheck(vkCreateDescriptorSetLayout(device, &textureLayoutCreateInfo, nullptr, &textures.descriptorSetLayout), {'V', 217});
-    }
-
-    void Renderer::createShadowSampler()
-    {
-        VkSamplerCreateInfo samplerCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-            .magFilter = VK_FILTER_LINEAR,
-            .minFilter = VK_FILTER_LINEAR,
-            .mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST,
-            .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
-            .addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
-            .addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
-            .anisotropyEnable = VK_FALSE,
-            .compareEnable = VK_TRUE,
-            .compareOp = VK_COMPARE_OP_LESS,
-            .borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE};
-        vkCheck(vkCreateSampler(device, &samplerCreateInfo, nullptr, &shadowSampler), {'V', 218});
-    }
-
-    void Renderer::createUIDescriptorSetLayout()
-    {
-        VkDescriptorSetLayoutBinding uiLayoutBinding = {
-            .binding = 0,
-            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-            .descriptorCount = 1,
-            .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
-            .pImmutableSamplers = nullptr};
-
-        VkDescriptorSetLayoutCreateInfo uiLayoutCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-            .bindingCount = 1,
-            .pBindings = &uiLayoutBinding};
-
-        vkCheck(vkCreateDescriptorSetLayout(device, &uiLayoutCreateInfo, nullptr, &uiPipeline.descriptorSetLayout), {'V', 217});
-    }
-
-    void Renderer::createUIUniformBuffers()
-    {
-        VkDeviceSize uiUniformBufferSize = sizeof(UboUI);
-
-        for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
-            createBuffer(uiUniformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &uiUniformBuffers[i], &uiUniformBuffersMemory[i]);
-    }
-
-    void Renderer::createUIDescriptorPool()
-    {
-        VkDescriptorPoolSize poolSize = {
-            .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-            .descriptorCount = static_cast<uint32_t>(uiUniformBuffers.size())};
-
-        VkDescriptorPoolCreateInfo poolCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-            .maxSets = FRAMES_IN_FLIGHT,
-            .poolSizeCount = 1,
-            .pPoolSizes = &poolSize};
-
-        vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &uiPipeline.descriptorPool), {'V', 219});
-    }
-
-    void Renderer::createUIDescriptorSets()
-    {
-        uiPipeline.descriptorSets.resize(FRAMES_IN_FLIGHT);
-
-        std::vector<VkDescriptorSetLayout> setLayouts(FRAMES_IN_FLIGHT, uiPipeline.descriptorSetLayout);
-
-        VkDescriptorSetAllocateInfo setAllocInfo = {
-            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-            .descriptorPool = uiPipeline.descriptorPool,
-            .descriptorSetCount = FRAMES_IN_FLIGHT,
-            .pSetLayouts = setLayouts.data()};
-
-        vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, uiPipeline.descriptorSets.data()), {'V', 220});
-
+        VkFenceCreateInfo fenceCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+            .flags = VK_FENCE_CREATE_SIGNALED_BIT};
         for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
-            VkDescriptorBufferInfo uiBufferInfo = {
-                .buffer = uiUniformBuffers[i],
-                .offset = 0,
-                .range = sizeof(UboUI)};
-
-            VkWriteDescriptorSet uiSetWrite = {
-                .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstSet = uiPipeline.descriptorSets[i],
-                .dstBinding = 0,
-                .dstArrayElement = 0,
-                .descriptorCount = 1,
-                .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                .pBufferInfo = &uiBufferInfo};
-
-            vkUpdateDescriptorSets(device, 1, &uiSetWrite, 0, nullptr);
+            vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &frames[i].imageAvailableSemaphore), {'V', 215});
+            vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &frames[i].drawFence), {'V', 216});
         }
-    }
 
-    void Renderer::createPostSampler()
-    {
-        VkSamplerCreateInfo samplerCreateInfo{};
-        samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-        samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
-        samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
-        samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerCreateInfo.anisotropyEnable = VK_FALSE;
-        samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
-        samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
-        samplerCreateInfo.compareEnable = VK_FALSE;
-        samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        samplerCreateInfo.mipLodBias = 0.0f;
-        samplerCreateInfo.minLod = 0.0f;
-        samplerCreateInfo.maxLod = 0.0f;
-
-        vkCheck(vkCreateSampler(device, &samplerCreateInfo, nullptr, &postSampler), {'V', 226});
-    }
-
-    void Renderer::createPostDescriptorPool()
-    {
-        VkDescriptorPoolSize poolSize = {
-            .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            .descriptorCount = static_cast<uint32_t>(swapChainImageCount)};
-
-        VkDescriptorPoolCreateInfo poolCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-            .maxSets = static_cast<uint32_t>(swapChainImageCount),
-            .poolSizeCount = 1,
-            .pPoolSizes = &poolSize};
-
-        vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &postPipeline.descriptorPool), {'V', 219});
-    }
-
-    void Renderer::createPostDescriptorSetLayout()
-    {
-        VkDescriptorSetLayoutBinding sceneColorBinding{};
-        sceneColorBinding.binding = 0;
-        sceneColorBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        sceneColorBinding.descriptorCount = 1;
-        sceneColorBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-        sceneColorBinding.pImmutableSamplers = nullptr;
-
-        VkDescriptorSetLayoutCreateInfo layoutInfo{};
-        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        layoutInfo.bindingCount = 1;
-        layoutInfo.pBindings = &sceneColorBinding;
-
-        vkCheck(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &postPipeline.descriptorSetLayout), {'V', 217});
-    }
-
-    void Renderer::createPostDescriptorSets()
-    {
-        const size_t imageCount = swapChainImageCount;
-
-        std::vector<VkDescriptorSetLayout> layouts(imageCount, postPipeline.descriptorSetLayout);
-
-        VkDescriptorSetAllocateInfo allocateInfo{};
-        allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        allocateInfo.descriptorPool = postPipeline.descriptorPool;
-        allocateInfo.descriptorSetCount = static_cast<uint32_t>(imageCount);
-        allocateInfo.pSetLayouts = layouts.data();
-
-        postPipeline.descriptorSets.resize(imageCount);
-        vkCheck(vkAllocateDescriptorSets(device, &allocateInfo, postPipeline.descriptorSets.data()), {'V', 220});
-
-        updatePostDescriptorSets();
-    }
-
-    void Renderer::updatePostDescriptorSets()
-    {
-        for (size_t i = 0; i < postPipeline.descriptorSets.size(); i++)
+        for (size_t i = 0; i < swapChainImageCount; i++)
         {
-            VkDescriptorImageInfo imageInfo{};
-            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = prePostAttachments[i].imageView;
-            imageInfo.sampler = postSampler;
-
-            VkWriteDescriptorSet postSetWrite{};
-            postSetWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            postSetWrite.dstSet = postPipeline.descriptorSets[i];
-            postSetWrite.dstBinding = 0;
-            postSetWrite.dstArrayElement = 0;
-            postSetWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            postSetWrite.descriptorCount = 1;
-            postSetWrite.pImageInfo = &imageInfo;
-
-            vkUpdateDescriptorSets(device, 1, &postSetWrite, 0, nullptr);
+            vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores[i]), {'V', 215});
         }
     }
 

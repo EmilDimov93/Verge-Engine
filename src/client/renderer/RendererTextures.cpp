@@ -155,6 +155,23 @@ namespace VE
         return VK_SUCCESS;
     }
 
+    void Renderer::createTextureDescriptorSetLayout()
+    {
+        VkDescriptorSetLayoutBinding samplerLayoutBinding = {
+            .binding = 0,
+            .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            .descriptorCount = 1,
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+            .pImmutableSamplers = nullptr};
+
+        VkDescriptorSetLayoutCreateInfo textureLayoutCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+            .bindingCount = 1,
+            .pBindings = &samplerLayoutBinding};
+
+        vkCheck(vkCreateDescriptorSetLayout(device, &textureLayoutCreateInfo, nullptr, &textures.descriptorSetLayout), {'V', 217});
+    }
+
     VkResult generateMipmaps(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue queue, VkCommandPool commandPool, VkImage image, VkFormat imageFormat, int32_t textureWidth, int32_t textureHeight, uint32_t mipLevelCount, std::mutex &graphicsQueueMutex, VkFence fence)
     {
         VkFormatProperties formatProperties;

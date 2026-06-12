@@ -259,6 +259,30 @@ namespace VE
         return score;
     }
 
+    VkFormat Renderer::findDepthFormat() const
+    {
+        VkFormat format = VK_FORMAT_UNDEFINED;
+
+        std::vector<VkFormat> depthFormats = {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT};
+
+        for (VkFormat f : depthFormats)
+        {
+            VkFormatProperties properties;
+            vkGetPhysicalDeviceFormatProperties(physicalDevice, f, &properties);
+
+            if (properties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+            {
+                format = f;
+                break;
+            }
+        }
+
+        if (format == VK_FORMAT_UNDEFINED)
+            Log::add('V', 223);
+
+        return format;
+    }
+
     void Renderer::destroyImageAttachment(ImageAttachment &attachment) const
     {
         if (attachment.imageView)

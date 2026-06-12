@@ -154,21 +154,20 @@ namespace VE
             uint32_t textureIndex;
         };
 
-        struct FrameData
-        {
-            VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
-            VkFence drawFence = VK_NULL_HANDLE;
-
-            VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-        };
-        std::array<FrameData, FRAMES_IN_FLIGHT> frames;
-
         static constexpr uint32_t POST_EFFECT_FXAA_BIT = 1u << 0;
         static constexpr uint32_t POST_EFFECT_DITHERING_BIT = 1u << 1;
         struct PostPushData
         {
             float vignetteStrength, vignetteRadius;
             uint32_t flags;
+        };
+
+        struct FrameData
+        {
+            VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
+            VkFence drawFence = VK_NULL_HANDLE;
+
+            VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
         };
 
         // Context
@@ -187,21 +186,22 @@ namespace VE
         uint32_t graphicsQueueFamilyIndex = 0;
         uint32_t transferQueueFamilyIndex = 0;
 
+        VkFormat depthFormat;
+
         VkPipelineCache pipelineCache = VK_NULL_HANDLE;
 
-        // Pre-post images
-        std::vector<ImageAttachment> prePostAttachments;
-
         // SwapChain
-        VkSwapchainKHR swapChain = VK_NULL_HANDLE;VkExtent2D swapChainExtent;
+        VkSwapchainKHR swapChain = VK_NULL_HANDLE;
+        VkExtent2D swapChainExtent;
         std::vector<VkImage> swapChainImages;
         std::vector<VkImageView> swapChainImageViews;
         uint32_t swapChainImageCount;
         VkFormat swapChainImageFormat;
-        VkFormat depthFormat;
 
         // Runtime
         VkCommandPool commandPool = VK_NULL_HANDLE;
+
+        std::array<FrameData, FRAMES_IN_FLIGHT> frames;
 
         uint32_t currentFrame = 0;
 
@@ -211,19 +211,22 @@ namespace VE
         // Pipeline 1: Shadow
         GraphicsPipeline shadowPipeline;
 
+        // Shadow attachments
         ImageAttachment shadowDepthAttachment;
         VkSampler shadowSampler = VK_NULL_HANDLE;
 
         // Pipeline 2: Main
         GraphicsPipeline modelPipeline;
 
-        ImageAttachment depthAttachment;
-
         std::array<VkBuffer, FRAMES_IN_FLIGHT> cameraUniformBuffer;
         std::array<VkDeviceMemory, FRAMES_IN_FLIGHT> cameraUniformBufferMemory;
 
         std::array<VkBuffer, FRAMES_IN_FLIGHT> lightingUniformBuffer;
         std::array<VkDeviceMemory, FRAMES_IN_FLIGHT> lightingUniformBufferMemory;
+
+        // Main pass attachments
+        std::vector<ImageAttachment> prePostAttachments;
+        ImageAttachment depthAttachment;
 
         // Pipeline 3: Transparent
         GraphicsPipeline transparentPipeline;
@@ -269,40 +272,32 @@ namespace VE
 
         void createSwapChain(Size2 windowSize);
 
-        void findDepthFormat();
         void createShadowSampler();
         void createTextureSampler();
 
         void createDepthAttachment();
         void createShadowDepthAttachment();
 
-        void createTextureDescriptorSetLayout();
-
         void createPipelineCache();
 
-        void createModelDescriptorSetLayout();
+        void createModelUniformBuffers();
+        void createPostSampler();
+        void createUIUniformBuffers();
+
+        void createModelDescriptors();
+        void createUIDescriptors();
+        void createPostDescriptors();
+
         void createModelPipeline();
         void createTransparentPipeline();
         void createShadowPipeline();
 
-        void createModelUniformBuffers();
-        void createModelDescriptorPool();
-        void createModelDescriptorSets();
-
-        void createPostSampler();
-        void createPostDescriptorPool();
-        void createPostDescriptorSetLayout();
-        void createPostDescriptorSets();
         void createPostPipeline();
 
         void createPrePostImages();
-        void createUIDescriptorSetLayout();
         void createUIPipeline();
-        void createUIUniformBuffers();
-        void createUIDescriptorPool();
-        void createUIDescriptorSets();
 
-        void createSemaphores();
+        void createSyncObjects();
 
         // Runtime
         void recordShadowPass(const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, const glm::mat4 &lightSpaceMat);
@@ -321,6 +316,7 @@ namespace VE
         [[nodiscard]] static std::vector<char> readFile(const std::string &fileName);
         [[nodiscard]] VkShaderModule createShaderModule(const std::vector<char> &code) const;
         [[nodiscard]] static uint32_t rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
+        [[nodiscard]] VkFormat findDepthFormat() const;
         void destroyImageAttachment(ImageAttachment &attachment) const;
 
         // Models
@@ -338,6 +334,7 @@ namespace VE
 
         // Textures
         void createFallbackTexture();
+        void createTextureDescriptorSetLayout();
         [[nodiscard]] size_t createTextureImage(std::string fileName);
         [[nodiscard]] size_t createTexture(std::string fileName);
         [[nodiscard]] size_t createTextureDescriptor(VkImageView textureImageView);

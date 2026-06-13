@@ -310,16 +310,6 @@ namespace VE
             newSurfaceType.color = {0, 0, 0};
         }
 
-        if (info.colorDistortion.r >= 0 && info.colorDistortion.r <= 1.0f && info.colorDistortion.g >= 0 && info.colorDistortion.g <= 1.0f && info.colorDistortion.b >= 0 && info.colorDistortion.b <= 1.0f)
-        {
-            newSurfaceType.colorDistortion = info.colorDistortion;
-        }
-        else
-        {
-            Log::add('A', 194);
-            newSurfaceType.colorDistortion = {0, 0, 0};
-        }
-
         newSurfaceType.heightDistortion = info.heightDistortion;
 
         surfaceTypes.push_back(newSurfaceType);

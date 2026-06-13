@@ -14,17 +14,15 @@ using SurfaceTypeIndex = uint32_t;
 
 struct SurfaceTypeCreateInfo
 {
-    float friction = 1.0f;
+    float friction = 1.f;
     glm::vec3 color{0};
-    glm::vec3 colorDistortion{0};
-    float heightDistortion = 0;
+    float heightDistortion = 0.f;
 };
 
 struct SurfaceType
 {
     float friction;
     glm::vec3 color;
-    glm::vec3 colorDistortion;
     float heightDistortion;
 };
 

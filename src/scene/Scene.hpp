@@ -67,14 +67,14 @@ namespace VE
         std::vector<Model> models;
         std::vector<ModelInstance> modelInstances;
 
-        // Surface
-        std::vector<Surface> surfaces;
-        std::vector<SurfaceType> surfaceTypes;
-
         // Actors
         std::vector<Vehicle> vehicles;
         std::vector<Prop> props;
         std::vector<Trigger> triggers;
+
+        // Surface
+        std::vector<Surface> surfaces;
+        std::vector<SurfaceType> surfaceTypes;
 
         // Environment
         Environment environment;

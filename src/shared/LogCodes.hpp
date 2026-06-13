@@ -141,7 +141,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     // {'A', 191} removed
     {{'A', 192}, "Surface: invalid friction value"},
     {{'A', 193}, "Surface: invalid color value"},
-    {{'A', 194}, "Surface: invalid color distortion value"},
+    // {{'A', 194} removed
 
     // Widget
     {{'W', 100}, "Materials for widgets are temporarily disabled"},

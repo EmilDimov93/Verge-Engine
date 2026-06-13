@@ -119,8 +119,8 @@ private:
         scene.addTrigger(sTriggerType, {{2.0f, 0.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, [](){ std::cout << "Triggered 2" << std::endl; });
 
         // Ground
-        SurfaceTypeIndex grassSurfaceTypeIndex = scene.addSurfaceType({0.6f, {0, 0.4f, 0}, {0, 0.02f, 0}, 0.05f});
-        SurfaceTypeIndex asphaltSurfaceTypeIndex = scene.addSurfaceType({1.0f, {0.2f, 0.2f, 0.2f}, {0.01f, 0.0f, 0.0f}});
+        SurfaceTypeIndex grassSurfaceTypeIndex = scene.addSurfaceType({0.6f, {0, 0.4f, 0}, 0.05f});
+        SurfaceTypeIndex asphaltSurfaceTypeIndex = scene.addSurfaceType({1.0f, {0.2f, 0.2f, 0.2f}});
         SurfaceTypeIndex roadLineSurfaceTypeIndex = scene.addSurfaceType({1.0f, {1.0f, 1.0f, 1.0f}});
 
         Size2 surfaceSize = {4000, 4000};

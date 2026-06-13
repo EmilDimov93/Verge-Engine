@@ -1,9 +1,8 @@
 #version 450
 
 layout(location = 0) in vec3 pos;
-layout(location = 1) in vec4 col;
-layout(location = 2) in vec2 tex;
-layout(location = 3) in vec3 normal;
+layout(location = 1) in vec2 tex;
+layout(location = 2) in vec3 normal;
 
 layout(set = 0, binding = 0) uniform UboCamera {
     mat4 projection;
@@ -11,29 +10,27 @@ layout(set = 0, binding = 0) uniform UboCamera {
     mat4 lightSpaceMat;
 } uboCamera;
 
-layout(push_constant) uniform PushModel {
+layout(push_constant) uniform PushVertex {
     mat4 model;
     uint textureIndex;
     float lightStrength;
-}pushModel;
+}pushVertex;
 
-layout(location = 0) out vec4 fragCol;
-layout(location = 1) out vec2 fragTex;
-layout(location = 2) flat out uint fragTextureIndex;
-layout(location = 3) out vec3 fragWorldPos;
-layout(location = 4) out vec3 fragNormal;
-layout(location = 5) flat out float fragLightStrength;
-layout(location = 6) out vec4 fragPosLightSpace;
+layout(location = 0) out vec2 fragTex;
+layout(location = 1) flat out uint fragTextureIndex;
+layout(location = 2) out vec3 fragWorldPos;
+layout(location = 3) out vec3 fragNormal;
+layout(location = 4) flat out float fragLightStrength;
+layout(location = 5) out vec4 fragPosLightSpace;
 
 void main(){
-    vec4 worldPos = pushModel.model * vec4(pos, 1.0);
+    vec4 worldPos = pushVertex.model * vec4(pos, 1.0);
     gl_Position = uboCamera.projection * uboCamera.view * worldPos;
 
-    fragCol = col;
     fragTex = tex;
-    fragTextureIndex = pushModel.textureIndex;
+    fragTextureIndex = pushVertex.textureIndex;
     fragWorldPos = worldPos.xyz;
-    fragNormal = mat3(pushModel.model) * normal;
-    fragLightStrength = pushModel.lightStrength;
-    fragPosLightSpace = uboCamera.lightSpaceMat * pushModel.model * vec4(pos, 1.0);
+    fragNormal = mat3(pushVertex.model) * normal;
+    fragLightStrength = pushVertex.lightStrength;
+    fragPosLightSpace = uboCamera.lightSpaceMat * pushVertex.model * vec4(pos, 1.0);
 }

@@ -119,6 +119,8 @@ namespace VE
 
         newModelBuffer.version = model.getVersion();
 
+        newModelBuffer.materials = model.getMaterials();
+
         for (const Mesh &mesh : model.getMeshes())
         {
             MeshBuffer newMeshBuffer;
@@ -126,7 +128,9 @@ namespace VE
             const std::vector<Vertex> &vertices = mesh.getVertices();
             const std::vector<uint32_t> &indices = mesh.getIndices();
 
-            if(!vertices.empty() && vertices[0].col.a < 1.0f)
+            newMeshBuffer.materialIndex = mesh.getMaterialIndex();
+
+            if(newModelBuffer.materials[newMeshBuffer.materialIndex].baseColor.a < 1.0f)
                 newMeshBuffer.isTransparent = true;
 
             newMeshBuffer.vertexCount = vertices.size();
@@ -158,9 +162,14 @@ namespace VE
 
         modelBuffer.meshBuffers.clear();
 
+        modelBuffer.materials = model.getMaterials();
+
         for (const Mesh &mesh : model.getMeshes())
         {
             MeshBuffer newMeshBuffer;
+            newMeshBuffer.materialIndex = mesh.getMaterialIndex();
+            if(modelBuffer.materials[newMeshBuffer.materialIndex].baseColor.a < 1.0f)
+                newMeshBuffer.isTransparent = true;
             newMeshBuffer.vertexCount = mesh.getVertices().size();
             newMeshBuffer.indexCount = mesh.getIndices().size();
             createVertexBuffer(newMeshBuffer, mesh.getVertices());

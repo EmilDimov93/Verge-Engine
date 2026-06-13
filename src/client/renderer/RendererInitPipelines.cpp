@@ -69,7 +69,7 @@ namespace VE
 
         VkPipelineShaderStageCreateInfo shaderStages[] = {vertexShaderStage, fragmentShaderStage};
 
-        std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions;
+        std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions;
 
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;
@@ -78,18 +78,13 @@ namespace VE
 
         attributeDescriptions[1].binding = 0;
         attributeDescriptions[1].location = 1;
-        attributeDescriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-        attributeDescriptions[1].offset = offsetof(Vertex, col);
+        attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[1].offset = offsetof(Vertex, tex);
 
         attributeDescriptions[2].binding = 0;
         attributeDescriptions[2].location = 2;
-        attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-        attributeDescriptions[2].offset = offsetof(Vertex, tex);
-
-        attributeDescriptions[3].binding = 0;
-        attributeDescriptions[3].location = 3;
-        attributeDescriptions[3].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[3].offset = offsetof(Vertex, norm);
+        attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+        attributeDescriptions[2].offset = offsetof(Vertex, norm);
 
         VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
@@ -126,16 +121,23 @@ namespace VE
 
         std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts = {modelPipeline.descriptorSetLayout, textures.descriptorSetLayout};
 
-        VkPushConstantRange pushConstantRange;
-        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-        pushConstantRange.offset = 0;
-        pushConstantRange.size = sizeof(PushData);
+        VkPushConstantRange vertexPushConstantRange;
+        vertexPushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        vertexPushConstantRange.offset = 0;
+        vertexPushConstantRange.size = sizeof(VertexPushData);
+        VkPushConstantRange materialPushConstantRange;
+        materialPushConstantRange.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        materialPushConstantRange.offset = materialPushDataStructOffset;
+        materialPushConstantRange.size = sizeof(MaterialPushData);
+
+        std::array<VkPushConstantRange, 2> pushConstantRanges = {vertexPushConstantRange, materialPushConstantRange};
+
         VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
             .setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size()),
             .pSetLayouts = descriptorSetLayouts.data(),
-            .pushConstantRangeCount = 1,
-            .pPushConstantRanges = &pushConstantRange};
+            .pushConstantRangeCount = pushConstantRanges.size(),
+            .pPushConstantRanges = pushConstantRanges.data()};
 
         vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &modelPipeline.layout), {'V', 210});
 
@@ -197,7 +199,7 @@ namespace VE
 
         VkPipelineShaderStageCreateInfo shaderStages[] = {vertexShaderStage, fragmentShaderStage};
 
-        std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions;
+        std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions;
 
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;
@@ -206,18 +208,13 @@ namespace VE
 
         attributeDescriptions[1].binding = 0;
         attributeDescriptions[1].location = 1;
-        attributeDescriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-        attributeDescriptions[1].offset = offsetof(Vertex, col);
+        attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[1].offset = offsetof(Vertex, tex);
 
         attributeDescriptions[2].binding = 0;
         attributeDescriptions[2].location = 2;
-        attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-        attributeDescriptions[2].offset = offsetof(Vertex, tex);
-
-        attributeDescriptions[3].binding = 0;
-        attributeDescriptions[3].location = 3;
-        attributeDescriptions[3].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[3].offset = offsetof(Vertex, norm);
+        attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+        attributeDescriptions[2].offset = offsetof(Vertex, norm);
 
         VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
@@ -254,16 +251,23 @@ namespace VE
 
         std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts = {modelPipeline.descriptorSetLayout, textures.descriptorSetLayout};
 
-        VkPushConstantRange pushConstantRange;
-        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-        pushConstantRange.offset = 0;
-        pushConstantRange.size = sizeof(PushData);
+        VkPushConstantRange vertexPushConstantRange;
+        vertexPushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        vertexPushConstantRange.offset = 0;
+        vertexPushConstantRange.size = sizeof(VertexPushData);
+        VkPushConstantRange materialPushConstantRange;
+        materialPushConstantRange.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        materialPushConstantRange.offset = materialPushDataStructOffset;
+        materialPushConstantRange.size = sizeof(MaterialPushData);
+
+        std::array<VkPushConstantRange, 2> pushConstantRanges = {vertexPushConstantRange, materialPushConstantRange};
+
         VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
             .setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size()),
             .pSetLayouts = descriptorSetLayouts.data(),
-            .pushConstantRangeCount = 1,
-            .pPushConstantRanges = &pushConstantRange};
+            .pushConstantRangeCount = pushConstantRanges.size(),
+            .pPushConstantRanges = pushConstantRanges.data()};
 
         vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &transparentPipeline.layout), {'V', 210});
 
@@ -498,7 +502,7 @@ namespace VE
 
         std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages = {vertexShaderStage, fragmentShaderStage};
 
-        std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions;
+        std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions;
 
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;
@@ -507,13 +511,8 @@ namespace VE
 
         attributeDescriptions[1].binding = 0;
         attributeDescriptions[1].location = 1;
-        attributeDescriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-        attributeDescriptions[1].offset = offsetof(Vertex, col);
-
-        attributeDescriptions[2].binding = 0;
-        attributeDescriptions[2].location = 2;
-        attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-        attributeDescriptions[2].offset = offsetof(Vertex, tex);
+        attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[1].offset = offsetof(Vertex, tex);
 
         VkPipelineVertexInputStateCreateInfo vertexInputState = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,

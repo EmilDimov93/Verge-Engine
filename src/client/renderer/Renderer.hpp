@@ -88,6 +88,8 @@ namespace VE
             VkBuffer indexBuffer = VK_NULL_HANDLE;
             VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
 
+            uint32_t materialIndex;
+
             uint32_t texIndex = INVALID_TEXTURE_INDEX;
 
             bool isTransparent = false;
@@ -98,6 +100,7 @@ namespace VE
             ModelHandle handle;
 
             std::vector<MeshBuffer> meshBuffers;
+            std::vector<Material> materials;
 
             uint64_t version = 0;
 
@@ -135,12 +138,21 @@ namespace VE
             glm::mat4 orthographicProj;
         };
 
-        struct PushData
+        struct VertexPushData
         {
             glm::mat4 model;
             uint32_t textureIndex;
             float lightStrength;
         };
+
+        struct MaterialPushData
+        {
+            glm::vec4 baseColor;
+            float metallic;
+            float roughness;
+        };
+
+        static constexpr uint32_t materialPushDataStructOffset = (sizeof(VertexPushData) + 15u) & ~15u;
 
         struct ShadowPushData
         {

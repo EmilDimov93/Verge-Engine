@@ -203,7 +203,7 @@ namespace VE
         return handle;
     }
 
-    TriggerHandle Scene::addTrigger(const TriggerTypeCreateInfo &info, Transform transform, const std::function<void()>& callback)
+    TriggerHandle Scene::addTrigger(const TriggerTypeCreateInfo &info, Transform transform, const std::function<void()> &callback)
     {
         TriggerHandle handle = HandleFactory<TriggerHandle>::getNewHandle();
 
@@ -340,33 +340,43 @@ namespace VE
 
         newSurface.tileSize = tileSize;
 
-        std::vector<Vertex> meshVertices;
-        std::vector<uint32_t> meshIndices;
+        const float halfW = (newSurface.size.w - 1) * 0.5f;
+        const float halfH = (newSurface.size.h - 1) * 0.5f;
+
+        std::vector<glm::vec3> vertexPositions(newSurface.size.h * newSurface.size.w);
 
         for (size_t i = 0; i < newSurface.size.h; i++)
         {
             for (size_t j = 0; j < newSurface.size.w; j++)
             {
                 uint32_t surfaceTypeIndex = newSurface.surfaceTypeMap[i * newSurface.size.w + j];
-                if (surfaceTypeIndex < 0 || surfaceTypeIndex >= surfaceTypes.size())
+                if (surfaceTypeIndex >= surfaceTypes.size())
                 {
                     Log::add('A', 190);
                     surfaceTypeIndex = 0;
                 }
 
-                color_t surfaceColor;
-                surfaceColor.r = surfaceTypes[surfaceTypeIndex].color.r + glm::linearRand(-surfaceTypes[surfaceTypeIndex].colorDistortion.r, surfaceTypes[surfaceTypeIndex].colorDistortion.r);
-                surfaceColor.g = surfaceTypes[surfaceTypeIndex].color.g + glm::linearRand(-surfaceTypes[surfaceTypeIndex].colorDistortion.g, surfaceTypes[surfaceTypeIndex].colorDistortion.g);
-                surfaceColor.b = surfaceTypes[surfaceTypeIndex].color.b + glm::linearRand(-surfaceTypes[surfaceTypeIndex].colorDistortion.b, surfaceTypes[surfaceTypeIndex].colorDistortion.b);
-                surfaceColor.a = 1.0f;
-
                 newSurface.heightMap[i * newSurface.size.w + j] += glm::linearRand(-surfaceTypes[surfaceTypeIndex].heightDistortion, surfaceTypes[surfaceTypeIndex].heightDistortion);
 
-                const float halfW = (newSurface.size.w - 1) * 0.5f;
-                const float halfH = (newSurface.size.h - 1) * 0.5f;
-                meshVertices.push_back({{(float)(j - halfW) * tileSize, newSurface.heightMap[i * newSurface.size.w + j], (float)(i - halfH) * tileSize}, surfaceColor});
+                vertexPositions[i * newSurface.size.w + j] = glm::vec3((float)(j - halfW) * tileSize, newSurface.heightMap[i * newSurface.size.w + j], (float)(i - halfH) * tileSize);
             }
         }
+
+        std::vector<std::vector<Vertex>> verticesByType(surfaceTypes.size());
+        std::vector<std::vector<uint32_t>> indicesByType(surfaceTypes.size());
+        std::vector<std::unordered_map<uint32_t, uint32_t>> globalToLocalIndex(surfaceTypes.size());
+
+        auto getLocalIndex = [&](uint32_t surfaceTypeIndex, uint32_t globalVertexIndex) -> uint32_t
+        {
+            std::unordered_map<uint32_t, uint32_t> &remap = globalToLocalIndex[surfaceTypeIndex];
+            std::unordered_map<uint32_t, uint32_t>::iterator it = remap.find(globalVertexIndex);
+            if (it != remap.end())
+                return it->second;
+            uint32_t localIndex = (uint32_t)verticesByType[surfaceTypeIndex].size();
+            verticesByType[surfaceTypeIndex].emplace_back(vertexPositions[globalVertexIndex]);
+            remap.emplace(globalVertexIndex, localIndex);
+            return localIndex;
+        };
 
         for (uint32_t z = 0; z < newSurface.size.h - 1; z++)
         {
@@ -377,13 +387,19 @@ namespace VE
                 uint32_t v2 = v0 + newSurface.size.w;
                 uint32_t v3 = v2 + 1;
 
-                meshIndices.push_back(v0);
-                meshIndices.push_back(v2);
-                meshIndices.push_back(v1);
+                uint32_t cellTypeIndex = newSurface.surfaceTypeMap[v0];
+                if (cellTypeIndex >= surfaceTypes.size())
+                    cellTypeIndex = 0;
 
-                meshIndices.push_back(v1);
-                meshIndices.push_back(v2);
-                meshIndices.push_back(v3);
+                std::vector<uint32_t> &cellIndices = indicesByType[cellTypeIndex];
+
+                cellIndices.push_back(getLocalIndex(cellTypeIndex, v0));
+                cellIndices.push_back(getLocalIndex(cellTypeIndex, v2));
+                cellIndices.push_back(getLocalIndex(cellTypeIndex, v1));
+
+                cellIndices.push_back(getLocalIndex(cellTypeIndex, v1));
+                cellIndices.push_back(getLocalIndex(cellTypeIndex, v2));
+                cellIndices.push_back(getLocalIndex(cellTypeIndex, v3));
             }
         }
 
@@ -391,11 +407,21 @@ namespace VE
 
         ModelHandle newModelHandle = HandleFactory<ModelHandle>::getNewHandle();
 
+        std::vector<Material> materials;
+        materials.reserve(surfaceTypes.size());
+        for (const SurfaceType &surfaceType : surfaceTypes)
+            materials.push_back(Material{glm::vec4(surfaceType.color.r, surfaceType.color.g, surfaceType.color.b, 1.f), 0.f, 1.f});
+
         std::vector<Mesh> meshes;
 
-        meshes.emplace_back(meshVertices, meshIndices, Mesh::NO_TEXTURE);
+        for (uint32_t surfaceTypeIndex = 0; surfaceTypeIndex < surfaceTypes.size(); surfaceTypeIndex++)
+        {
+            if (indicesByType[surfaceTypeIndex].empty())
+                continue;
+            meshes.emplace_back(verticesByType[surfaceTypeIndex], indicesByType[surfaceTypeIndex], surfaceTypeIndex, Mesh::NO_TEXTURE);
+        }
 
-        Model newModel(newModelHandle, meshes);
+        Model newModel(newModelHandle, meshes, materials);
 
         models.push_back(newModel);
 

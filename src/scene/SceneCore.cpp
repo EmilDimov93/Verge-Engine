@@ -228,17 +228,17 @@ namespace VE
             return INVALID_MODEL_HANDLE;
         }
 
-        ModelHandle newModelHandle = HandleFactory<ModelHandle>::getNewHandle();
+        ModelData data = loadOBJ(filePath);
 
-        std::vector<Mesh> meshes = loadOBJ(filePath);
-
-        if (meshes.empty())
+        if (data.meshes.empty())
         {
             Log::add('E', 102);
             return INVALID_MODEL_HANDLE;
         }
 
-        models.emplace_back(newModelHandle, meshes);
+        ModelHandle newModelHandle = HandleFactory<ModelHandle>::getNewHandle();
+
+        models.emplace_back(newModelHandle, data.meshes, data.materials);
 
         return newModelHandle;
     }

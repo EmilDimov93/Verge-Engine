@@ -13,20 +13,27 @@ namespace VE
     struct Vertex
     {
         glm::vec3 pos;
-        color_t col;
         glm::vec2 tex;
         glm::vec3 norm;
 
-        Vertex(const glm::vec3 &position = glm::vec3(0.0f), const color_t &color = color_t(1.0f), const glm::vec2 &texture = glm::vec2(0.0f), const glm::vec3 &normal = glm::vec3(0.0f, 1.0f, 0.0f)) : pos(position), col(color), tex(texture), norm(normal) {}
+        Vertex(const glm::vec3 &position = glm::vec3(0.0f), const glm::vec2 &texture = glm::vec2(0.0f), const glm::vec3 &normal = glm::vec3(0.0f, 1.0f, 0.0f)) : pos(position), tex(texture), norm(normal) {}
+    };
+
+    struct Material
+    {
+        color_t baseColor;
+        float metallic;
+        float roughness;
     };
 
     class Mesh
     {
     public:
-        Mesh(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const std::string &textureFilePath) : vertices(vertices), indices(indices), textureFilePath(textureFilePath) {}
+        Mesh(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, uint32_t materialIndex, const std::string &textureFilePath) : vertices(vertices), indices(indices), materialIndex(materialIndex), textureFilePath(textureFilePath) {}
 
         [[nodiscard]] const std::vector<Vertex> &getVertices() const { return vertices; }
         [[nodiscard]] const std::vector<uint32_t> &getIndices() const { return indices; }
+        [[nodiscard]] uint32_t getMaterialIndex() const { return materialIndex; }
         [[nodiscard]] const std::string &getTextureFilePath() const { return textureFilePath; }
 
         static inline const std::string NO_TEXTURE = "";
@@ -34,13 +41,20 @@ namespace VE
     private:
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
+        uint32_t materialIndex;
         std::string textureFilePath;
+    };
+
+    struct ModelData
+    {
+        std::vector<Mesh> meshes;
+        std::vector<Material> materials;
     };
 
     class Model
     {
     public:
-        Model(ModelHandle handle, const std::vector<Mesh> &meshes) : handle(handle), meshes(meshes) {}
+        Model(ModelHandle handle, const std::vector<Mesh> &meshes, const std::vector<Material> &materials) : handle(handle), meshes(meshes), materials(materials) {}
 
         void update(const std::vector<Mesh> &meshes)
         {
@@ -52,6 +66,7 @@ namespace VE
         [[nodiscard]] ModelHandle getHandle() const { return handle; };
         [[nodiscard]] uint64_t getVersion() const { return version; }
         [[nodiscard]] const std::vector<Mesh> &getMeshes() const { return meshes; }
+        [[nodiscard]] const std::vector<Material> &getMaterials() const { return materials; }
 
     private:
         ModelHandle handle;
@@ -59,6 +74,7 @@ namespace VE
         uint64_t version = 1;
 
         std::vector<Mesh> meshes;
+        std::vector<Material> materials;
     };
 
     struct ModelInstance

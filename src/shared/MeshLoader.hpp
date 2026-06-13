@@ -14,28 +14,25 @@
 namespace VE
 {
 
-    [[nodiscard]] static const std::vector<Mesh> loadOBJ(const std::string &filePath)
+    
+[[nodiscard]] static ModelData loadOBJ(const std::string &filePath)
     {
         std::ifstream file(filePath);
         if (!file.is_open())
-        {
-            static const std::vector<Mesh> emptyVector;
-            return emptyVector;
-        }
+            return {};
 
-        struct Material
+        struct MaterialEntry
         {
-            color_t diffuseColor{1.0f};
+            Material material{};
             std::string diffuseTexturePath;
-            float dissolve = 1.0f;
         };
 
         std::vector<glm::vec3> positions;
-        std::unordered_map<std::string, Material> materials;
+        std::unordered_map<std::string, MaterialEntry> materials;
         std::vector<glm::vec2> texCoords;
 
-        color_t currentColor(1.0f);
         std::string currentTexturePath;
+        uint32_t currentMaterialIndex = UINT32_MAX;
 
         std::vector<Vertex> currentMeshVertices;
         std::vector<uint32_t> currentMeshIndices;
@@ -67,7 +64,7 @@ namespace VE
                     std::stringstream ss(line.substr(3));
                     glm::vec3 kd;
                     ss >> kd.r >> kd.g >> kd.b;
-                    materials[currentMat].diffuseColor = color_t(kd, 1.0f);
+                    materials[currentMat].material.baseColor = color_t(kd, materials[currentMat].material.baseColor.a);
                 }
                 else if (line.starts_with("map_Kd ") && !currentMat.empty())
                 {
@@ -81,30 +78,53 @@ namespace VE
                     std::stringstream ss(line.substr(2));
                     float dissolve = 1.0f;
                     ss >> dissolve;
-                    materials[currentMat].dissolve = dissolve;
+                    materials[currentMat].material.baseColor.a = dissolve;
                 }
                 else if (line.starts_with("Tr ") && !currentMat.empty())
                 {
                     std::stringstream ss(line.substr(3));
                     float transparency = 0.0f;
                     ss >> transparency;
-                    materials[currentMat].dissolve = 1.0f - transparency;
+                    materials[currentMat].material.baseColor.a = 1.0f - transparency;
+                }
+                else if (line.starts_with("Pm ") && !currentMat.empty())
+                {
+                    std::stringstream ss(line.substr(3));
+                    float metallic = 0.0f;
+                    ss >> metallic;
+                    materials[currentMat].material.metallic = metallic;
+                }
+                else if (line.starts_with("Pr ") && !currentMat.empty())
+                {
+                    std::stringstream ss(line.substr(3));
+                    float roughness = 1.0f;
+                    ss >> roughness;
+                    materials[currentMat].material.roughness = roughness;
                 }
             }
         };
 
         std::vector<Mesh> meshes;
+        std::vector<Material> materialList;
+        std::unordered_map<std::string, uint32_t> materialIndexByName;
         auto finalizeCurrentMesh = [&]()
         {
             if (currentMeshVertices.empty())
                 return;
 
-            Mesh newMesh(currentMeshVertices, currentMeshIndices, currentTexturePath);
+            uint32_t resolvedMaterialIndex = currentMaterialIndex;
+            if (resolvedMaterialIndex == UINT32_MAX)
+            {
+                resolvedMaterialIndex = static_cast<uint32_t>(materialList.size());
+                materialList.push_back(Material{});
+                currentMaterialIndex = resolvedMaterialIndex;
+            }
+
+            Mesh newMesh(currentMeshVertices, currentMeshIndices, resolvedMaterialIndex, currentTexturePath);
             meshes.push_back(newMesh);
 
             currentMeshVertices.clear();
             currentMeshIndices.clear();
-            currentTexturePath.clear();
         };
 
         std::filesystem::path objPath(filePath);
@@ -128,8 +148,17 @@ namespace VE
                 auto it = materials.find(mat);
                 if (it != materials.end())
                 {
-                    currentColor = it->second.diffuseColor;
-                    currentColor.a = (it != materials.end()) ? it->second.dissolve : 1.0f;
+                    auto idxIt = materialIndexByName.find(mat);
+                    if (idxIt == materialIndexByName.end())
+                    {
+                        currentMaterialIndex = static_cast<uint32_t>(materialList.size());
+                        materialList.push_back(it->second.material);
+                        materialIndexByName.emplace(mat, currentMaterialIndex);
+                    }
+                    else
+                    {
+                        currentMaterialIndex = idxIt->second;
+                    }
                     currentTexturePath = it->second.diffuseTexturePath;
                 }
             }
@@ -167,7 +196,6 @@ namespace VE
                 {
                     Vertex vertex;
                     vertex.pos = positions[positionIndex];
-                    vertex.col = currentColor;
                     vertex.tex = (texCoordIndex >= 0) ? texCoords[texCoordIndex] : glm::vec2(0.0f);
                     vertex.tex.y = 1.0f - vertex.tex.y;
                     vertex.norm = glm::normalize(glm::cross(positions[parsed[1].first] - positions[parsed[0].first],
@@ -192,6 +220,6 @@ namespace VE
 
         finalizeCurrentMesh();
 
-        return meshes;
+        return ModelData{std::move(meshes), std::move(materialList)};
     }
 }

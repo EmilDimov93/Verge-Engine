@@ -70,7 +70,7 @@ namespace VE
         vkCheck(vkCreateDescriptorSetLayout(device, &layoutCreateInfo, nullptr, &modelPipeline.descriptorSetLayout), {'V', 217});
 
         // Pool
-            VkDescriptorPoolSize uniformPoolSize = {
+        VkDescriptorPoolSize uniformPoolSize = {
             .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
             .descriptorCount = static_cast<uint32_t>(cameraUniformBuffer.size() + lightingUniformBuffer.size())};
 
@@ -145,7 +145,7 @@ namespace VE
                 .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                 .pImageInfo = &shadowImageInfo};
 
-            std::vector<VkWriteDescriptorSet> setWrites = {cameraSetWrite, lightingSetWrite, shadowSetWrite};
+            std::array<VkWriteDescriptorSet, 3> setWrites = {cameraSetWrite, lightingSetWrite, shadowSetWrite};
 
             vkUpdateDescriptorSets(device, static_cast<uint32_t>(setWrites.size()), setWrites.data(), 0, nullptr);
         }

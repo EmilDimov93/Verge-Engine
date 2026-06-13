@@ -1,12 +1,11 @@
 #version 450
 
-layout(location = 0) flat in vec4 fragCol;
-layout(location = 1) in vec2 fragTex;
-layout(location = 2) flat in uint fragTextureIndex;
-layout(location = 3) in vec3 fragWorldPos;
-layout(location = 4) in vec3 fragNormal;
-layout(location = 5) flat in float fragLightStrength;
-layout(location = 6) in vec4 fragPosLightSpace;
+layout(location = 0) in vec2 fragTex;
+layout(location = 1) flat in uint fragTextureIndex;
+layout(location = 2) in vec3 fragWorldPos;
+layout(location = 3) in vec3 fragNormal;
+layout(location = 4) flat in float fragLightStrength;
+layout(location = 5) in vec4 fragPosLightSpace;
 
 layout(set = 0, binding = 1) uniform UboLighting {
     vec4 lightPos;
@@ -14,6 +13,12 @@ layout(set = 0, binding = 1) uniform UboLighting {
     vec4 viewPos;
     float outdoorBrightness;
 } uboLighting;
+
+layout(push_constant) uniform PushMaterial {
+    layout(offset = 80) vec4 baseColor;
+    float metallic;
+    float roughness;
+} pushMaterial;
 
 layout(set = 1, binding = 0) uniform sampler2D textureSampler;
 layout(set = 0, binding = 2) uniform sampler2DShadow shadowMap;
@@ -30,7 +35,7 @@ float calcShadow(vec4 posLightSpace) {
 }
 
 void main(){
-    vec4 base = (fragTextureIndex == 0) ? fragCol : texture(textureSampler, fragTex);
+    vec4 base = (fragTextureIndex == 0) ? pushMaterial.baseColor : texture(textureSampler, fragTex);
 
     if (fragLightStrength > 0.0) {
         outColor = uboLighting.lightColor;

@@ -1,8 +1,7 @@
 #version 450
 
 layout(location = 0) in vec3 inPos;
-layout(location = 1) in vec4 inCol;
-layout(location = 2) in vec2 inTex;
+layout(location = 1) in vec2 inTex;
 
 layout(set = 0, binding = 0) uniform UboUI {
     mat4 orthographicProj;
@@ -24,5 +23,5 @@ void main()
     fragTex = inTex;
     fragTextureIndex = pushUI.textureIndex;
 
-    outCol = inCol;
+    outCol = vec4(1.0); // Temporary: no color
 }

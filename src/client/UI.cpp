@@ -39,7 +39,8 @@ namespace VE
 
         WidgetHandle newWidgetHandle = HandleFactory<WidgetHandle>::getNewHandle();
 
-        std::vector<Mesh> meshes = loadOBJ(filePath);
+        std::vector<Mesh> meshes = loadOBJ(filePath).meshes;
+        Log::add('W', 100);
 
         if (meshes.empty())
         {

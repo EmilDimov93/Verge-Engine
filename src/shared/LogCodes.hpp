@@ -144,6 +144,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'A', 194}, "Surface: invalid color distortion value"},
 
     // Widget
+    {{'W', 100}, "Materials for widgets are temporarily disabled"},
     {{'W', 200}, "Invalid widget handle"}};
 
 }

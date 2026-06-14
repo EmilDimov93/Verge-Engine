@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "../shared/MeshLoader.hpp"
 #include "../shared/DrawData.hpp"
 
 #include <unordered_map>

@@ -112,6 +112,7 @@ namespace VE
             WidgetHandle handle;
 
             std::vector<MeshBuffer> meshBuffers;
+            std::vector<Material> materials;
 
             uint64_t version = 0;
 
@@ -164,6 +165,7 @@ namespace VE
         {
             glm::mat4 model;
             uint32_t textureIndex;
+            alignas(16) glm::vec4 color;
         };
 
         static constexpr uint32_t POST_EFFECT_FXAA_BIT = 1u << 0;

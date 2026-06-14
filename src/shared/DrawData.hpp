@@ -95,7 +95,7 @@ namespace VE
     class Widget
     {
     public:
-        Widget(WidgetHandle handle, const std::vector<Mesh> &meshes) : handle(handle), meshes(meshes) {}
+        Widget(WidgetHandle handle, const std::vector<Mesh> &meshes, const std::vector<Material> &materials) : handle(handle), meshes(meshes), materials(materials) {}
 
         void update(const std::vector<Mesh> &meshes)
         {
@@ -107,6 +107,7 @@ namespace VE
         [[nodiscard]] WidgetHandle getHandle() const { return handle; };
         [[nodiscard]] uint64_t getVersion() const { return version; }
         [[nodiscard]] const std::vector<Mesh> &getMeshes() const { return meshes; }
+        [[nodiscard]] const std::vector<Material> &getMaterials() const { return materials; }
 
     private:
         WidgetHandle handle;
@@ -114,6 +115,7 @@ namespace VE
         uint64_t version = 1;
 
         std::vector<Mesh> meshes;
+        std::vector<Material> materials;
     };
 
     struct WidgetInstance

@@ -61,11 +61,13 @@ namespace VE
         WidgetBuffer newWidgetBuffer(widget.getHandle());
 
         newWidgetBuffer.version = widget.getVersion();
+        newWidgetBuffer.materials = widget.getMaterials();
 
         for (const Mesh &mesh : widget.getMeshes())
         {
             MeshBuffer newMeshBuffer;
 
+            newMeshBuffer.materialIndex = mesh.getMaterialIndex();
             newMeshBuffer.vertexCount = mesh.getVertices().size();
             newMeshBuffer.indexCount = mesh.getIndices().size();
             createVertexBuffer(newMeshBuffer, mesh.getVertices());

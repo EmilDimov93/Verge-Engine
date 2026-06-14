@@ -5,7 +5,7 @@
 
 #include "../shared/HandleFactory.hpp"
 
-#include "../shared/MeshLoader.hpp"
+#include "../shared/ModelLoader.hpp"
 #include "../shared/Log.hpp"
 
 #include <vector>

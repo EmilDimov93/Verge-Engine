@@ -4,6 +4,7 @@
 #include "UI.hpp"
 
 #include "../shared/HandleFactory.hpp"
+#include "../shared/ModelLoader.hpp"
 
 #include "../shared/Log.hpp"
 
@@ -39,16 +40,15 @@ namespace VE
 
         WidgetHandle newWidgetHandle = HandleFactory<WidgetHandle>::getNewHandle();
 
-        std::vector<Mesh> meshes = loadOBJ(filePath).meshes;
-        Log::add('W', 100);
+        ModelData data = loadOBJ(filePath);
 
-        if (meshes.empty())
+        if (data.meshes.empty())
         {
             Log::add('E', 102);
             return INVALID_WIDGET_HANDLE;
         }
 
-        widgets.emplace_back(newWidgetHandle, meshes);
+        widgets.emplace_back(newWidgetHandle, data.meshes, data.materials);
 
         return newWidgetHandle;
     }

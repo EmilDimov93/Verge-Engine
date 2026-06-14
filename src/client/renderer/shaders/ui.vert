@@ -10,6 +10,7 @@ layout(set = 0, binding = 0) uniform UboUI {
 layout(push_constant) uniform PushUI {
     mat4 model;
     uint textureIndex;
+    vec4 color;
 }pushUI;
 
 layout(location = 0) out vec4 outCol;
@@ -23,5 +24,5 @@ void main()
     fragTex = inTex;
     fragTextureIndex = pushUI.textureIndex;
 
-    outCol = vec4(1.0); // Temporary: no color
+    outCol = pushUI.color;
 }

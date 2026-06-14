@@ -144,7 +144,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     // {{'A', 194} removed
 
     // Widget
-    {{'W', 100}, "Materials for widgets are temporarily disabled"},
+    // {'W', 100} removed
     {{'W', 200}, "Invalid widget handle"}};
 
 }

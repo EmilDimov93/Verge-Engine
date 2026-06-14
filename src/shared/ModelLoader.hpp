@@ -58,6 +58,7 @@ namespace VE
                 {
                     currentMat = line.substr(7);
                     trim(currentMat);
+                    materials[currentMat].material.baseColor.a = 1.0f;
                 }
                 else if (line.starts_with("Kd ") && !currentMat.empty())
                 {

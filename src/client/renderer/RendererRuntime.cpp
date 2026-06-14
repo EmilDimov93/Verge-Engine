@@ -412,9 +412,9 @@ namespace VE
 
                         UIPushData pushData;
                         pushData.model = Transform(Position3((instance.coords.x + 1) / 2 * swapChainExtent.width, (instance.coords.y + 1) / 2 * swapChainExtent.height, 0.f), Rotation3(), Scale3(instance.uniformScale)).toMat();
-
-                        pushData.textureIndex = meshBuffer.texIndex;
                         pushData.model[1][1] *= -1;
+                        pushData.textureIndex = meshBuffer.texIndex;
+                        pushData.color = widgetBuffer.materials[meshBuffer.materialIndex].baseColor;
 
                         vkCmdPushConstants(commandBuffer, uiPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UIPushData), &pushData);
 

@@ -372,24 +372,6 @@ namespace VE
         }
     }
 
-    void Renderer::destroyMeshBuffer(MeshBuffer &meshBuffer) const
-    {
-        if (meshBuffer.vertexBuffer)
-            vkDestroyBuffer(device, meshBuffer.vertexBuffer, nullptr);
-        if (meshBuffer.vertexBufferMemory)
-            vkFreeMemory(device, meshBuffer.vertexBufferMemory, nullptr);
-
-        if (meshBuffer.indexBuffer)
-            vkDestroyBuffer(device, meshBuffer.indexBuffer, nullptr);
-        if (meshBuffer.indexBufferMemory)
-            vkFreeMemory(device, meshBuffer.indexBufferMemory, nullptr);
-
-        meshBuffer.vertexBuffer = VK_NULL_HANDLE;
-        meshBuffer.vertexBufferMemory = VK_NULL_HANDLE;
-        meshBuffer.indexBuffer = VK_NULL_HANDLE;
-        meshBuffer.indexBufferMemory = VK_NULL_HANDLE;
-    }
-
     Renderer::~Renderer()
     {
         if (device != VK_NULL_HANDLE)

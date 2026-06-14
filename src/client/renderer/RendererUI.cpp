@@ -21,10 +21,8 @@ namespace VE
                 {
                     widgetBufferFound = true;
                     if (widget.getVersion() > widgetBuffer.version)
-                    {
-                        Log::add('E', 100);
-                        // updateWidgetBuffer(widgetBuffer, widget);
-                    }
+                        updateWidgetBuffer(widgetBuffer, widget);
+                    
                     break;
                 }
             }
@@ -83,6 +81,36 @@ namespace VE
             std::lock_guard<std::recursive_mutex> lock(widgetMutex);
             widgetBuffers.push_back(newWidgetBuffer);
         }
+    }
+
+    void Renderer::updateWidgetBuffer(WidgetBuffer &widgetBuffer, const Widget &widget)
+    {
+        {
+            std::lock_guard<std::mutex> lock(graphicsQueueMutex);
+            vkCheck(vkDeviceWaitIdle(device), {'V', 235});
+        }
+
+        for (MeshBuffer &meshBuffer : widgetBuffer.meshBuffers)
+            destroyMeshBuffer(meshBuffer);
+
+        widgetBuffer.meshBuffers.clear();
+
+        widgetBuffer.materials = widget.getMaterials();
+
+        for (const Mesh &mesh : widget.getMeshes())
+        {
+            MeshBuffer newMeshBuffer;
+            newMeshBuffer.materialIndex = mesh.getMaterialIndex();
+            if(widgetBuffer.materials[newMeshBuffer.materialIndex].baseColor.a < 1.0f)
+                newMeshBuffer.isTransparent = true;
+            newMeshBuffer.vertexCount = mesh.getVertices().size();
+            newMeshBuffer.indexCount = mesh.getIndices().size();
+            createVertexBuffer(newMeshBuffer, mesh.getVertices());
+            createIndexBuffer(newMeshBuffer, mesh.getIndices());
+            widgetBuffer.meshBuffers.push_back(newMeshBuffer);
+        }
+
+        widgetBuffer.version = widget.getVersion();
     }
 
 }

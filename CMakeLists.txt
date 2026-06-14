@@ -21,6 +21,7 @@ add_executable(VergeEngine
     src/client/renderer/RendererInitPipelines.cpp
     src/client/renderer/RendererRuntime.cpp
     src/client/renderer/RendererHelpers.cpp
+    src/client/renderer/RendererMesh.cpp
     src/client/renderer/RendererModels.cpp
     src/client/renderer/RendererUI.cpp
     src/client/renderer/RendererTextures.cpp

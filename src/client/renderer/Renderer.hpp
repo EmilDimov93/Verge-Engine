@@ -333,18 +333,21 @@ namespace VE
         [[nodiscard]] VkFormat findDepthFormat() const;
         void destroyImageAttachment(ImageAttachment &attachment) const;
 
-        // Models
-        void syncModelBuffers(const std::vector<Model> &models);
+        // Mesh
         void createVertexBuffer(MeshBuffer &meshBuffer, const std::vector<Vertex> &vertices);
         void createIndexBuffer(MeshBuffer &meshBuffer, const std::vector<uint32_t> &indices);
+        void destroyMeshBuffer(MeshBuffer &meshBuffer) const;
+
+        // Models
+        void syncModelBuffers(const std::vector<Model> &models);
         void initModelBuffer(const Model &model);
         void updateModelBuffer(ModelBuffer &modelBuffer, const Model &model);
         void removeOrphanedModel(const std::vector<ModelInstance> &modelInstances);
-        void destroyMeshBuffer(MeshBuffer &meshBuffer) const;
 
         // UI
         void syncWidgetBuffers(const std::vector<Widget> &widgets);
         void initWidgetBuffer(const Widget &widget);
+        void updateWidgetBuffer(WidgetBuffer &widgetBuffer, const Widget &widget);
 
         // Textures
         void createFallbackTexture();

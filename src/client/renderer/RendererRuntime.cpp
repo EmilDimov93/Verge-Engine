@@ -185,19 +185,19 @@ namespace VE
 
             VertexPushData vertexPushData;
             vertexPushData.model = instance.modelMat;
-            vertexPushData.textureIndex = meshBuffer.texIndex;
             vertexPushData.lightStrength = instance.lightStrength;
 
             MaterialPushData materialPushData;
             materialPushData.baseColor = material.baseColor;
             materialPushData.metallic = material.metallic;
             materialPushData.roughness = material.roughness;
+            materialPushData.textureIndex = material.texIndex;
 
             vkCmdPushConstants(commandBuffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VertexPushData), &vertexPushData);
 
             vkCmdPushConstants(commandBuffer, layout, VK_SHADER_STAGE_FRAGMENT_BIT, materialPushDataStructOffset, sizeof(MaterialPushData), &materialPushData);
 
-            std::array<VkDescriptorSet, 2> descriptorSetGroup = {modelPipeline.descriptorSets[currentFrame], textures.descriptorSets[meshBuffer.texIndex]};
+            std::array<VkDescriptorSet, 2> descriptorSetGroup = {modelPipeline.descriptorSets[currentFrame], textures.descriptorSets[material.texIndex]};
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, modelPipeline.layout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
 
@@ -413,12 +413,12 @@ namespace VE
                         UIPushData pushData;
                         pushData.model = Transform(Position3((instance.coords.x + 1) / 2 * swapChainExtent.width, (instance.coords.y + 1) / 2 * swapChainExtent.height, 0.f), Rotation3(), Scale3(instance.uniformScale)).toMat();
                         pushData.model[1][1] *= -1;
-                        pushData.textureIndex = meshBuffer.texIndex;
+                        pushData.textureIndex = widgetBuffer.materials[meshBuffer.materialIndex].texIndex;
                         pushData.color = widgetBuffer.materials[meshBuffer.materialIndex].baseColor;
 
                         vkCmdPushConstants(commandBuffer, uiPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UIPushData), &pushData);
 
-                        std::array<VkDescriptorSet, 2> descriptorSetGroup = {uiPipeline.descriptorSets[currentFrame], textures.descriptorSets[meshBuffer.texIndex]};
+                        std::array<VkDescriptorSet, 2> descriptorSetGroup = {uiPipeline.descriptorSets[currentFrame], textures.descriptorSets[widgetBuffer.materials[meshBuffer.materialIndex].texIndex]};
 
                         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, uiPipeline.layout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
 

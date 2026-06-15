@@ -400,7 +400,7 @@ namespace VE
         std::vector<Material> materials;
         materials.reserve(surfaceTypes.size());
         for (const SurfaceType &surfaceType : surfaceTypes)
-            materials.push_back(Material{glm::vec4(surfaceType.color.r, surfaceType.color.g, surfaceType.color.b, 1.f), 0.f, 1.f});
+            materials.emplace_back(glm::vec4(surfaceType.color.r, surfaceType.color.g, surfaceType.color.b, 1.f), 0.f, 1.f);
 
         std::vector<Mesh> meshes;
 
@@ -408,7 +408,7 @@ namespace VE
         {
             if (indicesByType[surfaceTypeIndex].empty())
                 continue;
-            meshes.emplace_back(verticesByType[surfaceTypeIndex], indicesByType[surfaceTypeIndex], surfaceTypeIndex, Mesh::NO_TEXTURE);
+            meshes.emplace_back(verticesByType[surfaceTypeIndex], indicesByType[surfaceTypeIndex], surfaceTypeIndex);
         }
 
         Model newModel(newModelHandle, meshes, materials);

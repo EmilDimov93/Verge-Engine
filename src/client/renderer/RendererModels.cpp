@@ -79,8 +79,8 @@ namespace VE
             createVertexBuffer(newMeshBuffer, vertices);
             createIndexBuffer(newMeshBuffer, indices);
 
-            if (!mesh.getTextureFilePath().empty())
-                newMeshBuffer.texIndex = createTexture(mesh.getTextureFilePath());
+            if (!newModelBuffer.materials[newMeshBuffer.materialIndex].textureFilePath.empty())
+                newModelBuffer.materials[newMeshBuffer.materialIndex].texIndex = createTexture(newModelBuffer.materials[newMeshBuffer.materialIndex].textureFilePath);
 
             newModelBuffer.meshBuffers.push_back(newMeshBuffer);
         }

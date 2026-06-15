@@ -16,8 +16,6 @@
 
 namespace VE
 {
-    static constexpr uint32_t INVALID_TEXTURE_INDEX = 0;
-
     struct GraphicsPipeline
     {
         VkPipeline pipeline = VK_NULL_HANDLE;
@@ -90,8 +88,6 @@ namespace VE
 
             uint32_t materialIndex;
 
-            uint32_t texIndex = INVALID_TEXTURE_INDEX;
-
             bool isTransparent = false;
         };
 
@@ -142,7 +138,6 @@ namespace VE
         struct VertexPushData
         {
             glm::mat4 model;
-            uint32_t textureIndex;
             float lightStrength;
         };
 
@@ -151,6 +146,7 @@ namespace VE
             glm::vec4 baseColor;
             float metallic;
             float roughness;
+            uint32_t textureIndex;
         };
 
         static constexpr uint32_t materialPushDataStructOffset = (sizeof(VertexPushData) + 15u) & ~15u;

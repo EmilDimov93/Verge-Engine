@@ -9,6 +9,7 @@
 
 namespace VE
 {
+    static constexpr uint32_t INVALID_TEXTURE_INDEX = 0;
 
     struct Vertex
     {
@@ -24,25 +25,26 @@ namespace VE
         color_t baseColor;
         float metallic;
         float roughness;
+
+        uint32_t texIndex = INVALID_TEXTURE_INDEX;
+        std::string textureFilePath;
+
+        Material(color_t baseColor = color_t(1.f), float metallic = 0.f, float roughness = 1.f, uint32_t texIndex = INVALID_TEXTURE_INDEX, std::string textureFilePath = "") : baseColor(baseColor), metallic(metallic), roughness(roughness), texIndex(texIndex), textureFilePath(textureFilePath) {}
     };
 
     class Mesh
     {
     public:
-        Mesh(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, uint32_t materialIndex, const std::string &textureFilePath) : vertices(vertices), indices(indices), materialIndex(materialIndex), textureFilePath(textureFilePath) {}
+        Mesh(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, uint32_t materialIndex) : vertices(vertices), indices(indices), materialIndex(materialIndex) {}
 
         [[nodiscard]] const std::vector<Vertex> &getVertices() const { return vertices; }
         [[nodiscard]] const std::vector<uint32_t> &getIndices() const { return indices; }
         [[nodiscard]] uint32_t getMaterialIndex() const { return materialIndex; }
-        [[nodiscard]] const std::string &getTextureFilePath() const { return textureFilePath; }
-
-        static inline const std::string NO_TEXTURE = "";
 
     private:
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
         uint32_t materialIndex;
-        std::string textureFilePath;
     };
 
     struct ModelData
@@ -162,7 +164,7 @@ namespace VE
         const bool isValid;
 
         UIDrawData()
-        : widgets(emptyWidgets), widgetInstances(emptyInstances), isValid(false) {}
+            : widgets(emptyWidgets), widgetInstances(emptyInstances), isValid(false) {}
 
         UIDrawData(const std::vector<Widget> &widgets,
                    const std::vector<WidgetInstance> &widgetInstances)

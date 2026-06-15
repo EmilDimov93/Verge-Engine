@@ -291,5 +291,9 @@ namespace VE
             vkDestroyImage(device, attachment.image, nullptr);
         if (attachment.memory)
             vkFreeMemory(device, attachment.memory, nullptr);
+
+        attachment.imageView = VK_NULL_HANDLE;
+        attachment.image = VK_NULL_HANDLE;
+        attachment.memory = VK_NULL_HANDLE;
     }
 }

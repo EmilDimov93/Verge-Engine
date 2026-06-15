@@ -86,8 +86,9 @@ namespace VE
             VkBuffer indexBuffer = VK_NULL_HANDLE;
             VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
 
-            uint32_t materialIndex;
+            uint32_t materialIndex = 0;
 
+            // Used for Models, ignored for Widgets
             bool isTransparent = false;
         };
 
@@ -330,8 +331,7 @@ namespace VE
         void destroyImageAttachment(ImageAttachment &attachment) const;
 
         // Mesh
-        void createVertexBuffer(MeshBuffer &meshBuffer, const std::vector<Vertex> &vertices);
-        void createIndexBuffer(MeshBuffer &meshBuffer, const std::vector<uint32_t> &indices);
+        MeshBuffer createMeshBuffer(const Mesh &mesh, bool isTransparent);
         void destroyMeshBuffer(MeshBuffer &meshBuffer) const;
 
         // Models

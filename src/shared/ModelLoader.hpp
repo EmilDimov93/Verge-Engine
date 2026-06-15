@@ -13,9 +13,7 @@
 
 namespace VE
 {
-
-    
-[[nodiscard]] static ModelData loadOBJ(const std::string &filePath)
+    [[nodiscard]] static std::pair<std::vector<Mesh>, std::vector<Material>> loadOBJ(const std::string &filePath)
     {
         std::ifstream file(filePath);
         if (!file.is_open())
@@ -215,6 +213,6 @@ namespace VE
 
         finalizeCurrentMesh();
 
-        return ModelData{std::move(meshes), std::move(materialList)};
+        return std::make_pair(std::move(meshes), std::move(materialList));
     }
 }

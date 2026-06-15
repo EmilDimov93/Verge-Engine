@@ -47,12 +47,6 @@ namespace VE
         uint32_t materialIndex;
     };
 
-    struct ModelData
-    {
-        std::vector<Mesh> meshes;
-        std::vector<Material> materials;
-    };
-
     class Model
     {
     public:

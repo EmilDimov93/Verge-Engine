@@ -228,9 +228,9 @@ namespace VE
             return INVALID_MODEL_HANDLE;
         }
 
-        ModelData data = loadOBJ(filePath);
+        std::pair<std::vector<Mesh>, std::vector<Material>> data = loadOBJ(filePath);
 
-        if (data.meshes.empty())
+        if (data.first.empty())
         {
             Log::add('E', 102);
             return INVALID_MODEL_HANDLE;
@@ -238,7 +238,7 @@ namespace VE
 
         ModelHandle newModelHandle = HandleFactory<ModelHandle>::getNewHandle();
 
-        models.emplace_back(newModelHandle, data.meshes, data.materials);
+        models.emplace_back(newModelHandle, data.first, data.second);
 
         return newModelHandle;
     }

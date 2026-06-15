@@ -64,25 +64,12 @@ namespace VE
 
         for (const Mesh &mesh : model.getMeshes())
         {
-            MeshBuffer newMeshBuffer;
+            MeshBuffer meshBuffer = createMeshBuffer(mesh, newModelBuffer.materials[mesh.getMaterialIndex()].baseColor.a < 1.0f);
 
-            const std::vector<Vertex> &vertices = mesh.getVertices();
-            const std::vector<uint32_t> &indices = mesh.getIndices();
+            newModelBuffer.meshBuffers.push_back(meshBuffer);
 
-            newMeshBuffer.materialIndex = mesh.getMaterialIndex();
-
-            if(newModelBuffer.materials[newMeshBuffer.materialIndex].baseColor.a < 1.0f)
-                newMeshBuffer.isTransparent = true;
-
-            newMeshBuffer.vertexCount = vertices.size();
-            newMeshBuffer.indexCount = indices.size();
-            createVertexBuffer(newMeshBuffer, vertices);
-            createIndexBuffer(newMeshBuffer, indices);
-
-            if (!newModelBuffer.materials[newMeshBuffer.materialIndex].textureFilePath.empty())
-                newModelBuffer.materials[newMeshBuffer.materialIndex].texIndex = createTexture(newModelBuffer.materials[newMeshBuffer.materialIndex].textureFilePath);
-
-            newModelBuffer.meshBuffers.push_back(newMeshBuffer);
+            if (!newModelBuffer.materials[meshBuffer.materialIndex].textureFilePath.empty())
+                newModelBuffer.materials[meshBuffer.materialIndex].texIndex = createTexture(newModelBuffer.materials[meshBuffer.materialIndex].textureFilePath);
         }
 
         {
@@ -99,7 +86,12 @@ namespace VE
         }
 
         for (MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
+        {
             destroyMeshBuffer(meshBuffer);
+
+            if(modelBuffer.materials[meshBuffer.materialIndex].texIndex != INVALID_TEXTURE_INDEX)
+                        destroyImageAttachment(textures.attachments[modelBuffer.materials[meshBuffer.materialIndex].texIndex]);
+        }
 
         modelBuffer.meshBuffers.clear();
 
@@ -107,15 +99,12 @@ namespace VE
 
         for (const Mesh &mesh : model.getMeshes())
         {
-            MeshBuffer newMeshBuffer;
-            newMeshBuffer.materialIndex = mesh.getMaterialIndex();
-            if(modelBuffer.materials[newMeshBuffer.materialIndex].baseColor.a < 1.0f)
-                newMeshBuffer.isTransparent = true;
-            newMeshBuffer.vertexCount = mesh.getVertices().size();
-            newMeshBuffer.indexCount = mesh.getIndices().size();
-            createVertexBuffer(newMeshBuffer, mesh.getVertices());
-            createIndexBuffer(newMeshBuffer, mesh.getIndices());
-            modelBuffer.meshBuffers.push_back(newMeshBuffer);
+            MeshBuffer meshBuffer = createMeshBuffer(mesh, modelBuffer.materials[mesh.getMaterialIndex()].baseColor.a < 1.0f);
+
+            modelBuffer.meshBuffers.push_back(meshBuffer);
+
+            if (!modelBuffer.materials[meshBuffer.materialIndex].textureFilePath.empty())
+                modelBuffer.materials[meshBuffer.materialIndex].texIndex = createTexture(modelBuffer.materials[meshBuffer.materialIndex].textureFilePath);
         }
 
         modelBuffer.version = model.getVersion();
@@ -139,7 +128,12 @@ namespace VE
             if (!hasInstance)
             {
                 for (MeshBuffer &meshBuffer : it->meshBuffers)
+                {
                     destroyMeshBuffer(meshBuffer);
+
+                    if(it->materials[meshBuffer.materialIndex].texIndex != INVALID_TEXTURE_INDEX)
+                        destroyImageAttachment(textures.attachments[it->materials[meshBuffer.materialIndex].texIndex]);
+                }
 
                 it = modelBuffers.erase(it);
             }

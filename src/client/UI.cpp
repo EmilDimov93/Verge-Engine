@@ -40,15 +40,15 @@ namespace VE
 
         WidgetHandle newWidgetHandle = HandleFactory<WidgetHandle>::getNewHandle();
 
-        ModelData data = loadOBJ(filePath);
+        std::pair<std::vector<Mesh>, std::vector<Material>> data = loadOBJ(filePath);
 
-        if (data.meshes.empty())
+        if (data.first.empty())
         {
             Log::add('E', 102);
             return INVALID_WIDGET_HANDLE;
         }
 
-        widgets.emplace_back(newWidgetHandle, data.meshes, data.materials);
+        widgets.emplace_back(newWidgetHandle, data.first, data.second);
 
         return newWidgetHandle;
     }

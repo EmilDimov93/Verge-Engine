@@ -63,18 +63,12 @@ namespace VE
 
         for (const Mesh &mesh : widget.getMeshes())
         {
-            MeshBuffer newMeshBuffer;
+            MeshBuffer meshBuffer = createMeshBuffer(mesh, newWidgetBuffer.materials[mesh.getMaterialIndex()].baseColor.a < 1.0f);
 
-            newMeshBuffer.materialIndex = mesh.getMaterialIndex();
-            newMeshBuffer.vertexCount = mesh.getVertices().size();
-            newMeshBuffer.indexCount = mesh.getIndices().size();
-            createVertexBuffer(newMeshBuffer, mesh.getVertices());
-            createIndexBuffer(newMeshBuffer, mesh.getIndices());
+            newWidgetBuffer.meshBuffers.push_back(meshBuffer);
 
-            if (!newWidgetBuffer.materials[newMeshBuffer.materialIndex].textureFilePath.empty())
-                newWidgetBuffer.materials[newMeshBuffer.materialIndex].texIndex = createTexture(newWidgetBuffer.materials[newMeshBuffer.materialIndex].textureFilePath);
-
-            newWidgetBuffer.meshBuffers.push_back(newMeshBuffer);
+            if (!newWidgetBuffer.materials[meshBuffer.materialIndex].textureFilePath.empty())
+                newWidgetBuffer.materials[meshBuffer.materialIndex].texIndex = createTexture(newWidgetBuffer.materials[meshBuffer.materialIndex].textureFilePath);
         }
 
         {
@@ -91,7 +85,12 @@ namespace VE
         }
 
         for (MeshBuffer &meshBuffer : widgetBuffer.meshBuffers)
+        {
             destroyMeshBuffer(meshBuffer);
+
+            if(widgetBuffer.materials[meshBuffer.materialIndex].texIndex != INVALID_TEXTURE_INDEX)
+                        destroyImageAttachment(textures.attachments[widgetBuffer.materials[meshBuffer.materialIndex].texIndex]);
+        }
 
         widgetBuffer.meshBuffers.clear();
 
@@ -99,15 +98,12 @@ namespace VE
 
         for (const Mesh &mesh : widget.getMeshes())
         {
-            MeshBuffer newMeshBuffer;
-            newMeshBuffer.materialIndex = mesh.getMaterialIndex();
-            if(widgetBuffer.materials[newMeshBuffer.materialIndex].baseColor.a < 1.0f)
-                newMeshBuffer.isTransparent = true;
-            newMeshBuffer.vertexCount = mesh.getVertices().size();
-            newMeshBuffer.indexCount = mesh.getIndices().size();
-            createVertexBuffer(newMeshBuffer, mesh.getVertices());
-            createIndexBuffer(newMeshBuffer, mesh.getIndices());
-            widgetBuffer.meshBuffers.push_back(newMeshBuffer);
+            MeshBuffer meshBuffer = createMeshBuffer(mesh, widgetBuffer.materials[mesh.getMaterialIndex()].baseColor.a < 1.0f);
+
+            widgetBuffer.meshBuffers.push_back(meshBuffer);
+
+            if (!widgetBuffer.materials[meshBuffer.materialIndex].textureFilePath.empty())
+                widgetBuffer.materials[meshBuffer.materialIndex].texIndex = createTexture(widgetBuffer.materials[meshBuffer.materialIndex].textureFilePath);
         }
 
         widgetBuffer.version = widget.getVersion();

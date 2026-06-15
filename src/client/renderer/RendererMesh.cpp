@@ -20,9 +20,7 @@ namespace VE
 
         CommandPoolGuard transferCommandPoolLocal(device, transferQueueFamilyIndex);
 
-        VkFence uploadFence = VK_NULL_HANDLE;
-        VkFenceCreateInfo fenceCreateInfo = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
-        vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &uploadFence), {'V', 216});
+        FenceGuard uploadFence(device);
 
         // Vertex Buffer
         {
@@ -46,7 +44,7 @@ namespace VE
             vkFreeMemory(device, stagingBufferMemory, nullptr);
         }
 
-        vkCheck(vkResetFences(device, 1, &uploadFence), {'V', 232});
+        vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'V', 232});
 
         // Index Buffer
         {
@@ -68,8 +66,6 @@ namespace VE
             vkDestroyBuffer(device, stagingBuffer, nullptr);
             vkFreeMemory(device, stagingBufferMemory, nullptr);
         }
-
-        vkDestroyFence(device, uploadFence, nullptr);
 
         return meshBuffer;
     }

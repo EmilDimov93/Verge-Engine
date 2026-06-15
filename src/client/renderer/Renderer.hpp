@@ -35,14 +35,14 @@ namespace VE
 
     class CommandPoolGuard
     {
-        public:
+    public:
         CommandPoolGuard(VkDevice device, uint32_t queueFamilyIndex) : device(device)
         {
             VkCommandPoolCreateInfo poolCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-            .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
-            .queueFamilyIndex = queueFamilyIndex};
-            if(vkCreateCommandPool(device, &poolCreateInfo, nullptr, &pool) != VK_SUCCESS)
+                .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+                .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
+                .queueFamilyIndex = queueFamilyIndex};
+            if (vkCreateCommandPool(device, &poolCreateInfo, nullptr, &pool) != VK_SUCCESS)
                 Log::add('V', 208);
         }
 
@@ -53,9 +53,33 @@ namespace VE
 
         [[nodiscard]] operator VkCommandPool() const { return pool; }
 
-        private:
-            VkCommandPool pool = VK_NULL_HANDLE;
-            VkDevice device = VK_NULL_HANDLE;
+    private:
+        VkCommandPool pool = VK_NULL_HANDLE;
+        VkDevice device = VK_NULL_HANDLE;
+    };
+
+    class FenceGuard
+    {
+    public:
+        FenceGuard(VkDevice device) : device(device)
+        {
+            VkFenceCreateInfo fenceCreateInfo = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
+            if(vkCreateFence(device, &fenceCreateInfo, nullptr, &fence) != VK_SUCCESS)
+                Log::add('V', 216);
+        }
+
+        ~FenceGuard()
+        {
+            vkDestroyFence(device, fence, nullptr);
+        }
+
+        [[nodiscard]] operator VkFence() const { return fence; }
+
+        [[nodiscard]] const VkFence *ptr() const { return &fence; }
+
+    private:
+        VkFence fence = VK_NULL_HANDLE;
+        VkDevice device = VK_NULL_HANDLE;
     };
 
     class Renderer
@@ -63,7 +87,7 @@ namespace VE
     public:
         Renderer(GLFWwindow *window, Size2 windowSize);
 
-        void drawFrame(const SceneDrawData &sceneDrawData, const UIDrawData &uiDrawData, const glm::mat4 projectionMat, const PostEffects& postEffects);
+        void drawFrame(const SceneDrawData &sceneDrawData, const UIDrawData &uiDrawData, const glm::mat4 projectionMat, const PostEffects &postEffects);
 
         ~Renderer();
 
@@ -261,7 +285,7 @@ namespace VE
             VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
             std::vector<VkDescriptorPool> descriptorPools;
             std::vector<VkDescriptorSet> descriptorSets;
-        }textures;
+        } textures;
 
         // Synchronization
         std::vector<VkSemaphore> renderFinishedSemaphores;
@@ -314,7 +338,7 @@ namespace VE
         void recordShadowPass(const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, const glm::mat4 &lightSpaceMat);
         void updateModelUniformBuffers(uint32_t currentFrame, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat, float outdoorBrightness);
         void recordMainPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat, const glm::vec3 &cameraPosition);
-        void recordPostPass(uint32_t currentImage, const PostEffects& postEffects);
+        void recordPostPass(uint32_t currentImage, const PostEffects &postEffects);
         void updateUIUniformBuffers(uint32_t currentFrame);
         void recordUIPass(uint32_t currentImage, const std::vector<Widget> &widgets, const std::vector<WidgetInstance> &widgetInstances);
         void recreateSwapChain();

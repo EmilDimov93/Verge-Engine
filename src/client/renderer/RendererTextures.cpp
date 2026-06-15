@@ -320,14 +320,12 @@ namespace VE
         CommandPoolGuard graphicsCommandPoolLocal(device, graphicsQueueFamilyIndex);
         CommandPoolGuard transferCommandPoolLocal(device, transferQueueFamilyIndex);
 
-        VkFence uploadFence = VK_NULL_HANDLE;
-        VkFenceCreateInfo fenceCreateInfo = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
-        vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &uploadFence), {'V', 216});
+        FenceGuard uploadFence(device);
 
         vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
-        vkCheck(vkResetFences(device, 1, &uploadFence), {'V', 232});
+        vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'V', 232});
         vkCheck(copyImageBuffer(device, transferQueue, transferCommandPoolLocal, stagingBuffer, texImage, 1, 1, transferQueueMutex, uploadFence), {'V', 239});
-        vkCheck(vkResetFences(device, 1, &uploadFence), {'V', 232});
+        vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'V', 232});
         vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
 
         VkImageViewCreateInfo imageViewCreateInfo{};
@@ -349,8 +347,6 @@ namespace VE
 
         vkDestroyBuffer(device, stagingBuffer, nullptr);
         vkFreeMemory(device, stagingBufferMemory, nullptr);
-
-        vkDestroyFence(device, uploadFence, nullptr);
     }
 
     size_t Renderer::createTextureImage(std::string fileName)
@@ -389,14 +385,12 @@ namespace VE
         CommandPoolGuard graphicsCommandPoolLocal(device, graphicsQueueFamilyIndex);
         CommandPoolGuard transferCommandPoolLocal(device, transferQueueFamilyIndex);
 
-        VkFence uploadFence = VK_NULL_HANDLE;
-        VkFenceCreateInfo fenceCreateInfo = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
-        vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &uploadFence), {'V', 216});
+        FenceGuard uploadFence(device);
 
         vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
-        vkCheck(vkResetFences(device, 1, &uploadFence), {'V', 232});
+        vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'V', 232});
         vkCheck(copyImageBuffer(device, transferQueue, transferCommandPoolLocal, imageStagingBuffer, texImage, width, height, transferQueueMutex, uploadFence), {'V', 239});
-        vkCheck(vkResetFences(device, 1, &uploadFence), {'V', 232});
+        vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'V', 232});
         vkCheck(generateMipmaps(device, physicalDevice, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_FORMAT_R8G8B8A8_UNORM, width, height, mipLevelCount, graphicsQueueMutex, uploadFence), {'V', 241});
 
         size_t resultIndex;
@@ -408,8 +402,6 @@ namespace VE
 
         vkDestroyBuffer(device, imageStagingBuffer, nullptr);
         vkFreeMemory(device, imageStagingBufferMemory, nullptr);
-
-        vkDestroyFence(device, uploadFence, nullptr);
 
         return resultIndex;
     }

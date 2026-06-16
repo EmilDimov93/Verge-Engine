@@ -17,7 +17,7 @@ namespace VE
 
     struct TriggerTypeCreateInfo
     {
-        ModelHandle modelHandle = INVALID_MODEL_HANDLE;
+        ModelHandle modelHandle = ModelHandle::INVALID;
         HitboxShape hitboxShape = HITBOX_SHAPE_UNKNOWN;
         float hitboxSize = -1.0f;
         bool isAutoDestroy = false;

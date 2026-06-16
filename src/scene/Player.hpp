@@ -9,6 +9,11 @@
 
 namespace VE
 {
+    enum CameraMode
+    {
+        CAMERA_MODE_CHASE,
+        CAMERA_MODE_FREE
+    };
 
     class Player : public Controller
     {
@@ -16,36 +21,58 @@ namespace VE
         Player(PlayerHandle handle, VehicleHandle vehicleHandle)
             : handle(handle), vehicleHandle(vehicleHandle)
         {
+            if(vehicleHandle == VehicleHandle::INVALID)
+                cameraMode = CAMERA_MODE_FREE;
         }
 
-        void setVehicleInputState(const VehicleInputState &vis);
-        [[nodiscard]] VehicleInputState getVehicleInputState() const override;
+        void attachVehicle(VehicleHandle vehicleHandle)
+        {
+            this->vehicleHandle = vehicleHandle;
+            cameraMode = CAMERA_MODE_CHASE;
+        }
 
-        void setVehicleHandle(VehicleHandle vehicleHandle);
-        [[nodiscard]] VehicleHandle getVehicleHandle() const override;
+        void detachVehicle()
+        {
+            this->vehicleHandle = VehicleHandle::INVALID;
+            cameraMode = CAMERA_MODE_FREE;
+        }
 
-        [[nodiscard]] PlayerHandle getHandle() const;
+        bool hasVehicle()
+        {
+            return vehicleHandle != VehicleHandle::INVALID;
+        }
 
-        void updateCamera(milliseconds_t dt, Transform vehicleTransform, glm::vec3 vehicleVelocityVector);
+        void setVehicleInputState(const VehicleInputState &vis)  { this->vis = vis; }
+        [[nodiscard]] VehicleInputState getVehicleInputState() const override { return vis; }
 
-        void setCameraFollowDistance(float distance);
+        void setVehicleHandle(VehicleHandle vehicleHandle) { this->vehicleHandle = vehicleHandle; }
+        [[nodiscard]] VehicleHandle getVehicleHandle() const override { return vehicleHandle; }
 
-        void setCameraFollowHeight(float height);
+        [[nodiscard]] PlayerHandle getHandle() const { return handle; }
 
-        void setCameraFollowDistanceDelay(float delay);
-        void setCameraFollowTurnDelay(float delay);
+        void updateCameraChaseMode(milliseconds_t dt, Position3 vehiclePosition, glm::vec3 vehicleVelocityVector);
+        void updateCameraFreeMode(milliseconds_t dt);
 
-        void setCameraFollowVehicle(bool shouldFollow);
+        [[nodiscard]] glm::mat4 getCameraViewMat() const { return camera.getViewMat(); }
 
-        [[nodiscard]] glm::mat4 getCameraViewMat() const;
+        [[nodiscard]] Position3 getCameraPosition() const { return camera.getPosition(); }
 
-        [[nodiscard]] Position3 getCameraPosition() const;
+        [[nodiscard]] float getCameraYaw() const { return camera.getRotation().yaw; }
 
-        [[nodiscard]] float getCameraYaw() const;
+        void setCameraChaseDistance(float distance) { this->cameraChaseDistance = distance; }
 
-        void setMinCameraPitch(float minCameraPitch);
+        void setCameraChaseHeight(float height) { this->cameraChaseHeight = height; }
 
-        void setMaxCameraPitch(float maxCameraPitch);
+        void setCameraChaseDistanceDelay(float delay) { this->cameraChaseDistanceDelay = delay; }
+        void setCameraChaseTurnDelay(float delay) { this->cameraChaseTurnDelay = delay; }
+
+        void setCameraMode(CameraMode mode) { this->cameraMode = mode; }
+
+        void setMinCameraPitch(float minCameraPitch) { this->minCameraPitch = minCameraPitch; }
+
+        void setMaxCameraPitch(float maxCameraPitch) { this->maxCameraPitch = maxCameraPitch; }
+
+        void setFreeCameraSpeed(float freeCameraSpeed) { this->cameraFreeSpeed = freeCameraSpeed; }
 
     private:
         const PlayerHandle handle;
@@ -58,13 +85,13 @@ namespace VE
 
         float cameraPitch = 0.0f;
         float cameraYaw = -PI;
-        glm::vec3 camPos;
 
-        bool isCameraFollowingVehicle = true;
-        float cameraFollowDistance = 10.0f;
-        float cameraFollowHeight = 3.0f;
-        float cameraFollowDistanceDelay = 0.1f;
-        float cameraFollowTurnDelay = 1.0f;
+        CameraMode cameraMode = CAMERA_MODE_CHASE;
+        float cameraChaseDistance = 10.0f;
+        float cameraChaseHeight = 3.0f;
+        float cameraChaseDistanceDelay = 0.1f;
+        float cameraChaseTurnDelay = 1.0f;
+        float cameraFreeSpeed = 5.0f;
 
         float minCameraPitch = -1.2f;
         float maxCameraPitch = 0.6f;

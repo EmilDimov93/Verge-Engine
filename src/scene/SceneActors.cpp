@@ -60,7 +60,7 @@ namespace VE
 
     ModelInstanceHandle Scene::addModelInstance(ModelHandle modelHandle)
     {
-        if (modelHandle == INVALID_MODEL_HANDLE)
+        if (modelHandle == ModelHandle::INVALID)
             Log::add('S', 201);
 
         bool foundModel = false;
@@ -231,13 +231,27 @@ namespace VE
 
     void Scene::removeVehicle(VehicleHandle handle)
     {
-        const ModelInstanceHandle bodyModelInstanceHandle = vehicle(handle).getBodyModelInstanceHandle();
+        Vehicle &vehicleRef = vehicle(handle);
+
+        for (const std::unique_ptr<Controller> &controller : controllers)
+        {
+            if (controller->getVehicleHandle() == vehicleRef.getHandle())
+            {
+                if(Player *player = dynamic_cast<Player *>(controller.get()))
+                {
+                    player->detachVehicle();
+                    break;
+                }
+            }
+        }
+
+        const ModelInstanceHandle bodyModelInstanceHandle = vehicleRef.getBodyModelInstanceHandle();
         std::erase_if(modelInstances, [bodyModelInstanceHandle](const auto &modelInstance)
                       { return modelInstance.handle == bodyModelInstanceHandle; });
 
         for (size_t i = 0; i < WHEEL_COUNT; i++)
         {
-            const ModelInstanceHandle wheelModelInstanceHandle = vehicle(handle).getWheelModelInstanceHandle(static_cast<Wheel>(i));
+            const ModelInstanceHandle wheelModelInstanceHandle = vehicleRef.getWheelModelInstanceHandle(static_cast<Wheel>(i));
             std::erase_if(modelInstances, [wheelModelInstanceHandle](const auto &modelInstance)
                           { return modelInstance.handle == wheelModelInstanceHandle; });
         }

@@ -35,7 +35,7 @@ namespace VE
         if (ext != ".obj")
         {
             Log::add('E', 101);
-            return INVALID_WIDGET_HANDLE;
+            return WidgetHandle::INVALID;
         }
 
         WidgetHandle newWidgetHandle = HandleFactory<WidgetHandle>::getNewHandle();
@@ -45,7 +45,7 @@ namespace VE
         if (data.first.empty())
         {
             Log::add('E', 102);
-            return INVALID_WIDGET_HANDLE;
+            return WidgetHandle::INVALID;
         }
 
         widgets.emplace_back(newWidgetHandle, data.first, data.second);
@@ -55,7 +55,7 @@ namespace VE
 
     WidgetInstanceHandle UI::addWidgetInstance(WidgetHandle widgetHandle, glm::vec2 coords, float uniformScale, const std::function<void()> &callback)
     {
-        if (widgetHandle == INVALID_WIDGET_HANDLE)
+        if (widgetHandle == WidgetHandle::INVALID)
             Log::add('W', 200);
 
         bool foundWidget = false;

@@ -355,7 +355,7 @@ namespace VE
         void destroyImageAttachment(ImageAttachment &attachment) const;
 
         // Mesh
-        MeshBuffer createMeshBuffer(const Mesh &mesh, bool isTransparent);
+        [[nodiscard]] MeshBuffer createMeshBuffer(const Mesh &mesh, bool isTransparent);
         void destroyMeshBuffer(MeshBuffer &meshBuffer) const;
 
         // Models

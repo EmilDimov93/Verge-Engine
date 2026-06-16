@@ -34,8 +34,8 @@ namespace VE
 
     struct VehicleCreateInfo
     {
-        ModelHandle bodyModelHandle = INVALID_MODEL_HANDLE;
-        ModelHandle wheelModelHandle = INVALID_MODEL_HANDLE;
+        ModelHandle bodyModelHandle = ModelHandle::INVALID;
+        ModelHandle wheelModelHandle = ModelHandle::INVALID;
 
         Position3 wheelOffset{0};
 

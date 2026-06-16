@@ -5,108 +5,49 @@
 
 namespace VE
 {
-
-    void Player::setVehicleInputState(const VehicleInputState &vis)
+    void Player::updateCameraChaseMode(milliseconds_t dt, Position3 vehiclePosition, glm::vec3 vehicleVelocityVector)
     {
-        this->vis = vis;
-    }
-
-    VehicleInputState Player::getVehicleInputState() const
-    {
-        return vis;
-    }
-
-    void Player::setVehicleHandle(VehicleHandle vehicleHandle)
-    {
-        this->vehicleHandle = vehicleHandle;
-    }
-
-    VehicleHandle Player::getVehicleHandle() const
-    {
-        return vehicleHandle;
-    }
-
-    PlayerHandle Player::getHandle() const
-    {
-        return handle;
-    }
-
-    void Player::updateCamera(milliseconds_t dt, Transform vehicleTransform, glm::vec3 vehicleVelocityVector)
-    {
-        if (!isCameraFollowingVehicle)
-            return;
-
         float targetYaw = atan2(vehicleVelocityVector.x, vehicleVelocityVector.z) - PI;
         if (glm::length(vehicleVelocityVector) < 1.0f)
             targetYaw = cameraYaw;
 
-        cameraYaw += wrapRadToPi(targetYaw - cameraYaw) * (1.0f - std::exp(-float(dt) / cameraFollowTurnDelay)) + (vis.moveCameraRight - vis.moveCameraLeft) * PI * dt;
+        cameraYaw += wrapRadToPi(targetYaw - cameraYaw) * (1.0f - std::exp(-float(dt) / cameraChaseTurnDelay)) + (vis.moveCameraRight - vis.moveCameraLeft) * PI * dt;
         cameraYaw = wrapRadToPi(cameraYaw);
-        cameraPitch += (vis.moveCameraUp - vis.moveCameraDown) * PI * dt;
 
+        cameraPitch += (vis.moveCameraUp - vis.moveCameraDown) * PI * dt;
         cameraPitch = clamp(cameraPitch, minCameraPitch, maxCameraPitch);
 
-        float currCameraHeight = cameraFollowHeight;
+        Position3 position = camera.getPosition();
+        glm::vec3 targetPosition = {vehiclePosition.x + sin(cameraYaw) * cameraChaseDistance, vehiclePosition.y + sin(cameraPitch) * cameraChaseDistance + cameraChaseHeight, vehiclePosition.z + cos(cameraYaw) * cos(cameraPitch) * cameraChaseDistance};
+        camera.move(glm::mix(position, targetPosition, 1.0f - std::exp(-float(dt) / cameraChaseDistanceDelay)));
 
-        Position3 vehiclePos = vehicleTransform.position;
-
-        camPos = {camera.getPosition().x, camera.getPosition().y, camera.getPosition().z};
-        glm::vec3 targetCamPos = {vehiclePos.x + sin(cameraYaw) * cameraFollowDistance, vehiclePos.y + sin(cameraPitch) * cameraFollowDistance + currCameraHeight, vehiclePos.z + cos(cameraYaw) * cos(cameraPitch) * cameraFollowDistance};
-        camPos = glm::mix(camPos, targetCamPos, 1.0f - std::exp(-float(dt) / cameraFollowDistanceDelay));
-        camera.move({camPos.x, camPos.y, camPos.z});
-
-        glm::vec3 dir = glm::normalize(glm::vec3(vehiclePos.x, vehiclePos.y, vehiclePos.z) - camPos);
+        glm::vec3 dir = glm::normalize(vehiclePosition - position);
         camera.rotate({-asin(dir.y), atan2(dir.x, dir.z), 0});
     }
 
-    void Player::setCameraFollowDistance(float distance)
+    void Player::updateCameraFreeMode(milliseconds_t dt)
     {
-        cameraFollowDistance = distance;
-    }
+        Rotation3 rotation = camera.getRotation();
 
-    void Player::setCameraFollowHeight(float height)
-    {
-        cameraFollowHeight = height;
-    }
+        rotation.yaw += (vis.moveCameraLeft - vis.moveCameraRight) * PI * dt;
+        rotation.pitch += (vis.moveCameraDown - vis.moveCameraUp) * PI * dt;
 
-    void Player::setCameraFollowDistanceDelay(float delay)
-    {
-        cameraFollowDistanceDelay = delay;
-    }
+        rotation.pitch = clamp(rotation.pitch, minCameraPitch, maxCameraPitch);
 
-    void Player::setCameraFollowTurnDelay(float delay)
-    {
-        cameraFollowTurnDelay = delay;
-    }
+        camera.rotate({rotation.pitch, rotation.yaw, 0.});
 
-    void Player::setCameraFollowVehicle(bool shouldFollow)
-    {
-        isCameraFollowingVehicle = shouldFollow;
-    }
+        Position3 position = camera.getPosition();
 
-    glm::mat4 Player::getCameraViewMat() const
-    {
-        return camera.getViewMat();
-    }
+        float cameraForwardBackward = (vis.throttle - vis.brake) * dt;
+        glm::vec3 forward = {cosf(rotation.pitch) * sinf(rotation.yaw), -sinf(rotation.pitch), cosf(rotation.pitch) * cosf(rotation.yaw)};
+        glm::vec3 forwardScaled = forward * cameraForwardBackward;
 
-    Position3 Player::getCameraPosition() const
-    {
-        return camera.getPosition();
-    }
+        float cameraLeftRight = vis.steer * dt;
+        glm::vec3 right = {forward.z, 0.f, -forward.x};
+        glm::vec3 rightScaled = right * cameraLeftRight;
 
-    float Player::getCameraYaw() const
-    {
-        return camera.getRotation().yaw;
-    }
+        glm::vec3 delta = (forwardScaled + rightScaled) * cameraFreeSpeed;
 
-    void Player::setMinCameraPitch(float minCameraPitch)
-    {
-        this->minCameraPitch = minCameraPitch;
+        camera.move(position + delta);
     }
-
-    void Player::setMaxCameraPitch(float maxCameraPitch)
-    {
-        this->maxCameraPitch = maxCameraPitch;
-    }
-
 }

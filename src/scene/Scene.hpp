@@ -33,7 +33,7 @@ namespace VE
 
         [[nodiscard]] ModelHandle addModel(const std::string &filePath);
 
-        PlayerHandle addPlayer(VehicleHandle vehicleHandle);
+        PlayerHandle addPlayer(VehicleHandle vehicleHandle = VehicleHandle::INVALID);
         void removePlayer(PlayerHandle handle);
 
         VehicleHandle addVehicle(const VehicleCreateInfo &info, Transform transform = {});

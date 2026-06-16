@@ -169,13 +169,15 @@ namespace VE
         {
             if (Player *player = dynamic_cast<Player *>(controller.get()))
             {
-                for (Vehicle &vehicle : vehicles)
+                if (player->hasVehicle())
                 {
-                    if (player->getVehicleHandle() == vehicle.getHandle())
-                    {
-                        player->updateCamera(dt, vehicle.getTransform(), vehicle.getVelocityVector());
-                        break;
-                    }
+                    Vehicle &vehicleRef = vehicle(player->getVehicleHandle());
+
+                    player->updateCameraChaseMode(dt, vehicleRef.getTransform().position, vehicleRef.getVelocityVector());
+                }
+                else
+                {
+                    player->updateCameraFreeMode(dt);
                 }
             }
         }
@@ -225,7 +227,7 @@ namespace VE
         if (ext != ".obj")
         {
             Log::add('E', 101);
-            return INVALID_MODEL_HANDLE;
+            return ModelHandle::INVALID;
         }
 
         std::pair<std::vector<Mesh>, std::vector<Material>> data = loadOBJ(filePath);
@@ -233,7 +235,7 @@ namespace VE
         if (data.first.empty())
         {
             Log::add('E', 102);
-            return INVALID_MODEL_HANDLE;
+            return ModelHandle::INVALID;
         }
 
         ModelHandle newModelHandle = HandleFactory<ModelHandle>::getNewHandle();

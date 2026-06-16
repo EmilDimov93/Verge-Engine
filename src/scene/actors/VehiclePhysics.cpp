@@ -242,9 +242,7 @@ namespace VE
 
         speedFactor = 1.0f;
 
-        steeringAngleRad = vis.steer * maxSteeringAngleRad * speedFactor;
-
-        clamp(steeringAngleRad, -maxSteeringAngleRad, maxSteeringAngleRad);
+        steeringAngleRad = clamp(vis.steer * maxSteeringAngleRad * speedFactor, -maxSteeringAngleRad, maxSteeringAngleRad);
     }
 
     void Vehicle::shiftUp()

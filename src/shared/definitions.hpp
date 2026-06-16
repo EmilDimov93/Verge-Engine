@@ -31,10 +31,15 @@ namespace VE
 
         [[nodiscard]] friend bool operator==(const Handle &, const Handle &) = default;
 
+        static const Handle INVALID;
+
     private:
-        static constexpr uint64_t INVALID = 0;
-        uint64_t value = INVALID;
+        static constexpr uint64_t INVALID_VALUE = 0;
+        uint64_t value = INVALID_VALUE;
     };
+
+    template <typename Tag>
+    inline constexpr Handle<Tag> Handle<Tag>::INVALID{};
 
     struct ModelTag
     {
@@ -70,9 +75,6 @@ namespace VE
     using PropHandle = Handle<PropTag>;
     using TriggerHandle = Handle<TriggerTag>;
 
-    constexpr ModelHandle INVALID_MODEL_HANDLE{0};
-    constexpr WidgetHandle INVALID_WIDGET_HANDLE{0};
-
     using milliseconds_t = double;
     using color_t = glm::vec4;
 
@@ -88,17 +90,17 @@ namespace VE
 
     struct Rotation3
     {
-        double pitch, yaw, roll;
+        float pitch, yaw, roll;
 
-        constexpr Rotation3(double pitch_val = 0.0, double yaw_val = 0.0, double roll_val = 0.0) : pitch(pitch_val), yaw(yaw_val), roll(roll_val) {}
+        constexpr Rotation3(float pitch_val = 0.0, float yaw_val = 0.0, float roll_val = 0.0) : pitch(pitch_val), yaw(yaw_val), roll(roll_val) {}
     };
 
     struct Scale3
     {
-        double x, y, z;
+        float x, y, z;
 
-        constexpr Scale3(double x_val, double y_val, double z_val) : x(x_val), y(y_val), z(z_val) {}
-        constexpr Scale3(double uniform_val = 1.0) : x(uniform_val), y(uniform_val), z(uniform_val) {}
+        constexpr Scale3(float x_val, float y_val, float z_val) : x(x_val), y(y_val), z(z_val) {}
+        constexpr Scale3(float uniform_val = 1.0) : x(uniform_val), y(uniform_val), z(uniform_val) {}
     };
 
     struct Transform

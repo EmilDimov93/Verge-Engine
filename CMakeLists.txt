@@ -29,7 +29,6 @@ add_executable(VergeEngine
     src/scene/SceneCore.cpp
     src/scene/SceneActors.cpp
     src/scene/Player.cpp
-    src/scene/Camera.cpp
     src/scene/actors/VehicleCore.cpp
     src/scene/actors/VehiclePhysics.cpp
     src/scene/actors/Prop.cpp

@@ -173,11 +173,11 @@ namespace VE
                 {
                     Vehicle &vehicleRef = vehicle(player->getVehicleHandle());
 
-                    player->updateCameraChaseMode(dt, vehicleRef.getTransform().position, vehicleRef.getVelocityVector());
+                    player->tick(dt, vehicleRef.getTransform().position, vehicleRef.getVelocityVector());
                 }
                 else
                 {
-                    player->updateCameraFreeMode(dt);
+                    player->tick(dt);
                 }
             }
         }

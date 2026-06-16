@@ -18,7 +18,7 @@ namespace VE
             {
                 if (player->getHandle() == playerHandle)
                 {
-                    SceneDrawData drawData(models, modelInstances, player->getCameraViewMat(), environment.backgroundColor, environment.outdoorBrightness, modelRemovedThisFrame);
+                    SceneDrawData drawData(models, modelInstances, player->getViewMat(), environment.backgroundColor, environment.outdoorBrightness, modelRemovedThisFrame);
                     return drawData;
                 }
             }
@@ -36,7 +36,7 @@ namespace VE
             {
                 if (player->getHandle() == playerHandle)
                 {
-                    AudioData audioData(player->getCameraPosition(), player->getCameraYaw(), engineAudioRequests, layeredEngineAudioRequests, oneShotAudioRequests, vehicleRemovedThisFrame);
+                    AudioData audioData(player->getPosition(), player->getYaw(), engineAudioRequests, layeredEngineAudioRequests, oneShotAudioRequests, vehicleRemovedThisFrame);
                     return audioData;
                 }
             }

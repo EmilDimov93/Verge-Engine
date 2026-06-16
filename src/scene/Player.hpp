@@ -5,96 +5,91 @@
 
 #include "Controller.hpp"
 
-#include "Camera.hpp"
-
 namespace VE
 {
-    enum CameraMode
-    {
-        CAMERA_MODE_CHASE,
-        CAMERA_MODE_FREE
-    };
-
     class Player : public Controller
     {
     public:
+        enum Mode
+        {
+            MODE_CHASE,
+            MODE_FREE
+        };
+
         Player(PlayerHandle handle, VehicleHandle vehicleHandle)
             : handle(handle), vehicleHandle(vehicleHandle)
         {
-            if(vehicleHandle == VehicleHandle::INVALID)
-                cameraMode = CAMERA_MODE_FREE;
+            if (vehicleHandle == VehicleHandle::INVALID)
+                mode = MODE_FREE;
         }
+
+        void tick(milliseconds_t dt, Position3 vehiclePosition = {}, glm::vec3 vehicleVelocityVector = {});
 
         void attachVehicle(VehicleHandle vehicleHandle)
         {
             this->vehicleHandle = vehicleHandle;
-            cameraMode = CAMERA_MODE_CHASE;
+            mode = MODE_CHASE;
         }
 
         void detachVehicle()
         {
             this->vehicleHandle = VehicleHandle::INVALID;
-            cameraMode = CAMERA_MODE_FREE;
+            mode = MODE_FREE;
+            vis = {};
         }
 
-        bool hasVehicle()
-        {
-            return vehicleHandle != VehicleHandle::INVALID;
-        }
-
-        void setVehicleInputState(const VehicleInputState &vis)  { this->vis = vis; }
-        [[nodiscard]] VehicleInputState getVehicleInputState() const override { return vis; }
-
-        void setVehicleHandle(VehicleHandle vehicleHandle) { this->vehicleHandle = vehicleHandle; }
-        [[nodiscard]] VehicleHandle getVehicleHandle() const override { return vehicleHandle; }
+        bool hasVehicle() { return vehicleHandle != VehicleHandle::INVALID; }
 
         [[nodiscard]] PlayerHandle getHandle() const { return handle; }
 
-        void updateCameraChaseMode(milliseconds_t dt, Position3 vehiclePosition, glm::vec3 vehicleVelocityVector);
-        void updateCameraFreeMode(milliseconds_t dt);
+        [[nodiscard]] VehicleInputState getVehicleInputState() const override { return vis; }
 
-        [[nodiscard]] glm::mat4 getCameraViewMat() const { return camera.getViewMat(); }
+        [[nodiscard]] VehicleHandle getVehicleHandle() const override { return vehicleHandle; }
 
-        [[nodiscard]] Position3 getCameraPosition() const { return camera.getPosition(); }
+        [[nodiscard]] Position3 getPosition() const { return position; }
+        [[nodiscard]] float getYaw() const { return rotation.yaw; }
+        [[nodiscard]] glm::mat4 getViewMat() const;
 
-        [[nodiscard]] float getCameraYaw() const { return camera.getRotation().yaw; }
+        void setVehicleInputState(const VehicleInputState &vis) { this->vis = vis; }
 
-        void setCameraChaseDistance(float distance) { this->cameraChaseDistance = distance; }
+        void setVehicleHandle(VehicleHandle vehicleHandle) { this->vehicleHandle = vehicleHandle; }
 
-        void setCameraChaseHeight(float height) { this->cameraChaseHeight = height; }
+        void setMode(Mode mode) { this->mode = mode; }
 
-        void setCameraChaseDistanceDelay(float delay) { this->cameraChaseDistanceDelay = delay; }
-        void setCameraChaseTurnDelay(float delay) { this->cameraChaseTurnDelay = delay; }
+        void setChaseDistance(float distance) { this->chaseDistance = distance; }
+        void setChaseHeight(float height) { this->chaseHeight = height; }
+        void setChaseDistanceDelay(float delay) { this->chaseDistanceDelay = delay; }
+        void setChaseTurnDelay(float delay) { this->chaseTurnDelay = delay; }
 
-        void setCameraMode(CameraMode mode) { this->cameraMode = mode; }
+        void setFreeSpeed(float freeSpeed) { this->freeSpeed = freeSpeed; }
 
-        void setMinCameraPitch(float minCameraPitch) { this->minCameraPitch = minCameraPitch; }
+        void setMinPitch(float minPitch) { this->minPitch = minPitch; }
 
-        void setMaxCameraPitch(float maxCameraPitch) { this->maxCameraPitch = maxCameraPitch; }
-
-        void setFreeCameraSpeed(float freeCameraSpeed) { this->cameraFreeSpeed = freeCameraSpeed; }
+        void setMaxPitch(float maxPitch) { this->maxPitch = maxPitch; }
 
     private:
         const PlayerHandle handle;
 
         VehicleHandle vehicleHandle;
 
-        Camera camera;
-
         VehicleInputState vis;
 
-        float cameraPitch = 0.0f;
-        float cameraYaw = -PI;
+        float pitch = 0.0f;
+        float yaw = -PI;
 
-        CameraMode cameraMode = CAMERA_MODE_CHASE;
-        float cameraChaseDistance = 10.0f;
-        float cameraChaseHeight = 3.0f;
-        float cameraChaseDistanceDelay = 0.1f;
-        float cameraChaseTurnDelay = 1.0f;
-        float cameraFreeSpeed = 5.0f;
+        Position3 position{};
+        Rotation3 rotation{};
 
-        float minCameraPitch = -1.2f;
-        float maxCameraPitch = 0.6f;
+        Mode mode = MODE_CHASE;
+        float chaseDistance = 10.0f;
+        float chaseHeight = 3.0f;
+        float chaseDistanceDelay = 0.1f;
+        float chaseTurnDelay = 1.0f;
+
+        float freeSpeed = 5.0f;
+
+        float minPitch = -1.2f;
+        float maxPitch = 0.6f;
     };
 
 }

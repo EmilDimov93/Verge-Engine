@@ -185,9 +185,14 @@ namespace VE
         VkPhysicalDeviceFeatures deviceFeatures = {
             .samplerAnisotropy = VK_TRUE};
 
+        VkPhysicalDeviceSynchronization2Features sync2Features{};
+        sync2Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES;
+        sync2Features.synchronization2 = VK_TRUE;
+
         VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
         dynamicRenderingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
         dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+        dynamicRenderingFeatures.pNext = &sync2Features;
 
         VkDeviceCreateInfo deviceCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,

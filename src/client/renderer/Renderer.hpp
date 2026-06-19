@@ -13,6 +13,7 @@
 #include <vector>
 #include <array>
 #include <mutex>
+#include <span>
 
 namespace VE
 {
@@ -64,7 +65,7 @@ namespace VE
         FenceGuard(VkDevice device) : device(device)
         {
             VkFenceCreateInfo fenceCreateInfo = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
-            if(vkCreateFence(device, &fenceCreateInfo, nullptr, &fence) != VK_SUCCESS)
+            if (vkCreateFence(device, &fenceCreateInfo, nullptr, &fence) != VK_SUCCESS)
                 Log::add('V', 216);
         }
 
@@ -81,6 +82,20 @@ namespace VE
         VkFence fence = VK_NULL_HANDLE;
         VkDevice device = VK_NULL_HANDLE;
     };
+
+    template <typename... Structs>
+    void *chainStructs(Structs *...structures)
+    {
+        void *arr[]{structures...};
+        VkBaseInStructure *last = nullptr;
+        for (auto *s : arr)
+        {
+            auto *vk_base = static_cast<VkBaseInStructure *>(s);
+            vk_base->pNext = last;
+            last = vk_base;
+        }
+        return last;
+    }
 
     class Renderer
     {

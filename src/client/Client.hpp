@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0
 
 #include "renderer/Renderer.hpp"
-#include "WindowManager.hpp"
+#include "Window.hpp"
 #include "AudioManager.hpp"
 #include "Input.hpp"
 #include "FPSManager.hpp"
@@ -76,7 +76,6 @@ namespace VE
         void setSteerInputSmoothing(float smoothing) { steerSmoothing = clamp01(smoothing); }
         void setCameraMovementInputSmoothing(float smoothing) { cameraMovementSmoothing = clamp01(smoothing); }
 
-        // void setAspectRatio(float aspectRatio);
         void setFOV(float fov);
         void setzNear(float zNear);
         void setZFar(float zFar);
@@ -85,7 +84,7 @@ namespace VE
 
     private:
         // Window & Rendering
-        WindowManager window;
+        Window window;
         Renderer renderer;
         FpsManager fps;
 

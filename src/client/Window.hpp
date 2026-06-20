@@ -9,13 +9,12 @@
 
 namespace VE
 {
-
-    class WindowManager
+    class Window
     {
     public:
-        WindowManager(Size2 size, std::string name);
+        Window(Size2 size, std::string name);
 
-        [[nodiscard]] GLFWwindow *getReference() const;
+        [[nodiscard]] GLFWwindow *ptr() const;
 
         [[nodiscard]] Size2 getSize() const;
 
@@ -23,7 +22,7 @@ namespace VE
 
         [[nodiscard]] float getAspectRatio() const;
 
-        ~WindowManager();
+        ~Window();
 
     private:
         GLFWwindow *window;

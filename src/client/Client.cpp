@@ -8,9 +8,9 @@
 namespace VE
 {
 
-    Client::Client(const ClientCreateInfo &info) : window(info.windowSize, info.projectName), renderer(window.getReference(), window.getSize()), keybinds(0)
+    Client::Client(const ClientCreateInfo &info) : window(info.windowSize, info.projectName), renderer(window.ptr(), window.getSize()), keybinds(0)
     {
-        Input::init(window.getReference());
+        Input::init(window.ptr());
         Log::init(info.logOutputMode);
         fps.setTarget(info.targetFps);
     }

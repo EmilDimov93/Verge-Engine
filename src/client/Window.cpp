@@ -1,21 +1,20 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#include "WindowManager.hpp"
+#include "Window.hpp"
 
 #include "../shared/Log.hpp"
 
 namespace VE
 {
-
-    WindowManager::WindowManager(Size2 size, std::string name)
+    Window::Window(Size2 size, std::string name)
     {
         if (!glfwInit())
             Log::add('G', 200);
 
         const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-        if (size.w > 0 && size.w <= mode->width && size.h > 0 && size.h <= mode->height)
+        if (size.w <= mode->width && size.h <= mode->height)
         {
             this->size = size;
         }
@@ -23,8 +22,7 @@ namespace VE
         {
             Log::add('G', 102);
 
-            this->size.w = mode->width * 0.5f;
-            this->size.h = mode->height * 0.5f;
+            this->size = {static_cast<uint32_t>(mode->width / 2), static_cast<uint32_t>(mode->height / 2)};
         }
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -36,29 +34,29 @@ namespace VE
         glfwSetWindowUserPointer(window, this);
 
         glfwSetFramebufferSizeCallback(window, [](GLFWwindow *window, int width, int height) {
-            WindowManager *windowManager = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
-            windowManager->size = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+            Window *w = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+            w->size = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
         });
 
         Log::add('G', 000);
     }
 
-    GLFWwindow *WindowManager::getReference() const
+    GLFWwindow *Window::ptr() const
     {
         return window;
     }
 
-    Size2 WindowManager::getSize() const
+    Size2 Window::getSize() const
     {
         return size;
     }
 
-    bool WindowManager::isOpen() const
+    bool Window::isOpen() const
     {
         return !glfwWindowShouldClose(window);
     }
 
-    float WindowManager::getAspectRatio() const
+    float Window::getAspectRatio() const
     {
         if (size.h == 0)
             return 1.0f;
@@ -66,14 +64,12 @@ namespace VE
         return static_cast<float>(size.w) / static_cast<float>(size.h);
     }
 
-    WindowManager::~WindowManager()
+    Window::~Window()
     {
         if (window)
             glfwDestroyWindow(window);
-
         window = nullptr;
 
         glfwTerminate();
     }
-
 }

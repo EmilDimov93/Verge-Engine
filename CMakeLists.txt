@@ -11,7 +11,7 @@ add_executable(VergeEngine
     src/shared/Log.cpp
 
     src/client/Client.cpp
-    src/client/WindowManager.cpp
+    src/client/Window.cpp
     src/client/AudioManager.cpp
     src/client/Input.cpp
     src/client/FpsManager.cpp

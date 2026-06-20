@@ -32,19 +32,19 @@ namespace VE
             createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
 
             void *data;
-            vkCheck(vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data), {'V', 236});
+            vkCheck(vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data), {'R', 236});
             memcpy(data, vertices.data(), (size_t)bufferSize);
             vkUnmapMemory(device, stagingBufferMemory);
 
             createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &meshBuffer.vertexBuffer, &meshBuffer.vertexBufferMemory);
 
-            vkCheck(copyBuffer(transferCommandPoolLocal, stagingBuffer, meshBuffer.vertexBuffer, bufferSize, uploadFence), {'V', 224});
+            vkCheck(copyBuffer(transferCommandPoolLocal, stagingBuffer, meshBuffer.vertexBuffer, bufferSize, uploadFence), {'R', 224});
 
             vkDestroyBuffer(device, stagingBuffer, nullptr);
             vkFreeMemory(device, stagingBufferMemory, nullptr);
         }
 
-        vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'V', 232});
+        vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
 
         // Index Buffer
         {
@@ -55,13 +55,13 @@ namespace VE
             createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
 
             void *data;
-            vkCheck(vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data), {'V', 236});
+            vkCheck(vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data), {'R', 236});
             memcpy(data, indices.data(), (size_t)bufferSize);
             vkUnmapMemory(device, stagingBufferMemory);
 
             createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &meshBuffer.indexBuffer, &meshBuffer.indexBufferMemory);
 
-            vkCheck(copyBuffer(transferCommandPoolLocal, stagingBuffer, meshBuffer.indexBuffer, bufferSize, uploadFence), {'V', 224});
+            vkCheck(copyBuffer(transferCommandPoolLocal, stagingBuffer, meshBuffer.indexBuffer, bufferSize, uploadFence), {'R', 224});
 
             vkDestroyBuffer(device, stagingBuffer, nullptr);
             vkFreeMemory(device, stagingBufferMemory, nullptr);

@@ -310,7 +310,7 @@ namespace VE
         }
         else
         {
-            Log::add('A', 192);
+            Log::add('A', 191);
             newSurfaceType.friction = 0;
         }
 
@@ -320,7 +320,7 @@ namespace VE
         }
         else
         {
-            Log::add('A', 193);
+            Log::add('A', 192);
             newSurfaceType.color = {0, 0, 0};
         }
 

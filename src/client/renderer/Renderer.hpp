@@ -44,7 +44,7 @@ namespace VE
                 .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
                 .queueFamilyIndex = queueFamilyIndex};
             if (vkCreateCommandPool(device, &poolCreateInfo, nullptr, &pool) != VK_SUCCESS)
-                Log::add('V', 208);
+                Log::add('R', 208);
         }
 
         ~CommandPoolGuard()
@@ -66,7 +66,7 @@ namespace VE
         {
             VkFenceCreateInfo fenceCreateInfo = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
             if (vkCreateFence(device, &fenceCreateInfo, nullptr, &fence) != VK_SUCCESS)
-                Log::add('V', 216);
+                Log::add('R', 216);
         }
 
         ~FenceGuard()

@@ -151,7 +151,7 @@ namespace VE
             return false;
         if (key >= KEY_COUNT || key < 0)
         {
-            Log::add('G', 101);
+            Log::add('G', 100);
             return false;
         }
         return keyStates[key] == KEY_STATE_DOWN || keyStates[key] == KEY_STATE_PRESSED;
@@ -163,7 +163,7 @@ namespace VE
             return false;
         if (key >= KEY_COUNT || key < 0)
         {
-            Log::add('G', 101);
+            Log::add('G', 100);
             return false;
         }
         return keyStates[key] == KEY_STATE_UP || keyStates[key] == KEY_STATE_RELEASED;
@@ -175,7 +175,7 @@ namespace VE
             return false;
         if (key >= KEY_COUNT || key < 0)
         {
-            Log::add('G', 101);
+            Log::add('G', 100);
             return false;
         }
         return keyStates[key] == KEY_STATE_PRESSED;
@@ -187,7 +187,7 @@ namespace VE
             return false;
         if (key >= KEY_COUNT || key < 0)
         {
-            Log::add('G', 101);
+            Log::add('G', 100);
             return false;
         }
         return keyStates[key] == KEY_STATE_RELEASED;
@@ -199,7 +199,7 @@ namespace VE
             return false;
         if (btn >= MOUSE_BTN_COUNT || btn < 0)
         {
-            Log::add('G', 101);
+            Log::add('G', 100);
             return false;
         }
         return mouseBtnStates[btn] == KEY_STATE_DOWN || mouseBtnStates[btn] == KEY_STATE_PRESSED;
@@ -211,7 +211,7 @@ namespace VE
             return false;
         if (btn >= MOUSE_BTN_COUNT || btn < 0)
         {
-            Log::add('G', 101);
+            Log::add('G', 100);
             return false;
         }
         return mouseBtnStates[btn] == KEY_STATE_UP || mouseBtnStates[btn] == KEY_STATE_RELEASED;
@@ -223,7 +223,7 @@ namespace VE
             return false;
         if (btn >= MOUSE_BTN_COUNT || btn < 0)
         {
-            Log::add('G', 101);
+            Log::add('G', 100);
             return false;
         }
         return mouseBtnStates[btn] == KEY_STATE_PRESSED;
@@ -235,7 +235,7 @@ namespace VE
             return false;
         if (btn >= MOUSE_BTN_COUNT || btn < 0)
         {
-            Log::add('G', 101);
+            Log::add('G', 100);
             return false;
         }
         return mouseBtnStates[btn] == KEY_STATE_RELEASED;
@@ -252,7 +252,7 @@ namespace VE
             return false;
         if (btn >= controllerBtnStates.size() || btn < 0)
         {
-            Log::add('G', 101);
+            Log::add('G', 100);
             return false;
         }
 
@@ -265,7 +265,7 @@ namespace VE
             return false;
         if (btn >= controllerBtnStates.size() || btn < 0)
         {
-            Log::add('G', 101);
+            Log::add('G', 100);
             return false;
         }
 
@@ -278,7 +278,7 @@ namespace VE
             return false;
         if (btn >= controllerBtnStates.size() || btn < 0)
         {
-            Log::add('G', 101);
+            Log::add('G', 100);
             return false;
         }
 
@@ -291,7 +291,7 @@ namespace VE
             return false;
         if (btn >= controllerBtnStates.size() || btn < 0)
         {
-            Log::add('G', 101);
+            Log::add('G', 100);
             return false;
         }
 
@@ -304,7 +304,7 @@ namespace VE
             return 0.0f;
         if (axis.index >= controllerAxes.size() || axis.index < 0)
         {
-            Log::add('G', 101);
+            Log::add('G', 100);
             return 0.0f;
         }
 

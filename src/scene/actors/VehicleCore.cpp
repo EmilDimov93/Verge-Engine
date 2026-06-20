@@ -19,15 +19,7 @@ namespace VE
 
         wheelOffset = info.wheelOffset;
 
-        if (info.peakTorqueNm > 0)
-        {
-            peakTorqueNm = info.peakTorqueNm;
-        }
-        else
-        {
-            Log::add('A', 102);
-            peakTorqueNm = 300;
-        }
+        peakTorqueNm = info.peakTorqueNm;
 
         if (info.weightKg > 0)
         {
@@ -39,15 +31,7 @@ namespace VE
             weightKg = 1200.f;
         }
 
-        if (info.idleRpm > 0)
-        {
-            idleRpm = info.idleRpm;
-        }
-        else
-        {
-            Log::add('A', 106);
-            idleRpm = 800;
-        }
+        idleRpm = info.idleRpm;
 
         if (info.maxRpm > idleRpm)
         {
@@ -56,7 +40,7 @@ namespace VE
         else
         {
             Log::add('A', 107);
-            maxRpm = 6000;
+            maxRpm = idleRpm + 5000;
         }
 
         transmissionType = info.transmissionType;
@@ -69,15 +53,24 @@ namespace VE
         }
         else
         {
+            Log::add('A', 106);
             brakingForceN = 15000.0f;
         }
 
-        if (info.gearRatios.size() > 0)
+        if (!info.gearRatios.empty())
         {
             gearCount = info.gearRatios.size();
             gearRatios.resize(gearCount + 1);
 
-            gearRatios[0] = info.reverseGearRatio > 0.0f ? info.reverseGearRatio : 3.5f;
+            if(info.reverseGearRatio > 0.f)
+            {
+                gearRatios[0] = info.reverseGearRatio;
+            }
+            else
+            {
+                Log::add('A', 103);
+                gearRatios[0] = 3.5f;
+            }
 
             for (size_t i = 1; i < gearCount; i++)
             {
@@ -90,7 +83,15 @@ namespace VE
 
             gearRatios.resize(gearCount + 1);
 
-            gearRatios[0] = info.reverseGearRatio > 0.0f ? info.reverseGearRatio : 3.5f;
+            if(info.reverseGearRatio > 0.f)
+            {
+                gearRatios[0] = info.reverseGearRatio;
+            }
+            else
+            {
+                Log::add('A', 103);
+                gearRatios[0] = 3.5f;
+            }
 
             const float defaultTopRatio = 1.0f;
             const float defaultFirstRatio = 5.0f;
@@ -109,7 +110,7 @@ namespace VE
         else
         {
             finalDriveRatio = 3.0f;
-            Log::add('A', 117);
+            Log::add('A', 102);
         }
 
         if (info.drivetrainEfficiency >= 0 && info.drivetrainEfficiency <= 1.0f)
@@ -152,11 +153,11 @@ namespace VE
             frontalAreaM2 = 0.0009f * info.weightKg + 0.5f;
         }
 
-        if (info.maxSteeringAngleRad > 0 && info.maxSteeringAngleRad <= 0.9f) // Hardcoded limit
+        if (info.maxSteeringAngleRad > 0.f && info.maxSteeringAngleRad <= 0.9f)
         {
             maxSteeringAngleRad = info.maxSteeringAngleRad;
         }
-        else if (info.maxSteeringAngleRad >= -0.9f && info.maxSteeringAngleRad <= 0.9f)
+        else if (info.maxSteeringAngleRad < 0.f && info.maxSteeringAngleRad >= -0.9f)
         {
             Log::add('A', 112);
             maxSteeringAngleRad = -info.maxSteeringAngleRad;
@@ -173,7 +174,7 @@ namespace VE
         }
         else
         {
-            Log::add('A', 115);
+            Log::add('A', 101);
             tireGrip = 1.0f;
         }
 
@@ -183,7 +184,7 @@ namespace VE
         }
         else
         {
-            Log::add('A', 114);
+            Log::add('A', 100);
             camberRad = 0;
         }
 

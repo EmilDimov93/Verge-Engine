@@ -47,7 +47,7 @@ namespace VE
             pipelineCacheCreateInfo.initialDataSize = pipelineCacheData.size();
             pipelineCacheCreateInfo.pInitialData = pipelineCacheData.data();
         }
-        vkCheck(vkCreatePipelineCache(device, &pipelineCacheCreateInfo, nullptr, &pipelineCache), {'V', 227});
+        vkCheck(vkCreatePipelineCache(device, &pipelineCacheCreateInfo, nullptr, &pipelineCache), {'R', 227});
     }
 
     void Renderer::createModelPipeline()
@@ -139,7 +139,7 @@ namespace VE
             .pushConstantRangeCount = pushConstantRanges.size(),
             .pPushConstantRanges = pushConstantRanges.data()};
 
-        vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &modelPipeline.layout), {'V', 210});
+        vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &modelPipeline.layout), {'R', 210});
 
         VkPipelineDepthStencilStateCreateInfo depthStencilCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
@@ -174,7 +174,7 @@ namespace VE
             .basePipelineHandle = VK_NULL_HANDLE,
             .basePipelineIndex = -1};
 
-        vkCheck(vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipelineCreateInfo, nullptr, &modelPipeline.pipeline), {'V', 211});
+        vkCheck(vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipelineCreateInfo, nullptr, &modelPipeline.pipeline), {'R', 211});
 
         vkDestroyShaderModule(device, vertexShaderModule, nullptr);
         vkDestroyShaderModule(device, fragmentShaderModule, nullptr);
@@ -269,7 +269,7 @@ namespace VE
             .pushConstantRangeCount = pushConstantRanges.size(),
             .pPushConstantRanges = pushConstantRanges.data()};
 
-        vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &transparentPipeline.layout), {'V', 210});
+        vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &transparentPipeline.layout), {'R', 210});
 
         VkPipelineDepthStencilStateCreateInfo depthStencilCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
@@ -304,7 +304,7 @@ namespace VE
             .basePipelineHandle = VK_NULL_HANDLE,
             .basePipelineIndex = -1};
 
-        vkCheck(vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipelineCreateInfo, nullptr, &transparentPipeline.pipeline), {'V', 211});
+        vkCheck(vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipelineCreateInfo, nullptr, &transparentPipeline.pipeline), {'R', 211});
 
         vkDestroyShaderModule(device, vertexShaderModule, nullptr);
         vkDestroyShaderModule(device, fragmentShaderModule, nullptr);
@@ -373,7 +373,7 @@ namespace VE
             .pSetLayouts = nullptr,
             .pushConstantRangeCount = 1,
             .pPushConstantRanges = &pushConstantRange};
-        vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &shadowPipeline.layout), {'V', 210});
+        vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &shadowPipeline.layout), {'R', 210});
 
         VkPipelineRenderingCreateInfo pipelineRenderingCreateInfo{};
         pipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
@@ -396,7 +396,7 @@ namespace VE
             .layout = shadowPipeline.layout,
             .renderPass = VK_NULL_HANDLE,
             .subpass = 0};
-        vkCheck(vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipelineCreateInfo, nullptr, &shadowPipeline.pipeline), {'V', 211});
+        vkCheck(vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipelineCreateInfo, nullptr, &shadowPipeline.pipeline), {'R', 211});
 
         vkDestroyShaderModule(device, vertexShaderModule, nullptr);
     }
@@ -455,7 +455,7 @@ namespace VE
         layoutInfo.pushConstantRangeCount = 1;
         layoutInfo.pPushConstantRanges = &pushConstantRange;
 
-        vkCheck(vkCreatePipelineLayout(device, &layoutInfo, nullptr, &postPipeline.layout), {'V', 247});
+        vkCheck(vkCreatePipelineLayout(device, &layoutInfo, nullptr, &postPipeline.layout), {'R', 247});
 
         VkPipelineRenderingCreateInfo pipelineRenderingCreateInfo{};
         pipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
@@ -477,7 +477,7 @@ namespace VE
         pipelineInfo.pDynamicState = &DEFAULT_DYNAMIC_STATE_CREATE_INFO;
         pipelineInfo.layout = postPipeline.layout;
 
-        vkCheck(vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipelineInfo, nullptr, &postPipeline.pipeline), {'V', 248});
+        vkCheck(vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipelineInfo, nullptr, &postPipeline.pipeline), {'R', 248});
 
         vkDestroyShaderModule(device, vertexShaderModule, nullptr);
         vkDestroyShaderModule(device, fragmentShaderModule, nullptr);
@@ -561,7 +561,7 @@ namespace VE
             .pushConstantRangeCount = 1,
             .pPushConstantRanges = &pushConstantRange};
 
-        vkCheck(vkCreatePipelineLayout(device, &pipelineLayout, nullptr, &uiPipeline.layout), {'V', 210});
+        vkCheck(vkCreatePipelineLayout(device, &pipelineLayout, nullptr, &uiPipeline.layout), {'R', 210});
 
         VkPipelineRenderingCreateInfo pipelineRenderingCreateInfo{};
         pipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
@@ -587,7 +587,7 @@ namespace VE
             .basePipelineHandle = VK_NULL_HANDLE,
             .basePipelineIndex = -1};
 
-        vkCheck(vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipelineCreateInfo, nullptr, &uiPipeline.pipeline), {'V', 211});
+        vkCheck(vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipelineCreateInfo, nullptr, &uiPipeline.pipeline), {'R', 211});
 
         vkDestroyShaderModule(device, vertexShaderModule, nullptr);
         vkDestroyShaderModule(device, fragmentShaderModule, nullptr);

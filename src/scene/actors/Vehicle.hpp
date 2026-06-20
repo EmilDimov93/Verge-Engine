@@ -55,7 +55,7 @@ namespace VE
         float frontalAreaM2 = 2.0f;
         float maxSteeringAngleRad = 0.55f;
         float tireGrip = 1.0f;
-        float idleRpm = 800.f;
+        uint32_t idleRpm = 800;
         float camberRad = 0;
 
         DrivetrainType drivetrainType = DRIVETRAIN_TYPE_AWD;

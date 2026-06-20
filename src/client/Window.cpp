@@ -20,7 +20,7 @@ namespace VE
         }
         else
         {
-            Log::add('G', 102);
+            Log::add('G', 101);
 
             this->size = {static_cast<uint32_t>(mode->width / 2), static_cast<uint32_t>(mode->height / 2)};
         }

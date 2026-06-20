@@ -33,7 +33,7 @@ namespace VE
             .compareEnable = VK_TRUE,
             .compareOp = VK_COMPARE_OP_LESS,
             .borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE};
-        vkCheck(vkCreateSampler(device, &samplerCreateInfo, nullptr, &shadowSampler), {'V', 218});
+        vkCheck(vkCreateSampler(device, &samplerCreateInfo, nullptr, &shadowSampler), {'R', 218});
     }
     
     void Renderer::createModelDescriptors()
@@ -67,7 +67,7 @@ namespace VE
             .bindingCount = static_cast<uint32_t>(layoutBindings.size()),
             .pBindings = layoutBindings.data()};
 
-        vkCheck(vkCreateDescriptorSetLayout(device, &layoutCreateInfo, nullptr, &modelPipeline.descriptorSetLayout), {'V', 217});
+        vkCheck(vkCreateDescriptorSetLayout(device, &layoutCreateInfo, nullptr, &modelPipeline.descriptorSetLayout), {'R', 217});
 
         // Pool
         VkDescriptorPoolSize uniformPoolSize = {
@@ -86,7 +86,7 @@ namespace VE
             .poolSizeCount = static_cast<uint32_t>(descriptorPoolSizes.size()),
             .pPoolSizes = descriptorPoolSizes.data()};
 
-        vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &modelPipeline.descriptorPool), {'V', 219});
+        vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &modelPipeline.descriptorPool), {'R', 219});
 
         // Sets
         modelPipeline.descriptorSets.resize(FRAMES_IN_FLIGHT);
@@ -99,7 +99,7 @@ namespace VE
             .descriptorSetCount = FRAMES_IN_FLIGHT,
             .pSetLayouts = setLayouts.data()};
 
-        vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, modelPipeline.descriptorSets.data()), {'V', 220});
+        vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, modelPipeline.descriptorSets.data()), {'R', 220});
 
         for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
@@ -174,7 +174,7 @@ namespace VE
             .bindingCount = 1,
             .pBindings = &uiLayoutBinding};
 
-        vkCheck(vkCreateDescriptorSetLayout(device, &uiLayoutCreateInfo, nullptr, &uiPipeline.descriptorSetLayout), {'V', 217});
+        vkCheck(vkCreateDescriptorSetLayout(device, &uiLayoutCreateInfo, nullptr, &uiPipeline.descriptorSetLayout), {'R', 217});
 
         // Pool
         VkDescriptorPoolSize poolSize = {
@@ -187,7 +187,7 @@ namespace VE
             .poolSizeCount = 1,
             .pPoolSizes = &poolSize};
 
-        vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &uiPipeline.descriptorPool), {'V', 219});
+        vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &uiPipeline.descriptorPool), {'R', 219});
 
         // Sets
         uiPipeline.descriptorSets.resize(FRAMES_IN_FLIGHT);
@@ -200,7 +200,7 @@ namespace VE
             .descriptorSetCount = FRAMES_IN_FLIGHT,
             .pSetLayouts = setLayouts.data()};
 
-        vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, uiPipeline.descriptorSets.data()), {'V', 220});
+        vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, uiPipeline.descriptorSets.data()), {'R', 220});
 
         for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
@@ -240,7 +240,7 @@ namespace VE
         samplerCreateInfo.minLod = 0.0f;
         samplerCreateInfo.maxLod = 0.0f;
 
-        vkCheck(vkCreateSampler(device, &samplerCreateInfo, nullptr, &postSampler), {'V', 226});
+        vkCheck(vkCreateSampler(device, &samplerCreateInfo, nullptr, &postSampler), {'R', 226});
     }
 
     void Renderer::createPostDescriptors()
@@ -258,7 +258,7 @@ namespace VE
         layoutInfo.bindingCount = 1;
         layoutInfo.pBindings = &sceneColorBinding;
 
-        vkCheck(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &postPipeline.descriptorSetLayout), {'V', 217});
+        vkCheck(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &postPipeline.descriptorSetLayout), {'R', 217});
 
         // Pool
         VkDescriptorPoolSize poolSize = {
@@ -271,7 +271,7 @@ namespace VE
             .poolSizeCount = 1,
             .pPoolSizes = &poolSize};
 
-        vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &postPipeline.descriptorPool), {'V', 219});
+        vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &postPipeline.descriptorPool), {'R', 219});
 
         // Sets
         const size_t imageCount = swapChainImageCount;
@@ -285,7 +285,7 @@ namespace VE
         allocateInfo.pSetLayouts = layouts.data();
 
         postPipeline.descriptorSets.resize(imageCount);
-        vkCheck(vkAllocateDescriptorSets(device, &allocateInfo, postPipeline.descriptorSets.data()), {'V', 220});
+        vkCheck(vkAllocateDescriptorSets(device, &allocateInfo, postPipeline.descriptorSets.data()), {'R', 220});
 
         updatePostDescriptorSets();
     }

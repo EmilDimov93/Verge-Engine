@@ -217,7 +217,7 @@ namespace VE
         if (fov > 0.0f && fov < 180.0f)
             this->fov = fov;
         else
-            Log::add('R', 200);
+            Log::add('C', 200);
     }
 
     void Client::setzNear(float zNear)
@@ -225,7 +225,7 @@ namespace VE
         if (zNear > 0.0f)
             this->zNear = zNear;
         else
-            Log::add('R', 201);
+            Log::add('C', 201);
     }
 
     void Client::setZFar(float zFar)
@@ -233,7 +233,7 @@ namespace VE
         if (zFar > zNear)
             this->zFar = zFar;
         else
-            Log::add('R', 202);
+            Log::add('C', 202);
     }
 
     glm::mat4 Client::getProjectionMat() const

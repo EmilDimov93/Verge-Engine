@@ -20,70 +20,70 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
 
     {{'E', 200}, "Verge Engine crashed"},
 
-    // Vulkan
-    {{'V', 000}, "Vulkan loaded successfully"},
-
-    {{'V', 100}, "Vulkan returned: VK_NOT_READY"},
-    {{'V', 101}, "Vulkan returned: VK_TIMEOUT"},
-    {{'V', 102}, "Vulkan returned: VK_SUBOPTIMAL_KHR"},
-    {{'V', 103}, "Vulkan returned: VK_EVENT_SET"},
-    {{'V', 104}, "Vulkan returned: VK_EVENT_RESET"},
-    {{'V', 110}, "Failed to write to pipeline cache file"},
-    {{'V', 111}, "STB Image failed to load image"},
-
-    {{'V', 200}, "Vulkan failed to create instance"},
-    {{'V', 201}, "Vulkan failed to create window surface"},
-    {{'V', 202}, "Vulkan failed to find GPU"},
-    {{'V', 203}, "Vulkan failed to create logical device"},
-    {{'V', 204}, "Vulkan failed to create swapchain"},
-    {{'V', 205}, "Vulkan failed to create image view"},
-    {{'V', 206}, "Vulkan failed to create render pass"},
-    {{'V', 207}, "Vulkan failed to create framebuffer"},
-    {{'V', 208}, "Vulkan failed to create command pool"},
-    {{'V', 209}, "Vulkan failed to create shader"},
-    {{'V', 210}, "Vulkan failed to create pipeline layout"},
-    {{'V', 211}, "Vulkan failed to create graphics pipeline"},
-    {{'V', 212}, "Vulkan failed to allocate command buffers"},
-    {{'V', 213}, "Vulkan failed to record command buffer"},
-    {{'V', 214}, "Vulkan failed to get physical device surface details"},
-    {{'V', 215}, "Vulkan failed to create semaphore"},
-    {{'V', 216}, "Vulkan failed to create fence"},
-    {{'V', 217}, "Vulkan failed to create descriptor set layout"},
-    {{'V', 218}, "Vulkan failed to create buffer"},
-    {{'V', 219}, "Vulkan failed to create descriptor pool"},
-    {{'V', 220}, "Vulkan failed to allocate descriptor sets"},
-    {{'V', 221}, "Vulkan failed to find shader files"},
-    {{'V', 222}, "Vulkan failed to create image"},
-    {{'V', 223}, "Vulkan failed to find supported image format"},
-    {{'V', 224}, "Vulkan failed to copy buffer"},
-    // {{'V', 225} removed
-    {{'V', 226}, "Vulkan failed to create sampler"},
-    {{'V', 227}, "Vulkan failed to create pipeline cache"},
-    {{'V', 229}, "Vulkan failed to initialize mesh"},
-    {{'V', 230}, "Vulkan failed to acquire swapchain image"},
-    {{'V', 231}, "Vulkan failed to wait for fence"},
-    {{'V', 232}, "Vulkan failed to reset fence"},
-    {{'V', 233}, "Vulkan failed to submit graphics queue"},
-    {{'V', 234}, "Vulkan failed to present image"},
-    {{'V', 235}, "Vulkan failed: vkDeviceWaitIdle"},
-    {{'V', 236}, "Vulkan failed to map memory"},
-    {{'V', 237}, "Vulkan failed to find a suitable memory type index"},
-    {{'V', 238}, "Vulkan failed: vkQueueWaitIdle"},
-    {{'V', 239}, "Vulkan failed to copy image"},
-    {{'V', 240}, "Vulkan failed to transition image layout"},
-    {{'V', 241}, "Vulkan failed to generate mipmaps"},
-
     // Renderer
-    {{'R', 200}, "Renderer: invalid Field Of View value"},
-    {{'R', 201}, "Renderer: invalid Z Near value"},
-    {{'R', 202}, "Renderer: invalid Z Far value"},
+    {{'R', 000}, "Vulkan loaded successfully"},
+
+    {{'R', 100}, "Vulkan returned: VK_NOT_READY"},
+    {{'R', 101}, "Vulkan returned: VK_TIMEOUT"},
+    {{'R', 102}, "Vulkan returned: VK_SUBOPTIMAL_KHR"},
+    {{'R', 103}, "Vulkan returned: VK_EVENT_SET"},
+    {{'R', 104}, "Vulkan returned: VK_EVENT_RESET"},
+    {{'R', 110}, "Failed to write to pipeline cache file"},
+    {{'R', 111}, "STB Image failed to load image"},
+
+    {{'R', 200}, "Vulkan failed to create instance"},
+    {{'R', 201}, "Vulkan failed to create window surface"},
+    {{'R', 202}, "Vulkan failed to find GPU"},
+    {{'R', 203}, "Vulkan failed to create logical device"},
+    {{'R', 204}, "Vulkan failed to create swapchain"},
+    {{'R', 205}, "Vulkan failed to create image view"},
+    {{'R', 206}, "Vulkan failed to create render pass"},
+    {{'R', 207}, "Vulkan failed to create framebuffer"},
+    {{'R', 208}, "Vulkan failed to create command pool"},
+    {{'R', 209}, "Vulkan failed to create shader"},
+    {{'R', 210}, "Vulkan failed to create pipeline layout"},
+    {{'R', 211}, "Vulkan failed to create graphics pipeline"},
+    {{'R', 212}, "Vulkan failed to allocate command buffers"},
+    {{'R', 213}, "Vulkan failed to record command buffer"},
+    {{'R', 214}, "Vulkan failed to get physical device surface details"},
+    {{'R', 215}, "Vulkan failed to create semaphore"},
+    {{'R', 216}, "Vulkan failed to create fence"},
+    {{'R', 217}, "Vulkan failed to create descriptor set layout"},
+    {{'R', 218}, "Vulkan failed to create buffer"},
+    {{'R', 219}, "Vulkan failed to create descriptor pool"},
+    {{'R', 220}, "Vulkan failed to allocate descriptor sets"},
+    {{'R', 221}, "Vulkan failed to find shader files"},
+    {{'R', 222}, "Vulkan failed to create image"},
+    {{'R', 223}, "Vulkan failed to find supported image format"},
+    {{'R', 224}, "Vulkan failed to copy buffer"},
+    // {{'R', 225} removed
+    {{'R', 226}, "Vulkan failed to create sampler"},
+    {{'R', 227}, "Vulkan failed to create pipeline cache"},
+    // {{'R', 228} removed
+    {{'R', 229}, "Vulkan failed to initialize mesh"},
+    {{'R', 230}, "Vulkan failed to acquire swapchain image"},
+    {{'R', 231}, "Vulkan failed to wait for fence"},
+    {{'R', 232}, "Vulkan failed to reset fence"},
+    {{'R', 233}, "Vulkan failed to submit graphics queue"},
+    {{'R', 234}, "Vulkan failed to present image"},
+    {{'R', 235}, "Vulkan failed: vkDeviceWaitIdle"},
+    {{'R', 236}, "Vulkan failed to map memory"},
+    {{'R', 237}, "Vulkan failed to find a suitable memory type index"},
+    {{'R', 238}, "Vulkan failed: vkQueueWaitIdle"},
+    {{'R', 239}, "Vulkan failed to copy image"},
+    {{'R', 240}, "Vulkan failed to transition image layout"},
+    {{'R', 241}, "Vulkan failed to generate mipmaps"},
+
+    // Client
+    {{'C', 200}, "Renderer: invalid Field Of View value"},
+    {{'C', 201}, "Renderer: invalid Z Near value"},
+    {{'C', 202}, "Renderer: invalid Z Far value"},
 
     // GLFW
     {{'G', 000}, "GLFW loaded successfully"},
 
-    // {'G', 100} removed
-    {{'G', 101}, "Invalid key detected"},
-    {{'G', 102}, "Invalid window size parameter. Using 50% of monitor size"},
+    {{'G', 100}, "Invalid key detected"},
+    {{'G', 101}, "Invalid window size parameter. Using 50% of monitor size"},
 
     {{'G', 200}, "GLFW initialization failed"},
     {{'G', 201}, "GLFW window creation failed"},
@@ -94,10 +94,6 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'M', 200}, "Miniaudio initialization failed"},
 
     // Scene
-    // {'S', 100} removed
-    // {'S', 101} removed
-    // {'S', 102} removed
-    {{'S', 103}, "Out of bounds access to vehicle list"},
     {{'S', 200}, "Handle limit exceeded: too many objects"},
     {{'S', 201}, "Invalid model handle"},
     {{'S', 202}, "Invalid player handle"},
@@ -107,14 +103,14 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
 
     // Actors
 
-    // Vehicle
-    // {'A', 100} removed
-    // {'A', 101} removed
-    {{'A', 102}, "Vehicle: invalid peak torque. Using default value"},
-    // {'A', 103} removed
+    //// Vehicle
+    {{'A', 100}, "Vehicle: invalid camber. Using default value"},
+    {{'A', 101}, "Vehicle: invalid tire grip. Using default value"},
+    {{'A', 102}, "Vehicle: invalid final drive ratio. Using default value"},
+    {{'A', 103}, "Vehicle: invalid reverse gear ratio. Using default value"},
     {{'A', 104}, "Vehicle: invalid weight. Using default value"},
     {{'A', 105}, "Vehicle: invalid gear ratios. Using default value"},
-    {{'A', 106}, "Vehicle: invalid idle RPM. Using default value"},
+    {{'A', 106}, "Vehicle: invalid braking force. Using default value"},
     {{'A', 107}, "Vehicle: invalid max RPM. Using default value"},
     {{'A', 108}, "Vehicle: invalid drivetrain efficiency. Using default value"},
     {{'A', 109}, "Vehicle: invalid wheel radius. Using default value"},
@@ -122,29 +118,16 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'A', 111}, "Vehicle: invalid frontal area. Using default value"},
     {{'A', 112}, "Vehicle: invalid max steering angle. Using absolute value"},
     {{'A', 113}, "Vehicle: invalid max steering angle. Using default value"},
-    {{'A', 114}, "Vehicle: invalid camber. Using default value"},
-    {{'A', 115}, "Vehicle: invalid tire grip. Using default value"},
-    {{'A', 116}, "Vehicle: invalid reverse gear ratio. Using default value"},
-    {{'A', 117}, "Vehicle: invalid final drive ratio. Using default value"},
 
-    // Prop
-    // {'A', 160} removed
+    //// Trigger
+    {{'A', 180}, "Trigger: invalid hitbox shape"},
+    {{'A', 181}, "Trigger: invalid hitbox size"},
 
-    // Trigger
-    // {'A', 180} removed
-    // {{'A', 181} removed
-    {{'A', 182}, "Trigger: invalid hitbox shape"},
-    {{'A', 183}, "Trigger: invalid hitbox size"},
-
-    // Ground
+    //// Surface
     {{'A', 190}, "Surface: invalid surface type index"},
-    // {'A', 191} removed
-    {{'A', 192}, "Surface: invalid friction value"},
-    {{'A', 193}, "Surface: invalid color value"},
-    // {{'A', 194} removed
+    {{'A', 191}, "Surface: invalid friction value"},
+    {{'A', 192}, "Surface: invalid color value"},
 
     // Widget
-    // {'W', 100} removed
     {{'W', 200}, "Invalid widget handle"}};
-
 }

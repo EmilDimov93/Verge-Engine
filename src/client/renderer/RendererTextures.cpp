@@ -169,7 +169,7 @@ namespace VE
             .bindingCount = 1,
             .pBindings = &samplerLayoutBinding};
 
-        vkCheck(vkCreateDescriptorSetLayout(device, &textureLayoutCreateInfo, nullptr, &textures.descriptorSetLayout), {'V', 217});
+        vkCheck(vkCreateDescriptorSetLayout(device, &textureLayoutCreateInfo, nullptr, &textures.descriptorSetLayout), {'R', 217});
     }
 
     VkResult generateMipmaps(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue queue, VkCommandPool commandPool, VkImage image, VkFormat imageFormat, int32_t textureWidth, int32_t textureHeight, uint32_t mipLevelCount, std::mutex &graphicsQueueMutex, VkFence fence)
@@ -309,7 +309,7 @@ namespace VE
         createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
 
         void *data;
-        vkCheck(vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data), {'V', 236});
+        vkCheck(vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data), {'R', 236});
         memcpy(data, &whitePixel, imageSize);
         vkUnmapMemory(device, stagingBufferMemory);
 
@@ -322,11 +322,11 @@ namespace VE
 
         FenceGuard uploadFence(device);
 
-        vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
-        vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'V', 232});
-        vkCheck(copyImageBuffer(device, transferQueue, transferCommandPoolLocal, stagingBuffer, texImage, 1, 1, transferQueueMutex, uploadFence), {'V', 239});
-        vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'V', 232});
-        vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
+        vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, graphicsQueueMutex, uploadFence), {'R', 240});
+        vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
+        vkCheck(copyImageBuffer(device, transferQueue, transferCommandPoolLocal, stagingBuffer, texImage, 1, 1, transferQueueMutex, uploadFence), {'R', 239});
+        vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
+        vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, graphicsQueueMutex, uploadFence), {'R', 240});
 
         VkImageViewCreateInfo imageViewCreateInfo{};
         imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -337,7 +337,7 @@ namespace VE
         imageViewCreateInfo.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 
         VkImageView imageView;
-        vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &imageView), {'V', 205});
+        vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &imageView), {'R', 205});
 
         {
             std::lock_guard<std::mutex> lock(textureMutex);
@@ -360,7 +360,7 @@ namespace VE
 
         if(!imageData)
         {
-            Log::add('V', 111);
+            Log::add('R', 111);
             return INVALID_TEXTURE_INDEX;
         }
 
@@ -371,7 +371,7 @@ namespace VE
         createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &imageStagingBuffer, &imageStagingBufferMemory);
 
         void *data;
-        vkCheck(vkMapMemory(device, imageStagingBufferMemory, 0, imageSize, 0, &data), {'V', 236});
+        vkCheck(vkMapMemory(device, imageStagingBufferMemory, 0, imageSize, 0, &data), {'R', 236});
         memcpy(data, imageData, static_cast<size_t>(imageSize));
         vkUnmapMemory(device, imageStagingBufferMemory);
 
@@ -387,11 +387,11 @@ namespace VE
 
         FenceGuard uploadFence(device);
 
-        vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, graphicsQueueMutex, uploadFence), {'V', 240});
-        vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'V', 232});
-        vkCheck(copyImageBuffer(device, transferQueue, transferCommandPoolLocal, imageStagingBuffer, texImage, width, height, transferQueueMutex, uploadFence), {'V', 239});
-        vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'V', 232});
-        vkCheck(generateMipmaps(device, physicalDevice, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_FORMAT_R8G8B8A8_UNORM, width, height, mipLevelCount, graphicsQueueMutex, uploadFence), {'V', 241});
+        vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, graphicsQueueMutex, uploadFence), {'R', 240});
+        vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
+        vkCheck(copyImageBuffer(device, transferQueue, transferCommandPoolLocal, imageStagingBuffer, texImage, width, height, transferQueueMutex, uploadFence), {'R', 239});
+        vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
+        vkCheck(generateMipmaps(device, physicalDevice, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_FORMAT_R8G8B8A8_UNORM, width, height, mipLevelCount, graphicsQueueMutex, uploadFence), {'R', 241});
 
         size_t resultIndex;
         {
@@ -437,7 +437,7 @@ namespace VE
         imageViewCreateInfo.subresourceRange.layerCount = 1;
 
         VkImageView imageView;
-        vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &imageView), {'V', 205});
+        vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &imageView), {'R', 205});
 
         {
             std::lock_guard<std::mutex> lock(textureMutex);
@@ -483,11 +483,11 @@ namespace VE
             textures.descriptorPools.emplace_back(createDescriptorPool());
 
             setAllocInfo.descriptorPool = textures.descriptorPools.back();
-            vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, &descriptorSet), {'V', 220});
+            vkCheck(vkAllocateDescriptorSets(device, &setAllocInfo, &descriptorSet), {'R', 220});
         }
         else
         {
-            vkCheck(result, {'V', 220});
+            vkCheck(result, {'R', 220});
         }
 
         VkDescriptorImageInfo imageInfo = {
@@ -533,6 +533,6 @@ namespace VE
             .borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK,
             .unnormalizedCoordinates = VK_FALSE};
 
-        vkCheck(vkCreateSampler(device, &samplerCreateInfo, nullptr, &textures.sampler), {'V', 226});
+        vkCheck(vkCreateSampler(device, &samplerCreateInfo, nullptr, &textures.sampler), {'R', 226});
     }
 }

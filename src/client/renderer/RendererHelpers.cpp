@@ -17,19 +17,19 @@ namespace VE
         case VK_SUCCESS:
             return;
         case VK_NOT_READY:
-            Log::add('V', 100);
+            Log::add('R', 100);
             break;
         case VK_TIMEOUT:
-            Log::add('V', 101);
+            Log::add('R', 101);
             break;
         case VK_SUBOPTIMAL_KHR:
-            Log::add('V', 102);
+            Log::add('R', 102);
             break;
         case VK_EVENT_SET:
-            Log::add('V', 103);
+            Log::add('R', 103);
             break;
         case VK_EVENT_RESET:
-            Log::add('V', 104);
+            Log::add('R', 104);
             break;
         default:
             Log::add(errorCode.letter, errorCode.number);
@@ -49,7 +49,7 @@ namespace VE
             }
         }
 
-        Log::add('V', 237);
+        Log::add('R', 237);
         return -1;
     }
 
@@ -76,7 +76,7 @@ namespace VE
     VkShaderModule Renderer::createShaderModule(const std::vector<char> &code) const
     {
         if (code.empty())
-            Log::add('V', 221);
+            Log::add('R', 221);
 
         VkShaderModuleCreateInfo shaderModuleCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
@@ -85,7 +85,7 @@ namespace VE
 
         VkShaderModule shaderModule;
 
-        vkCheck(vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr, &shaderModule), {'V', 209});
+        vkCheck(vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr, &shaderModule), {'R', 209});
 
         return shaderModule;
     }
@@ -101,7 +101,7 @@ namespace VE
             .queueFamilyIndexCount = 2,
             .pQueueFamilyIndices = queueFamilyIndices.data()};
 
-        vkCheck(vkCreateBuffer(device, &bufferCreateInfo, nullptr, buffer), {'V', 218});
+        vkCheck(vkCreateBuffer(device, &bufferCreateInfo, nullptr, buffer), {'R', 218});
 
         VkMemoryRequirements memRequirements;
         vkGetBufferMemoryRequirements(device, *buffer, &memRequirements);
@@ -111,9 +111,9 @@ namespace VE
             .allocationSize = memRequirements.size,
             .memoryTypeIndex = findMemoryTypeIndex(physicalDevice, memRequirements.memoryTypeBits, bufferPropertyFlags)};
 
-        vkCheck(vkAllocateMemory(device, &memoryAllocInfo, nullptr, bufferMemory), {'V', 218});
+        vkCheck(vkAllocateMemory(device, &memoryAllocInfo, nullptr, bufferMemory), {'R', 218});
 
-        vkCheck(vkBindBufferMemory(device, *buffer, *bufferMemory, 0), {'V', 218});
+        vkCheck(vkBindBufferMemory(device, *buffer, *bufferMemory, 0), {'R', 218});
     }
 
     VkResult Renderer::copyBuffer(VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize, VkFence fence) const
@@ -194,7 +194,7 @@ namespace VE
         imageCreateInfo.pQueueFamilyIndices = queueFamilyIndices.data();
 
         VkImage image;
-        vkCheck(vkCreateImage(device, &imageCreateInfo, nullptr, &image), {'V', 222});
+        vkCheck(vkCreateImage(device, &imageCreateInfo, nullptr, &image), {'R', 222});
 
         VkMemoryRequirements memoryRequirements;
         vkGetImageMemoryRequirements(device, image, &memoryRequirements);
@@ -204,7 +204,7 @@ namespace VE
         memoryAllocInfo.allocationSize = memoryRequirements.size;
         memoryAllocInfo.memoryTypeIndex = findMemoryTypeIndex(physicalDevice, memoryRequirements.memoryTypeBits, propFlags);
 
-        vkCheck(vkAllocateMemory(device, &memoryAllocInfo, nullptr, imageMemory), {'V', 222});
+        vkCheck(vkAllocateMemory(device, &memoryAllocInfo, nullptr, imageMemory), {'R', 222});
         vkBindImageMemory(device, image, *imageMemory, 0);
 
         return image;
@@ -242,7 +242,7 @@ namespace VE
 
             VkBool32 presentationSupport = false;
             if (vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentationSupport) != VK_SUCCESS)
-                Log::add('V', 214);
+                Log::add('R', 214);
 
             if (queueFamily.queueCount > 0 && presentationSupport)
                 presentationFamily = i;
@@ -278,7 +278,7 @@ namespace VE
         }
 
         if (format == VK_FORMAT_UNDEFINED)
-            Log::add('V', 223);
+            Log::add('R', 223);
 
         return format;
     }

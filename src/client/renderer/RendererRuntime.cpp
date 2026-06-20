@@ -109,7 +109,7 @@ namespace VE
         uboCamera.lightSpaceMat = lightSpaceMat;
 
         void *cameraData;
-        vkCheck(vkMapMemory(device, cameraUniformBufferMemory[currentFrame], 0, sizeof(UboCamera), 0, &cameraData), {'V', 236});
+        vkCheck(vkMapMemory(device, cameraUniformBufferMemory[currentFrame], 0, sizeof(UboCamera), 0, &cameraData), {'R', 236});
         memcpy(cameraData, &uboCamera, sizeof(UboCamera));
         vkUnmapMemory(device, cameraUniformBufferMemory[currentFrame]);
 
@@ -120,7 +120,7 @@ namespace VE
         uboLighting.outdoorBrightness = outdoorBrightness;
 
         void *lightingData;
-        vkCheck(vkMapMemory(device, lightingUniformBufferMemory[currentFrame], 0, sizeof(UboLighting), 0, &lightingData), {'V', 236});
+        vkCheck(vkMapMemory(device, lightingUniformBufferMemory[currentFrame], 0, sizeof(UboLighting), 0, &lightingData), {'R', 236});
         memcpy(lightingData, &uboLighting, sizeof(UboLighting));
         vkUnmapMemory(device, lightingUniformBufferMemory[currentFrame]);
     }
@@ -352,7 +352,7 @@ namespace VE
         uboUI.orthographicProj = glm::ortho(0.f, (float)swapChainExtent.width, 0.f, (float)swapChainExtent.height);
 
         void *uiData;
-        vkCheck(vkMapMemory(device, uiUniformBuffersMemory[currentFrame], 0, sizeof(UboUI), 0, &uiData), {'V', 236});
+        vkCheck(vkMapMemory(device, uiUniformBuffersMemory[currentFrame], 0, sizeof(UboUI), 0, &uiData), {'R', 236});
         memcpy(uiData, &uboUI, sizeof(UboUI));
         vkUnmapMemory(device, uiUniformBuffersMemory[currentFrame]);
     }
@@ -460,7 +460,7 @@ namespace VE
 
     void Renderer::drawFrame(const SceneDrawData &sceneDrawData, const UIDrawData &uiDrawData, const glm::mat4 projectionMat, const PostEffects &postEffects)
     {
-        vkCheck(vkWaitForFences(device, 1, &frames[currentFrame].drawFence, VK_TRUE, UINT64_MAX), {'V', 231});
+        vkCheck(vkWaitForFences(device, 1, &frames[currentFrame].drawFence, VK_TRUE, UINT64_MAX), {'R', 231});
 
         uint32_t imageIndex;
         VkResult imageResult = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, frames[currentFrame].imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
@@ -468,9 +468,9 @@ namespace VE
         if (imageResult == VK_ERROR_OUT_OF_DATE_KHR)
             recreateSwapChain();
         else if (imageResult != VK_SUCCESS && imageResult != VK_SUBOPTIMAL_KHR)
-            Log::add('V', 230);
+            Log::add('R', 230);
 
-        vkCheck(vkResetFences(device, 1, &frames[currentFrame].drawFence), {'V', 232});
+        vkCheck(vkResetFences(device, 1, &frames[currentFrame].drawFence), {'R', 232});
 
         if (sceneDrawData.modelRemovedThisFrame)
         {
@@ -507,7 +507,7 @@ namespace VE
         VkCommandBufferBeginInfo commandBufferBeginInfo{};
         commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-        vkCheck(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo), {'V', 213});
+        vkCheck(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo), {'R', 213});
 
         {
             std::lock_guard<std::recursive_mutex> lock(modelMutex);
@@ -527,7 +527,7 @@ namespace VE
             recordUIPass(imageIndex, uiDrawData.widgets, uiDrawData.widgetInstances);
         }
 
-        vkCheck(vkEndCommandBuffer(commandBuffer), {'V', 213});
+        vkCheck(vkEndCommandBuffer(commandBuffer), {'R', 213});
 
         VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
 
@@ -543,7 +543,7 @@ namespace VE
 
         {
             std::lock_guard<std::mutex> lock(graphicsQueueMutex);
-            vkCheck(vkQueueSubmit(graphicsQueue, 1, &submitInfo, frames[currentFrame].drawFence), {'V', 233});
+            vkCheck(vkQueueSubmit(graphicsQueue, 1, &submitInfo, frames[currentFrame].drawFence), {'R', 233});
         }
 
         VkPresentInfoKHR presentInfo = {
@@ -561,7 +561,7 @@ namespace VE
             if (presentResult == VK_ERROR_OUT_OF_DATE_KHR || presentResult == VK_SUBOPTIMAL_KHR)
                 recreateSwapChain();
             else if (presentResult != VK_SUCCESS)
-                Log::add('V', 234);
+                Log::add('R', 234);
         }
 
         currentFrame = (currentFrame + 1) % FRAMES_IN_FLIGHT;

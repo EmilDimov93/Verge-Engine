@@ -20,7 +20,7 @@ namespace VE
         else
         {
             hitboxShape = HITBOX_SHAPE_PRISM;
-            Log::add('A', 182);
+            Log::add('A', 180);
         }
 
         if (info.hitboxSize > 0)
@@ -30,7 +30,7 @@ namespace VE
         else
         {
             hitboxSize = 1.0f;
-            Log::add('A', 183);
+            Log::add('A', 181);
         }
 
         this->transform = transform;
@@ -66,7 +66,7 @@ namespace VE
         }
         case HITBOX_SHAPE_UNKNOWN:
         default:
-            Log::add('A', 182);
+            Log::add('A', 180);
             break;
         }
 

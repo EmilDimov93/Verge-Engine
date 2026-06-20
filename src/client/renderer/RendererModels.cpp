@@ -82,7 +82,7 @@ namespace VE
     {
         {
             std::lock_guard<std::mutex> lock(graphicsQueueMutex);
-            vkCheck(vkDeviceWaitIdle(device), {'V', 235});
+            vkCheck(vkDeviceWaitIdle(device), {'R', 235});
         }
 
         for (MeshBuffer &meshBuffer : modelBuffer.meshBuffers)

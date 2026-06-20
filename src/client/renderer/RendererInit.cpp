@@ -56,7 +56,7 @@ namespace VE
 
         createSyncObjects();
 
-        Log::add('V', 000);
+        Log::add('R', 000);
     }
 
     void Renderer::createInstance()
@@ -95,23 +95,23 @@ namespace VE
             instanceCreateInfo.ppEnabledLayerNames = nullptr;
         }
 
-        vkCheck(vkCreateInstance(&instanceCreateInfo, nullptr, &instance), {'V', 200});
+        vkCheck(vkCreateInstance(&instanceCreateInfo, nullptr, &instance), {'R', 200});
     }
 
     void Renderer::createSurface()
     {
-        vkCheck(glfwCreateWindowSurface(instance, window, nullptr, &surface), {'V', 201});
+        vkCheck(glfwCreateWindowSurface(instance, window, nullptr, &surface), {'R', 201});
     }
 
     void Renderer::pickPhysicalDevice()
     {
         uint32_t deviceCount = 0;
-        vkCheck(vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr), {'V', 202});
+        vkCheck(vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr), {'R', 202});
         if (deviceCount == 0)
-            Log::add('V', 202);
+            Log::add('R', 202);
 
         std::vector<VkPhysicalDevice> devices(deviceCount);
-        vkCheck(vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data()), {'V', 202});
+        vkCheck(vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data()), {'R', 202});
 
         int bestScore = 0;
         for (VkPhysicalDevice device : devices)
@@ -125,7 +125,7 @@ namespace VE
         }
 
         if (bestScore == 0)
-            Log::add('V', 202);
+            Log::add('R', 202);
     }
 
     void Renderer::createLogicalDevice()
@@ -202,7 +202,7 @@ namespace VE
             .ppEnabledExtensionNames = &swapChainExtention,
             .pEnabledFeatures = &deviceFeatures};
 
-        vkCheck(vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &device), {'V', 203});
+        vkCheck(vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &device), {'R', 203});
 
         vkGetDeviceQueue(device, graphicsQueueFamilyIndex, 0, &graphicsQueue);
         vkGetDeviceQueue(device, transferQueueFamilyIndex, 0, &transferQueue);
@@ -235,7 +235,7 @@ namespace VE
             .clipped = VK_TRUE,
             .oldSwapchain = VK_NULL_HANDLE};
 
-        vkCheck(vkCreateSwapchainKHR(device, &swapchainCreateInfo, nullptr, &swapChain), {'V', 204});
+        vkCheck(vkCreateSwapchainKHR(device, &swapchainCreateInfo, nullptr, &swapChain), {'R', 204});
 
         vkGetSwapchainImagesKHR(device, swapChain, &swapChainImageCount, nullptr);
         swapChainImages.resize(swapChainImageCount);
@@ -258,7 +258,7 @@ namespace VE
             imageViewCreateInfo.subresourceRange.levelCount = 1;
             imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
             imageViewCreateInfo.subresourceRange.layerCount = 1;
-            vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &swapChainImageViews[i]), {'V', 205});
+            vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &swapChainImageViews[i]), {'R', 205});
         }
     }
 
@@ -269,7 +269,7 @@ namespace VE
             .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
             .queueFamilyIndex = graphicsQueueFamilyIndex};
 
-        vkCheck(vkCreateCommandPool(device, &graphicsCommandPoolCreateInfo, nullptr, &commandPool), {'V', 208});
+        vkCheck(vkCreateCommandPool(device, &graphicsCommandPoolCreateInfo, nullptr, &commandPool), {'R', 208});
     }
 
     void Renderer::createCommandBuffers()
@@ -282,7 +282,7 @@ namespace VE
             .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
             .commandBufferCount = static_cast<uint32_t>(commandBuffers.size())};
 
-        vkCheck(vkAllocateCommandBuffers(device, &commandBufferAllocInfo, commandBuffers.data()), {'V', 212});
+        vkCheck(vkAllocateCommandBuffers(device, &commandBufferAllocInfo, commandBuffers.data()), {'R', 212});
 
         for(uint32_t i = 0; i < FRAMES_IN_FLIGHT; i++)
             frames[i].commandBuffer = commandBuffers[i];
@@ -309,7 +309,7 @@ namespace VE
             imageViewCreateInfo.subresourceRange.levelCount = 1;
             imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
             imageViewCreateInfo.subresourceRange.layerCount = 1;
-            vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &attachment.imageView), {'V', 205});
+            vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &attachment.imageView), {'R', 205});
         }
     }
 
@@ -331,7 +331,7 @@ namespace VE
         imageViewCreateInfo.subresourceRange.levelCount = 1;
         imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
         imageViewCreateInfo.subresourceRange.layerCount = 1;
-        vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &depthAttachment.imageView), {'V', 205});
+        vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &depthAttachment.imageView), {'R', 205});
     }
 
     void Renderer::createShadowDepthAttachment()
@@ -352,7 +352,7 @@ namespace VE
         imageViewCreateInfo.subresourceRange.levelCount = 1;
         imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
         imageViewCreateInfo.subresourceRange.layerCount = 1;
-        vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &shadowDepthAttachment.imageView), {'V', 205});
+        vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &shadowDepthAttachment.imageView), {'R', 205});
     }
 
     void Renderer::createSyncObjects()
@@ -366,20 +366,20 @@ namespace VE
             .flags = VK_FENCE_CREATE_SIGNALED_BIT};
         for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
-            vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &frames[i].imageAvailableSemaphore), {'V', 215});
-            vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &frames[i].drawFence), {'V', 216});
+            vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &frames[i].imageAvailableSemaphore), {'R', 215});
+            vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &frames[i].drawFence), {'R', 216});
         }
 
         for (size_t i = 0; i < swapChainImageCount; i++)
         {
-            vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores[i]), {'V', 215});
+            vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores[i]), {'R', 215});
         }
     }
 
     Renderer::~Renderer()
     {
         if (device != VK_NULL_HANDLE)
-            vkCheck(vkDeviceWaitIdle(device), {'V', 235});
+            vkCheck(vkDeviceWaitIdle(device), {'R', 235});
 
         size_t pipelineCacheSize = 0;
         vkGetPipelineCacheData(device, pipelineCache, &pipelineCacheSize, nullptr);
@@ -388,7 +388,7 @@ namespace VE
         vkDestroyPipelineCache(device, pipelineCache, nullptr);
         std::ofstream file(PIPELINE_CACHE_FILE_NAME, std::ios::binary | std::ios::trunc);
         if (!file.is_open())
-            Log::add('V', 110);
+            Log::add('R', 110);
         else
             file.write(outPipelineCacheData.data(), static_cast<std::streamsize>(pipelineCacheSize));
 

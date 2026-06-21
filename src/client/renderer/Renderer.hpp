@@ -265,7 +265,7 @@ namespace VE
         ImageAttachment shadowDepthAttachment;
         VkSampler shadowSampler = VK_NULL_HANDLE;
 
-        // Pipeline 2: Main
+        // Pipeline 2: Model
         GraphicsPipeline modelPipeline;
 
         std::array<VkBuffer, FRAMES_IN_FLIGHT> cameraUniformBuffer;
@@ -274,9 +274,9 @@ namespace VE
         std::array<VkBuffer, FRAMES_IN_FLIGHT> lightingUniformBuffer;
         std::array<VkDeviceMemory, FRAMES_IN_FLIGHT> lightingUniformBufferMemory;
 
-        // Main pass attachments
+        // Model pass attachments
         std::vector<ImageAttachment> prePostAttachments;
-        ImageAttachment depthAttachment;
+        std::array<ImageAttachment, FRAMES_IN_FLIGHT> depthAttachments;
 
         // Pipeline 3: Transparent
         GraphicsPipeline transparentPipeline;
@@ -325,7 +325,7 @@ namespace VE
         void createShadowSampler();
         void createTextureSampler();
 
-        void createDepthAttachment();
+        void createDepthAttachments();
         void createShadowDepthAttachment();
 
         void createPipelineCache();
@@ -352,7 +352,7 @@ namespace VE
         // Runtime
         void recordShadowPass(const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, const glm::mat4 &lightSpaceMat);
         void updateModelUniformBuffers(uint32_t currentFrame, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat, float outdoorBrightness);
-        void recordMainPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat, const glm::vec3 &cameraPosition);
+        void recordModelPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat, const glm::vec3 &cameraPosition);
         void recordPostPass(uint32_t currentImage, const PostEffects &postEffects);
         void updateUIUniformBuffers(uint32_t currentFrame);
         void recordUIPass(uint32_t currentImage, const std::vector<Widget> &widgets, const std::vector<WidgetInstance> &widgetInstances);

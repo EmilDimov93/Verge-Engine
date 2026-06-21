@@ -125,7 +125,7 @@ namespace VE
         vkUnmapMemory(device, lightingUniformBufferMemory[currentFrame]);
     }
 
-    void Renderer::recordMainPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat, const glm::vec3 &cameraPosition)
+    void Renderer::recordModelPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat, const glm::vec3 &cameraPosition)
     {
         const VkCommandBuffer commandBuffer = frames[currentFrame].commandBuffer;
 
@@ -139,10 +139,22 @@ namespace VE
         imageMemoryBarrier.srcStageMask = VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT;
         imageMemoryBarrier.dstStageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
 
+        VkImageMemoryBarrier2 depthMemoryBarrier = IMAGE_MEMORY_BARRIER_TEMPLATE;
+        depthMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        depthMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        depthMemoryBarrier.image = depthAttachments[currentFrame].image;
+        depthMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+        depthMemoryBarrier.srcAccessMask = 0;
+        depthMemoryBarrier.dstAccessMask = VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        depthMemoryBarrier.srcStageMask = VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT;
+        depthMemoryBarrier.dstStageMask = VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT;
+
+        std::array<VkImageMemoryBarrier2, 2> barriers = {imageMemoryBarrier, depthMemoryBarrier};
+
         VkDependencyInfo dependencyInfo{};
         dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
-        dependencyInfo.imageMemoryBarrierCount = 1;
-        dependencyInfo.pImageMemoryBarriers = &imageMemoryBarrier;
+        dependencyInfo.imageMemoryBarrierCount = static_cast<uint32_t>(barriers.size());
+        dependencyInfo.pImageMemoryBarriers = barriers.data();
 
         vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
 
@@ -156,7 +168,7 @@ namespace VE
 
         VkRenderingAttachmentInfo depthAttachmentInfo{};
         depthAttachmentInfo.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-        depthAttachmentInfo.imageView = depthAttachment.imageView;
+        depthAttachmentInfo.imageView = depthAttachments[currentFrame].imageView;
         depthAttachmentInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         depthAttachmentInfo.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         depthAttachmentInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -272,7 +284,12 @@ namespace VE
         imageMemoryBarrier.srcStageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
         imageMemoryBarrier.dstStageMask = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
 
-        vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
+        VkDependencyInfo endDependencyInfo{};
+        endDependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+        endDependencyInfo.imageMemoryBarrierCount = 1;
+        endDependencyInfo.pImageMemoryBarriers = &imageMemoryBarrier;
+
+        vkCmdPipelineBarrier2(commandBuffer, &endDependencyInfo);
     }
 
     void Renderer::recordPostPass(uint32_t currentImage, const PostEffects &postEffects)
@@ -515,7 +532,7 @@ namespace VE
 
             recordShadowPass(sceneDrawData.models, sceneDrawData.modelInstances, lightSpaceMat);
 
-            recordMainPass(imageIndex, sceneDrawData.models, sceneDrawData.modelInstances, sceneDrawData.backgroundColor, lightSpaceMat, glm::vec3(glm::inverse(sceneDrawData.viewMat)[3]));
+            recordModelPass(imageIndex, sceneDrawData.models, sceneDrawData.modelInstances, sceneDrawData.backgroundColor, lightSpaceMat, glm::vec3(glm::inverse(sceneDrawData.viewMat)[3]));
         }
 
         recordPostPass(imageIndex, postEffects);
@@ -581,7 +598,8 @@ namespace VE
 
         if (swapChain)
         {
-            destroyImageAttachment(depthAttachment);
+            for (ImageAttachment &depthAttachment : depthAttachments)
+                destroyImageAttachment(depthAttachment);
 
             for (VkImageView imageView : swapChainImageViews)
                 if (imageView)
@@ -596,6 +614,6 @@ namespace VE
         createSwapChain(Size2(static_cast<uint32_t>(width), static_cast<uint32_t>(height)));
         createPrePostImages();
         updatePostDescriptorSets();
-        createDepthAttachment();
+        createDepthAttachments();
     }
 }

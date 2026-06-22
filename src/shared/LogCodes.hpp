@@ -64,7 +64,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'R', 230}, "Vulkan failed to acquire swapchain image"},
     {{'R', 231}, "Vulkan failed to wait for fence"},
     {{'R', 232}, "Vulkan failed to reset fence"},
-    {{'R', 233}, "Vulkan failed to submit graphics queue"},
+    {{'R', 233}, "Vulkan failed to submit queue"},
     {{'R', 234}, "Vulkan failed to present image"},
     {{'R', 235}, "Vulkan failed: vkDeviceWaitIdle"},
     {{'R', 236}, "Vulkan failed to map memory"},

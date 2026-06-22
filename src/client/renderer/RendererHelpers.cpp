@@ -80,8 +80,6 @@ namespace VE
 
     VkResult Renderer::copyBuffer(VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize, VkFence fence) const
     {
-        VkResult res;
-
         VkCommandBuffer transferCommandBuffer;
 
         VkCommandBufferAllocateInfo allocInfo = {
@@ -90,18 +88,14 @@ namespace VE
             .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
             .commandBufferCount = 1};
 
-        res = vkAllocateCommandBuffers(device, &allocInfo, &transferCommandBuffer);
-        if (res != VK_SUCCESS)
-            return res;
+        vkCheck(vkAllocateCommandBuffers(device, &allocInfo, &transferCommandBuffer), {'R', 212});
 
         VkCommandBufferBeginInfo beginInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
             .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
         };
 
-        res = vkBeginCommandBuffer(transferCommandBuffer, &beginInfo);
-        if (res != VK_SUCCESS)
-            return res;
+        vkCheck(vkBeginCommandBuffer(transferCommandBuffer, &beginInfo), {'R', 213});
 
         VkBufferCopy bufferCopyRegion = {
             .srcOffset = 0,
@@ -110,9 +104,7 @@ namespace VE
 
         vkCmdCopyBuffer(transferCommandBuffer, srcBuffer, dstBuffer, 1, &bufferCopyRegion);
 
-        res = vkEndCommandBuffer(transferCommandBuffer);
-        if (res != VK_SUCCESS)
-            return res;
+        vkCheck(vkEndCommandBuffer(transferCommandBuffer), {'R', 213});
 
         VkSubmitInfo submitInfo = {
             .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -121,14 +113,10 @@ namespace VE
 
         {
             std::lock_guard<std::mutex> lock(transferQueueMutex);
-            res = vkQueueSubmit(transferQueue, 1, &submitInfo, fence);
-            if (res != VK_SUCCESS)
-                return res;
+            vkCheck(vkQueueSubmit(transferQueue, 1, &submitInfo, fence), {'R', 233});
         }
 
-        res = vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX);
-        if (res != VK_SUCCESS)
-            return res;
+        vkCheck(vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX), {'R', 231});
 
         vkFreeCommandBuffers(device, transferCommandPool, 1, &transferCommandBuffer);
 

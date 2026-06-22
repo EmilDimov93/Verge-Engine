@@ -21,18 +21,14 @@ namespace VE
 
         VkCommandBuffer transferCommandBuffer;
 
-        VkResult res = vkAllocateCommandBuffers(device, &allocInfo, &transferCommandBuffer);
-        if (res != VK_SUCCESS)
-            return res;
+        Renderer::vkCheck(vkAllocateCommandBuffers(device, &allocInfo, &transferCommandBuffer), {'R', 212});
 
         VkCommandBufferBeginInfo beginInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
             .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
         };
 
-        res = vkBeginCommandBuffer(transferCommandBuffer, &beginInfo);
-        if (res != VK_SUCCESS)
-            return res;
+        Renderer::vkCheck(vkBeginCommandBuffer(transferCommandBuffer, &beginInfo), {'R', 213});
 
         VkBufferImageCopy imageRegion = {};
         imageRegion.bufferOffset = 0;
@@ -47,9 +43,7 @@ namespace VE
 
         vkCmdCopyBufferToImage(transferCommandBuffer, srcBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageRegion);
 
-        res = vkEndCommandBuffer(transferCommandBuffer);
-        if (res != VK_SUCCESS)
-            return res;
+        Renderer::vkCheck(vkEndCommandBuffer(transferCommandBuffer), {'R', 213});
 
         VkSubmitInfo submitInfo = {
             .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -58,14 +52,10 @@ namespace VE
 
         {
             std::lock_guard<std::mutex> lock(transferQueueMutex);
-            res = vkQueueSubmit(transferQueue, 1, &submitInfo, fence);
-            if (res != VK_SUCCESS)
-                return res;
+            Renderer::vkCheck(vkQueueSubmit(transferQueue, 1, &submitInfo, fence), {'R', 233});
         }
 
-        res = vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX);
-        if (res != VK_SUCCESS)
-            return res;
+        Renderer::vkCheck(vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX), {'R', 231});
 
         vkFreeCommandBuffers(device, transferCommandPool, 1, &transferCommandBuffer);
 
@@ -82,18 +72,14 @@ namespace VE
 
         VkCommandBuffer commandBuffer;
 
-        VkResult res = vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
-        if (res != VK_SUCCESS)
-            return res;
+        Renderer::vkCheck(vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer), {'R', 212});
 
         VkCommandBufferBeginInfo beginInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
             .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
         };
 
-        res = vkBeginCommandBuffer(commandBuffer, &beginInfo);
-        if (res != VK_SUCCESS)
-            return res;
+        Renderer::vkCheck(vkBeginCommandBuffer(commandBuffer, &beginInfo), {'R', 213});
 
         VkImageMemoryBarrier imageMemoryBarrier = {};
         imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -130,9 +116,7 @@ namespace VE
 
         vkCmdPipelineBarrier(commandBuffer, srcStage, dstStage, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 
-        res = vkEndCommandBuffer(commandBuffer);
-        if (res != VK_SUCCESS)
-            return res;
+        Renderer::vkCheck(vkEndCommandBuffer(commandBuffer), {'R', 213});
 
         VkSubmitInfo submitInfo = {
             .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -141,14 +125,10 @@ namespace VE
 
         {
             std::lock_guard<std::mutex> lock(graphicsQueueMutex);
-            res = vkQueueSubmit(queue, 1, &submitInfo, fence);
-            if (res != VK_SUCCESS)
-                return res;
+            Renderer::vkCheck(vkQueueSubmit(queue, 1, &submitInfo, fence), {'R', 233});
         }
 
-        res = vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX);
-        if (res != VK_SUCCESS)
-            return res;
+        Renderer::vkCheck(vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX), {'R', 231});
 
         vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 
@@ -186,17 +166,13 @@ namespace VE
             .commandBufferCount = 1};
 
         VkCommandBuffer commandBuffer;
-        VkResult res = vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
-        if (res != VK_SUCCESS)
-            return res;
+        Renderer::vkCheck(vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer), {'R', 212});
 
         VkCommandBufferBeginInfo beginInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
             .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
 
-        res = vkBeginCommandBuffer(commandBuffer, &beginInfo);
-        if (res != VK_SUCCESS)
-            return res;
+        Renderer::vkCheck(vkBeginCommandBuffer(commandBuffer, &beginInfo), {'R', 213});
 
         VkImageMemoryBarrier barrier = {};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -274,9 +250,7 @@ namespace VE
 
         vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
-        res = vkEndCommandBuffer(commandBuffer);
-        if (res != VK_SUCCESS)
-            return res;
+        Renderer::vkCheck(vkEndCommandBuffer(commandBuffer), {'R', 213});
 
         VkSubmitInfo submitInfo = {
             .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -285,14 +259,10 @@ namespace VE
 
         {
             std::lock_guard<std::mutex> lock(graphicsQueueMutex);
-            res = vkQueueSubmit(queue, 1, &submitInfo, fence);
-            if (res != VK_SUCCESS)
-                return res;
+            Renderer::vkCheck(vkQueueSubmit(queue, 1, &submitInfo, fence), {'R', 233});
         }
 
-        res = vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX);
-        if (res != VK_SUCCESS)
-            return res;
+        Renderer::vkCheck(vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX), {'R', 231});
 
         vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 

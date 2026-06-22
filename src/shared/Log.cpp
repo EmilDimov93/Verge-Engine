@@ -12,7 +12,7 @@
 namespace VE
 {
 
-    static constexpr size_t LOG_MESSAGE_LIMIT = 1e5;
+    static constexpr size_t LOG_MESSAGE_LIMIT = 100'000;
 
     static inline bool isEntryError(ErrorCode entry)
     {

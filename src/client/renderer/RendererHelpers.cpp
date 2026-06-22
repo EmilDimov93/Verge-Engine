@@ -5,7 +5,6 @@
 
 #include "../../shared/Log.hpp"
 
-#include <fstream>
 #include <array>
 
 namespace VE
@@ -51,43 +50,6 @@ namespace VE
 
         Log::add('R', 237);
         return -1;
-    }
-
-    std::vector<char> Renderer::readFile(const std::string &fileName)
-    {
-        std::ifstream file(fileName, std::ios::binary | std::ios::ate);
-
-        if (!file.is_open())
-            return {};
-
-        size_t fileSize = (size_t)file.tellg();
-
-        std::vector<char> fileBuffer(fileSize);
-
-        file.seekg(0);
-
-        file.read(fileBuffer.data(), fileSize);
-
-        file.close();
-
-        return fileBuffer;
-    }
-
-    VkShaderModule Renderer::createShaderModule(const std::vector<char> &code) const
-    {
-        if (code.empty())
-            Log::add('R', 221);
-
-        VkShaderModuleCreateInfo shaderModuleCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-            .codeSize = code.size(),
-            .pCode = reinterpret_cast<const uint32_t *>(code.data())};
-
-        VkShaderModule shaderModule;
-
-        vkCheck(vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr, &shaderModule), {'R', 209});
-
-        return shaderModule;
     }
 
     void Renderer::createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory) const

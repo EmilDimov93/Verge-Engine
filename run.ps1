@@ -49,10 +49,10 @@ if($compileShaders){
 
     New-Item -ItemType Directory -Force -Path "build/$config/shaders" | Out-Null
 
-    & $glslang -V "src/client/renderer/shaders/shader.vert" -o "build/$config/shaders/vert.spv"
+    & $glslang -V "src/client/renderer/shaders/model.vert" -o "build/$config/shaders/modelVert.spv"
     if ($LASTEXITCODE -ne 0) { exit 1 }
 
-    & $glslang -V "src/client/renderer/shaders/shader.frag" -o "build/$config/shaders/frag.spv"
+    & $glslang -V "src/client/renderer/shaders/model.frag" -o "build/$config/shaders/modelFrag.spv"
     if ($LASTEXITCODE -ne 0) { exit 1 }
 
     & $glslang -V "src/client/renderer/shaders/shadow.vert" -o "build/$config/shaders/shadowVert.spv"

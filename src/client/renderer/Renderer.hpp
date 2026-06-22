@@ -106,12 +106,14 @@ namespace VE
 
         ~Renderer();
 
+        static void vkCheck(VkResult res, ErrorCode errorCode);
+
     private:
         static constexpr uint32_t FRAMES_IN_FLIGHT = 2;
 
         static constexpr Size2 SHADOW_MAP_EXTENT = {4096, 4096};
 
-        static constexpr uint32_t TEXTURE_SAMPLER_POOL_CHUNK_SIZE = 1e3;
+        static constexpr uint32_t TEXTURE_SAMPLER_POOL_CHUNK_SIZE = 1'000;
 
         static constexpr char PIPELINE_CACHE_FILE_NAME[] = "pipeline_cache.bin";
 
@@ -360,11 +362,8 @@ namespace VE
         void updatePostDescriptorSets();
 
         // Helpers
-        static void vkCheck(VkResult res, ErrorCode errorCode);
         void createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory) const;
         [[nodiscard]] VkResult copyBuffer(VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize, VkFence fence) const;
-        [[nodiscard]] static std::vector<char> readFile(const std::string &fileName);
-        [[nodiscard]] VkShaderModule createShaderModule(const std::vector<char> &code) const;
         [[nodiscard]] static uint32_t rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
         [[nodiscard]] VkFormat findDepthFormat() const;
         void destroyImageAttachment(ImageAttachment &attachment) const;

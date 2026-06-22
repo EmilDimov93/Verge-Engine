@@ -71,6 +71,9 @@ namespace VE
                 {
                     for (const MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
                     {
+                        if(meshBuffer.isTransparent)
+                            continue;
+
                         VkBuffer vertexBuffers[] = {meshBuffer.vertexBuffer};
                         VkDeviceSize offsets[] = {0};
                         vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);

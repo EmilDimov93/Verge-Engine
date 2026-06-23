@@ -222,12 +222,12 @@ namespace VE
         {
             if (format.format == VK_FORMAT_R8G8B8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
             {
-                swapChainImageFormat = VK_FORMAT_R8G8B8A8_UNORM;
+                swapChain.imageFormat = VK_FORMAT_R8G8B8A8_UNORM;
                 break;
             }
         }
 
-        if(swapChainImageFormat == VK_FORMAT_UNDEFINED)
+        if(swapChain.imageFormat == VK_FORMAT_UNDEFINED)
             Log::add('R', 225);
 
         // Depth format
@@ -258,7 +258,7 @@ namespace VE
         {
             if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR)
             {
-                swapChainPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+                swapChain.presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
                 break;
             }
         }
@@ -269,15 +269,15 @@ namespace VE
         VkSurfaceCapabilitiesKHR capabilities;
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities);
 
-        swapChainExtent = {windowSize.w, windowSize.h};
+        swapChain.extent = {windowSize.w, windowSize.h};
 
         VkSwapchainCreateInfoKHR swapchainCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
             .surface = surface,
             .minImageCount = capabilities.minImageCount + (capabilities.minImageCount != capabilities.maxImageCount),
-            .imageFormat = swapChainImageFormat,
+            .imageFormat = swapChain.imageFormat,
             .imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
-            .imageExtent = swapChainExtent,
+            .imageExtent = swapChain.extent,
             .imageArrayLayers = 1,
             .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
             .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
@@ -285,24 +285,24 @@ namespace VE
             .pQueueFamilyIndices = nullptr,
             .preTransform = capabilities.currentTransform,
             .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-            .presentMode = swapChainPresentMode,
+            .presentMode = swapChain.presentMode,
             .clipped = VK_TRUE,
             .oldSwapchain = VK_NULL_HANDLE};
 
-        vkCheck(vkCreateSwapchainKHR(device, &swapchainCreateInfo, nullptr, &swapChain), {'R', 204});
+        vkCheck(vkCreateSwapchainKHR(device, &swapchainCreateInfo, nullptr, &swapChain.swapChain), {'R', 204});
 
-        vkGetSwapchainImagesKHR(device, swapChain, &swapChainImageCount, nullptr);
-        swapChainImages.resize(swapChainImageCount);
-        vkGetSwapchainImagesKHR(device, swapChain, &swapChainImageCount, swapChainImages.data());
+        vkGetSwapchainImagesKHR(device, swapChain, &swapChain.imageCount, nullptr);
+        swapChain.images.resize(swapChain.imageCount);
+        vkGetSwapchainImagesKHR(device, swapChain, &swapChain.imageCount, swapChain.images.data());
 
-        swapChainImageViews.resize(swapChainImageCount);
-        for (size_t i = 0; i < swapChainImageCount; i++)
+        swapChain.imageViews.resize(swapChain.imageCount);
+        for (size_t i = 0; i < swapChain.imageCount; i++)
         {
             VkImageViewCreateInfo imageViewCreateInfo{};
             imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-            imageViewCreateInfo.image = swapChainImages[i];
+            imageViewCreateInfo.image = swapChain.images[i];
             imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-            imageViewCreateInfo.format = swapChainImageFormat;
+            imageViewCreateInfo.format = swapChain.imageFormat;
             imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
             imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
             imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -312,7 +312,7 @@ namespace VE
             imageViewCreateInfo.subresourceRange.levelCount = 1;
             imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
             imageViewCreateInfo.subresourceRange.layerCount = 1;
-            vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &swapChainImageViews[i]), {'R', 205});
+            vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &swapChain.imageViews[i]), {'R', 205});
         }
     }
 
@@ -344,16 +344,16 @@ namespace VE
 
     void Renderer::createPrePostImages()
     {
-        prePostAttachments.resize(swapChainImageCount);
+        prePostAttachments.resize(swapChain.imageCount);
         for (ImageAttachment &attachment : prePostAttachments)
         {
-            attachment.image = createImage(swapChainExtent.width, swapChainExtent.height, swapChainImageFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &attachment.memory);
+            attachment.image = createImage(swapChain.extent.width, swapChain.extent.height, swapChain.imageFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &attachment.memory);
 
             VkImageViewCreateInfo imageViewCreateInfo{};
             imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
             imageViewCreateInfo.image = attachment.image;
             imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-            imageViewCreateInfo.format = swapChainImageFormat;
+            imageViewCreateInfo.format = swapChain.imageFormat;
             imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
             imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
             imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -371,7 +371,7 @@ namespace VE
     {
         for (ImageAttachment &depthAttachment : depthAttachments)
         {
-            depthAttachment.image = createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &depthAttachment.memory);
+            depthAttachment.image = createImage(swapChain.extent.width, swapChain.extent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &depthAttachment.memory);
 
             VkImageViewCreateInfo imageViewCreateInfo{};
             imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -414,7 +414,7 @@ namespace VE
 
     void Renderer::createSyncObjects()
     {
-        renderFinishedSemaphores.resize(swapChainImageCount);
+        renderFinishedSemaphores.resize(swapChain.imageCount);
         VkSemaphoreCreateInfo semaphoreCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
 
@@ -427,7 +427,7 @@ namespace VE
             vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &frames[i].drawFence), {'R', 216});
         }
 
-        for (size_t i = 0; i < swapChainImageCount; i++)
+        for (size_t i = 0; i < swapChain.imageCount; i++)
         {
             vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores[i]), {'R', 215});
         }
@@ -474,7 +474,7 @@ namespace VE
             if (frame.drawFence)
                 vkDestroyFence(device, frame.drawFence, nullptr);
         }
-        for (size_t i = 0; i < swapChainImageCount; i++)
+        for (size_t i = 0; i < swapChain.imageCount; i++)
             if (renderFinishedSemaphores[i])
                 vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
 
@@ -531,13 +531,7 @@ namespace VE
         for (ImageAttachment &attachment : prePostAttachments)
             destroyImageAttachment(attachment);
 
-        for (VkImageView iv : swapChainImageViews)
-            if (iv)
-                vkDestroyImageView(device, iv, nullptr);
-        swapChainImageViews.clear();
-
-        if (swapChain)
-            vkDestroySwapchainKHR(device, swapChain, nullptr);
+        destroySwapChain(swapChain);
 
         if (commandPool)
             vkDestroyCommandPool(device, commandPool, nullptr);

@@ -180,7 +180,7 @@ namespace VE
         VkRenderingInfo renderingInfo{};
         renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
         renderingInfo.renderArea.offset = {0, 0};
-        renderingInfo.renderArea.extent = swapChainExtent;
+        renderingInfo.renderArea.extent = swapChain.extent;
         renderingInfo.layerCount = 1;
         renderingInfo.colorAttachmentCount = 1;
         renderingInfo.pColorAttachments = &colorAttachment;
@@ -193,15 +193,15 @@ namespace VE
         VkViewport viewport = {
             .x = 0.0f,
             .y = 0.0f,
-            .width = static_cast<float>(swapChainExtent.width),
-            .height = static_cast<float>(swapChainExtent.height),
+            .width = static_cast<float>(swapChain.extent.width),
+            .height = static_cast<float>(swapChain.extent.height),
             .minDepth = 0.0f,
             .maxDepth = 1.0f};
         vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
         VkRect2D scissor = {
             .offset = {0, 0},
-            .extent = swapChainExtent};
+            .extent = swapChain.extent};
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
         auto drawMesh = [&](const ModelInstance &instance, const MeshBuffer &meshBuffer, Material material, VkPipelineLayout layout)
@@ -302,7 +302,7 @@ namespace VE
         VkImageMemoryBarrier2 imageMemoryBarrier = IMAGE_MEMORY_BARRIER_TEMPLATE;
         imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        imageMemoryBarrier.image = swapChainImages[currentImage];
+        imageMemoryBarrier.image = swapChain.images[currentImage];
         imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         imageMemoryBarrier.srcAccessMask = 0;
         imageMemoryBarrier.dstAccessMask = VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
@@ -318,7 +318,7 @@ namespace VE
 
         VkRenderingAttachmentInfo colorAttachment{};
         colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-        colorAttachment.imageView = swapChainImageViews[currentImage];
+        colorAttachment.imageView = swapChain.imageViews[currentImage];
         colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -326,7 +326,7 @@ namespace VE
         VkRenderingInfo renderingInfo{};
         renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
         renderingInfo.renderArea.offset = {0, 0};
-        renderingInfo.renderArea.extent = swapChainExtent;
+        renderingInfo.renderArea.extent = swapChain.extent;
         renderingInfo.layerCount = 1;
         renderingInfo.colorAttachmentCount = 1;
         renderingInfo.pColorAttachments = &colorAttachment;
@@ -338,15 +338,15 @@ namespace VE
         VkViewport viewport = {
             .x = 0.0f,
             .y = 0.0f,
-            .width = static_cast<float>(swapChainExtent.width),
-            .height = static_cast<float>(swapChainExtent.height),
+            .width = static_cast<float>(swapChain.extent.width),
+            .height = static_cast<float>(swapChain.extent.height),
             .minDepth = 0.0f,
             .maxDepth = 1.0f};
         vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
         VkRect2D scissor = {
             .offset = {0, 0},
-            .extent = swapChainExtent};
+            .extent = swapChain.extent};
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
         PostPushData pushData;
@@ -369,7 +369,7 @@ namespace VE
     void Renderer::updateUIUniformBuffers(uint32_t currentFrame)
     {
         UboUI uboUI;
-        uboUI.orthographicProj = glm::ortho(0.f, (float)swapChainExtent.width, 0.f, (float)swapChainExtent.height);
+        uboUI.orthographicProj = glm::ortho(0.f, (float)swapChain.extent.width, 0.f, (float)swapChain.extent.height);
 
         void *uiData;
         vkCheck(vkMapMemory(device, uiUniformBuffersMemory[currentFrame], 0, sizeof(UboUI), 0, &uiData), {'R', 236});
@@ -384,7 +384,7 @@ namespace VE
         VkImageMemoryBarrier2 imageMemoryBarrier = IMAGE_MEMORY_BARRIER_TEMPLATE;
         imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        imageMemoryBarrier.image = swapChainImages[currentImage];
+        imageMemoryBarrier.image = swapChain.images[currentImage];
         imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         imageMemoryBarrier.srcAccessMask = VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
         imageMemoryBarrier.dstAccessMask = VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
@@ -400,7 +400,7 @@ namespace VE
 
         VkRenderingAttachmentInfo colorAttachment{};
         colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-        colorAttachment.imageView = swapChainImageViews[currentImage];
+        colorAttachment.imageView = swapChain.imageViews[currentImage];
         colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
         colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -408,7 +408,7 @@ namespace VE
         VkRenderingInfo renderingInfo{};
         renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
         renderingInfo.renderArea.offset = {0, 0};
-        renderingInfo.renderArea.extent = swapChainExtent;
+        renderingInfo.renderArea.extent = swapChain.extent;
         renderingInfo.layerCount = 1;
         renderingInfo.colorAttachmentCount = 1;
         renderingInfo.pColorAttachments = &colorAttachment;
@@ -421,15 +421,15 @@ namespace VE
         VkViewport viewport = {
             .x = 0.0f,
             .y = 0.0f,
-            .width = static_cast<float>(swapChainExtent.width),
-            .height = static_cast<float>(swapChainExtent.height),
+            .width = static_cast<float>(swapChain.extent.width),
+            .height = static_cast<float>(swapChain.extent.height),
             .minDepth = 0.0f,
             .maxDepth = 1.0f};
         vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
         VkRect2D scissor = {
             .offset = {0, 0},
-            .extent = swapChainExtent};
+            .extent = swapChain.extent};
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
         for (const WidgetInstance &instance : widgetInstances)
@@ -447,7 +447,7 @@ namespace VE
                         vkCmdBindIndexBuffer(commandBuffer, meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
                         UIPushData pushData;
-                        pushData.model = Transform(Position3((instance.coords.x + 1) / 2 * swapChainExtent.width, (instance.coords.y + 1) / 2 * swapChainExtent.height, 0.f), Rotation3(), Scale3(instance.uniformScale)).toMat();
+                        pushData.model = Transform(Position3((instance.coords.x + 1) / 2 * swapChain.extent.width, (instance.coords.y + 1) / 2 * swapChain.extent.height, 0.f), Rotation3(), Scale3(instance.uniformScale)).toMat();
                         pushData.model[1][1] *= -1;
                         pushData.textureIndex = widgetBuffer.materials[meshBuffer.materialIndex].texIndex;
                         pushData.color = widgetBuffer.materials[meshBuffer.materialIndex].baseColor;
@@ -571,7 +571,7 @@ namespace VE
             .waitSemaphoreCount = 1,
             .pWaitSemaphores = &renderFinishedSemaphores[imageIndex],
             .swapchainCount = 1,
-            .pSwapchains = &swapChain,
+            .pSwapchains = &swapChain.swapChain,
             .pImageIndices = &imageIndex};
 
         {
@@ -599,17 +599,10 @@ namespace VE
 
         vkDeviceWaitIdle(device);
 
-        if (swapChain)
-        {
-            for (ImageAttachment &depthAttachment : depthAttachments)
+        for (ImageAttachment &depthAttachment : depthAttachments)
                 destroyImageAttachment(depthAttachment);
 
-            for (VkImageView imageView : swapChainImageViews)
-                if (imageView)
-                    vkDestroyImageView(device, imageView, nullptr);
-
-            vkDestroySwapchainKHR(device, swapChain, nullptr);
-        }
+        destroySwapChain(swapChain);
 
         for (ImageAttachment &attachment : prePostAttachments)
             destroyImageAttachment(attachment);

@@ -263,28 +263,26 @@ namespace VE
         // Pool
         VkDescriptorPoolSize poolSize = {
             .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            .descriptorCount = static_cast<uint32_t>(swapChainImageCount)};
+            .descriptorCount = static_cast<uint32_t>(swapChain.imageCount)};
 
         VkDescriptorPoolCreateInfo poolCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-            .maxSets = static_cast<uint32_t>(swapChainImageCount),
+            .maxSets = static_cast<uint32_t>(swapChain.imageCount),
             .poolSizeCount = 1,
             .pPoolSizes = &poolSize};
 
         vkCheck(vkCreateDescriptorPool(device, &poolCreateInfo, nullptr, &postPipeline.descriptorPool), {'R', 219});
 
         // Sets
-        const size_t imageCount = swapChainImageCount;
-
-        std::vector<VkDescriptorSetLayout> layouts(imageCount, postPipeline.descriptorSetLayout);
+        std::vector<VkDescriptorSetLayout> layouts(swapChain.imageCount, postPipeline.descriptorSetLayout);
 
         VkDescriptorSetAllocateInfo allocateInfo{};
         allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocateInfo.descriptorPool = postPipeline.descriptorPool;
-        allocateInfo.descriptorSetCount = static_cast<uint32_t>(imageCount);
+        allocateInfo.descriptorSetCount = static_cast<uint32_t>(swapChain.imageCount);
         allocateInfo.pSetLayouts = layouts.data();
 
-        postPipeline.descriptorSets.resize(imageCount);
+        postPipeline.descriptorSets.resize(swapChain.imageCount);
         vkCheck(vkAllocateDescriptorSets(device, &allocateInfo, postPipeline.descriptorSets.data()), {'R', 220});
 
         updatePostDescriptorSets();

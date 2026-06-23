@@ -242,14 +242,18 @@ namespace VE
 
         VkPipelineCache pipelineCache = VK_NULL_HANDLE;
 
-        // SwapChain
-        VkSwapchainKHR swapChain = VK_NULL_HANDLE;
-        VkExtent2D swapChainExtent;
-        std::vector<VkImage> swapChainImages;
-        std::vector<VkImageView> swapChainImageViews;
-        uint32_t swapChainImageCount;
-        VkFormat swapChainImageFormat = VK_FORMAT_UNDEFINED;
-        VkPresentModeKHR swapChainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
+        struct SwapChain
+        {
+            VkSwapchainKHR swapChain = VK_NULL_HANDLE;
+            std::vector<VkImage> images;
+            std::vector<VkImageView> imageViews;
+            VkExtent2D extent;
+            uint32_t imageCount;
+            VkFormat imageFormat = VK_FORMAT_UNDEFINED;
+            VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
+
+            operator VkSwapchainKHR() const { return swapChain; }
+        } swapChain;
 
         // Runtime
         VkCommandPool commandPool = VK_NULL_HANDLE;
@@ -369,6 +373,7 @@ namespace VE
         [[nodiscard]] VkResult copyBuffer(VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize, VkFence fence) const;
         [[nodiscard]] static uint32_t rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
         void destroyImageAttachment(ImageAttachment &attachment) const;
+        void destroySwapChain(SwapChain swapChain) const;
 
         // Mesh
         [[nodiscard]] MeshBuffer createMeshBuffer(const Mesh &mesh, bool isTransparent);

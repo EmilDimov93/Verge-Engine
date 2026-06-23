@@ -222,4 +222,17 @@ namespace VE
         attachment.image = VK_NULL_HANDLE;
         attachment.memory = VK_NULL_HANDLE;
     }
+    
+    void Renderer::destroySwapChain(SwapChain swapChain) const
+    {
+        for (VkImageView view : swapChain.imageViews)
+            if (view)
+                vkDestroyImageView(device, view, nullptr);
+        swapChain.imageViews.clear();
+
+        if (swapChain)
+            vkDestroySwapchainKHR(device, swapChain, nullptr);
+
+        swapChain.swapChain = VK_NULL_HANDLE;
+    }
 }

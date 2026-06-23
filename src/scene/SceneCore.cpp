@@ -222,15 +222,7 @@ namespace VE
 
     ModelHandle Scene::addModel(const std::string &filePath)
     {
-        std::string ext = std::filesystem::path(filePath).extension().string();
-
-        if (ext != ".obj")
-        {
-            Log::add('E', 101);
-            return ModelHandle::INVALID;
-        }
-
-        std::pair<std::vector<Mesh>, std::vector<Material>> data = loadOBJ(filePath);
+        std::pair<std::vector<Mesh>, std::vector<Material>> data = loadModel(filePath);
 
         if (data.first.empty())
         {

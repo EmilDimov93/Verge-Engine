@@ -30,23 +30,15 @@ namespace VE
 
     WidgetHandle UI::addWidget(const std::string &filePath)
     {
-        std::string ext = std::filesystem::path(filePath).extension().string();
-
-        if (ext != ".obj")
-        {
-            Log::add('E', 101);
-            return WidgetHandle::INVALID;
-        }
-
-        WidgetHandle newWidgetHandle = HandleFactory<WidgetHandle>::getNewHandle();
-
-        std::pair<std::vector<Mesh>, std::vector<Material>> data = loadOBJ(filePath);
+        std::pair<std::vector<Mesh>, std::vector<Material>> data = loadModel(filePath);
 
         if (data.first.empty())
         {
             Log::add('E', 102);
             return WidgetHandle::INVALID;
         }
+
+        WidgetHandle newWidgetHandle = HandleFactory<WidgetHandle>::getNewHandle();
 
         widgets.emplace_back(newWidgetHandle, data.first, data.second);
 

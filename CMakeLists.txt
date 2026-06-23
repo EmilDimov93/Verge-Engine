@@ -33,6 +33,8 @@ add_executable(VergeEngine
     src/scene/actors/VehiclePhysics.cpp
     src/scene/actors/Prop.cpp
     src/scene/actors/Trigger.cpp
+
+    src/shared/ModelLoader.cpp
 )
 
 target_include_directories(VergeEngine PRIVATE

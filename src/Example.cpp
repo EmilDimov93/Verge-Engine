@@ -110,13 +110,13 @@ private:
 
         // Triggers
         TriggerTypeCreateInfo sTriggerType = {};
-        sTriggerType.modelHandle = scene.addModel("models/checkpoint.obj");
+        sTriggerType.modelHandle = scene.addModel("models/gdcheckpoint.glb");
         sTriggerType.hitboxShape = HITBOX_SHAPE_SPHERE;
         sTriggerType.hitboxSize = 10.0f;
         sTriggerType.isAutoDestroy = true;
 
-        scene.addTrigger(sTriggerType, {{-2.0f, 0.0f, -60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, [](){ std::cout << "Triggered 1" << std::endl; });
-        scene.addTrigger(sTriggerType, {{2.0f, 0.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, [](){ std::cout << "Triggered 2" << std::endl; });
+        scene.addTrigger(sTriggerType, {{-2.0f, 3.0f, -60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, [](){ std::cout << "Triggered 1" << std::endl; });
+        scene.addTrigger(sTriggerType, {{2.0f, 3.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, [](){ std::cout << "Triggered 2" << std::endl; });
 
         // Ground
         SurfaceTypeIndex grassSurfaceTypeIndex = scene.addSurfaceType({0.6f, {0, 0.4f, 0}, 0.05f});

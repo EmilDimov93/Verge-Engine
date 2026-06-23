@@ -35,7 +35,7 @@ float calcShadow(vec4 posLightSpace) {
 }
 
 void main(){
-    vec4 base = (pushMaterial.textureIndex == 0) ? pushMaterial.baseColor : texture(textureSampler, fragTex);
+    vec4 base = pushMaterial.baseColor * texture(textureSampler, fragTex);
 
     if (fragLightStrength > 0.0) {
         outColor = uboLighting.lightColor;

@@ -315,7 +315,7 @@ namespace VE
         vkFreeMemory(device, stagingBufferMemory, nullptr);
     }
 
-    size_t Renderer::createTextureImage(const uint8_t *imageData, Size2 size)
+    uint32_t Renderer::createTextureImage(const uint8_t *imageData, Size2 size)
     {
         if (!imageData || size.w <= 0 || size.h <= 0)
         {
@@ -352,11 +352,11 @@ namespace VE
         vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
         vkCheck(generateMipmaps(device, physicalDevice, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_FORMAT_R8G8B8A8_UNORM, size.w, size.h, mipLevelCount, graphicsQueueMutex, uploadFence), {'R', 241});
 
-        size_t resultIndex;
+        uint32_t resultIndex;
         {
             std::lock_guard<std::mutex> lock(textureMutex);
             textures.attachments.push_back({texImage, texImageMemory, VK_NULL_HANDLE, mipLevelCount});
-            resultIndex = textures.attachments.size() - 1;
+            resultIndex = static_cast<uint32_t>(textures.attachments.size() - 1);
         }
 
         vkDestroyBuffer(device, imageStagingBuffer, nullptr);
@@ -365,12 +365,12 @@ namespace VE
         return resultIndex;
     }
 
-    size_t Renderer::createTexture(std::vector<uint8_t> texturePixels, Size2 textureSize)
+    uint32_t Renderer::createTexture(std::vector<uint8_t> texturePixels, Size2 textureSize)
     {
-        size_t textureImageIndex = createTextureImage(texturePixels.data(), textureSize);
+        uint32_t textureImageIndex = createTextureImage(texturePixels.data(), textureSize);
 
         if (textureImageIndex == INVALID_TEXTURE_INDEX)
-            return 0;
+            return INVALID_TEXTURE_INDEX;
 
         VkImage sourceImage;
         uint32_t mipLevelCount;
@@ -405,7 +405,7 @@ namespace VE
         }
     }
 
-    size_t Renderer::createTextureDescriptor(VkImageView textureImageView)
+    uint32_t Renderer::createTextureDescriptor(VkImageView textureImageView)
     {
         const auto createDescriptorPool = [&]()
         {
@@ -467,7 +467,7 @@ namespace VE
 
         textures.descriptorSets.push_back(descriptorSet);
 
-        return textures.descriptorSets.size() - 1;
+        return static_cast<uint32_t>(textures.descriptorSets.size() - 1);
     }
 
     void Renderer::createTextureSampler()

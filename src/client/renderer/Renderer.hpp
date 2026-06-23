@@ -393,9 +393,9 @@ namespace VE
         // Textures
         void createFallbackTexture();
         void createTextureDescriptorSetLayout();
-        [[nodiscard]] size_t createTextureImage(const uint8_t *imageData, Size2 size);
-        [[nodiscard]] size_t createTexture(std::vector<uint8_t> texturePixels, Size2 textureSize = 0);
-        [[nodiscard]] size_t createTextureDescriptor(VkImageView textureImageView);
+        [[nodiscard]] uint32_t createTexture(std::vector<uint8_t> texturePixels, Size2 textureSize = 0);
+        [[nodiscard]] uint32_t createTextureImage(const uint8_t *imageData, Size2 size);
+        [[nodiscard]] uint32_t createTextureDescriptor(VkImageView textureImageView);
         [[nodiscard]] VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, uint32_t mipLevelCount, VkDeviceMemory *imageMemory);
     };
 

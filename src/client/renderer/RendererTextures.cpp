@@ -1,13 +1,9 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#define STB_IMAGE_IMPLEMENTATION
-
 #include "Renderer.hpp"
 
 #include "../../shared/Log.hpp"
-
-#include "../../../ext/stb_image/stb_image.h"
 
 namespace VE
 {
@@ -319,22 +315,17 @@ namespace VE
         vkFreeMemory(device, stagingBufferMemory, nullptr);
     }
 
-    size_t Renderer::createTextureImage(std::string fileName)
+    size_t Renderer::createTextureImage(const uint8_t *imageData, Size2 size)
     {
-        int width, height;
-        VkDeviceSize imageSize;
-
-        stbi_uc *imageData = stbi_load(fileName.c_str(), &width, &height, nullptr, STBI_rgb_alpha);
-
-        imageSize = width * height * STBI_rgb_alpha;
-
-        if(!imageData)
+        if (!imageData || size.w <= 0 || size.h <= 0)
         {
             Log::add('R', 111);
             return INVALID_TEXTURE_INDEX;
         }
 
-        uint32_t mipLevelCount = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+        const VkDeviceSize imageSize = static_cast<VkDeviceSize>(size.w * size.h * 4);
+
+        uint32_t mipLevelCount = static_cast<uint32_t>(std::floor(std::log2(std::max(size.w, size.h)))) + 1;
 
         VkBuffer imageStagingBuffer;
         VkDeviceMemory imageStagingBufferMemory;
@@ -345,12 +336,10 @@ namespace VE
         memcpy(data, imageData, static_cast<size_t>(imageSize));
         vkUnmapMemory(device, imageStagingBufferMemory);
 
-        stbi_image_free(imageData);
-
         VkImage texImage;
         VkDeviceMemory texImageMemory;
 
-        texImage = createImage(width, height, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mipLevelCount, &texImageMemory);
+        texImage = createImage(size.w, size.h, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mipLevelCount, &texImageMemory);
 
         CommandPoolGuard graphicsCommandPoolLocal(device, graphicsQueueFamilyIndex);
         CommandPoolGuard transferCommandPoolLocal(device, transferQueueFamilyIndex);
@@ -359,9 +348,9 @@ namespace VE
 
         vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, graphicsQueueMutex, uploadFence), {'R', 240});
         vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
-        vkCheck(copyImageBuffer(device, transferQueue, transferCommandPoolLocal, imageStagingBuffer, texImage, width, height, transferQueueMutex, uploadFence), {'R', 239});
+        vkCheck(copyImageBuffer(device, transferQueue, transferCommandPoolLocal, imageStagingBuffer, texImage, size.w, size.h, transferQueueMutex, uploadFence), {'R', 239});
         vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
-        vkCheck(generateMipmaps(device, physicalDevice, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_FORMAT_R8G8B8A8_UNORM, width, height, mipLevelCount, graphicsQueueMutex, uploadFence), {'R', 241});
+        vkCheck(generateMipmaps(device, physicalDevice, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_FORMAT_R8G8B8A8_UNORM, size.w, size.h, mipLevelCount, graphicsQueueMutex, uploadFence), {'R', 241});
 
         size_t resultIndex;
         {
@@ -376,11 +365,11 @@ namespace VE
         return resultIndex;
     }
 
-    size_t Renderer::createTexture(std::string fileName)
+    size_t Renderer::createTexture(std::vector<uint8_t> texturePixels, Size2 textureSize)
     {
-        size_t textureImageIndex = createTextureImage(fileName);
+        size_t textureImageIndex = createTextureImage(texturePixels.data(), textureSize);
 
-        if(textureImageIndex == INVALID_TEXTURE_INDEX)
+        if (textureImageIndex == INVALID_TEXTURE_INDEX)
             return 0;
 
         VkImage sourceImage;

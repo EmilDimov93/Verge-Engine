@@ -67,8 +67,10 @@ namespace VE
 
             newWidgetBuffer.meshBuffers.push_back(meshBuffer);
 
-            if (!newWidgetBuffer.materials[meshBuffer.materialIndex].textureFilePath.empty())
-                newWidgetBuffer.materials[meshBuffer.materialIndex].texIndex = createTexture(newWidgetBuffer.materials[meshBuffer.materialIndex].textureFilePath);
+            Material &material = newWidgetBuffer.materials[meshBuffer.materialIndex];
+
+            if(!material.texturePixels.empty())
+                    material.texIndex = createTexture(material.texturePixels, material.textureSize);
         }
 
         {
@@ -102,8 +104,10 @@ namespace VE
 
             widgetBuffer.meshBuffers.push_back(meshBuffer);
 
-            if (!widgetBuffer.materials[meshBuffer.materialIndex].textureFilePath.empty())
-                widgetBuffer.materials[meshBuffer.materialIndex].texIndex = createTexture(widgetBuffer.materials[meshBuffer.materialIndex].textureFilePath);
+            Material &material = widgetBuffer.materials[meshBuffer.materialIndex];
+
+            if(!material.texturePixels.empty())
+                    material.texIndex = createTexture(material.texturePixels, material.textureSize);
         }
 
         widgetBuffer.version = widget.getVersion();

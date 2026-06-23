@@ -1,8 +1,6 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#define CGLTF_IMPLEMENTATION
-
 #include "ModelLoader.hpp"
 
 #include "../shared/Log.hpp"
@@ -11,6 +9,10 @@
 #include <filesystem>
 #include <sstream>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "../../ext/stb_image/stb_image.h"
+
+#define CGLTF_IMPLEMENTATION
 #include "../../ext/cgltf/cgltf.h"
 
 namespace VE
@@ -25,7 +27,6 @@ namespace VE
         std::unordered_map<std::string, Material> materials;
         std::vector<glm::vec2> texCoords;
 
-        std::string currentTexturePath;
         uint32_t currentMaterialIndex = UINT32_MAX;
 
         std::vector<Vertex> currentMeshVertices;
@@ -66,7 +67,26 @@ namespace VE
                     std::string texturePath = line.substr(7);
                     trim(texturePath);
                     std::filesystem::path resolvedPath = std::filesystem::path(mtlPath).parent_path() / texturePath;
-                    materials[currentMat].textureFilePath = resolvedPath.string();
+                    
+                    int width = 0;
+                    int height = 0;
+                    int channelsInFile = 0;
+
+                    stbi_uc *decodedPixels = stbi_load(resolvedPath.string().c_str(), &width, &height, &channelsInFile, STBI_rgb_alpha);
+
+                    if (decodedPixels)
+                    {
+                        materials[currentMat].textureSize.w = static_cast<uint32_t>(width);
+                        materials[currentMat].textureSize.h = static_cast<uint32_t>(height);
+
+                        materials[currentMat].texturePixels.assign(decodedPixels, decodedPixels + static_cast<size_t>(width) * height * 4);
+
+                        stbi_image_free(decodedPixels);
+                    }
+                    else
+                    {
+                        Log::add('R', 111);
+                    }
                 }
                 else if (line.starts_with("d ") && !currentMat.empty())
                 {
@@ -154,7 +174,6 @@ namespace VE
                     {
                         currentMaterialIndex = idxIt->second;
                     }
-                    currentTexturePath = it->second.textureFilePath;
                 }
             }
             else if (line.starts_with("v "))
@@ -255,8 +274,45 @@ namespace VE
                 material.roughness = pbr.roughness_factor;
 
                 const cgltf_texture *baseColorTexture = pbr.base_color_texture.texture;
-                if (baseColorTexture && baseColorTexture->image && baseColorTexture->image->uri)
-                    material.textureFilePath = (baseDir / baseColorTexture->image->uri).string();
+                if (baseColorTexture && baseColorTexture->image)
+                {
+                    const cgltf_image *image = baseColorTexture->image;
+
+                    int width = 0;
+                    int height = 0;
+                    int channelsInFile = 0;
+                    stbi_uc *decodedPixels = nullptr;
+
+                    if (image->uri)
+                    {
+                        std::string fullPath = (baseDir / image->uri).string();
+
+                        decodedPixels = stbi_load(fullPath.c_str(), &width, &height, &channelsInFile, STBI_rgb_alpha);
+                    }
+                    else if (image->buffer_view)
+                    {
+                        const cgltf_buffer_view *view = image->buffer_view;
+                        const uint8_t *encodedBytes = static_cast<const uint8_t *>(view->buffer->data) + view->offset;
+                        const int encodedSize = static_cast<int>(view->size);
+
+                        decodedPixels = stbi_load_from_memory(encodedBytes, encodedSize, &width, &height, &channelsInFile, STBI_rgb_alpha);
+                    }
+
+                    if (decodedPixels)
+                    {
+                        material.textureSize.w = static_cast<uint32_t>(width);
+                        material.textureSize.h = static_cast<uint32_t>(height);
+
+                        material.texturePixels.assign(decodedPixels,
+                                                      decodedPixels + static_cast<size_t>(width) * height * 4);
+
+                        stbi_image_free(decodedPixels);
+                    }
+                    else
+                    {
+                        Log::add('R', 111);
+                    }
+                }
             }
 
             materialList.push_back(material);
@@ -397,9 +453,9 @@ namespace VE
 
         if (ext == ".obj")
         {
-            data = loadOBJ(filePath);;
+            data = loadOBJ(filePath);
         }
-        else if(ext == ".glb")
+        else if (ext == ".glb")
         {
             data = loadGLB(filePath);
         }

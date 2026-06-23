@@ -26,10 +26,14 @@ namespace VE
         float metallic;
         float roughness;
 
+        // GPU
         uint32_t texIndex = INVALID_TEXTURE_INDEX;
-        std::string textureFilePath;
 
-        Material(color_t baseColor = color_t(1.f), float metallic = 0.f, float roughness = 1.f, uint32_t texIndex = INVALID_TEXTURE_INDEX, std::string textureFilePath = "") : baseColor(baseColor), metallic(metallic), roughness(roughness), texIndex(texIndex), textureFilePath(textureFilePath) {}
+        // CPU
+        std::vector<uint8_t> texturePixels;
+        Size2 textureSize{};
+
+        Material(color_t baseColor = color_t(1.f), float metallic = 0.f, float roughness = 1.f) : baseColor(baseColor), metallic(metallic), roughness(roughness) {}
     };
 
     class Mesh

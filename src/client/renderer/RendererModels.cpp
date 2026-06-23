@@ -68,8 +68,10 @@ namespace VE
 
             newModelBuffer.meshBuffers.push_back(meshBuffer);
 
-            if (!newModelBuffer.materials[meshBuffer.materialIndex].textureFilePath.empty())
-                newModelBuffer.materials[meshBuffer.materialIndex].texIndex = createTexture(newModelBuffer.materials[meshBuffer.materialIndex].textureFilePath);
+            Material &material = newModelBuffer.materials[meshBuffer.materialIndex];
+
+            if(!material.texturePixels.empty())
+                    material.texIndex = createTexture(material.texturePixels, material.textureSize);
         }
 
         {
@@ -103,8 +105,10 @@ namespace VE
 
             modelBuffer.meshBuffers.push_back(meshBuffer);
 
-            if (!modelBuffer.materials[meshBuffer.materialIndex].textureFilePath.empty())
-                modelBuffer.materials[meshBuffer.materialIndex].texIndex = createTexture(modelBuffer.materials[meshBuffer.materialIndex].textureFilePath);
+            Material &material = modelBuffer.materials[meshBuffer.materialIndex];
+
+            if(!material.texturePixels.empty())
+                    material.texIndex = createTexture(material.texturePixels, material.textureSize);
         }
 
         modelBuffer.version = model.getVersion();

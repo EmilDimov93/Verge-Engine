@@ -20,14 +20,14 @@ namespace VE
         pickPhysicalDevice();
         createLogicalDevice();
 
+        findSupportedFormats();
+
         createCommandPool();
         createCommandBuffers();
 
         createSwapChain(windowSize);
 
         createPrePostImages();
-
-        depthFormat = findDepthFormat();
 
         createPipelineCache();
 
@@ -72,7 +72,8 @@ namespace VE
 
         std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+        if (DEVELOPER_MODE)
+            extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
         const char *validationLayers[] = {"VK_LAYER_KHRONOS_validation"};
 
@@ -209,12 +210,65 @@ namespace VE
         presentQueue = graphicsQueue;
     }
 
+    void Renderer::findSupportedFormats()
+    {
+        // Color format
+        uint32_t formatCount;
+        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
+        std::vector<VkSurfaceFormatKHR> availableFormats(formatCount);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, availableFormats.data());
+
+        for (const VkSurfaceFormatKHR &format : availableFormats)
+        {
+            if (format.format == VK_FORMAT_R8G8B8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+            {
+                swapChainImageFormat = VK_FORMAT_R8G8B8A8_UNORM;
+                break;
+            }
+        }
+
+        if(swapChainImageFormat == VK_FORMAT_UNDEFINED)
+            Log::add('R', 225);
+
+        // Depth format
+        std::vector<VkFormat> depthFormats = {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT};
+
+        for (VkFormat f : depthFormats)
+        {
+            VkFormatProperties properties;
+            vkGetPhysicalDeviceFormatProperties(physicalDevice, f, &properties);
+
+            if (properties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+            {
+                depthFormat = f;
+                break;
+            }
+        }
+
+        if (depthFormat == VK_FORMAT_UNDEFINED)
+            Log::add('R', 223);
+
+        // Present mode
+        uint32_t presentModeCount;
+        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
+        std::vector<VkPresentModeKHR> availablePresentModes(presentModeCount);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, availablePresentModes.data());
+
+        for (VkPresentModeKHR presentMode : availablePresentModes)
+        {
+            if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+            {
+                swapChainPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+                break;
+            }
+        }
+    }
+
     void Renderer::createSwapChain(Size2 windowSize)
     {
         VkSurfaceCapabilitiesKHR capabilities;
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities);
 
-        swapChainImageFormat = VK_FORMAT_R8G8B8A8_UNORM;
         swapChainExtent = {windowSize.w, windowSize.h};
 
         VkSwapchainCreateInfoKHR swapchainCreateInfo = {
@@ -231,7 +285,7 @@ namespace VE
             .pQueueFamilyIndices = nullptr,
             .preTransform = capabilities.currentTransform,
             .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-            .presentMode = VK_PRESENT_MODE_MAILBOX_KHR,
+            .presentMode = swapChainPresentMode,
             .clipped = VK_TRUE,
             .oldSwapchain = VK_NULL_HANDLE};
 

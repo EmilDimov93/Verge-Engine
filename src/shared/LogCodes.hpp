@@ -56,10 +56,10 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'R', 222}, "Vulkan failed to create image"},
     {{'R', 223}, "Vulkan failed to find supported image format"},
     {{'R', 224}, "Vulkan failed to copy buffer"},
-    // {{'R', 225} removed
+    {{'R', 225}, "Preferred color format unavailable"},
     {{'R', 226}, "Vulkan failed to create sampler"},
     {{'R', 227}, "Vulkan failed to create pipeline cache"},
-    // {{'R', 228} removed
+    // {'R', 228} removed
     {{'R', 229}, "Vulkan failed to initialize mesh"},
     {{'R', 230}, "Vulkan failed to acquire swapchain image"},
     {{'R', 231}, "Vulkan failed to wait for fence"},

@@ -238,7 +238,7 @@ namespace VE
         uint32_t graphicsQueueFamilyIndex = 0;
         uint32_t transferQueueFamilyIndex = 0;
 
-        VkFormat depthFormat;
+        VkFormat depthFormat = VK_FORMAT_UNDEFINED;
 
         VkPipelineCache pipelineCache = VK_NULL_HANDLE;
 
@@ -248,7 +248,8 @@ namespace VE
         std::vector<VkImage> swapChainImages;
         std::vector<VkImageView> swapChainImageViews;
         uint32_t swapChainImageCount;
-        VkFormat swapChainImageFormat;
+        VkFormat swapChainImageFormat = VK_FORMAT_UNDEFINED;
+        VkPresentModeKHR swapChainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
 
         // Runtime
         VkCommandPool commandPool = VK_NULL_HANDLE;
@@ -319,6 +320,8 @@ namespace VE
         void pickPhysicalDevice();
         void createLogicalDevice();
 
+        void findSupportedFormats();
+
         void createCommandPool();
         void createCommandBuffers();
 
@@ -365,7 +368,6 @@ namespace VE
         void createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory) const;
         [[nodiscard]] VkResult copyBuffer(VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize, VkFence fence) const;
         [[nodiscard]] static uint32_t rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
-        [[nodiscard]] VkFormat findDepthFormat() const;
         void destroyImageAttachment(ImageAttachment &attachment) const;
 
         // Mesh

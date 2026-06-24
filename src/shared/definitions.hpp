@@ -14,32 +14,9 @@
 
 namespace VE
 {
-
     constexpr float FLOAT_MIN = std::numeric_limits<float>::lowest();
 
     constexpr float PI = glm::radians(180.0f);
-
-    template <typename Tag>
-    class Handle
-    {
-    public:
-        constexpr Handle() = default;
-        constexpr explicit Handle(uint64_t value) : value(value) {}
-
-        [[nodiscard]] constexpr bool isValid() const { return value != INVALID; }
-        [[nodiscard]] constexpr uint64_t getValue() const { return value; }
-
-        [[nodiscard]] friend bool operator==(const Handle &, const Handle &) = default;
-
-        static const Handle INVALID;
-
-    private:
-        static constexpr uint64_t INVALID_VALUE = 0;
-        uint64_t value = INVALID_VALUE;
-    };
-
-    template <typename Tag>
-    inline constexpr Handle<Tag> Handle<Tag>::INVALID{};
 
     struct ModelTag
     {
@@ -65,6 +42,62 @@ namespace VE
     struct TriggerTag
     {
     };
+
+    template <typename Tag>
+    class Handle
+    {
+    public:
+        constexpr Handle() = default;
+        constexpr explicit Handle(uint64_t value) : value(value) {}
+
+        [[nodiscard]] constexpr bool isValid() const { return value != INVALID_VALUE; }
+        [[nodiscard]] constexpr uint64_t getValue() const { return value; }
+
+        [[nodiscard]] friend bool operator==(const Handle &, const Handle &) = default;
+
+        static const Handle INVALID;
+
+        friend std::ostream &operator<<(std::ostream &outputStream, const Handle &handle)
+        {
+            std::string prefix = "U";
+            if constexpr (std::is_same_v<Tag, ModelTag>)
+                prefix = "MO";
+            else if constexpr (std::is_same_v<Tag, ModelInstanceTag>)
+                prefix = "MI";
+            else if constexpr (std::is_same_v<Tag, WidgetTag>)
+                prefix = "WG";
+            else if constexpr (std::is_same_v<Tag, WidgetInstanceTag>)
+                prefix = "WI";
+            else if constexpr (std::is_same_v<Tag, PlayerTag>)
+                prefix = "PL";
+            else if constexpr (std::is_same_v<Tag, VehicleTag>)
+                prefix = "VH";
+            else if constexpr (std::is_same_v<Tag, PropTag>)
+                prefix = "PR";
+            else if constexpr (std::is_same_v<Tag, TriggerTag>)
+                prefix = "TR";
+
+            // Base 26: A-Z
+            constexpr uint32_t width = 14;
+            std::string result(width, 'A');
+            uint64_t value = handle.getValue();
+            for (uint32_t i = width; i > 0 && value > 0; --i)
+            {
+                result[i - 1] = char('A' + value % 26);
+                value /= 26;
+            }
+
+            outputStream << prefix << result;
+            return outputStream;
+        }
+
+    private:
+        static constexpr uint64_t INVALID_VALUE = 0;
+        uint64_t value = INVALID_VALUE;
+    };
+
+    template <typename Tag>
+    inline constexpr Handle<Tag> Handle<Tag>::INVALID{};
 
     using ModelHandle = Handle<ModelTag>;
     using ModelInstanceHandle = Handle<ModelInstanceTag>;

@@ -3,12 +3,13 @@
 layout(location = 0) in vec2 fragTex;
 layout(location = 1) in vec3 fragWorldPos;
 layout(location = 2) in vec3 fragNormal;
-layout(location = 3) flat in float fragLightStrength;
-layout(location = 4) in vec4 fragPosLightSpace;
+layout(location = 3) in vec4 fragPosLightSpace;
+layout(location = 4) in float fragLightIntensity;
 
 layout(set = 0, binding = 1) uniform UboLighting {
     vec4 lightPos;
-    vec4 lightColor;
+    vec3 lightColor;
+    float lightIntensity;
     vec4 viewPos;
     float outdoorBrightness;
 } uboLighting;
@@ -37,29 +38,24 @@ float calcShadow(vec4 posLightSpace) {
 void main(){
     vec4 base = pushMaterial.baseColor * texture(textureSampler, fragTex);
 
-    if (fragLightStrength > 0.0) {
-        outColor = uboLighting.lightColor;
+    if (fragLightIntensity > 0.) {
+        outColor = vec4(uboLighting.lightColor, 1.);
         return;
     }
 
-    if (uboLighting.lightPos.w == 0) {
-        outColor = base;
-        return;
-    }
-
-    vec3 normalDir = normalize(fragNormal);
     vec3 lightDir = normalize(uboLighting.lightPos.xyz - fragWorldPos);
-    vec3 viewDirection = normalize(uboLighting.viewPos.xyz  - fragWorldPos);
-    vec3 halfVector = normalize(lightDir + viewDirection);
+    vec3 viewDir = normalize(uboLighting.viewPos.xyz  - fragWorldPos);
+    vec3 halfVector = normalize(lightDir + viewDir);
 
-    float diff = max(dot(normalDir, lightDir), 0.0);
-    float spec = pow(max(dot(normalDir, halfVector), 0.0), 32.0);
-
-    float intensity = uboLighting.lightPos.w;
     vec3 baseRgb = base.rgb;
+
     vec3 ambient = baseRgb * mix(0.02, 0.3, uboLighting.outdoorBrightness);
-    vec3 diffuse = baseRgb * uboLighting.lightColor.rgb * diff * intensity * 0.5;
-    vec3 specular = uboLighting.lightColor.rgb * spec * intensity * 0.3;
-    vec3 color = ambient + (diffuse + specular) * (1.0 - calcShadow(fragPosLightSpace));
-    outColor = vec4(color, base.a);
+
+    float diff = max(dot(fragNormal, lightDir), 0.);
+    vec3 diffuse = baseRgb * uboLighting.lightColor * diff * uboLighting.lightIntensity * 0.5;
+
+    float spec = pow(max(dot(fragNormal, halfVector), 0.), 32.);
+    vec3 specular = uboLighting.lightColor * spec * uboLighting.lightIntensity * 0.3;
+
+    outColor = vec4(ambient + (diffuse + specular) * (1. - calcShadow(fragPosLightSpace)), base.a);
 }

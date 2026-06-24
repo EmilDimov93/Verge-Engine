@@ -65,13 +65,16 @@ namespace VE
 
         for (const ModelInstance &instance : modelInstances)
         {
+            if(instance.lightIntensity > 0.f)
+                continue;
+
             for (const ModelBuffer &modelBuffer : modelBuffers)
             {
                 if (instance.modelHandle == modelBuffer.handle)
                 {
                     for (const MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
                     {
-                        if(meshBuffer.isTransparent)
+                        if (meshBuffer.isTransparent)
                             continue;
 
                         VkBuffer vertexBuffers[] = {meshBuffer.vertexBuffer};
@@ -104,7 +107,7 @@ namespace VE
         vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
     }
 
-    void Renderer::updateModelUniformBuffers(uint32_t currentFrame, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, glm::mat4 lightSpaceMat, float outdoorBrightness)
+    void Renderer::updateModelUniformBuffers(uint32_t currentFrame, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, float lightIntensity, glm::mat4 lightSpaceMat, float outdoorBrightness)
     {
         UboCamera uboCamera;
         uboCamera.projection = projectionMat;
@@ -118,7 +121,8 @@ namespace VE
 
         UboLighting uboLighting;
         uboLighting.lightPos = lightPos;
-        uboLighting.lightColor = glm::vec4(lightColor, 1.0f);
+        uboLighting.lightColor = lightColor;
+        uboLighting.lightIntensity = lightIntensity;
         uboLighting.viewPos = glm::inverse(viewMat)[3];
         uboLighting.outdoorBrightness = outdoorBrightness;
 
@@ -214,7 +218,7 @@ namespace VE
 
             VertexPushData vertexPushData;
             vertexPushData.model = instance.modelMat;
-            vertexPushData.lightStrength = instance.lightStrength;
+            vertexPushData.lightIntensity = instance.lightIntensity;
 
             MaterialPushData materialPushData;
             materialPushData.baseColor = material.baseColor;
@@ -500,26 +504,26 @@ namespace VE
 
         glm::vec4 lightPos(0.0f);
         glm::vec3 lightColor(1.0f);
+        float lightIntensity = 0.f;
         for (const ModelInstance &instance : sceneDrawData.modelInstances)
         {
-            for (const Model &model : sceneDrawData.models)
+            if (instance.lightIntensity > 0.f)
             {
-                if (model.getHandle() == instance.modelHandle)
-                {
-                    lightPos = glm::vec4(glm::vec3(instance.modelMat[3]), instance.lightStrength);
-                    lightColor = instance.lightColor;
-                    break;
-                }
+                lightPos = instance.modelMat[3];
+                lightColor = instance.lightColor;
+                lightIntensity = instance.lightIntensity;
             }
-            if (lightPos.w > 0.0f)
-                break;
         }
 
-        glm::mat4 lightView = glm::lookAt(glm::vec3(lightPos), glm::vec3(0.0f), glm::vec3(0, 1, 0));
+        glm::vec3 cameraPosition = glm::vec3(glm::inverse(sceneDrawData.viewMat)[3]);
+        glm::vec3 cameraForward = -glm::vec3(glm::inverse(sceneDrawData.viewMat)[2]);
+        glm::vec3 shadowCenter = cameraPosition + cameraForward * 35.f;
+        glm::mat4 lightView = glm::lookAt(glm::vec3(lightPos), shadowCenter, glm::vec3(0, 1, 0));
+
         glm::mat4 lightProjection = glm::orthoZO(-50.f, 50.f, -50.f, 50.f, 1.f, 200.f);
         glm::mat4 lightSpaceMat = lightProjection * lightView;
 
-        updateModelUniformBuffers(currentFrame, projectionMat, sceneDrawData.viewMat, lightPos, lightColor, lightSpaceMat, sceneDrawData.outdoorBrightness);
+        updateModelUniformBuffers(currentFrame, projectionMat, sceneDrawData.viewMat, lightPos, lightColor, lightIntensity, lightSpaceMat, sceneDrawData.outdoorBrightness);
         updateUIUniformBuffers(currentFrame);
 
         const VkCommandBuffer commandBuffer = frames[currentFrame].commandBuffer;
@@ -600,7 +604,7 @@ namespace VE
         vkDeviceWaitIdle(device);
 
         for (ImageAttachment &depthAttachment : depthAttachments)
-                destroyImageAttachment(depthAttachment);
+            destroyImageAttachment(depthAttachment);
 
         destroySwapChain(swapChain);
 

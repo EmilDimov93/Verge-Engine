@@ -12,22 +12,22 @@ layout(set = 0, binding = 0) uniform UboCamera {
 
 layout(push_constant) uniform PushVertex {
     mat4 model;
-    float lightStrength;
+    float lightIntensity;
 }pushVertex;
 
 layout(location = 0) out vec2 fragTex;
 layout(location = 1) out vec3 fragWorldPos;
 layout(location = 2) out vec3 fragNormal;
-layout(location = 3) flat out float fragLightStrength;
-layout(location = 4) out vec4 fragPosLightSpace;
+layout(location = 3) out vec4 fragPosLightSpace;
+layout(location = 4) out float fragLightIntensity;
 
 void main(){
-    vec4 worldPos = pushVertex.model * vec4(pos, 1.0);
+    vec4 worldPos = pushVertex.model * vec4(pos, 1.);
     gl_Position = uboCamera.projection * uboCamera.view * worldPos;
 
     fragTex = tex;
     fragWorldPos = worldPos.xyz;
-    fragNormal = mat3(pushVertex.model) * normal;
-    fragLightStrength = pushVertex.lightStrength;
-    fragPosLightSpace = uboCamera.lightSpaceMat * pushVertex.model * vec4(pos, 1.0);
+    fragNormal = normalize(mat3(pushVertex.model) * normal);
+    fragPosLightSpace = uboCamera.lightSpaceMat * pushVertex.model * vec4(pos, 1.);
+    fragLightIntensity = pushVertex.lightIntensity;
 }

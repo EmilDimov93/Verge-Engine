@@ -185,13 +185,13 @@ namespace VE
         return handle;
     }
 
-    PropHandle Scene::addProp(ModelHandle modelHandle, Transform transform, float lightStrength, color_t lightColor)
+    PropHandle Scene::addProp(ModelHandle modelHandle, Transform transform, float lightIntensity, color_t lightColor)
     {
         PropHandle handle = HandleFactory<PropHandle>::getNewHandle();
 
         ModelInstanceHandle modelInstanceHandle = addModelInstance(modelHandle);
 
-        modelInstances.back().lightStrength = lightStrength;
+        modelInstances.back().lightIntensity = lightIntensity;
         modelInstances.back().lightColor = lightColor;
 
         Prop newProp(handle, modelInstanceHandle, transform);

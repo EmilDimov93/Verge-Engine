@@ -85,11 +85,11 @@ namespace VE
 
         glm::mat4 modelMat;
 
-        float lightStrength = 0.0f;
-        color_t lightColor = color_t(1.0f);
+        float lightIntensity = 0.f;
+        color_t lightColor = color_t(1.f);
 
-        ModelInstance(ModelInstanceHandle handle, ModelHandle modelHandle, glm::mat4 modelMat, float lightStrength = 0.0f, color_t lightColor = color_t(1.0f))
-            : handle(handle), modelHandle(modelHandle), modelMat(modelMat), lightStrength(lightStrength), lightColor(lightColor) {}
+        ModelInstance(ModelInstanceHandle handle, ModelHandle modelHandle, glm::mat4 modelMat, float lightIntensity = 0.f, color_t lightColor = color_t(1.f))
+            : handle(handle), modelHandle(modelHandle), modelMat(modelMat), lightIntensity(lightIntensity), lightColor(lightColor) {}
     };
 
     class Widget

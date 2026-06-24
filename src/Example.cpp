@@ -106,7 +106,7 @@ private:
         player1 = scene.addPlayer(car1);
 
         // Prop
-        scene.addProp(scene.addModel("models/cow.obj"), {{-10.0f, 100.0f, 30.0f}}, 3.0f, {1.0f, 1.0f, 0.8f, 1.0f});
+        scene.addProp(scene.addModel("models/cow.obj"), {{-10.f, 100.f, 30.f}}, 3.f, {1.f, 1.f, 0.8f, 1.f});
 
         // Triggers
         TriggerTypeCreateInfo sTriggerType = {};

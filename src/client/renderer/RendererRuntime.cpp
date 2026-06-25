@@ -208,7 +208,7 @@ namespace VE
             .extent = swapChain.extent};
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-        auto drawMesh = [&](const ModelInstance &instance, const MeshBuffer &meshBuffer, Material material, VkPipelineLayout layout)
+        auto drawMesh = [&](const ModelInstance &instance, const MeshBuffer &meshBuffer, const Material &material, VkPipelineLayout layout)
         {
             VkBuffer vertexBuffers[] = {meshBuffer.vertexBuffer};
             VkDeviceSize offsets[] = {0};
@@ -241,7 +241,7 @@ namespace VE
         {
             const ModelInstance *instance;
             const MeshBuffer *meshBuffer;
-            Material material;
+            const Material *material;
             float distanceSquared;
         };
         std::vector<TransparentMesh> transparentMeshes;
@@ -258,7 +258,7 @@ namespace VE
                         {
                             glm::vec3 meshWorldPosition = glm::vec3(instance.modelMat[3]);
                             float distanceSquared = glm::dot(meshWorldPosition - cameraPosition, meshWorldPosition - cameraPosition);
-                            transparentMeshes.push_back({&instance, &meshBuffer, modelBuffer.materials[meshBuffer.materialIndex], distanceSquared});
+                            transparentMeshes.push_back({&instance, &meshBuffer, &modelBuffer.materials[meshBuffer.materialIndex], distanceSquared});
                             continue;
                         }
 
@@ -279,7 +279,7 @@ namespace VE
             vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, transparentPipeline.pipeline);
 
             for (const TransparentMesh &mesh : transparentMeshes)
-                drawMesh(*mesh.instance, *mesh.meshBuffer, mesh.material, transparentPipeline.layout);
+                drawMesh(*mesh.instance, *mesh.meshBuffer, *mesh.material, transparentPipeline.layout);
         }
 
         vkCmdEndRendering(commandBuffer);

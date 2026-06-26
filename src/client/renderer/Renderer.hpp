@@ -111,6 +111,8 @@ namespace VE
     private:
         static constexpr uint32_t FRAMES_IN_FLIGHT = 2;
 
+        static constexpr size_t MAX_SHADOW_MAPS = 10;
+
         static constexpr Size2 SHADOW_MAP_EXTENT = {4096, 4096};
 
         static constexpr uint32_t TEXTURE_SAMPLER_POOL_CHUNK_SIZE = 1'000;
@@ -161,15 +163,15 @@ namespace VE
         {
             glm::mat4 projection;
             glm::mat4 view;
-            glm::mat4 lightSpaceMat;
         };
 
         struct UboLighting
         {
-            glm::vec4 lightPos;
-            glm::vec3 lightColor;
-            float lightIntensity;
+            glm::vec4 lightPositions[MAX_SHADOW_MAPS];
+            glm::vec4 lightColors[MAX_SHADOW_MAPS];
+            glm::mat4 lightSpaceMats[MAX_SHADOW_MAPS];
             glm::vec4 viewPos;
+            uint32_t lightCount;
             float outdoorBrightness;
         };
 
@@ -181,7 +183,6 @@ namespace VE
         struct VertexPushData
         {
             glm::mat4 model;
-            float lightIntensity;
         };
 
         struct MaterialPushData
@@ -221,6 +222,13 @@ namespace VE
             VkFence drawFence = VK_NULL_HANDLE;
 
             VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+        };
+
+        struct ShadowMap
+        {
+            ModelInstanceHandle instanceHandle;
+            
+            ImageAttachment depthAttachment;
         };
 
         // Context
@@ -270,8 +278,10 @@ namespace VE
         GraphicsPipeline shadowPipeline;
 
         // Shadow attachments
-        ImageAttachment shadowDepthAttachment;
         VkSampler shadowSampler = VK_NULL_HANDLE;
+
+        size_t shadowMapCount = 0;
+        std::array<ShadowMap, MAX_SHADOW_MAPS> shadowMaps;
 
         // Pipeline 2: Model
         GraphicsPipeline modelPipeline;
@@ -333,10 +343,11 @@ namespace VE
         void createSwapChain(Size2 windowSize);
 
         void createShadowSampler();
+        void createFallbackShadowAttachment();
+
         void createTextureSampler();
 
         void createDepthAttachments();
-        void createShadowDepthAttachment();
 
         void createPipelineCache();
 
@@ -360,9 +371,10 @@ namespace VE
         void createSyncObjects();
 
         // Runtime
-        void recordShadowPass(const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, const glm::mat4 &lightSpaceMat);
-        void updateModelUniformBuffers(uint32_t currentFrame, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, float lightIntensity, glm::mat4 lightSpaceMat, float outdoorBrightness);
-        void recordModelPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat, const glm::vec3 &cameraPosition);
+        void recordShadowPass(const std::vector<ModelInstance> &modelInstances, const std::array<glm::mat4, MAX_SHADOW_MAPS> &lightSpaceMats);
+        void updateModelUniformBuffers(uint32_t currentFrame, const glm::mat4 &projectionMat, const glm::mat4 &viewMat, const std::array<glm::vec4, MAX_SHADOW_MAPS> &lightPositions, const std::array<glm::vec4, MAX_SHADOW_MAPS> &lightColors, const std::array<glm::mat4, MAX_SHADOW_MAPS> &lightSpaceMats, int32_t lightCount, float outdoorBrightness);
+        void writeShadowDescriptors();
+        void recordModelPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::vec3 &cameraPosition);
         void recordPostPass(uint32_t currentImage, const PostEffects &postEffects);
         void updateUIUniformBuffers(uint32_t currentFrame);
         void recordUIPass(uint32_t currentImage, const std::vector<Widget> &widgets, const std::vector<WidgetInstance> &widgetInstances);
@@ -373,6 +385,8 @@ namespace VE
         void createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory) const;
         [[nodiscard]] VkResult copyBuffer(VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize, VkFence fence) const;
         [[nodiscard]] static uint32_t rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
+        void transitionImageLayout(VkDevice device, VkQueue queue, VkCommandPool commandPool, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlags aspectMask, std::mutex &graphicsQueueMutex, VkFence fence);
+        ShadowMap createShadowMap(ModelInstanceHandle instanceHandle);
         void destroyImageAttachment(ImageAttachment &attachment) const;
         void destroySwapChain(SwapChain swapChain) const;
 
@@ -385,6 +399,7 @@ namespace VE
         void initModelBuffer(const Model &model);
         void updateModelBuffer(ModelBuffer &modelBuffer, const Model &model);
         void removeOrphanedModel(const std::vector<ModelInstance> &modelInstances);
+        bool syncShadowMaps(const std::vector<ModelInstance> &instances);
 
         // UI
         void syncWidgetBuffers(const std::vector<Widget> &widgets);

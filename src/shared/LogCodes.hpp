@@ -59,7 +59,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'R', 225}, "Preferred color format unavailable"},
     {{'R', 226}, "Vulkan failed to create sampler"},
     {{'R', 227}, "Vulkan failed to create pipeline cache"},
-    // {'R', 228} removed
+    {{'R', 228}, "Light source objects exceed limit."},
     {{'R', 229}, "Vulkan failed to initialize mesh"},
     {{'R', 230}, "Vulkan failed to acquire swapchain image"},
     {{'R', 231}, "Vulkan failed to wait for fence"},
@@ -71,8 +71,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'R', 237}, "Vulkan failed to find a suitable memory type index"},
     {{'R', 238}, "Vulkan failed: vkQueueWaitIdle"},
     {{'R', 239}, "Vulkan failed to copy image"},
-    {{'R', 240}, "Vulkan failed to transition image layout"},
-    {{'R', 241}, "Vulkan failed to generate mipmaps"},
+    {{'R', 240}, "Vulkan failed to generate mipmaps"},
 
     // Client
     {{'C', 200}, "Renderer: invalid Field Of View value"},

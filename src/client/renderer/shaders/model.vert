@@ -7,19 +7,15 @@ layout(location = 2) in vec3 normal;
 layout(set = 0, binding = 0) uniform UboCamera {
     mat4 projection;
     mat4 view;
-    mat4 lightSpaceMat;
 } uboCamera;
 
 layout(push_constant) uniform PushVertex {
     mat4 model;
-    float lightIntensity;
 }pushVertex;
 
 layout(location = 0) out vec2 fragTex;
 layout(location = 1) out vec3 fragWorldPos;
 layout(location = 2) out vec3 fragNormal;
-layout(location = 3) out vec4 fragPosLightSpace;
-layout(location = 4) out float fragLightIntensity;
 
 void main(){
     vec4 worldPos = pushVertex.model * vec4(pos, 1.);
@@ -28,6 +24,4 @@ void main(){
     fragTex = tex;
     fragWorldPos = worldPos.xyz;
     fragNormal = normalize(mat3(pushVertex.model) * normal);
-    fragPosLightSpace = uboCamera.lightSpaceMat * pushVertex.model * vec4(pos, 1.);
-    fragLightIntensity = pushVertex.lightIntensity;
 }

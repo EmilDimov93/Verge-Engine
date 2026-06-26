@@ -23,96 +23,101 @@ namespace VE
         },
     };
 
-    void Renderer::recordShadowPass(const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, const glm::mat4 &lightSpaceMat)
+    void Renderer::recordShadowPass(const std::vector<ModelInstance> &modelInstances, const std::array<glm::mat4, MAX_SHADOW_MAPS> &lightSpaceMats)
     {
+        if (shadowMapCount <= 1)
+            return;
+
         const VkCommandBuffer commandBuffer = frames[currentFrame].commandBuffer;
 
-        VkImageMemoryBarrier2 imageMemoryBarrier = IMAGE_MEMORY_BARRIER_TEMPLATE;
-        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        imageMemoryBarrier.image = shadowDepthAttachment.image;
-        imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-        imageMemoryBarrier.srcAccessMask = 0;
-        imageMemoryBarrier.dstAccessMask = VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-        imageMemoryBarrier.srcStageMask = VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT;
-        imageMemoryBarrier.dstStageMask = VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT;
-
-        VkDependencyInfo dependencyInfo{};
-        dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
-        dependencyInfo.imageMemoryBarrierCount = 1;
-        dependencyInfo.pImageMemoryBarriers = &imageMemoryBarrier;
-
-        vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
-
-        VkRenderingAttachmentInfo shadowDepthAttachmentInfo{};
-        shadowDepthAttachmentInfo.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-        shadowDepthAttachmentInfo.imageView = shadowDepthAttachment.imageView;
-        shadowDepthAttachmentInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        shadowDepthAttachmentInfo.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        shadowDepthAttachmentInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        shadowDepthAttachmentInfo.clearValue.depthStencil = {1.0f, 0};
-
-        VkRenderingInfo shadowRenderingInfo{};
-        shadowRenderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
-        shadowRenderingInfo.renderArea.offset = {0, 0};
-        shadowRenderingInfo.renderArea.extent = {SHADOW_MAP_EXTENT.w, SHADOW_MAP_EXTENT.h};
-        shadowRenderingInfo.layerCount = 1;
-        shadowRenderingInfo.pDepthAttachment = &shadowDepthAttachmentInfo;
-
-        vkCmdBeginRendering(commandBuffer, &shadowRenderingInfo);
-
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shadowPipeline.pipeline);
-
-        for (const ModelInstance &instance : modelInstances)
+        for (size_t i = 1; i < shadowMapCount; i++)
         {
-            if(instance.lightIntensity > 0.f)
-                continue;
+            VkImageMemoryBarrier2 imageMemoryBarrier = IMAGE_MEMORY_BARRIER_TEMPLATE;
+            imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            imageMemoryBarrier.image = shadowMaps[i].depthAttachment.image;
+            imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+            imageMemoryBarrier.srcAccessMask = 0;
+            imageMemoryBarrier.dstAccessMask = VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+            imageMemoryBarrier.srcStageMask = VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT;
+            imageMemoryBarrier.dstStageMask = VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT;
 
-            for (const ModelBuffer &modelBuffer : modelBuffers)
+            VkDependencyInfo dependencyInfo{};
+            dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+            dependencyInfo.imageMemoryBarrierCount = 1;
+            dependencyInfo.pImageMemoryBarriers = &imageMemoryBarrier;
+
+            vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
+
+            VkRenderingAttachmentInfo shadowDepthAttachmentInfo{};
+            shadowDepthAttachmentInfo.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+            shadowDepthAttachmentInfo.imageView = shadowMaps[i].depthAttachment.imageView;
+            shadowDepthAttachmentInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            shadowDepthAttachmentInfo.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+            shadowDepthAttachmentInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+            shadowDepthAttachmentInfo.clearValue.depthStencil = {1.0f, 0};
+
+            VkRenderingInfo shadowRenderingInfo{};
+            shadowRenderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+            shadowRenderingInfo.renderArea.offset = {0, 0};
+            shadowRenderingInfo.renderArea.extent = {SHADOW_MAP_EXTENT.w, SHADOW_MAP_EXTENT.h};
+            shadowRenderingInfo.layerCount = 1;
+            shadowRenderingInfo.pDepthAttachment = &shadowDepthAttachmentInfo;
+
+            vkCmdBeginRendering(commandBuffer, &shadowRenderingInfo);
+
+            vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shadowPipeline.pipeline);
+
+            for (const ModelInstance &instance : modelInstances)
             {
-                if (instance.modelHandle == modelBuffer.handle)
+                if (instance.lightIntensity > 0.f)
+                    continue;
+
+                for (const ModelBuffer &modelBuffer : modelBuffers)
                 {
-                    for (const MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
+                    if (instance.modelHandle == modelBuffer.handle)
                     {
-                        if (meshBuffer.isTransparent)
-                            continue;
+                        for (const MeshBuffer &meshBuffer : modelBuffer.meshBuffers)
+                        {
+                            if (meshBuffer.isTransparent)
+                                continue;
 
-                        VkBuffer vertexBuffers[] = {meshBuffer.vertexBuffer};
-                        VkDeviceSize offsets[] = {0};
-                        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-                        vkCmdBindIndexBuffer(commandBuffer, meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+                            VkBuffer vertexBuffers[] = {meshBuffer.vertexBuffer};
+                            VkDeviceSize offsets[] = {0};
+                            vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+                            vkCmdBindIndexBuffer(commandBuffer, meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-                        ShadowPushData pushData{};
-                        pushData.model = instance.modelMat;
-                        pushData.lightSpaceMat = lightSpaceMat;
+                            ShadowPushData pushData{};
+                            pushData.model = instance.modelMat;
+                            pushData.lightSpaceMat = lightSpaceMats[i];
 
-                        vkCmdPushConstants(commandBuffer, shadowPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ShadowPushData), &pushData);
+                            vkCmdPushConstants(commandBuffer, shadowPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ShadowPushData), &pushData);
 
-                        vkCmdDrawIndexed(commandBuffer, meshBuffer.indexCount, 1, 0, 0, 0);
+                            vkCmdDrawIndexed(commandBuffer, meshBuffer.indexCount, 1, 0, 0, 0);
+                        }
+                        break;
                     }
-                    break;
                 }
             }
+
+            vkCmdEndRendering(commandBuffer);
+
+            imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            imageMemoryBarrier.srcAccessMask = VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+            imageMemoryBarrier.dstAccessMask = VK_ACCESS_2_SHADER_READ_BIT;
+            imageMemoryBarrier.srcStageMask = VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT;
+            imageMemoryBarrier.dstStageMask = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
+
+            vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
         }
-
-        vkCmdEndRendering(commandBuffer);
-
-        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageMemoryBarrier.srcAccessMask = VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-        imageMemoryBarrier.dstAccessMask = VK_ACCESS_2_SHADER_READ_BIT;
-        imageMemoryBarrier.srcStageMask = VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT;
-        imageMemoryBarrier.dstStageMask = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
-
-        vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
     }
 
-    void Renderer::updateModelUniformBuffers(uint32_t currentFrame, glm::mat4 projectionMat, glm::mat4 viewMat, glm::vec4 lightPos, glm::vec3 lightColor, float lightIntensity, glm::mat4 lightSpaceMat, float outdoorBrightness)
+    void Renderer::updateModelUniformBuffers(uint32_t currentFrame, const glm::mat4 &projectionMat, const glm::mat4 &viewMat, const std::array<glm::vec4, MAX_SHADOW_MAPS> &lightPositions, const std::array<glm::vec4, MAX_SHADOW_MAPS> &lightColors, const std::array<glm::mat4, MAX_SHADOW_MAPS> &lightSpaceMats, int32_t lightCount, float outdoorBrightness)
     {
         UboCamera uboCamera;
         uboCamera.projection = projectionMat;
         uboCamera.view = viewMat;
-        uboCamera.lightSpaceMat = lightSpaceMat;
 
         void *cameraData;
         vkCheck(vkMapMemory(device, cameraUniformBufferMemory[currentFrame], 0, sizeof(UboCamera), 0, &cameraData), {'R', 236});
@@ -120,10 +125,11 @@ namespace VE
         vkUnmapMemory(device, cameraUniformBufferMemory[currentFrame]);
 
         UboLighting uboLighting;
-        uboLighting.lightPos = lightPos;
-        uboLighting.lightColor = lightColor;
-        uboLighting.lightIntensity = lightIntensity;
+        std::memcpy(uboLighting.lightPositions, lightPositions.data(), sizeof(uboLighting.lightPositions));
+        std::memcpy(uboLighting.lightColors, lightColors.data(), sizeof(uboLighting.lightColors));
+        std::memcpy(uboLighting.lightSpaceMats, lightSpaceMats.data(), sizeof(uboLighting.lightSpaceMats));
         uboLighting.viewPos = glm::inverse(viewMat)[3];
+        uboLighting.lightCount = lightCount;
         uboLighting.outdoorBrightness = outdoorBrightness;
 
         void *lightingData;
@@ -132,7 +138,34 @@ namespace VE
         vkUnmapMemory(device, lightingUniformBufferMemory[currentFrame]);
     }
 
-    void Renderer::recordModelPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::mat4 &lightSpaceMat, const glm::vec3 &cameraPosition)
+    void Renderer::writeShadowDescriptors()
+    {
+        for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
+        {
+            std::array<VkDescriptorImageInfo, MAX_SHADOW_MAPS> shadowImageInfos{};
+            for (size_t shadowIndex = 0; shadowIndex < MAX_SHADOW_MAPS; shadowIndex++)
+            {
+                const size_t srcIndex = shadowIndex < shadowMapCount ? shadowIndex : 0;
+                shadowImageInfos[shadowIndex] = {
+                    .sampler = shadowSampler,
+                    .imageView = shadowMaps[srcIndex].depthAttachment.imageView,
+                    .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
+            }
+
+            VkWriteDescriptorSet shadowSetWrite = {
+                .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+                .dstSet = modelPipeline.descriptorSets[i],
+                .dstBinding = 2,
+                .dstArrayElement = 0,
+                .descriptorCount = static_cast<uint32_t>(shadowImageInfos.size()),
+                .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                .pImageInfo = shadowImageInfos.data()};
+
+            vkUpdateDescriptorSets(device, 1, &shadowSetWrite, 0, nullptr);
+        }
+    }
+
+    void Renderer::recordModelPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::vec3 &cameraPosition)
     {
         const VkCommandBuffer commandBuffer = frames[currentFrame].commandBuffer;
 
@@ -218,7 +251,6 @@ namespace VE
 
             VertexPushData vertexPushData;
             vertexPushData.model = instance.modelMat;
-            vertexPushData.lightIntensity = instance.lightIntensity;
 
             MaterialPushData materialPushData;
             materialPushData.baseColor = material.baseColor;
@@ -502,28 +534,6 @@ namespace VE
             removeOrphanedModel(sceneDrawData.modelInstances);
         }
 
-        glm::vec4 lightPos(0.0f);
-        glm::vec3 lightColor(1.0f);
-        float lightIntensity = 0.f;
-        for (const ModelInstance &instance : sceneDrawData.modelInstances)
-        {
-            if (instance.lightIntensity > 0.f)
-            {
-                lightPos = instance.modelMat[3];
-                lightColor = instance.lightColor;
-                lightIntensity = instance.lightIntensity;
-            }
-        }
-
-        glm::vec3 cameraPosition = glm::vec3(glm::inverse(sceneDrawData.viewMat)[3]);
-        glm::vec3 cameraForward = -glm::vec3(glm::inverse(sceneDrawData.viewMat)[2]);
-        glm::vec3 shadowCenter = cameraPosition + cameraForward * 35.f;
-        glm::mat4 lightView = glm::lookAt(glm::vec3(lightPos), shadowCenter, glm::vec3(0, 1, 0));
-
-        glm::mat4 lightProjection = glm::orthoZO(-50.f, 50.f, -50.f, 50.f, 1.f, 200.f);
-        glm::mat4 lightSpaceMat = lightProjection * lightView;
-
-        updateModelUniformBuffers(currentFrame, projectionMat, sceneDrawData.viewMat, lightPos, lightColor, lightIntensity, lightSpaceMat, sceneDrawData.outdoorBrightness);
         updateUIUniformBuffers(currentFrame);
 
         const VkCommandBuffer commandBuffer = frames[currentFrame].commandBuffer;
@@ -537,9 +547,52 @@ namespace VE
             std::lock_guard<std::recursive_mutex> lock(modelMutex);
             syncModelBuffers(sceneDrawData.models);
 
-            recordShadowPass(sceneDrawData.models, sceneDrawData.modelInstances, lightSpaceMat);
+            bool hasShadowMapsChanged = syncShadowMaps(sceneDrawData.modelInstances);
+            if (hasShadowMapsChanged)
+            {
+                vkDeviceWaitIdle(device);
+                writeShadowDescriptors();
+            }
 
-            recordModelPass(imageIndex, sceneDrawData.models, sceneDrawData.modelInstances, sceneDrawData.backgroundColor, lightSpaceMat, glm::vec3(glm::inverse(sceneDrawData.viewMat)[3]));
+            std::array<glm::mat4, MAX_SHADOW_MAPS> lightSpaceMats{};
+            std::array<glm::vec4, MAX_SHADOW_MAPS> lightPositions{};
+            std::array<glm::vec4, MAX_SHADOW_MAPS> lightColors{};
+            for (glm::mat4 &mat : lightSpaceMats)
+                mat = glm::mat4(1.f);
+
+            const glm::vec3 cameraPosition = glm::vec3(glm::inverse(sceneDrawData.viewMat)[3]);
+            const glm::vec3 cameraForward = -glm::vec3(glm::inverse(sceneDrawData.viewMat)[2]);
+            const glm::vec3 shadowCenter = cameraPosition + cameraForward * 35.f;
+            const glm::mat4 lightProjection = glm::orthoZO(-50.f, 50.f, -50.f, 50.f, 1.f, 200.f);
+
+            for (const ModelInstance &instance : sceneDrawData.modelInstances)
+            {
+                if (instance.lightIntensity <= 0.f)
+                    continue;
+
+                size_t slot = 0;
+                for (size_t i = 1; i < shadowMapCount; i++)
+                    if (shadowMaps[i].instanceHandle == instance.handle)
+                    {
+                        slot = i;
+                        break;
+                    }
+                if (slot == 0)
+                    continue;
+
+                const glm::vec3 lightPosition = glm::vec3(instance.modelMat[3]);
+                const glm::mat4 lightView = glm::lookAt(lightPosition, shadowCenter, glm::vec3(0, 1, 0));
+                lightSpaceMats[slot] = lightProjection * lightView;
+                lightPositions[slot] = glm::vec4(lightPosition, 0.f); // lightPosition.w is unused
+                lightColors[slot] = instance.lightColor;
+                lightColors[slot].a = instance.lightIntensity; // lightColor.a is intensity
+            }
+
+            updateModelUniformBuffers(currentFrame, projectionMat, sceneDrawData.viewMat, lightPositions, lightColors, lightSpaceMats, static_cast<int32_t>(shadowMapCount), sceneDrawData.outdoorBrightness);
+
+            recordShadowPass(sceneDrawData.modelInstances, lightSpaceMats);
+
+            recordModelPass(imageIndex, sceneDrawData.models, sceneDrawData.modelInstances, sceneDrawData.backgroundColor, glm::vec3(glm::inverse(sceneDrawData.viewMat)[3]));
         }
 
         recordPostPass(imageIndex, postEffects);

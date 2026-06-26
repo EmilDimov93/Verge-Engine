@@ -29,17 +29,18 @@ namespace VE
 
         createPrePostImages();
 
+        createShadowSampler();
+        createFallbackShadowAttachment();
+
         createPipelineCache();
 
         createTextureSampler();
         createTextureDescriptorSetLayout();
         createFallbackTexture();
 
-        createShadowDepthAttachment();
         createShadowPipeline();
 
         createDepthAttachments();
-        createShadowSampler();
         createModelUniformBuffers();
         createModelDescriptors();
         createModelPipeline();
@@ -227,7 +228,7 @@ namespace VE
             }
         }
 
-        if(swapChain.imageFormat == VK_FORMAT_UNDEFINED)
+        if (swapChain.imageFormat == VK_FORMAT_UNDEFINED)
             Log::add('R', 225);
 
         // Depth format
@@ -391,25 +392,53 @@ namespace VE
         }
     }
 
-    void Renderer::createShadowDepthAttachment()
+    void Renderer::createShadowSampler()
     {
-        shadowDepthAttachment.image = createImage(SHADOW_MAP_EXTENT.w, SHADOW_MAP_EXTENT.h, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &shadowDepthAttachment.memory);
+        VkSamplerCreateInfo samplerCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+            .magFilter = VK_FILTER_LINEAR,
+            .minFilter = VK_FILTER_LINEAR,
+            .mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST,
+            .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
+            .addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
+            .addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
+            .anisotropyEnable = VK_FALSE,
+            .compareEnable = VK_TRUE,
+            .compareOp = VK_COMPARE_OP_LESS,
+            .borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE};
 
-        VkImageViewCreateInfo imageViewCreateInfo{};
-        imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        imageViewCreateInfo.image = shadowDepthAttachment.image;
-        imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        imageViewCreateInfo.format = depthFormat;
-        imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-        imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-        imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-        imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-        imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-        imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
-        imageViewCreateInfo.subresourceRange.levelCount = 1;
-        imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
-        imageViewCreateInfo.subresourceRange.layerCount = 1;
-        vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &shadowDepthAttachment.imageView), {'R', 205});
+        vkCheck(vkCreateSampler(device, &samplerCreateInfo, nullptr, &shadowSampler), {'R', 218});
+    }
+
+    void Renderer::createFallbackShadowAttachment()
+    {
+        ImageAttachment attachment;
+
+        attachment.image = createImage(1, 1, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &attachment.memory);
+
+        VkImageViewCreateInfo viewInfo{};
+        viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        viewInfo.image = attachment.image;
+        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        viewInfo.format = depthFormat;
+        viewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+        viewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+        viewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+        viewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+        viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+        viewInfo.subresourceRange.baseMipLevel = 0;
+        viewInfo.subresourceRange.levelCount = 1;
+        viewInfo.subresourceRange.baseArrayLayer = 0;
+        viewInfo.subresourceRange.layerCount = 1;
+
+        vkCheck(vkCreateImageView(device, &viewInfo, nullptr, &attachment.imageView), {'R', 205});
+
+        FenceGuard fence(device);
+
+        transitionImageLayout(device, graphicsQueue, commandPool, attachment.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT, graphicsQueueMutex, fence);
+    
+        shadowMaps[0].depthAttachment = attachment;
+        shadowMapCount = 1;
     }
 
     void Renderer::createSyncObjects()
@@ -520,13 +549,14 @@ namespace VE
 
         destroyGraphicsPipeline(shadowPipeline);
 
-        destroyImageAttachment(shadowDepthAttachment);
-
         for (ImageAttachment &depthAttachment : depthAttachments)
             destroyImageAttachment(depthAttachment);
 
         if (shadowSampler)
             vkDestroySampler(device, shadowSampler, nullptr);
+
+        for (size_t i = 0; i < shadowMapCount; i++)
+            destroyImageAttachment(shadowMaps[i].depthAttachment);
 
         for (ImageAttachment &attachment : prePostAttachments)
             destroyImageAttachment(attachment);

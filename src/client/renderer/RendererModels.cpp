@@ -70,8 +70,8 @@ namespace VE
 
             Material &material = newModelBuffer.materials[meshBuffer.materialIndex];
 
-            if(!material.texturePixels.empty())
-                    material.texIndex = createTexture(material.texturePixels, material.textureSize);
+            if (!material.texturePixels.empty())
+                material.texIndex = createTexture(material.texturePixels, material.textureSize);
         }
 
         {
@@ -91,8 +91,8 @@ namespace VE
         {
             destroyMeshBuffer(meshBuffer);
 
-            if(modelBuffer.materials[meshBuffer.materialIndex].texIndex != INVALID_TEXTURE_INDEX)
-                        destroyImageAttachment(textures.attachments[modelBuffer.materials[meshBuffer.materialIndex].texIndex]);
+            if (modelBuffer.materials[meshBuffer.materialIndex].texIndex != INVALID_TEXTURE_INDEX)
+                destroyImageAttachment(textures.attachments[modelBuffer.materials[meshBuffer.materialIndex].texIndex]);
         }
 
         modelBuffer.meshBuffers.clear();
@@ -107,8 +107,8 @@ namespace VE
 
             Material &material = modelBuffer.materials[meshBuffer.materialIndex];
 
-            if(!material.texturePixels.empty())
-                    material.texIndex = createTexture(material.texturePixels, material.textureSize);
+            if (!material.texturePixels.empty())
+                material.texIndex = createTexture(material.texturePixels, material.textureSize);
         }
 
         modelBuffer.version = model.getVersion();
@@ -135,7 +135,7 @@ namespace VE
                 {
                     destroyMeshBuffer(meshBuffer);
 
-                    if(it->materials[meshBuffer.materialIndex].texIndex != INVALID_TEXTURE_INDEX)
+                    if (it->materials[meshBuffer.materialIndex].texIndex != INVALID_TEXTURE_INDEX)
                         destroyImageAttachment(textures.attachments[it->materials[meshBuffer.materialIndex].texIndex]);
                 }
 
@@ -146,5 +146,70 @@ namespace VE
                 ++it;
             }
         }
+    }
+
+    bool Renderer::syncShadowMaps(const std::vector<ModelInstance> &instances)
+    {
+        bool hasChanged = false;
+
+        for (size_t i = 1; i < shadowMapCount; i++)
+        {
+            bool hasInstance = false;
+            for (const ModelInstance &instance : instances)
+            {
+                if (shadowMaps[i].instanceHandle == instance.handle)
+                {
+                    hasInstance = true;
+                    break;
+                }
+            }
+
+            if (!hasInstance)
+            {
+                vkDeviceWaitIdle(device);
+
+                destroyImageAttachment(shadowMaps[i].depthAttachment);
+
+                shadowMapCount--;
+
+                for (size_t j = i; j < shadowMapCount; j++)
+                {
+                    shadowMaps[j] = shadowMaps[j + 1];
+                }
+
+                i--;
+
+                hasChanged = true;
+            }
+        }
+
+        for (const ModelInstance &instance : instances)
+        {
+            if (instance.lightIntensity > 0.f)
+            {
+                if (shadowMapCount >= MAX_SHADOW_MAPS)
+                    Log::add('R', 228);
+
+                bool hasShadowMap = false;
+                for (size_t i = 1; i < shadowMapCount; i++)
+                {
+                    if (shadowMaps[i].instanceHandle == instance.handle)
+                    {
+                        hasShadowMap = true;
+                        break;
+                    }
+                }
+
+                if (!hasShadowMap)
+                {
+                    shadowMaps[shadowMapCount] = createShadowMap(instance.handle);
+                    shadowMapCount++;
+
+                    hasChanged = true;
+                }
+            }
+        }
+
+        return hasChanged;
     }
 }

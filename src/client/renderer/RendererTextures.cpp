@@ -58,79 +58,6 @@ namespace VE
         return VK_SUCCESS;
     }
 
-    VkResult transitionImageLayout(VkDevice device, VkQueue queue, VkCommandPool commandPool, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, std::mutex &graphicsQueueMutex, VkFence fence)
-    {
-        VkCommandBufferAllocateInfo allocInfo = {
-            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-            .commandPool = commandPool,
-            .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-            .commandBufferCount = 1};
-
-        VkCommandBuffer commandBuffer;
-
-        Renderer::vkCheck(vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer), {'R', 212});
-
-        VkCommandBufferBeginInfo beginInfo = {
-            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-            .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
-        };
-
-        Renderer::vkCheck(vkBeginCommandBuffer(commandBuffer, &beginInfo), {'R', 213});
-
-        VkImageMemoryBarrier imageMemoryBarrier = {};
-        imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        imageMemoryBarrier.oldLayout = oldLayout;
-        imageMemoryBarrier.newLayout = newLayout;
-        imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        imageMemoryBarrier.image = image;
-        imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
-        imageMemoryBarrier.subresourceRange.levelCount = 1;
-        imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
-        imageMemoryBarrier.subresourceRange.layerCount = 1;
-
-        VkPipelineStageFlags srcStage;
-        VkPipelineStageFlags dstStage;
-
-        if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
-        {
-            imageMemoryBarrier.srcAccessMask = 0;
-            imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
-            srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-            dstStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-        }
-        else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
-        {
-            imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-            imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-            srcStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-            dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-        }
-
-        vkCmdPipelineBarrier(commandBuffer, srcStage, dstStage, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
-
-        Renderer::vkCheck(vkEndCommandBuffer(commandBuffer), {'R', 213});
-
-        VkSubmitInfo submitInfo = {
-            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-            .commandBufferCount = 1,
-            .pCommandBuffers = &commandBuffer};
-
-        {
-            std::lock_guard<std::mutex> lock(graphicsQueueMutex);
-            Renderer::vkCheck(vkQueueSubmit(queue, 1, &submitInfo, fence), {'R', 233});
-        }
-
-        Renderer::vkCheck(vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX), {'R', 231});
-
-        vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
-
-        return VK_SUCCESS;
-    }
-
     void Renderer::createTextureDescriptorSetLayout()
     {
         VkDescriptorSetLayoutBinding samplerLayoutBinding = {
@@ -288,11 +215,11 @@ namespace VE
 
         FenceGuard uploadFence(device);
 
-        vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, graphicsQueueMutex, uploadFence), {'R', 240});
+        transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT, graphicsQueueMutex, uploadFence);
         vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
         vkCheck(copyImageBuffer(device, transferQueue, transferCommandPoolLocal, stagingBuffer, texImage, 1, 1, transferQueueMutex, uploadFence), {'R', 239});
         vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
-        vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, graphicsQueueMutex, uploadFence), {'R', 240});
+        transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT, graphicsQueueMutex, uploadFence);
 
         VkImageViewCreateInfo imageViewCreateInfo{};
         imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -346,11 +273,11 @@ namespace VE
 
         FenceGuard uploadFence(device);
 
-        vkCheck(transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, graphicsQueueMutex, uploadFence), {'R', 240});
+        transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT, graphicsQueueMutex, uploadFence);
         vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
         vkCheck(copyImageBuffer(device, transferQueue, transferCommandPoolLocal, imageStagingBuffer, texImage, size.w, size.h, transferQueueMutex, uploadFence), {'R', 239});
         vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
-        vkCheck(generateMipmaps(device, physicalDevice, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_FORMAT_R8G8B8A8_UNORM, size.w, size.h, mipLevelCount, graphicsQueueMutex, uploadFence), {'R', 241});
+        vkCheck(generateMipmaps(device, physicalDevice, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_FORMAT_R8G8B8A8_UNORM, size.w, size.h, mipLevelCount, graphicsQueueMutex, uploadFence), {'R', 240});
 
         uint32_t resultIndex;
         {

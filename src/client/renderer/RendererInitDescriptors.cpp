@@ -19,23 +19,6 @@ namespace VE
         }
     }
 
-    void Renderer::createShadowSampler()
-    {
-        VkSamplerCreateInfo samplerCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-            .magFilter = VK_FILTER_LINEAR,
-            .minFilter = VK_FILTER_LINEAR,
-            .mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST,
-            .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
-            .addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
-            .addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
-            .anisotropyEnable = VK_FALSE,
-            .compareEnable = VK_TRUE,
-            .compareOp = VK_COMPARE_OP_LESS,
-            .borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE};
-        vkCheck(vkCreateSampler(device, &samplerCreateInfo, nullptr, &shadowSampler), {'R', 218});
-    }
-    
     void Renderer::createModelDescriptors()
     {
         // Layout
@@ -56,7 +39,7 @@ namespace VE
         VkDescriptorSetLayoutBinding shadowLayoutBinding = {
             .binding = 2,
             .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            .descriptorCount = 1,
+            .descriptorCount = MAX_SHADOW_MAPS,
             .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
             .pImmutableSamplers = nullptr};
 
@@ -76,7 +59,7 @@ namespace VE
 
         VkDescriptorPoolSize shadowPoolSize = {
             .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            .descriptorCount = FRAMES_IN_FLIGHT};
+            .descriptorCount = MAX_SHADOW_MAPS * FRAMES_IN_FLIGHT};
 
         std::array<VkDescriptorPoolSize, 2> descriptorPoolSizes = {uniformPoolSize, shadowPoolSize};
 
@@ -131,21 +114,9 @@ namespace VE
                 .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                 .pBufferInfo = &lightingBufferInfo};
 
-            VkDescriptorImageInfo shadowImageInfo = {
-                .sampler = shadowSampler,
-                .imageView = shadowDepthAttachment.imageView,
-                .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
+            std::array<VkWriteDescriptorSet, 2> setWrites = {cameraSetWrite, lightingSetWrite};
 
-            VkWriteDescriptorSet shadowSetWrite = {
-                .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstSet = modelPipeline.descriptorSets[i],
-                .dstBinding = 2,
-                .dstArrayElement = 0,
-                .descriptorCount = 1,
-                .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                .pImageInfo = &shadowImageInfo};
-
-            std::array<VkWriteDescriptorSet, 3> setWrites = {cameraSetWrite, lightingSetWrite, shadowSetWrite};
+            writeShadowDescriptors();
 
             vkUpdateDescriptorSets(device, static_cast<uint32_t>(setWrites.size()), setWrites.data(), 0, nullptr);
         }

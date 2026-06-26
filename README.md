@@ -4,27 +4,32 @@ Verge Engine is a Vulkan-based C++ engine for realistic vehicle simulations
 
 **Note:** Verge Engine is under active development and not yet usable as a finished product. To experiment with the current state, see [run.ps1](run.ps1)
 
+![Language](https://img.shields.io/badge/C%2B%2B-23-00599C)
+![Graphics API](https://img.shields.io/badge/Vulkan-1.3-A41E22)
+![License](https://img.shields.io/badge/license-Apache--2.0-purple)
+
 <img width="1265" height="543" alt="verge_showcase_mtn" src="https://github.com/user-attachments/assets/ba0ba5de-2530-407e-858e-61a9b25c582e" />
 
 ## Features
 #### Rendering with Vulkan
    - Dynamic shadows
    - Lighting (Blinn-Phong)
-   - UI
+   - Real-time multi-threaded model loading (`.glb`, `.obj`)
    - Textures with mipmaps
-   - Real-time multi-threaded model loading
-   - Post-effects
+   - Post-effects (FXAA, dithering, vignette)
+   - UI
 #### Vehicle physics
-   - User-configurable engine and gearbox simulation
-   - Animated wheels
-   - Collisions
+   - User-configurable engine, drivetrain and gearbox simulation
+   - Animated wheels (steering, spin, camber, suspension)
+   - Terrain collisions
 #### Audio with miniaudio
    - 3D spatial audio
    - Layered engine audio
 #### Input system with GLFW
    - Keyboard, gamepad and steering wheel support
+   - Axis dead-zone handling and per-input smoothing
 #### World
-   - Heightmap terrain
+   - Heightmap terrain with custom surface types
    - Props
    - Triggers
 
@@ -32,5 +37,6 @@ Verge Engine is a Vulkan-based C++ engine for realistic vehicle simulations
 - Vulkan (Rendering)
 - GLFW (Window and input)
 - [Miniaudio](ext/miniaudio) (Audio)
-- [GLM](ext/glm) (Math)
+- [glm](ext/glm) (Math)
 - [stb_image](ext/stb_image) (Texture loading)
+- [cgltf](ext/cgltf) (.glb model loading)

@@ -522,9 +522,14 @@ namespace VE
         VkResult imageResult = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, frames[currentFrame].imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
         if (imageResult == VK_ERROR_OUT_OF_DATE_KHR)
+        {
             recreateSwapChain();
+            return;
+        }
         else if (imageResult != VK_SUCCESS && imageResult != VK_SUBOPTIMAL_KHR)
+        {
             Log::add('R', 230);
+        }
 
         vkCheck(vkResetFences(device, 1, &frames[currentFrame].drawFence), {'R', 232});
 

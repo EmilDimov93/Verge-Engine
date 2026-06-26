@@ -78,7 +78,7 @@ namespace VE
         std::unreachable();
     }
 
-    void Scene::tick(milliseconds_t dt, std::vector<std::pair<PlayerHandle, VehicleInputState>> inputData)
+    void Scene::tick(seconds_t dt, std::vector<std::pair<PlayerHandle, VehicleInputState>> inputData)
     {
         this->dt = dt;
 

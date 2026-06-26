@@ -21,14 +21,14 @@ namespace VE
 
         auto now = steady_clock::now();
         auto elapsed = now - timeAtStartOfFrame;
-        auto target = duration<milliseconds_t>(targetFrameTime);
+        auto target = duration<seconds_t>(targetFrameTime);
 
         if (elapsed < target)
         {
             auto remaining = target - elapsed;
-            if (remaining > milliseconds(1))
+            if (remaining > seconds(1))
             {
-                sleep_for(remaining - milliseconds(1));
+                sleep_for(remaining - seconds(1));
             }
         }
 
@@ -38,8 +38,8 @@ namespace VE
         }
 
         now = steady_clock::now();
-        currentFps = static_cast<uint16_t>(1.0 / duration<milliseconds_t>(now - timeAtStartOfFrame).count());
-        lastFrameTime = std::chrono::duration<milliseconds_t>(now - timeAtStartOfFrame).count();
+        currentFps = static_cast<uint16_t>(1.0 / duration<seconds_t>(now - timeAtStartOfFrame).count());
+        lastFrameTime = std::chrono::duration<seconds_t>(now - timeAtStartOfFrame).count();
         timeAtStartOfFrame = now;
     }
 
@@ -56,7 +56,7 @@ namespace VE
         return currentFps;
     }
 
-    milliseconds_t FpsManager::getFrameTime() const
+    seconds_t FpsManager::getFrameTime() const
     {
         return lastFrameTime;
     }

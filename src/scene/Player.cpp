@@ -5,7 +5,7 @@
 
 namespace VE
 {
-    void Player::tick(milliseconds_t dt, Position3 vehiclePosition, glm::vec3 vehicleVelocityVector)
+    void Player::tick(seconds_t dt, Position3 vehiclePosition, glm::vec3 vehicleVelocityVector)
     {
         if (mode == MODE_CHASE)
         {

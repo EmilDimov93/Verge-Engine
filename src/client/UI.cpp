@@ -94,6 +94,9 @@ namespace VE
             }
         }
 
+        if(!foundInstance)
+            return false;
+
         const Widget *foundWidget = nullptr;
         for (const Widget &widget : widgets)
         {
@@ -104,7 +107,7 @@ namespace VE
             }
         }
 
-        if (!foundInstance || !foundWidget)
+        if (!foundWidget)
             return false;
 
         glm::mat4 model = Transform(Position3((foundInstance->coords.x + 1) / 2 * windowSize.w, (foundInstance->coords.y + 1) / 2 * windowSize.h, 0.f), Rotation3(), Scale3(foundInstance->uniformScale)).toMat();

@@ -260,7 +260,7 @@ namespace VE
         bodyMat = transform.toMat();
     }
 
-    void Vehicle::tick(VehicleInputState vis, Environment environment, float surfaceFriction, milliseconds_t deltaTime)
+    void Vehicle::tick(VehicleInputState vis, Environment environment, float surfaceFriction, seconds_t deltaTime)
     {
         dt = deltaTime;
 

@@ -191,7 +191,7 @@ namespace VE
         Log::end();
     }
 
-    milliseconds_t Client::getFrameTime() const
+    seconds_t Client::getFrameTime() const
     {
         return fps.getFrameTime();
     }

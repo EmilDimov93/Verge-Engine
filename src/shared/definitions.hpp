@@ -108,7 +108,7 @@ namespace VE
     using PropHandle = Handle<PropTag>;
     using TriggerHandle = Handle<TriggerTag>;
 
-    using milliseconds_t = double;
+    using seconds_t = double;
     using color_t = glm::vec4;
 
     using Position2 = glm::vec2;

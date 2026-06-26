@@ -62,7 +62,7 @@ namespace VE
 
         ~Client();
 
-        [[nodiscard]] milliseconds_t getFrameTime() const;
+        [[nodiscard]] seconds_t getFrameTime() const;
         [[nodiscard]] uint32_t getFps() const;
         void setTargetFps(uint16_t target);
 

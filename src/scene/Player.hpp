@@ -23,7 +23,7 @@ namespace VE
                 mode = MODE_FREE;
         }
 
-        void tick(milliseconds_t dt, Position3 vehiclePosition = {}, glm::vec3 vehicleVelocityVector = {});
+        void tick(seconds_t dt, Position3 vehiclePosition = {}, glm::vec3 vehicleVelocityVector = {});
 
         void attachVehicle(VehicleHandle vehicleHandle)
         {

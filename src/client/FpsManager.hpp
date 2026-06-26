@@ -23,9 +23,9 @@ namespace VE
 
     private:
         std::chrono::steady_clock::time_point timeAtStartOfFrame;
-        milliseconds_t targetFrameTime = 0;
+        seconds_t targetFrameTime = 0;
 
-        milliseconds_t lastFrameTime = 0;
+        seconds_t lastFrameTime = 0;
         uint16_t currentFps = 0;
     };
 

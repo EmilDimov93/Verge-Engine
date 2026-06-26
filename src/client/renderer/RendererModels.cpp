@@ -187,9 +187,6 @@ namespace VE
         {
             if (instance.lightIntensity > 0.f)
             {
-                if (shadowMapCount >= MAX_SHADOW_MAPS)
-                    Log::add('R', 228);
-
                 bool hasShadowMap = false;
                 for (size_t i = 1; i < shadowMapCount; i++)
                 {
@@ -202,6 +199,9 @@ namespace VE
 
                 if (!hasShadowMap)
                 {
+                    if (shadowMapCount >= MAX_SHADOW_MAPS)
+                        Log::add('R', 228);
+
                     shadowMaps[shadowMapCount] = createShadowMap(instance.handle);
                     shadowMapCount++;
 

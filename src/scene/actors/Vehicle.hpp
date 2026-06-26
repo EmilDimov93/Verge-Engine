@@ -78,7 +78,7 @@ namespace VE
     public:
         Vehicle(VehicleHandle handle, Transform transform, const VehicleCreateInfo &info, ModelInstanceHandle bodyModelInstanceHandle, ModelInstanceHandle wheelFLModelInstanceHandle, ModelInstanceHandle wheelFRModelInstanceHandle, ModelInstanceHandle wheelBLModelInstanceHandle, ModelInstanceHandle wheelBRModelInstanceHandle);
 
-        void tick(VehicleInputState vis, Environment environment, float surfaceFriction, milliseconds_t deltaTime);
+        void tick(VehicleInputState vis, Environment environment, float surfaceFriction, seconds_t deltaTime);
 
         // Temporary(testing)
         void setHeight(float h) { transform.position.y = h; }
@@ -181,7 +181,7 @@ namespace VE
 
         glm::mat4 bodyMat;
 
-        milliseconds_t dt;
+        seconds_t dt;
 
         // Debug
         void printState() const;

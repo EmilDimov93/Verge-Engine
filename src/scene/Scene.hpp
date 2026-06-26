@@ -44,7 +44,7 @@ namespace VE
         void removeProp(PropHandle handle);
         void removeTrigger(TriggerHandle handle);
 
-        void tick(milliseconds_t dt, std::vector<std::pair<PlayerHandle, VehicleInputState>> inputData);
+        void tick(seconds_t dt, std::vector<std::pair<PlayerHandle, VehicleInputState>> inputData);
 
         [[nodiscard]] SurfaceTypeIndex addSurfaceType(const SurfaceTypeCreateInfo &info);
         void addSurface(Size2 size, const std::vector<uint32_t> &surfaceTypeMap, const std::vector<float> &heightMap, float tileSize = 1.0f, Position3 position = {});
@@ -58,7 +58,7 @@ namespace VE
         void playAudio3D(std::string fileName, float pitch, Position3 position);
 
     private:
-        milliseconds_t dt;
+        seconds_t dt;
 
         // Controllers
         std::vector<std::unique_ptr<Controller>> controllers;

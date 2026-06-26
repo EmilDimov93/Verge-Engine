@@ -72,7 +72,7 @@ namespace VE
                 gearRatios[0] = 3.5f;
             }
 
-            for (size_t i = 1; i < gearCount; i++)
+            for (size_t i = 1; i <= gearCount; i++)
             {
                 gearRatios[i] = info.gearRatios[i - 1];
             }

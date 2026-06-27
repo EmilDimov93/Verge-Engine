@@ -172,10 +172,7 @@ namespace VE
 
                 shadowMapCount--;
 
-                for (size_t j = i; j < shadowMapCount; j++)
-                {
-                    shadowMaps[j] = shadowMaps[j + 1];
-                }
+                shadowMaps[i] = shadowMaps[shadowMapCount];
 
                 i--;
 

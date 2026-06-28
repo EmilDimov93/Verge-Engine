@@ -137,30 +137,30 @@ namespace VE
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
 
-        int i = 0;
-        for (const VkQueueFamilyProperties &queueFamily : queueFamilies)
+        bool foundGraphicsQueue = false;
+        bool foundTransferQueue = false;
+        for (size_t i = 0; i < queueFamilies.size(); i++)
         {
-            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
             {
+                if(!foundGraphicsQueue)
+                {
                 graphicsQueueFamilyIndex = i;
-                break;
+                foundGraphicsQueue = true;
+                }
             }
-            i++;
+            else if(queueFamilies[i].queueFlags & VK_QUEUE_TRANSFER_BIT && queueFamilies[i].queueCount > 0)
+            {
+                if(!foundTransferQueue)
+                {
+                    transferQueueFamilyIndex = i;
+                    foundTransferQueue = true;
+                }
+            }
         }
 
-        transferQueueFamilyIndex = graphicsQueueFamilyIndex;
-        int j = 0;
-        for (const VkQueueFamilyProperties &queueFamily : queueFamilies)
-        {
-            bool hasTransfer = queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT;
-            bool hasGraphics = queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT;
-            if (hasTransfer && !hasGraphics && queueFamily.queueCount > 0)
-            {
-                transferQueueFamilyIndex = j;
-                break;
-            }
-            j++;
-        }
+        if(!foundGraphicsQueue || !foundTransferQueue)
+            Log::add('R', 241);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 

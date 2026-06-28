@@ -72,6 +72,7 @@ inline static const std::map<std::pair<char, uint16_t>, std::string> LOG_MESSAGE
     {{'R', 238}, "Vulkan failed: vkQueueWaitIdle"},
     {{'R', 239}, "Vulkan failed to copy image"},
     {{'R', 240}, "Vulkan failed to generate mipmaps"},
+    {{'R', 241}, "Vulkan failed to find suitable graphics/transfer family queue"},
 
     // Client
     {{'C', 200}, "Renderer: invalid Field Of View value"},

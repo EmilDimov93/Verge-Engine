@@ -59,7 +59,7 @@ namespace VE
             glm::vec3 delta = actorPos - triggerPos;
             float radius = hitboxSize / 2;
 
-            if (glm::length(delta) <= radius * radius)
+            if (glm::length(delta) <= radius)
                 return true;
 
             break;

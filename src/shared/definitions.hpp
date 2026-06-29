@@ -207,6 +207,11 @@ namespace VE
         return angleRad - PI;
     }
 
+    inline color_t srgbToLinear(color_t srgb)
+    {
+        constexpr float SRGB_GAMMA = 2.2f;
+        return color_t(glm::pow(glm::vec3(srgb), glm::vec3(SRGB_GAMMA)), srgb.a);
+    }
 }
 
 namespace std

@@ -16,7 +16,7 @@ namespace VE
     Scene::Scene()
     {
         // Fallback surface
-        surfaceTypes.push_back({1.0f, {0.1f, 0.1f, 0.1f}});
+        surfaceTypes.push_back({1.0f, {0.1f, 0.1f, 0.1f, 1.f}});
     }
 
     Player &Scene::player(PlayerHandle handle)
@@ -305,7 +305,7 @@ namespace VE
 
     void Scene::setBackgroundColor(color_t backgroundColor)
     {
-        environment.backgroundColor = backgroundColor;
+        environment.backgroundColor = srgbToLinear(backgroundColor);
     }
 
     void Scene::setOutdoorBrightness(float outdoorBrightness)

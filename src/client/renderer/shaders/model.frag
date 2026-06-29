@@ -42,7 +42,7 @@ void main(){
     vec3 baseRgb = base.rgb;
     vec3 viewDir = normalize(uboLighting.viewPos.xyz - fragWorldPos);
 
-    vec3 ambient = baseRgb * mix(0.02, 0.3, uboLighting.outdoorBrightness);
+    vec3 ambient = baseRgb * mix(0.02, 0.15, uboLighting.outdoorBrightness);
 
     vec3 lit = vec3(0.0);
 
@@ -53,10 +53,11 @@ void main(){
         vec3 halfVector = normalize(lightDir + viewDir);
 
         float diff = max(dot(fragNormal, lightDir), 0.);
-        vec3 diffuse = baseRgb * lightColor * diff * intensity * 0.5;
+        vec3 diffuse = baseRgb * lightColor * diff * intensity;
 
         float spec = pow(max(dot(fragNormal, halfVector), 0.), 32.);
-        vec3 specular = lightColor * spec * intensity * 0.3;
+        vec3 reflectance = mix(vec3(0.04), baseRgb, pushMaterial.metallic);
+        vec3 specular = reflectance * lightColor * spec * intensity;
 
         float shadow = calcShadow(i, fragWorldPos);
         lit += (diffuse + specular) * (1.0 - shadow);

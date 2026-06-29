@@ -119,6 +119,8 @@ namespace VE
 
         static constexpr char PIPELINE_CACHE_FILE_NAME[] = "pipeline_cache.bin";
 
+        static constexpr VkFormat HDR_COLOR_FORMAT = VK_FORMAT_R16G16B16A16_SFLOAT;
+
         struct MeshBuffer
         {
             uint32_t vertexCount = 0;
@@ -213,6 +215,7 @@ namespace VE
         struct PostPushData
         {
             float vignetteStrength, vignetteRadius;
+            float exposure;
             uint32_t flags;
         };
 

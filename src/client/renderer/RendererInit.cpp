@@ -221,9 +221,9 @@ namespace VE
 
         for (const VkSurfaceFormatKHR &format : availableFormats)
         {
-            if (format.format == VK_FORMAT_R8G8B8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+            if (format.format == VK_FORMAT_R8G8B8A8_SRGB && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
             {
-                swapChain.imageFormat = VK_FORMAT_R8G8B8A8_UNORM;
+                swapChain.imageFormat = VK_FORMAT_R8G8B8A8_SRGB;
                 break;
             }
         }
@@ -348,13 +348,13 @@ namespace VE
         prePostAttachments.resize(swapChain.imageCount);
         for (ImageAttachment &attachment : prePostAttachments)
         {
-            attachment.image = createImage(swapChain.extent.width, swapChain.extent.height, swapChain.imageFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &attachment.memory);
+            attachment.image = createImage(swapChain.extent.width, swapChain.extent.height, HDR_COLOR_FORMAT, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &attachment.memory);
 
             VkImageViewCreateInfo imageViewCreateInfo{};
             imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
             imageViewCreateInfo.image = attachment.image;
             imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-            imageViewCreateInfo.format = swapChain.imageFormat;
+            imageViewCreateInfo.format = HDR_COLOR_FORMAT;
             imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
             imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
             imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;

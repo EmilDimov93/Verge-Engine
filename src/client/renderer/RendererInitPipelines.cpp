@@ -201,7 +201,7 @@ namespace VE
         VkPipelineRenderingCreateInfo pipelineRenderingCreateInfo{};
         pipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
         pipelineRenderingCreateInfo.colorAttachmentCount = 1;
-        pipelineRenderingCreateInfo.pColorAttachmentFormats = &swapChain.imageFormat;
+        pipelineRenderingCreateInfo.pColorAttachmentFormats = &HDR_COLOR_FORMAT;
         pipelineRenderingCreateInfo.depthAttachmentFormat = depthFormat;
 
         VkGraphicsPipelineCreateInfo pipelineCreateInfo = {
@@ -316,7 +316,7 @@ namespace VE
         VkPipelineRenderingCreateInfo pipelineRenderingCreateInfo{};
         pipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
         pipelineRenderingCreateInfo.colorAttachmentCount = 1;
-        pipelineRenderingCreateInfo.pColorAttachmentFormats = &swapChain.imageFormat;
+        pipelineRenderingCreateInfo.pColorAttachmentFormats = &HDR_COLOR_FORMAT;
         pipelineRenderingCreateInfo.depthAttachmentFormat = depthFormat;
 
         VkGraphicsPipelineCreateInfo pipelineCreateInfo = {

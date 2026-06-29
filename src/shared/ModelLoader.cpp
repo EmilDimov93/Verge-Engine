@@ -60,7 +60,7 @@ namespace VE
                     std::stringstream ss(line.substr(3));
                     glm::vec3 kd;
                     ss >> kd.r >> kd.g >> kd.b;
-                    materials[currentMat].baseColor = color_t(kd, materials[currentMat].baseColor.a);
+                    materials[currentMat].baseColor = srgbToLinear(color_t(kd, materials[currentMat].baseColor.a));
                 }
                 else if (line.starts_with("map_Kd ") && !currentMat.empty())
                 {

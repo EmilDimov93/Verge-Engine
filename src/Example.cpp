@@ -72,6 +72,7 @@ private:
         PostEffects effects;
         effects.vignetteStrength = 0.8f;
         effects.vignetteRadius = 0.9f;
+        effects.exposure = 1.f;
         effects.fxaa = true;
         effects.dithering = true;
         client.bindPostEffects(effects);
@@ -106,7 +107,7 @@ private:
         player1 = scene.addPlayer(car1);
 
         // Prop
-        scene.addProp(scene.addModel("models/cow.obj"), {{-10.f, 100.f, 30.f}}, 3.f, {1.f, 1.f, 0.8f, 1.f});
+        scene.addProp(scene.addModel("models/cow.obj"), {{-10.f, 100.f, 30.f}}, 3.f, {1.f, 1.f, 0.9f, 1.f});
 
         // Triggers
         TriggerTypeCreateInfo sTriggerType = {};
@@ -119,9 +120,9 @@ private:
         scene.addTrigger(sTriggerType, {{2.0f, 3.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, [](){ std::cout << "Triggered 2" << std::endl; });
 
         // Ground
-        SurfaceTypeIndex grassSurfaceTypeIndex = scene.addSurfaceType({0.6f, {0, 0.4f, 0}, 0.05f});
-        SurfaceTypeIndex asphaltSurfaceTypeIndex = scene.addSurfaceType({1.0f, {0.2f, 0.2f, 0.2f}});
-        SurfaceTypeIndex roadLineSurfaceTypeIndex = scene.addSurfaceType({1.0f, {1.0f, 1.0f, 1.0f}});
+        SurfaceTypeIndex grassSurfaceTypeIndex = scene.addSurfaceType({0.6f, {0.f, 0.4f, 0.f, 1.f}, 0.05f});
+        SurfaceTypeIndex asphaltSurfaceTypeIndex = scene.addSurfaceType({1.0f, {0.2f, 0.2f, 0.2f, 1.f}});
+        SurfaceTypeIndex roadLineSurfaceTypeIndex = scene.addSurfaceType({1.0f, {1.f, 1.f, 1.f, 1.f}});
 
         Size2 surfaceSize = {4000, 4000};
 

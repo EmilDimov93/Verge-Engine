@@ -7,11 +7,17 @@ const uint POST_EFFECT_DITHERING_BIT = 1u << 1;
 layout(push_constant) uniform PushPost {
     float vignetteStrength;
     float vignetteRadius;
+    float exposure;
     uint flags;
 } pushPost;
 
 layout(location = 0) in vec2 inUV;
 layout(location = 0) out vec4 outColor;
+
+vec3 tonemapReinhard(vec3 x)
+{
+    return x / (x + vec3(1.0));
+}
 
 float rgbToLuma(vec3 linearColor)
 {
@@ -191,6 +197,9 @@ void main()
     float distFromCenter = length(inUV - 0.5);
     float vignetteFactor = 1.0 - smoothstep(pushPost.vignetteRadius - 0.5, pushPost.vignetteRadius, distFromCenter);
     base *= mix(1.0, vignetteFactor, pushPost.vignetteStrength);
+
+    base.rgb *= pushPost.exposure;
+    base.rgb = tonemapReinhard(base.rgb);
 
     if((pushPost.flags & POST_EFFECT_DITHERING_BIT) != 0u)
     {

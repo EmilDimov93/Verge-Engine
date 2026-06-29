@@ -208,7 +208,7 @@ namespace VE
 
         VkImage texImage;
         VkDeviceMemory texImageMemory;
-        texImage = createImage(1, 1, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &texImageMemory);
+        texImage = createImage(1, 1, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &texImageMemory);
 
         CommandPoolGuard graphicsCommandPoolLocal(device, graphicsQueueFamilyIndex);
         CommandPoolGuard transferCommandPoolLocal(device, transferQueueFamilyIndex);
@@ -225,7 +225,7 @@ namespace VE
         imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         imageViewCreateInfo.image = texImage;
         imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        imageViewCreateInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+        imageViewCreateInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
         imageViewCreateInfo.components = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY};
         imageViewCreateInfo.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 
@@ -266,7 +266,7 @@ namespace VE
         VkImage texImage;
         VkDeviceMemory texImageMemory;
 
-        texImage = createImage(size.w, size.h, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mipLevelCount, &texImageMemory);
+        texImage = createImage(size.w, size.h, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mipLevelCount, &texImageMemory);
 
         CommandPoolGuard graphicsCommandPoolLocal(device, graphicsQueueFamilyIndex);
         CommandPoolGuard transferCommandPoolLocal(device, transferQueueFamilyIndex);
@@ -277,7 +277,7 @@ namespace VE
         vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
         vkCheck(copyImageBuffer(device, transferQueue, transferCommandPoolLocal, imageStagingBuffer, texImage, size.w, size.h, transferQueueMutex, uploadFence), {'R', 239});
         vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
-        vkCheck(generateMipmaps(device, physicalDevice, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_FORMAT_R8G8B8A8_UNORM, size.w, size.h, mipLevelCount, graphicsQueueMutex, uploadFence), {'R', 240});
+        vkCheck(generateMipmaps(device, physicalDevice, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_FORMAT_R8G8B8A8_SRGB, size.w, size.h, mipLevelCount, graphicsQueueMutex, uploadFence), {'R', 240});
 
         uint32_t resultIndex;
         {
@@ -311,7 +311,7 @@ namespace VE
         imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         imageViewCreateInfo.image = sourceImage;
         imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        imageViewCreateInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+        imageViewCreateInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
         imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
         imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
         imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;

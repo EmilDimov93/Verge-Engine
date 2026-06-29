@@ -192,7 +192,7 @@ namespace VE
         ModelInstanceHandle modelInstanceHandle = addModelInstance(modelHandle);
 
         modelInstances.back().lightIntensity = lightIntensity;
-        modelInstances.back().lightColor = lightColor;
+        modelInstances.back().lightColor = srgbToLinear(lightColor);
 
         Prop newProp(handle, modelInstanceHandle, transform);
 
@@ -316,12 +316,12 @@ namespace VE
 
         if (info.color.r >= 0 && info.color.r <= 1.0f && info.color.g >= 0 && info.color.g <= 1.0f && info.color.b >= 0 && info.color.b <= 1.0f)
         {
-            newSurfaceType.color = info.color;
+            newSurfaceType.color = srgbToLinear(info.color);
         }
         else
         {
             Log::add('A', 192);
-            newSurfaceType.color = {0, 0, 0};
+            newSurfaceType.color = color_t(0.f);
         }
 
         newSurfaceType.heightDistortion = info.heightDistortion;

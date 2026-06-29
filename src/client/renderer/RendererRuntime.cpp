@@ -388,6 +388,7 @@ namespace VE
         PostPushData pushData;
         pushData.vignetteStrength = postEffects.vignetteStrength;
         pushData.vignetteRadius = postEffects.vignetteRadius;
+        pushData.exposure = postEffects.exposure;
 
         pushData.flags = 0u;
         pushData.flags |= postEffects.fxaa ? POST_EFFECT_FXAA_BIT : 0u;

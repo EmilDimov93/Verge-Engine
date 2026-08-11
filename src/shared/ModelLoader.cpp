@@ -26,6 +26,7 @@ namespace VE
         std::vector<glm::vec3> positions;
         std::unordered_map<std::string, Material> materials;
         std::vector<glm::vec2> texCoords;
+        std::vector<glm::vec3> normals;
 
         uint32_t currentMaterialIndex = UINT32_MAX;
 
@@ -67,7 +68,7 @@ namespace VE
                     std::string texturePath = line.substr(7);
                     trim(texturePath);
                     std::filesystem::path resolvedPath = std::filesystem::path(mtlPath).parent_path() / texturePath;
-                    
+
                     int width = 0;
                     int height = 0;
                     int channelsInFile = 0;
@@ -183,37 +184,51 @@ namespace VE
                 ss >> p.x >> p.y >> p.z;
                 positions.push_back(p);
             }
+            else if (line.starts_with("vn "))
+            {
+                glm::vec3 n;
+                std::stringstream ss(line.substr(3));
+                ss >> n.x >> n.y >> n.z;
+                normals.push_back(n);
+            }
             else if (line.starts_with("f "))
             {
                 std::stringstream ss(line.substr(2));
                 std::string a, b, c;
                 ss >> a >> b >> c;
 
-                auto parseIndices = [](const std::string &token) -> std::pair<uint32_t, int32_t>
+                auto parseIndices = [](const std::string &token) -> std::tuple<uint32_t, int32_t, int32_t>
                 {
                     size_t firstSlash = token.find('/');
                     uint32_t positionIndex = static_cast<uint32_t>(std::stoi(token.substr(0, firstSlash)) - 1);
                     int32_t texCoordIndex = -1;
+                    int32_t normalIndex = -1;
 
-                    if (firstSlash != std::string::npos && firstSlash + 1 < token.size() && token[firstSlash + 1] != '/')
+                    if (firstSlash != std::string::npos)
                     {
                         size_t secondSlash = token.find('/', firstSlash + 1);
-                        texCoordIndex = std::stoi(token.substr(firstSlash + 1, secondSlash - firstSlash - 1)) - 1;
+                        if (firstSlash + 1 < token.size() && token[firstSlash + 1] != '/')
+                            texCoordIndex = std::stoi(token.substr(firstSlash + 1, secondSlash - firstSlash - 1)) - 1;
+
+                        if (secondSlash != std::string::npos && secondSlash + 1 < token.size())
+                            normalIndex = std::stoi(token.substr(secondSlash + 1)) - 1;
                     }
 
-                    return {positionIndex, texCoordIndex};
+                    return {positionIndex, texCoordIndex, normalIndex};
                 };
 
-                std::pair<uint32_t, int32_t> parsed[3] = {parseIndices(a), parseIndices(b), parseIndices(c)};
+                std::tuple<uint32_t, int32_t, int32_t> parsed[3] = {parseIndices(a), parseIndices(b), parseIndices(c)};
 
-                for (auto &[positionIndex, texCoordIndex] : parsed)
+                glm::vec3 faceNormal = glm::normalize(glm::cross(positions[std::get<0>(parsed[1])] - positions[std::get<0>(parsed[0])],
+                                                                 positions[std::get<0>(parsed[2])] - positions[std::get<0>(parsed[0])]));
+
+                for (auto &[positionIndex, texCoordIndex, normalIndex] : parsed)
                 {
                     Vertex vertex;
                     vertex.pos = positions[positionIndex];
-                    vertex.tex = (texCoordIndex >= 0) ? texCoords[texCoordIndex] : glm::vec2(0.0f);
+                    vertex.tex = (texCoordIndex >= 0 && texCoordIndex < static_cast<int32_t>(texCoords.size())) ? texCoords[texCoordIndex] : glm::vec2(0.0f);
                     vertex.tex.y = 1.0f - vertex.tex.y;
-                    vertex.norm = glm::normalize(glm::cross(positions[parsed[1].first] - positions[parsed[0].first],
-                                                            positions[parsed[2].first] - positions[parsed[0].first]));
+                    vertex.norm = (normalIndex >= 0 && normalIndex < static_cast<int32_t>(normals.size())) ? normals[normalIndex] : faceNormal;
 
                     currentMeshIndices.push_back(static_cast<uint32_t>(currentMeshVertices.size()));
                     currentMeshVertices.push_back(vertex);

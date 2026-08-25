@@ -207,9 +207,9 @@ namespace VE
         samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
         samplerCreateInfo.compareEnable = VK_FALSE;
         samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        samplerCreateInfo.mipLodBias = 0.0f;
-        samplerCreateInfo.minLod = 0.0f;
-        samplerCreateInfo.maxLod = 0.0f;
+        samplerCreateInfo.mipLodBias = 0.f;
+        samplerCreateInfo.minLod = 0.f;
+        samplerCreateInfo.maxLod = 0.f;
 
         vkCheck(vkCreateSampler(device, &samplerCreateInfo, nullptr, &postSampler), {'R', 226});
     }

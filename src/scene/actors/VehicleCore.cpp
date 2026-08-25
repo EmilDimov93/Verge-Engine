@@ -54,7 +54,7 @@ namespace VE
         else
         {
             Log::add('A', 106);
-            brakingForceN = 15000.0f;
+            brakingForceN = 15000.f;
         }
 
         if (!info.gearRatios.empty())
@@ -93,8 +93,8 @@ namespace VE
                 gearRatios[0] = 3.5f;
             }
 
-            const float defaultTopRatio = 1.0f;
-            const float defaultFirstRatio = 5.0f;
+            const float defaultTopRatio = 1.f;
+            const float defaultFirstRatio = 5.f;
             for (size_t i = 1; i <= gearCount; ++i)
             {
                 gearRatios[i] = defaultTopRatio * std::pow(defaultFirstRatio / defaultTopRatio, float(gearCount - i) / float(gearCount));
@@ -103,24 +103,24 @@ namespace VE
             Log::add('A', 105);
         }
 
-        if (info.finalDriveRatio > 0.0f)
+        if (info.finalDriveRatio > 0.f)
         {
             finalDriveRatio = info.finalDriveRatio;
         }
         else
         {
-            finalDriveRatio = 3.0f;
+            finalDriveRatio = 3.f;
             Log::add('A', 102);
         }
 
-        if (info.drivetrainEfficiency >= 0 && info.drivetrainEfficiency <= 1.0f)
+        if (info.drivetrainEfficiency >= 0 && info.drivetrainEfficiency <= 1.f)
         {
             drivetrainEfficiency = info.drivetrainEfficiency;
         }
         else
         {
             Log::add('A', 108);
-            drivetrainEfficiency = 1.0f;
+            drivetrainEfficiency = 1.f;
         }
 
         if (info.wheelRadiusM > 0)
@@ -175,7 +175,7 @@ namespace VE
         else
         {
             Log::add('A', 101);
-            tireGrip = 1.0f;
+            tireGrip = 1.f;
         }
 
         if (info.camberRad > -(PI / 2) && info.camberRad < PI / 2)
@@ -198,20 +198,20 @@ namespace VE
 
         glm::mat4 wheelMat =
             bodyMat *
-            glm::translate(glm::mat4(1.0f), glm::vec3(isLeft ? wheelOffset.x : -wheelOffset.x,       /*X Offset*/
+            glm::translate(glm::mat4(1.f), glm::vec3(isLeft ? wheelOffset.x : -wheelOffset.x,       /*X Offset*/
                                                       wheelOffset.y + wheelStates[wheel].suspension, /*Y Offset & Suspension*/
                                                       isFront ? wheelOffset.z : -wheelOffset.z))     /*Z Offset*/
             *
-            glm::rotate(glm::mat4(1.0f), isLeft ? 0.0f : PI, glm::vec3(0, 1, 0)) /*Invert*/;
+            glm::rotate(glm::mat4(1.f), isLeft ? 0.f : PI, glm::vec3(0, 1, 0)) /*Invert*/;
 
         // Steer
-        wheelMat = glm::rotate(wheelMat, isFront ? steeringAngleRad : 0.0f, glm::vec3(0, 1.0f, 0));
+        wheelMat = glm::rotate(wheelMat, isFront ? steeringAngleRad : 0.f, glm::vec3(0, 1.f, 0));
 
         // Camber
         wheelMat = glm::rotate(wheelMat, camberRad, glm::vec3(0, 0, 1));
 
         // Spin
-        wheelMat = glm::rotate(wheelMat, isLeft ? wheelStates[wheel].spin : -wheelStates[wheel].spin, glm::vec3(1.0f, 0, 0));
+        wheelMat = glm::rotate(wheelMat, isLeft ? wheelStates[wheel].spin : -wheelStates[wheel].spin, glm::vec3(1.f, 0, 0));
 
         return wheelMat;
     }
@@ -221,29 +221,29 @@ namespace VE
         glm::vec3 collisionPointNormalized = glm::normalize(-collisionPointLocal);
 
         // Ignore Y
-        collisionPointNormalized.y = 0.0f;
+        collisionPointNormalized.y = 0.f;
 
         glm::mat4 R =
-            glm::rotate(glm::mat4(1.0f), (float)transform.rotation.yaw, glm::vec3(0, 1, 0)) *
-            glm::rotate(glm::mat4(1.0f), (float)transform.rotation.pitch, glm::vec3(1, 0, 0)) *
-            glm::rotate(glm::mat4(1.0f), (float)transform.rotation.roll, glm::vec3(0, 0, 1));
+            glm::rotate(glm::mat4(1.f), (float)transform.rotation.y, glm::vec3(0, 1, 0)) *
+            glm::rotate(glm::mat4(1.f), (float)transform.rotation.x, glm::vec3(1, 0, 0)) *
+            glm::rotate(glm::mat4(1.f), (float)transform.rotation.z, glm::vec3(0, 0, 1));
 
-        glm::vec3 collisionNormal = glm::normalize(glm::vec3(R * glm::vec4(collisionPointNormalized, 0.0f)));
+        glm::vec3 collisionNormal = glm::normalize(glm::vec3(R * glm::vec4(collisionPointNormalized, 0.f)));
 
         float velocityAlongNormal = glm::dot(velocityMps, collisionNormal);
-        if (velocityAlongNormal > 0.0f)
+        if (velocityAlongNormal > 0.f)
         {
             collisionNormal = -collisionNormal;
             velocityAlongNormal = -velocityAlongNormal;
         }
 
-        if (velocityAlongNormal < 0.0f)
+        if (velocityAlongNormal < 0.f)
             velocityMps -= collisionNormal * velocityAlongNormal;
     }
 
     void Vehicle::printState() const
     {
-        std::cout << (std::round(forwardSpeedMps * 3.6f) > 1.0f ? std::round(forwardSpeedMps * 3.6f) : 0.0f) << " km/h | " << std::round(rpm) << " rpm | " << (isNeutral ? "N" : (gear == 0 ? "R" : std::to_string(gear))) << " gear" << std::endl;
+        std::cout << (std::round(forwardSpeedMps * 3.6f) > 1.f ? std::round(forwardSpeedMps * 3.6f) : 0.f) << " km/h | " << std::round(rpm) << " rpm | " << (isNeutral ? "N" : (gear == 0 ? "R" : std::to_string(gear))) << " gear" << std::endl;
     }
 
     void Vehicle::printVIS() const
@@ -255,7 +255,7 @@ namespace VE
     {
         transform.position += velocityMps * static_cast<float>(dt);
 
-        transform.rotation.yaw += yawRateRadps * static_cast<float>(dt);
+        transform.rotation.y += yawRateRadps * static_cast<float>(dt);
 
         bodyMat = transform.toMat();
     }

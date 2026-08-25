@@ -11,7 +11,7 @@
 
 namespace VE
 {
-    Renderer::Renderer(GLFWwindow *window, Size2 windowSize)
+    Renderer::Renderer(GLFWwindow *window, glm::uvec2 windowSize)
     {
         this->window = window;
 
@@ -164,7 +164,7 @@ namespace VE
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
-        float queuePriority = 1.0f;
+        float queuePriority = 1.f;
         VkDeviceQueueCreateInfo graphicsQueueCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
             .queueFamilyIndex = graphicsQueueFamilyIndex,
@@ -265,12 +265,12 @@ namespace VE
         }
     }
 
-    void Renderer::createSwapChain(Size2 windowSize)
+    void Renderer::createSwapChain(glm::uvec2 windowSize)
     {
         VkSurfaceCapabilitiesKHR capabilities;
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities);
 
-        swapChain.extent = {windowSize.w, windowSize.h};
+        swapChain.extent = {windowSize.x, windowSize.y};
 
         VkSwapchainCreateInfoKHR swapchainCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,

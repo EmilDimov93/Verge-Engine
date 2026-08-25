@@ -55,12 +55,12 @@ namespace VE
             shadowDepthAttachmentInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
             shadowDepthAttachmentInfo.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
             shadowDepthAttachmentInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-            shadowDepthAttachmentInfo.clearValue.depthStencil = {1.0f, 0};
+            shadowDepthAttachmentInfo.clearValue.depthStencil = {1.f, 0};
 
             VkRenderingInfo shadowRenderingInfo{};
             shadowRenderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
             shadowRenderingInfo.renderArea.offset = {0, 0};
-            shadowRenderingInfo.renderArea.extent = {SHADOW_MAP_EXTENT.w, SHADOW_MAP_EXTENT.h};
+            shadowRenderingInfo.renderArea.extent = {SHADOW_MAP_EXTENT.x, SHADOW_MAP_EXTENT.y};
             shadowRenderingInfo.layerCount = 1;
             shadowRenderingInfo.pDepthAttachment = &shadowDepthAttachmentInfo;
 
@@ -212,7 +212,7 @@ namespace VE
         depthAttachmentInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         depthAttachmentInfo.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         depthAttachmentInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        depthAttachmentInfo.clearValue.depthStencil = {1.0f, 0};
+        depthAttachmentInfo.clearValue.depthStencil = {1.f, 0};
 
         VkRenderingInfo renderingInfo{};
         renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
@@ -228,12 +228,12 @@ namespace VE
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, modelPipeline.pipeline);
 
         VkViewport viewport = {
-            .x = 0.0f,
-            .y = 0.0f,
+            .x = 0.f,
+            .y = 0.f,
             .width = static_cast<float>(swapChain.extent.width),
             .height = static_cast<float>(swapChain.extent.height),
-            .minDepth = 0.0f,
-            .maxDepth = 1.0f};
+            .minDepth = 0.f,
+            .maxDepth = 1.f};
         vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
         VkRect2D scissor = {
@@ -372,12 +372,12 @@ namespace VE
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, postPipeline.pipeline);
 
         VkViewport viewport = {
-            .x = 0.0f,
-            .y = 0.0f,
+            .x = 0.f,
+            .y = 0.f,
             .width = static_cast<float>(swapChain.extent.width),
             .height = static_cast<float>(swapChain.extent.height),
-            .minDepth = 0.0f,
-            .maxDepth = 1.0f};
+            .minDepth = 0.f,
+            .maxDepth = 1.f};
         vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
         VkRect2D scissor = {
@@ -456,12 +456,12 @@ namespace VE
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, uiPipeline.pipeline);
 
         VkViewport viewport = {
-            .x = 0.0f,
-            .y = 0.0f,
+            .x = 0.f,
+            .y = 0.f,
             .width = static_cast<float>(swapChain.extent.width),
             .height = static_cast<float>(swapChain.extent.height),
-            .minDepth = 0.0f,
-            .maxDepth = 1.0f};
+            .minDepth = 0.f,
+            .maxDepth = 1.f};
         vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
         VkRect2D scissor = {
@@ -484,7 +484,7 @@ namespace VE
                         vkCmdBindIndexBuffer(commandBuffer, meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
                         UIPushData pushData;
-                        pushData.model = Transform(Position3((instance.coords.x + 1) / 2 * swapChain.extent.width, (instance.coords.y + 1) / 2 * swapChain.extent.height, 0.f), Rotation3(), Scale3(instance.uniformScale)).toMat();
+                        pushData.model = Transform(glm::vec3((instance.coords.x + 1) / 2 * swapChain.extent.width, (instance.coords.y + 1) / 2 * swapChain.extent.height, 0.f), glm::vec3(), glm::vec3(instance.uniformScale)).toMat();
                         pushData.model[1][1] *= -1;
                         pushData.textureIndex = widgetBuffer.materials[meshBuffer.materialIndex].texIndex;
                         pushData.color = widgetBuffer.materials[meshBuffer.materialIndex].baseColor;
@@ -670,7 +670,7 @@ namespace VE
         for (ImageAttachment &attachment : prePostAttachments)
             destroyImageAttachment(attachment);
 
-        createSwapChain(Size2(static_cast<uint32_t>(width), static_cast<uint32_t>(height)));
+        createSwapChain(glm::uvec2(static_cast<uint32_t>(width), static_cast<uint32_t>(height)));
         createPrePostImages();
         updatePostDescriptorSets();
         createDepthAttachments();

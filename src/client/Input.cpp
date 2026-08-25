@@ -11,7 +11,7 @@ namespace VE
     KeyState Input::mouseBtnStates[MOUSE_BTN_COUNT] = {};
     KeyState Input::keyStates[KEY_COUNT] = {};
 
-    Position2 Input::mousePosition{0};
+    glm::vec2 Input::mousePosition{0};
 
     int Input::controllerId = GLFW_JOYSTICK_1;
     bool Input::controllerConnected = false;
@@ -131,7 +131,7 @@ namespace VE
             }
 
             for (int i = 0; i < controllerAxes.size(); i++)
-                controllerAxes[i] = 0.0f;
+                controllerAxes[i] = 0.f;
         }
     }
 
@@ -241,7 +241,7 @@ namespace VE
         return mouseBtnStates[btn] == KEY_STATE_RELEASED;
     }
 
-    Position2 Input::getMousePos()
+    glm::vec2 Input::getMousePos()
     {
         return mousePosition;
     }
@@ -301,36 +301,36 @@ namespace VE
     float Input::getAxis(ControllerAxis axis)
     {
         if (!controllerConnected || axis.index == CONTROLLER_AXIS_UNKNOWN.index)
-            return 0.0f;
+            return 0.f;
         if (axis.index >= controllerAxes.size() || axis.index < 0)
         {
             Log::add('G', 100);
-            return 0.0f;
+            return 0.f;
         }
 
         float axisValue = controllerAxes[axis.index];
 
         // Dead zone rescaling
         if (fabsf(axisValue) < axisDeadZone)
-            axisValue = 0.0f;
-        else if (axisValue > 0.0f)
-            axisValue = (axisValue - axisDeadZone) / (1.0f - axisDeadZone);
+            axisValue = 0.f;
+        else if (axisValue > 0.f)
+            axisValue = (axisValue - axisDeadZone) / (1.f - axisDeadZone);
         else
-            axisValue = (axisValue + axisDeadZone) / (1.0f - axisDeadZone);
+            axisValue = (axisValue + axisDeadZone) / (1.f - axisDeadZone);
 
         switch (axis.mapping)
         {
         case AXIS_MAPPING_FULL:
-            return (axisValue + 1.0f) / 2;
+            return (axisValue + 1.f) / 2;
         case AXIS_MAPPING_FULL_INVERTED:
-            return 1.0f - (axisValue + 1.0f) / 2;
+            return 1.f - (axisValue + 1.f) / 2;
         case AXIS_MAPPING_POSITIVE_HALF:
             return clamp01(axisValue);
         case AXIS_MAPPING_NEGATIVE_HALF:
             return clamp01(-axisValue);
         }
 
-        return 0.0f;
+        return 0.f;
     }
 
 }

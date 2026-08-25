@@ -35,7 +35,7 @@ struct Audio
 {
     ma_sound sound;
     bool is3D;
-    Position3 position;
+    glm::vec3 position;
 };
 
 class AudioManager

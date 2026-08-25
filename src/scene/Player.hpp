@@ -23,7 +23,7 @@ namespace VE
                 mode = MODE_FREE;
         }
 
-        void tick(seconds_t dt, Position3 vehiclePosition = {}, glm::vec3 vehicleVelocityVector = {});
+        void tick(seconds_t dt, glm::vec3 vehiclePosition = {}, glm::vec3 vehicleVelocityVector = {});
 
         void attachVehicle(VehicleHandle vehicleHandle)
         {
@@ -46,8 +46,8 @@ namespace VE
 
         [[nodiscard]] VehicleHandle getVehicleHandle() const override { return vehicleHandle; }
 
-        [[nodiscard]] Position3 getPosition() const { return position; }
-        [[nodiscard]] float getYaw() const { return rotation.yaw; }
+        [[nodiscard]] glm::vec3 getPosition() const { return position; }
+        [[nodiscard]] float getYaw() const { return rotation.y; }
         [[nodiscard]] glm::mat4 getViewMat() const;
 
         void setVehicleInputState(const VehicleInputState &vis) { this->vis = vis; }
@@ -74,19 +74,19 @@ namespace VE
 
         VehicleInputState vis;
 
-        float pitch = 0.0f;
+        float pitch = 0.f;
         float yaw = -PI;
 
-        Position3 position{};
-        Rotation3 rotation{};
+        glm::vec3 position{};
+        glm::vec3 rotation{};
 
         Mode mode = MODE_CHASE;
-        float chaseDistance = 10.0f;
-        float chaseHeight = 3.0f;
+        float chaseDistance = 10.f;
+        float chaseHeight = 3.f;
         float chaseDistanceDelay = 0.1f;
-        float chaseTurnDelay = 1.0f;
+        float chaseTurnDelay = 1.f;
 
-        float freeSpeed = 5.0f;
+        float freeSpeed = 5.f;
 
         float minPitch = -1.2f;
         float maxPitch = 0.6f;

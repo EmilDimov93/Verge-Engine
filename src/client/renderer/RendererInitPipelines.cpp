@@ -150,7 +150,7 @@ namespace VE
             .cullMode = VK_CULL_MODE_BACK_BIT,
             .frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
             .depthBiasEnable = VK_FALSE,
-            .lineWidth = 1.0f};
+            .lineWidth = 1.f};
 
         VkPipelineColorBlendAttachmentState colorState = {
             .blendEnable = VK_TRUE,
@@ -265,7 +265,7 @@ namespace VE
             .cullMode = VK_CULL_MODE_NONE,
             .frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
             .depthBiasEnable = VK_FALSE,
-            .lineWidth = 1.0f};
+            .lineWidth = 1.f};
 
         VkPipelineColorBlendAttachmentState colorState = {
             .blendEnable = VK_TRUE,
@@ -362,17 +362,17 @@ namespace VE
             .depthBiasEnable = VK_TRUE,
             .depthBiasConstantFactor = 1.25f,
             .depthBiasSlopeFactor = 1.75f,
-            .lineWidth = 1.0f};
+            .lineWidth = 1.f};
 
         VkViewport viewport = {
             0.f, 0.f,
-            static_cast<float>(SHADOW_MAP_EXTENT.w),
-            static_cast<float>(SHADOW_MAP_EXTENT.h),
+            static_cast<float>(SHADOW_MAP_EXTENT.x),
+            static_cast<float>(SHADOW_MAP_EXTENT.y),
             0.f, 1.f};
 
         VkRect2D scissor = {
             {0, 0},
-            {SHADOW_MAP_EXTENT.w, SHADOW_MAP_EXTENT.h}};
+            {SHADOW_MAP_EXTENT.x, SHADOW_MAP_EXTENT.y}};
 
         VkPipelineViewportStateCreateInfo viewportStateCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
@@ -437,7 +437,7 @@ namespace VE
         VkPipelineRasterizationStateCreateInfo rasterizer{};
         rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
         rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-        rasterizer.lineWidth = 1.0f;
+        rasterizer.lineWidth = 1.f;
         rasterizer.cullMode = VK_CULL_MODE_NONE;
         rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 
@@ -525,7 +525,7 @@ namespace VE
             .cullMode = VK_CULL_MODE_BACK_BIT,
             .frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
             .depthBiasEnable = VK_FALSE,
-            .lineWidth = 1.0f};
+            .lineWidth = 1.f};
 
         VkPipelineColorBlendAttachmentState colorBlendAttachmentState = {
             .blendEnable = VK_TRUE,

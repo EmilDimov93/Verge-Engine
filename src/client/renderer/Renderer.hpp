@@ -100,7 +100,7 @@ namespace VE
     class Renderer
     {
     public:
-        Renderer(GLFWwindow *window, Size2 windowSize);
+        Renderer(GLFWwindow *window, glm::uvec2 windowSize);
 
         void drawFrame(const SceneDrawData &sceneDrawData, const UIDrawData &uiDrawData, const glm::mat4 projectionMat, const PostEffects &postEffects);
 
@@ -113,7 +113,7 @@ namespace VE
 
         static constexpr size_t MAX_SHADOW_MAPS = 10;
 
-        static constexpr Size2 SHADOW_MAP_EXTENT = {4096, 4096};
+        static constexpr glm::uvec2 SHADOW_MAP_EXTENT = {4096, 4096};
 
         static constexpr uint32_t TEXTURE_SAMPLER_POOL_CHUNK_SIZE = 1'000;
 
@@ -343,7 +343,7 @@ namespace VE
         void createCommandPool();
         void createCommandBuffers();
 
-        void createSwapChain(Size2 windowSize);
+        void createSwapChain(glm::uvec2 windowSize);
 
         void createShadowSampler();
         void createFallbackShadowAttachment();
@@ -412,8 +412,8 @@ namespace VE
         // Textures
         void createFallbackTexture();
         void createTextureDescriptorSetLayout();
-        [[nodiscard]] uint32_t createTexture(std::vector<uint8_t> texturePixels, Size2 textureSize = 0);
-        [[nodiscard]] uint32_t createTextureImage(const uint8_t *imageData, Size2 size);
+        [[nodiscard]] uint32_t createTexture(std::vector<uint8_t> texturePixels, glm::uvec2 textureSize);
+        [[nodiscard]] uint32_t createTextureImage(const uint8_t *imageData, glm::uvec2 size);
         [[nodiscard]] uint32_t createTextureDescriptor(VkImageView textureImageView);
         [[nodiscard]] VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, uint32_t mipLevelCount, VkDeviceMemory *imageMemory);
     };

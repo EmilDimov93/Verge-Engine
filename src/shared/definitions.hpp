@@ -16,7 +16,7 @@ namespace VE
 {
     constexpr float FLOAT_MIN = std::numeric_limits<float>::lowest();
 
-    constexpr float PI = glm::radians(180.0f);
+    constexpr float PI = glm::radians(180.f);
 
     struct ModelTag
     {
@@ -111,48 +111,23 @@ namespace VE
     using seconds_t = double;
     using color_t = glm::vec4;
 
-    using Position2 = glm::vec2;
-    using Position3 = glm::vec3;
-
-    struct Size2
-    {
-        uint32_t w, h;
-
-        constexpr Size2(uint32_t width = 0, uint32_t height = 0) : w(width), h(height) {}
-    };
-
-    struct Rotation3
-    {
-        float pitch, yaw, roll;
-
-        constexpr Rotation3(float pitch_val = 0.0, float yaw_val = 0.0, float roll_val = 0.0) : pitch(pitch_val), yaw(yaw_val), roll(roll_val) {}
-    };
-
-    struct Scale3
-    {
-        float x, y, z;
-
-        constexpr Scale3(float x_val, float y_val, float z_val) : x(x_val), y(y_val), z(z_val) {}
-        constexpr Scale3(float uniform_val = 1.0) : x(uniform_val), y(uniform_val), z(uniform_val) {}
-    };
-
     struct Transform
     {
-        Position3 position{};
-        Rotation3 rotation{};
-        Scale3 scale{};
+        glm::vec3 position{};
+        glm::vec3 rotation{};
+        glm::vec3 scale = glm::vec3(1.f);
 
-        constexpr Transform(Position3 p = {}, Rotation3 r = {}, Scale3 s = {}) : position(p), rotation(r), scale(s) {}
+        constexpr Transform(glm::vec3 p = {}, glm::vec3 r = {}, glm::vec3 s = glm::vec3(1.f)) : position(p), rotation(r), scale(s) {}
 
         [[nodiscard]] glm::mat4 toMat() const
         {
-            glm::mat4 mat(1.0f);
+            glm::mat4 mat(1.f);
 
             mat = glm::translate(mat, position);
 
-            mat = glm::rotate(mat, static_cast<float>(rotation.pitch), glm::vec3(1.0f, 0.0f, 0.0f));
-            mat = glm::rotate(mat, static_cast<float>(rotation.yaw), glm::vec3(0.0f, 1.0f, 0.0f));
-            mat = glm::rotate(mat, static_cast<float>(rotation.roll), glm::vec3(0.0f, 0.0f, 1.0f));
+            mat = glm::rotate(mat, static_cast<float>(rotation.x), glm::vec3(1.f, 0.f, 0.f));
+            mat = glm::rotate(mat, static_cast<float>(rotation.y), glm::vec3(0.f, 1.f, 0.f));
+            mat = glm::rotate(mat, static_cast<float>(rotation.z), glm::vec3(0.f, 0.f, 1.f));
 
             mat = glm::scale(mat, glm::vec3(static_cast<float>(scale.x), static_cast<float>(scale.y), static_cast<float>(scale.z)));
 
@@ -176,34 +151,34 @@ namespace VE
 
     [[nodiscard]] constexpr float AvoidZero(float x)
     {
-        return (x == 0.0f) ? FLT_TRUE_MIN : x;
+        return (x == 0.f) ? FLT_TRUE_MIN : x;
     }
 
     struct VehicleInputState
     {
-        float throttle = 0.0f;
-        float brake = 0.0f;
-        float handbrake = 0.0f;
-        float clutch = 0.0f;
+        float throttle = 0.f;
+        float brake = 0.f;
+        float handbrake = 0.f;
+        float clutch = 0.f;
 
-        float steer = 0.0f;
+        float steer = 0.f;
 
         bool shiftUp = false;
         bool shiftDown = false;
 
         bool starter = false;
 
-        float moveCameraLeft = 0.0f;
-        float moveCameraRight = 0.0f;
-        float moveCameraUp = 0.0f;
-        float moveCameraDown = 0.0f;
+        float moveCameraLeft = 0.f;
+        float moveCameraRight = 0.f;
+        float moveCameraUp = 0.f;
+        float moveCameraDown = 0.f;
     };
 
     [[nodiscard]] inline float wrapRadToPi(float angleRad)
     {
-        angleRad = std::fmod(angleRad + PI, 2.0f * PI);
-        if (angleRad < 0.0f)
-            angleRad += 2.0f * PI;
+        angleRad = std::fmod(angleRad + PI, 2.f * PI);
+        if (angleRad < 0.f)
+            angleRad += 2.f * PI;
         return angleRad - PI;
     }
 

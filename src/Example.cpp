@@ -82,7 +82,7 @@ private:
 
     void setupScene()
     {
-        scene.setBackgroundColor({0.7f, 1.0f, 1.0f, 1.0f});
+        scene.setBackgroundColor({0.7f, 1.f, 1.f, 1.f});
 
         // Vehicle
         VehicleCreateInfo carInfo = {};
@@ -97,7 +97,7 @@ private:
         carInfo.gearRatios = {5.519f, 3.184f, 2.050f, 1.492f, 1.235f, 1.000f, 0.801f, 0.673f};
         carInfo.drivetrainEfficiency = 0.9f;
         carInfo.wheelRadiusM = 0.31f;
-        carInfo.tireGrip = 1.0f;
+        carInfo.tireGrip = 1.f;
         carInfo.camberRad = (PI / 180);
         carInfo.drivetrainType = DRIVETRAIN_TYPE_RWD;
         carInfo.layeredEngineAudioFiles = {{"audio/4k.wav", 4000}};
@@ -113,42 +113,42 @@ private:
         TriggerTypeCreateInfo sTriggerType = {};
         sTriggerType.modelHandle = scene.addModel("models/gdcheckpoint.glb");
         sTriggerType.hitboxShape = HITBOX_SHAPE_SPHERE;
-        sTriggerType.hitboxSize = 10.0f;
+        sTriggerType.hitboxSize = 10.f;
         sTriggerType.isAutoDestroy = true;
 
-        scene.addTrigger(sTriggerType, {{-2.0f, 3.0f, -60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, [](){ std::cout << "Triggered 1" << std::endl; });
-        scene.addTrigger(sTriggerType, {{2.0f, 3.0f, 60.0f}, {0, PI / 2, 0}, {2.0f, 2.0f, 2.0f}}, [](){ std::cout << "Triggered 2" << std::endl; });
+        scene.addTrigger(sTriggerType, {{-2.f, 3.f, -60.f}, {0, PI / 2, 0}, {2.f, 2.f, 2.f}}, [](){ std::cout << "Triggered 1" << std::endl; });
+        scene.addTrigger(sTriggerType, {{2.f, 3.f, 60.f}, {0, PI / 2, 0}, {2.f, 2.f, 2.f}}, [](){ std::cout << "Triggered 2" << std::endl; });
 
         // Ground
         SurfaceTypeIndex grassSurfaceTypeIndex = scene.addSurfaceType({0.6f, {0.f, 0.4f, 0.f, 1.f}, 0.05f});
-        SurfaceTypeIndex asphaltSurfaceTypeIndex = scene.addSurfaceType({1.0f, {0.2f, 0.2f, 0.2f, 1.f}});
-        SurfaceTypeIndex roadLineSurfaceTypeIndex = scene.addSurfaceType({1.0f, {1.f, 1.f, 1.f, 1.f}});
+        SurfaceTypeIndex asphaltSurfaceTypeIndex = scene.addSurfaceType({1.f, {0.2f, 0.2f, 0.2f, 1.f}});
+        SurfaceTypeIndex roadLineSurfaceTypeIndex = scene.addSurfaceType({1.f, {1.f, 1.f, 1.f, 1.f}});
 
-        Size2 surfaceSize = {4000, 4000};
+        glm::uvec2 surfaceSize = {4000, 4000};
 
         std::vector<SurfaceTypeIndex> surfaceTypeMap;
-        surfaceTypeMap.resize(surfaceSize.w * surfaceSize.h);
+        surfaceTypeMap.resize(surfaceSize.x * surfaceSize.y);
 
         std::vector<float> heightMap;
-        heightMap.resize(surfaceSize.w * surfaceSize.h);
+        heightMap.resize(surfaceSize.x * surfaceSize.y);
 
         for (uint32_t &surfaceType : surfaceTypeMap)
             surfaceType = grassSurfaceTypeIndex;
 
-        const float curveStrength = 30.0f;
+        const float curveStrength = 30.f;
         const float curveFrequency = 0.005f;
         const int roadHalfWidth = 30;
-        for (size_t i = 0; i < surfaceSize.h; i++)
+        for (size_t i = 0; i < surfaceSize.y; i++)
         {
-            const int centerX = static_cast<int>(surfaceSize.w / 2 + std::cos(i * curveFrequency) * curveStrength);
+            const int centerX = static_cast<int>(surfaceSize.x / 2 + std::cos(i * curveFrequency) * curveStrength);
 
             for (size_t j = centerX - roadHalfWidth; j <= centerX + roadHalfWidth; j++)
             {
-                surfaceTypeMap[i * surfaceSize.w + j] = asphaltSurfaceTypeIndex;
-                heightMap[i * surfaceSize.w + j] = 0.3f;
+                surfaceTypeMap[i * surfaceSize.x + j] = asphaltSurfaceTypeIndex;
+                heightMap[i * surfaceSize.x + j] = 0.3f;
                 if (j == centerX)
                 {
-                    surfaceTypeMap[i * surfaceSize.w + j] = roadLineSurfaceTypeIndex;
+                    surfaceTypeMap[i * surfaceSize.x + j] = roadLineSurfaceTypeIndex;
                 }
             }
         }

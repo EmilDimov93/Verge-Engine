@@ -12,11 +12,11 @@ namespace VE
     class Window
     {
     public:
-        Window(Size2 size, std::string name);
+        Window(glm::uvec2 size, std::string name);
 
         [[nodiscard]] GLFWwindow *ptr() const;
 
-        [[nodiscard]] Size2 getSize() const;
+        [[nodiscard]] glm::uvec2 getSize() const;
 
         [[nodiscard]] bool isOpen() const;
 
@@ -26,7 +26,7 @@ namespace VE
 
     private:
         GLFWwindow *window;
-        Size2 size = {};
+        glm::uvec2 size = {};
     };
 
 }

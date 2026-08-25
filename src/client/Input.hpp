@@ -152,7 +152,7 @@ namespace VE
         [[nodiscard]] static bool isPressed(MouseBtn btn);
         [[nodiscard]] static bool isReleased(MouseBtn btn);
 
-        [[nodiscard]] static Position2 getMousePos();
+        [[nodiscard]] static glm::vec2 getMousePos();
 
         // Controller
         static void setController(uint8_t id);
@@ -169,7 +169,7 @@ namespace VE
         static KeyState keyStates[KEY_COUNT];
         static KeyState mouseBtnStates[MOUSE_BTN_COUNT];
 
-        static Position2 mousePosition;
+        static glm::vec2 mousePosition;
 
         static int controllerId;
         static bool controllerConnected;
@@ -205,19 +205,19 @@ namespace VE
         [[nodiscard]] float getValue() const
         {
             if (key == KEY_UNKNOWN)
-                return 0.0f;
+                return 0.f;
             switch (keyType)
             {
             case KEY_TYPE_KEYBOARD:
-                return Input::isDown((Key)key) ? 1.0f : 0.0f;
+                return Input::isDown((Key)key) ? 1.f : 0.f;
             case KEY_TYPE_MOUSE:
-                return Input::isDown((MouseBtn)key) ? 1.0f : 0.0f;
+                return Input::isDown((MouseBtn)key) ? 1.f : 0.f;
             case KEY_TYPE_CONTROLLER_BTN:
-                return Input::isDown((ControllerBtn)key) ? 1.0f : 0.0f;
+                return Input::isDown((ControllerBtn)key) ? 1.f : 0.f;
             case KEY_TYPE_CONTROLLER_AXIS:
                 return Input::getAxis(ControllerAxis(key, axisMapping));
             default:
-                return 0.0f;
+                return 0.f;
             }
         }
 

@@ -76,7 +76,7 @@ namespace VE
         if (!foundModel)
             Log::add('S', 201);
 
-        modelInstances.emplace_back(HandleFactory<ModelInstanceHandle>::getNewHandle(), modelHandle, glm::mat4(1.0f));
+        modelInstances.emplace_back(HandleFactory<ModelInstanceHandle>::getNewHandle(), modelHandle, glm::mat4(1.f));
 
         return modelInstances.back().handle;
     }
@@ -314,7 +314,7 @@ namespace VE
             newSurfaceType.friction = 0;
         }
 
-        if (info.color.r >= 0 && info.color.r <= 1.0f && info.color.g >= 0 && info.color.g <= 1.0f && info.color.b >= 0 && info.color.b <= 1.0f)
+        if (info.color.r >= 0 && info.color.r <= 1.f && info.color.g >= 0 && info.color.g <= 1.f && info.color.b >= 0 && info.color.b <= 1.f)
         {
             newSurfaceType.color = srgbToLinear(info.color);
         }
@@ -331,7 +331,7 @@ namespace VE
         return surfaceTypes.size() - 1;
     }
 
-    void Scene::addSurface(Size2 size, const std::vector<uint32_t> &surfaceTypeMap, const std::vector<float> &heightMap, float tileSize, Position3 position)
+    void Scene::addSurface(glm::uvec2 size, const std::vector<uint32_t> &surfaceTypeMap, const std::vector<float> &heightMap, float tileSize, glm::vec3 position)
     {
         Surface newSurface;
 
@@ -344,25 +344,25 @@ namespace VE
 
         newSurface.tileSize = tileSize;
 
-        const float halfW = (newSurface.size.w - 1) * 0.5f;
-        const float halfH = (newSurface.size.h - 1) * 0.5f;
+        const float halfW = (newSurface.size.x - 1) * 0.5f;
+        const float halfH = (newSurface.size.y - 1) * 0.5f;
 
-        std::vector<glm::vec3> vertexPositions(newSurface.size.h * newSurface.size.w);
+        std::vector<glm::vec3> vertexPositions(newSurface.size.x * newSurface.size.y);
 
-        for (size_t i = 0; i < newSurface.size.h; i++)
+        for (size_t i = 0; i < newSurface.size.y; i++)
         {
-            for (size_t j = 0; j < newSurface.size.w; j++)
+            for (size_t j = 0; j < newSurface.size.x; j++)
             {
-                uint32_t surfaceTypeIndex = newSurface.surfaceTypeMap[i * newSurface.size.w + j];
+                uint32_t surfaceTypeIndex = newSurface.surfaceTypeMap[i * newSurface.size.x + j];
                 if (surfaceTypeIndex >= surfaceTypes.size())
                 {
                     Log::add('A', 190);
                     surfaceTypeIndex = 0;
                 }
 
-                newSurface.heightMap[i * newSurface.size.w + j] += glm::linearRand(-surfaceTypes[surfaceTypeIndex].heightDistortion, surfaceTypes[surfaceTypeIndex].heightDistortion);
+                newSurface.heightMap[i * newSurface.size.x + j] += glm::linearRand(-surfaceTypes[surfaceTypeIndex].heightDistortion, surfaceTypes[surfaceTypeIndex].heightDistortion);
 
-                vertexPositions[i * newSurface.size.w + j] = glm::vec3((float)(j - halfW) * tileSize, newSurface.heightMap[i * newSurface.size.w + j], (float)(i - halfH) * tileSize);
+                vertexPositions[i * newSurface.size.x + j] = glm::vec3((float)(j - halfW) * tileSize, newSurface.heightMap[i * newSurface.size.x + j], (float)(i - halfH) * tileSize);
             }
         }
 
@@ -382,13 +382,13 @@ namespace VE
             return localIndex;
         };
 
-        for (uint32_t z = 0; z < newSurface.size.h - 1; z++)
+        for (uint32_t z = 0; z < newSurface.size.y - 1; z++)
         {
-            for (uint32_t x = 0; x < newSurface.size.w - 1; x++)
+            for (uint32_t x = 0; x < newSurface.size.x - 1; x++)
             {
-                uint32_t v0 = z * newSurface.size.w + x;
+                uint32_t v0 = z * newSurface.size.x + x;
                 uint32_t v1 = v0 + 1;
-                uint32_t v2 = v0 + newSurface.size.w;
+                uint32_t v2 = v0 + newSurface.size.x;
                 uint32_t v3 = v2 + 1;
 
                 uint32_t cellTypeIndex = newSurface.surfaceTypeMap[v0];

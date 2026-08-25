@@ -28,5 +28,4 @@ namespace VE
         seconds_t lastFrameTime = 0;
         uint16_t currentFps = 0;
     };
-
 }

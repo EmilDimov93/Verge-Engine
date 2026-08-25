@@ -6,7 +6,7 @@
 namespace VE
 {
 
-    constexpr float RADPS_TO_RPM_CONVERSION_FACTOR = 60.0f / (2.0f * PI);
+    constexpr float RADPS_TO_RPM_CONVERSION_FACTOR = 60.f / (2.f * PI);
 
     constexpr float SURFACE_ROLLING_COEFFICIENT = 0.015f;
 
@@ -15,7 +15,7 @@ namespace VE
 
     void Vehicle::activateStarter()
     {
-        const float maxStarterSpeed = 300.0f;
+        const float maxStarterSpeed = 300.f;
 
         if (rpm < maxStarterSpeed)
             rpm = maxStarterSpeed;
@@ -25,7 +25,7 @@ namespace VE
     {
         if (rpm >= maxRpm)
         {
-            vis.throttle = 0.0f;
+            vis.throttle = 0.f;
         }
         else if (rpm < idleRpm)
         {
@@ -37,7 +37,7 @@ namespace VE
 
         if (transmissionType != TRANSMISSION_TYPE_MANUAL_WITH_CLUTCH &&
             rpm < idleRpm &&
-            vis.clutch == 0.0f)
+            vis.clutch == 0.f)
         {
             vis.clutch = clamp01(rpm / idleRpm);
         }
@@ -62,24 +62,24 @@ namespace VE
         }
 
         else if (forwardSpeedMps > cruiseControlTargetMps && vis.throttle == 0)
-            vis.brake = 1.0f;
+            vis.brake = 1.f;
     }
 
     float Vehicle::getTorque()
     {
         float rpmNorm = rpm / (maxRpm + maxRpm / 4);
-        float torqueCurve = rpmNorm * (1.0f - rpmNorm) * 4.0f;
+        float torqueCurve = rpmNorm * (1.f - rpmNorm) * 4.f;
 
         return peakTorqueNm * torqueCurve;
     }
 
     float Vehicle::calcFDriveMag()
     {
-        const float drivetrainEngagement = isNeutral ? 0.0f : (1.0f - vis.clutch);
+        const float drivetrainEngagement = isNeutral ? 0.f : (1.f - vis.clutch);
 
         const float gearRatio = gearRatios[gear];
         {
-            wheelRpm = (gear == 0 ? -1 : 1) * drivetrainEngagement * rpm / (gearRatio * finalDriveRatio) + (1.0f - drivetrainEngagement) * (forwardSpeedMps * RADPS_TO_RPM_CONVERSION_FACTOR / wheelRadiusM);
+            wheelRpm = (gear == 0 ? -1 : 1) * drivetrainEngagement * rpm / (gearRatio * finalDriveRatio) + (1.f - drivetrainEngagement) * (forwardSpeedMps * RADPS_TO_RPM_CONVERSION_FACTOR / wheelRadiusM);
 
             const bool isFrontPowered = (drivetrainType == DRIVETRAIN_TYPE_AWD) || drivetrainType == DRIVETRAIN_TYPE_FWD;
             const bool isBackPowered = (drivetrainType == DRIVETRAIN_TYPE_AWD) || drivetrainType == DRIVETRAIN_TYPE_RWD;
@@ -87,14 +87,14 @@ namespace VE
             const float poweredWheelRpm = wheelRpm;
             const float nonPoweredWheelRpm = (forwardSpeedMps * RADPS_TO_RPM_CONVERSION_FACTOR / wheelRadiusM);
 
-            wheelStates[WHEEL_FRONT_LEFT].rpm = (1.0f - vis.brake) * (isFrontPowered ? poweredWheelRpm : nonPoweredWheelRpm);
-            wheelStates[WHEEL_FRONT_RIGHT].rpm = (1.0f - vis.brake) * (isFrontPowered ? poweredWheelRpm : nonPoweredWheelRpm);
-            wheelStates[WHEEL_BACK_LEFT].rpm = clamp01(1.0f - vis.brake - vis.handbrake) * (isBackPowered ? poweredWheelRpm : nonPoweredWheelRpm);
-            wheelStates[WHEEL_BACK_RIGHT].rpm = clamp01(1.0f - vis.brake - vis.handbrake) * (isBackPowered ? poweredWheelRpm : nonPoweredWheelRpm);
+            wheelStates[WHEEL_FRONT_LEFT].rpm = (1.f - vis.brake) * (isFrontPowered ? poweredWheelRpm : nonPoweredWheelRpm);
+            wheelStates[WHEEL_FRONT_RIGHT].rpm = (1.f - vis.brake) * (isFrontPowered ? poweredWheelRpm : nonPoweredWheelRpm);
+            wheelStates[WHEEL_BACK_LEFT].rpm = clamp01(1.f - vis.brake - vis.handbrake) * (isBackPowered ? poweredWheelRpm : nonPoweredWheelRpm);
+            wheelStates[WHEEL_BACK_RIGHT].rpm = clamp01(1.f - vis.brake - vis.handbrake) * (isBackPowered ? poweredWheelRpm : nonPoweredWheelRpm);
 
             for (WheelState &state : wheelStates)
             {
-                state.spin = std::fmod(state.spin + state.rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.0f * PI);
+                state.spin = std::fmod(state.spin + state.rpm * dt * RPM_TO_RADPS_CONVERSION_FACTOR, 2.f * PI);
             }
         }
 
@@ -103,8 +103,8 @@ namespace VE
         const float engineTorqueNm = getTorque() * vis.throttle;
         const float frictionTorqueNm = ENGINE_FRICTION_COEFF * rpm * RPM_TO_RADPS_CONVERSION_FACTOR;
 
-        const float clutchStiffnessNmPerRadps = 12.0f;
-        const float clutchCapacityNmAtFullEngagement = 500.0f;
+        const float clutchStiffnessNmPerRadps = 12.f;
+        const float clutchCapacityNmAtFullEngagement = 500.f;
         const float clutchTorqueCapacityNm = drivetrainEngagement * clutchCapacityNmAtFullEngagement;
 
         const float clutchTorqueNm = clamp(clutchStiffnessNmPerRadps * clutchSlipRadps, -clutchTorqueCapacityNm, clutchTorqueCapacityNm);
@@ -124,9 +124,9 @@ namespace VE
     void Vehicle::calcForces(const Environment &environment)
     {
         const glm::mat4 R =
-            glm::rotate(glm::mat4(1.0f), (float)transform.rotation.yaw, glm::vec3(0, 1, 0)) *
-            glm::rotate(glm::mat4(1.0f), (float)transform.rotation.pitch, glm::vec3(1, 0, 0)) *
-            glm::rotate(glm::mat4(1.0f), (float)transform.rotation.roll, glm::vec3(0, 0, 1));
+            glm::rotate(glm::mat4(1.f), (float)transform.rotation.y, glm::vec3(0, 1, 0)) *
+            glm::rotate(glm::mat4(1.f), (float)transform.rotation.x, glm::vec3(1, 0, 0)) *
+            glm::rotate(glm::mat4(1.f), (float)transform.rotation.z, glm::vec3(0, 0, 1));
 
         glm::vec3 forward = glm::normalize(glm::vec3(R * glm::vec4(0, 0, 1, 0)));
         glm::vec3 right = glm::normalize(glm::vec3(R * glm::vec4(1, 0, 0, 0)));
@@ -138,7 +138,7 @@ namespace VE
 
         float FDragMag = 0.5f * environment.airDensityKgpm3 * dragCoeff * frontalAreaM2 * speedMps * speedMps;
 
-        glm::vec3 FDrag(0.0f);
+        glm::vec3 FDrag(0.f);
         if (glm::length(velocityMps) > 0.01f)
         {
             FDrag = -(velocityMps / glm::length(velocityMps)) * FDragMag;
@@ -146,7 +146,7 @@ namespace VE
 
         float FRollMag = SURFACE_ROLLING_COEFFICIENT * weightKg * environment.gravityMps2 * (forwardSpeedMps < 0.01f ? 0 : 1);
 
-        glm::vec3 FRoll(0.0f);
+        glm::vec3 FRoll(0.f);
         if (glm::length(velocityMps) > 0.01f)
         {
             FRoll = -(velocityMps / glm::length(velocityMps)) * FRollMag;
@@ -154,13 +154,13 @@ namespace VE
 
         float FBrakeMag = clamp01(vis.brake + vis.handbrake) * brakingForceN;
 
-        glm::vec3 FBrake(0.0f);
+        glm::vec3 FBrake(0.f);
         {
             if (glm::length(velocityMps) > 0.01f)
                 FBrake = -(velocityMps / glm::length(velocityMps)) * FBrakeMag;
         }
 
-        glm::vec3 FLat(0.0f);
+        glm::vec3 FLat(0.f);
         {
             float forwardSpeedMps = glm::dot(velocityMps, forward);
             float lateralSpeedMps = glm::dot(velocityMps, right);
@@ -173,13 +173,13 @@ namespace VE
 
             float vehicleWheelRpm = (forwardSpeedMps / wheelRadiusM) * RADPS_TO_RPM_CONVERSION_FACTOR;
 
-            const float slipEffectDamper = 2.0f;
+            const float slipEffectDamper = 2.f;
             const float maxWheelRpm = (float)(maxRpm / (gearRatios[gear] * finalDriveRatio)) * slipEffectDamper;
-            float frontSlipFactor = 1.0f - clamp01(clamp((fabsf(wheelStates[WHEEL_FRONT_LEFT].rpm - vehicleWheelRpm) + fabsf(wheelStates[WHEEL_FRONT_RIGHT].rpm - vehicleWheelRpm)) / 2, 0.0f, maxWheelRpm) / maxWheelRpm);
-            float backSlipFactor = 1.0f - clamp01(clamp((fabsf(wheelStates[WHEEL_BACK_LEFT].rpm - vehicleWheelRpm) + fabsf(wheelStates[WHEEL_BACK_RIGHT].rpm - vehicleWheelRpm)) / 2, 0.0f, maxWheelRpm) / maxWheelRpm);
+            float frontSlipFactor = 1.f - clamp01(clamp((fabsf(wheelStates[WHEEL_FRONT_LEFT].rpm - vehicleWheelRpm) + fabsf(wheelStates[WHEEL_FRONT_RIGHT].rpm - vehicleWheelRpm)) / 2, 0.f, maxWheelRpm) / maxWheelRpm);
+            float backSlipFactor = 1.f - clamp01(clamp((fabsf(wheelStates[WHEEL_BACK_LEFT].rpm - vehicleWheelRpm) + fabsf(wheelStates[WHEEL_BACK_RIGHT].rpm - vehicleWheelRpm)) / 2, 0.f, maxWheelRpm) / maxWheelRpm);
 
-            float frontFrictionCoefficient = tireGrip * (wheelStates[WHEEL_FRONT_LEFT].grip + wheelStates[WHEEL_FRONT_RIGHT].grip) / 2 * frontSlipFactor * (1.0f + fabsf(camberRad));
-            float backFrictionCoefficient = tireGrip * (wheelStates[WHEEL_BACK_LEFT].grip + wheelStates[WHEEL_BACK_RIGHT].grip) / 2 * backSlipFactor * (1.0f + fabsf(camberRad));
+            float frontFrictionCoefficient = tireGrip * (wheelStates[WHEEL_FRONT_LEFT].grip + wheelStates[WHEEL_FRONT_RIGHT].grip) / 2 * frontSlipFactor * (1.f + fabsf(camberRad));
+            float backFrictionCoefficient = tireGrip * (wheelStates[WHEEL_BACK_LEFT].grip + wheelStates[WHEEL_BACK_RIGHT].grip) / 2 * backSlipFactor * (1.f + fabsf(camberRad));
 
             float totalNormalForceN = weightKg * environment.gravityMps2;
             float frontAxleNormalForceN = 0.5f * totalNormalForceN;
@@ -188,8 +188,8 @@ namespace VE
             float maxFrontLateralForceN = frontFrictionCoefficient * frontAxleNormalForceN;
             float maxBackLateralForceN = backFrictionCoefficient * backAxleNormalForceN;
 
-            const float frontCorneringStiffnessNPerRad = 200000.0f;
-            const float backCorneringStiffnessNPerRad = 200000.0f;
+            const float frontCorneringStiffnessNPerRad = 200000.f;
+            const float backCorneringStiffnessNPerRad = 200000.f;
 
             float frontLateralForceN = -frontCorneringStiffnessNPerRad * frontSlipAngleRad;
             float backLateralForceN = -backCorneringStiffnessNPerRad * backSlipAngleRad;
@@ -204,25 +204,25 @@ namespace VE
 
             float yawMomentNm = centerOfGravity * (frontLateralForceN - backLateralForceN);
 
-            const float yawInertiaKgM2 = 2500.0f;
+            const float yawInertiaKgM2 = 2500.f;
 
             float yawAccelerationRadps2 = yawMomentNm / yawInertiaKgM2;
 
             yawRateRadps += yawAccelerationRadps2 * (float)dt;
 
             if (forwardSpeedMps < 0.01f)
-                yawRateRadps = 0.0f;
+                yawRateRadps = 0.f;
         }
 
-        const float slope = std::atan(std::sqrt(std::tan(transform.rotation.pitch) * std::tan(transform.rotation.pitch) + std::tan(transform.rotation.roll) * std::tan(transform.rotation.roll)));
+        const float slope = std::atan(std::sqrt(std::tan(transform.rotation.x) * std::tan(transform.rotation.x) + std::tan(transform.rotation.z) * std::tan(transform.rotation.z)));
         float FSlopeMag = weightKg * environment.gravityMps2 * sin(slope);
 
-        glm::vec3 FSlope(0.0f);
+        glm::vec3 FSlope(0.f);
         {
             FSlope = -forward * FSlopeMag;
         }
 
-        glm::vec3 FGravity(0.0f, -weightKg * environment.gravityMps2, 0.0f);
+        glm::vec3 FGravity(0.f, -weightKg * environment.gravityMps2, 0.f);
 
         glm::vec3 FTotal = FDrive + FDrag + FRoll + FBrake + FLat + FSlope + FGravity;
 
@@ -237,10 +237,10 @@ namespace VE
     {
         const float linearAttenuationCoefficient = 0.1f;
         const float quadraticAttenuationCoefficient = 0.00025f;
-        float speedFactor = 1.0f / (1.0f + linearAttenuationCoefficient * forwardSpeedMps + quadraticAttenuationCoefficient * forwardSpeedMps * forwardSpeedMps);
-        speedFactor = clamp(speedFactor, 0.15f, 1.0f);
+        float speedFactor = 1.f / (1.f + linearAttenuationCoefficient * forwardSpeedMps + quadraticAttenuationCoefficient * forwardSpeedMps * forwardSpeedMps);
+        speedFactor = clamp(speedFactor, 0.15f, 1.f);
 
-        speedFactor = 1.0f;
+        speedFactor = 1.f;
 
         steeringAngleRad = clamp(vis.steer * maxSteeringAngleRad * speedFactor, -maxSteeringAngleRad, maxSteeringAngleRad);
     }
@@ -293,15 +293,15 @@ namespace VE
 
             if (isNeutral)
             {
-                if (vis.throttle == 0.0f && vis.brake == 0.0f && !vis.shiftDown && !vis.shiftUp)
+                if (vis.throttle == 0.f && vis.brake == 0.f && !vis.shiftDown && !vis.shiftUp)
                     return;
-                else if (vis.throttle != 0.0f)
+                else if (vis.throttle != 0.f)
                     isNeutral = false;
             }
 
             const bool isReverse = gear == 0;
-            const bool isBraking = (vis.brake > 0.0f || vis.handbrake > 0.0f);
-            const float shiftUpOverspeedToleranceRadps = 30.0f;
+            const bool isBraking = (vis.brake > 0.f || vis.handbrake > 0.f);
+            const float shiftUpOverspeedToleranceRadps = 30.f;
             if (((rpm > maxRpm && !isReverse) && // RPM exceeds max(not in reverse) and there is no wheel spin
                  (rpm * RPM_TO_RADPS_CONVERSION_FACTOR <= fabsf(forwardSpeedMps) * gearRatios[gear] * finalDriveRatio / wheelRadiusM + shiftUpOverspeedToleranceRadps)) ||
                 (isReverse && rpm < idleRpm && isBraking) || // Low RPM while in reverse

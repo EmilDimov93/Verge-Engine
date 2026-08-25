@@ -242,17 +242,17 @@ namespace VE
         vkFreeMemory(device, stagingBufferMemory, nullptr);
     }
 
-    uint32_t Renderer::createTextureImage(const uint8_t *imageData, Size2 size)
+    uint32_t Renderer::createTextureImage(const uint8_t *imageData, glm::uvec2 size)
     {
-        if (!imageData || size.w <= 0 || size.h <= 0)
+        if (!imageData || size.x <= 0 || size.y <= 0)
         {
             Log::add('R', 111);
             return INVALID_TEXTURE_INDEX;
         }
 
-        const VkDeviceSize imageSize = static_cast<VkDeviceSize>(size.w * size.h * 4);
+        const VkDeviceSize imageSize = static_cast<VkDeviceSize>(size.x * size.y * 4);
 
-        uint32_t mipLevelCount = static_cast<uint32_t>(std::floor(std::log2(std::max(size.w, size.h)))) + 1;
+        uint32_t mipLevelCount = static_cast<uint32_t>(std::floor(std::log2(std::max(size.x, size.y)))) + 1;
 
         VkBuffer imageStagingBuffer;
         VkDeviceMemory imageStagingBufferMemory;
@@ -266,7 +266,7 @@ namespace VE
         VkImage texImage;
         VkDeviceMemory texImageMemory;
 
-        texImage = createImage(size.w, size.h, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mipLevelCount, &texImageMemory);
+        texImage = createImage(size.x, size.y, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mipLevelCount, &texImageMemory);
 
         CommandPoolGuard graphicsCommandPoolLocal(device, graphicsQueueFamilyIndex);
         CommandPoolGuard transferCommandPoolLocal(device, transferQueueFamilyIndex);
@@ -275,9 +275,9 @@ namespace VE
 
         transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT, graphicsQueueMutex, uploadFence);
         vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
-        vkCheck(copyImageBuffer(device, transferQueue, transferCommandPoolLocal, imageStagingBuffer, texImage, size.w, size.h, transferQueueMutex, uploadFence), {'R', 239});
+        vkCheck(copyImageBuffer(device, transferQueue, transferCommandPoolLocal, imageStagingBuffer, texImage, size.x, size.y, transferQueueMutex, uploadFence), {'R', 239});
         vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
-        vkCheck(generateMipmaps(device, physicalDevice, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_FORMAT_R8G8B8A8_SRGB, size.w, size.h, mipLevelCount, graphicsQueueMutex, uploadFence), {'R', 240});
+        vkCheck(generateMipmaps(device, physicalDevice, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_FORMAT_R8G8B8A8_SRGB, size.x, size.y, mipLevelCount, graphicsQueueMutex, uploadFence), {'R', 240});
 
         uint32_t resultIndex;
         {
@@ -292,7 +292,7 @@ namespace VE
         return resultIndex;
     }
 
-    uint32_t Renderer::createTexture(std::vector<uint8_t> texturePixels, Size2 textureSize)
+    uint32_t Renderer::createTexture(std::vector<uint8_t> texturePixels, glm::uvec2 textureSize)
     {
         uint32_t textureImageIndex = createTextureImage(texturePixels.data(), textureSize);
 
@@ -411,10 +411,10 @@ namespace VE
             .addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT,
             .addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT,
             .addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT,
-            .mipLodBias = 0.0f,
+            .mipLodBias = 0.f,
             .anisotropyEnable = VK_TRUE,
             .maxAnisotropy = maxAnisotropy,
-            .minLod = 0.0f,
+            .minLod = 0.f,
             .maxLod = VK_LOD_CLAMP_NONE,
             .borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK,
             .unnormalizedCoordinates = VK_FALSE};

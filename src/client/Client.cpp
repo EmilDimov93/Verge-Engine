@@ -28,8 +28,8 @@ namespace VE
 
         audio.tick(audioData, volume);
 
-        Position2 mousePos = Input::getMousePos();
-        Size2 windowSize = window.getSize();
+        glm::vec2 mousePos = Input::getMousePos();
+        glm::uvec2 windowSize = window.getSize();
         ui.tick(Input::isPressed(MOUSE_BTN_LEFT), mousePos, window.getSize());
 
         fps.sync();
@@ -37,15 +37,15 @@ namespace VE
 
     float smoothValue(float newValue, float oldValue, float smoothingFactor, float dt)
     {
-        if (smoothingFactor <= 0.0f)
+        if (smoothingFactor <= 0.f)
             return newValue;
 
-        const bool differentSigns = (newValue >= 0.0f && oldValue <= 0.0f) || (newValue <= 0.0f && oldValue >= 0.0f);
+        const bool differentSigns = (newValue >= 0.f && oldValue <= 0.f) || (newValue <= 0.f && oldValue >= 0.f);
 
         if (differentSigns || fabsf(newValue) < fabsf(oldValue))
             smoothingFactor = 1e-5f;
 
-        const float interpolationSpeed = (1.0f - smoothingFactor) * 10.0f;
+        const float interpolationSpeed = (1.f - smoothingFactor) * 10.f;
 
         const float bigger = newValue > oldValue ? newValue : oldValue;
         const float smaller = newValue < oldValue ? newValue : oldValue;
@@ -55,14 +55,14 @@ namespace VE
         float res = clamp(oldValue + (newValue - oldValue) * interpolationSpeed * dt, smaller, bigger);
 
         if (fabsf(res) < inputEpsilon)
-            res = 0.0f;
+            res = 0.f;
 
         return res;
     }
 
     float getMaxAbsKeybindValue(const std::vector<Keybind>& keybindArray, bool &isAxis)
     {
-        float maxValue = 0.0f;
+        float maxValue = 0.f;
         isAxis = false;
 
         for (const Keybind& keybind : keybindArray)
@@ -147,7 +147,7 @@ namespace VE
             bool isStartEngineAxis = false;
             float startEngine = getMaxAbsKeybindValue(keybinds.startEngine, isStartEngineAxis);
 
-            vis.starter = startEngine > 0.0f;
+            vis.starter = startEngine > 0.f;
         }
 
         {
@@ -208,13 +208,13 @@ namespace VE
 
     void Client::setVolume(float volume)
     {
-        if (volume >= 0 && volume <= 1.0f)
+        if (volume >= 0 && volume <= 1.f)
             this->volume = volume;
     }
 
     void Client::setFOV(float fov)
     {
-        if (fov > 0.0f && fov < 180.0f)
+        if (fov > 0.f && fov < 180.f)
             this->fov = fov;
         else
             Log::add('C', 200);
@@ -222,7 +222,7 @@ namespace VE
 
     void Client::setzNear(float zNear)
     {
-        if (zNear > 0.0f)
+        if (zNear > 0.f)
             this->zNear = zNear;
         else
             Log::add('C', 201);

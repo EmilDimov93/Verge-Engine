@@ -19,7 +19,7 @@ namespace VE
     {
         ModelHandle modelHandle = ModelHandle::INVALID;
         HitboxShape hitboxShape = HITBOX_SHAPE_UNKNOWN;
-        float hitboxSize = -1.0f;
+        float hitboxSize = -1.f;
         bool isAutoDestroy = false;
     };
 
@@ -33,7 +33,7 @@ namespace VE
 
         [[nodiscard]] ModelInstanceHandle getModelInstanceHandle() const;
 
-        [[nodiscard]] bool doesActorTrigger(Position3 actorPos) const;
+        [[nodiscard]] bool doesActorTrigger(glm::vec3 actorPos) const;
 
         [[nodiscard]] bool isAutoDestroy() const;
         void markForDestroy();

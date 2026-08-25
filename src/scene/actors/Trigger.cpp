@@ -29,7 +29,7 @@ namespace VE
         }
         else
         {
-            hitboxSize = 1.0f;
+            hitboxSize = 1.f;
             Log::add('A', 181);
         }
 
@@ -40,9 +40,9 @@ namespace VE
         modelMat = transform.toMat();
     }
 
-    bool Trigger::doesActorTrigger(Position3 actorPos) const
+    bool Trigger::doesActorTrigger(glm::vec3 actorPos) const
     {
-        Position3 triggerPos = transform.position;
+        glm::vec3 triggerPos = transform.position;
 
         switch (hitboxShape)
         {

@@ -13,7 +13,7 @@ namespace VE
         VehicleHandle vehicleHandle;
         std::string fileName;
         float pitch;
-        Position3 position;
+        glm::vec3 position;
     };
 
     struct EngineAudioFileRequest
@@ -28,7 +28,7 @@ namespace VE
         std::vector<EngineAudioFileRequest> audioFiles;
         float rpm;
         float maxRpm;
-        Position3 position;
+        glm::vec3 position;
     };
 
     struct AudioRequest
@@ -36,19 +36,19 @@ namespace VE
         std::string fileName;
         float pitch;
         bool is3D;
-        Position3 position;
+        glm::vec3 position;
     };
 
     struct AudioData
     {
-        const Position3 playerPosition;
+        const glm::vec3 playerPosition;
         const float playerYawRad;
         const std::vector<EngineAudioRequest> &engineAudioRequests;
         const std::vector<LayeredEngineAudioRequest> &layeredEngineAudioRequests;
         const std::vector<AudioRequest> &oneShotAudioRequests;
         const bool vehicleRemovedThisFrame;
 
-        AudioData(const Position3 playerPosition,
+        AudioData(const glm::vec3 playerPosition,
                   const float playerYawRad,
                   const std::vector<EngineAudioRequest> &engineAudioRequests,
                   const std::vector<LayeredEngineAudioRequest> &layeredEngineAudioRequests,

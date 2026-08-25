@@ -60,5 +60,4 @@ namespace VE
     {
         return lastFrameTime;
     }
-
 }

@@ -37,7 +37,7 @@ namespace VE
         void removePlayer(PlayerHandle handle);
 
         VehicleHandle addVehicle(const VehicleCreateInfo &info, Transform transform = {});
-        PropHandle addProp(ModelHandle modelHandle, Transform transform, float lightIntensity = 0.0f, color_t lightColor = color_t(1.0f));
+        PropHandle addProp(ModelHandle modelHandle, Transform transform, float lightIntensity = 0.f, color_t lightColor = color_t(1.f));
         TriggerHandle addTrigger(const TriggerTypeCreateInfo &info, Transform transform = {}, const std::function<void()>& callback = nullptr);
 
         void removeVehicle(VehicleHandle handle);
@@ -47,7 +47,7 @@ namespace VE
         void tick(seconds_t dt, std::vector<std::pair<PlayerHandle, VehicleInputState>> inputData);
 
         [[nodiscard]] SurfaceTypeIndex addSurfaceType(const SurfaceTypeCreateInfo &info);
-        void addSurface(Size2 size, const std::vector<uint32_t> &surfaceTypeMap, const std::vector<float> &heightMap, float tileSize = 1.0f, Position3 position = {});
+        void addSurface(glm::uvec2 size, const std::vector<uint32_t> &surfaceTypeMap, const std::vector<float> &heightMap, float tileSize = 1.f, glm::vec3 position = {});
 
         void setAirDensity(float airDensity);
         void setGravity(float gravity);
@@ -55,7 +55,7 @@ namespace VE
         void setOutdoorBrightness(float outdoorBrightness);
 
         void playAudio(std::string fileName, float pitch);
-        void playAudio3D(std::string fileName, float pitch, Position3 position);
+        void playAudio3D(std::string fileName, float pitch, glm::vec3 position);
 
     private:
         seconds_t dt;
@@ -90,8 +90,8 @@ namespace VE
 
         [[nodiscard]] bool isModelInstanced(ModelHandle modelHandle) const;
 
-        [[nodiscard]] float sampleHeightAt(const Position3 &point) const;
-        [[nodiscard]] const SurfaceType &sampleSurfaceTypeAt(const Position3 &point) const;
+        [[nodiscard]] float sampleHeightAt(const glm::vec3 &point) const;
+        [[nodiscard]] const SurfaceType &sampleSurfaceTypeAt(const glm::vec3 &point) const;
 
         bool vehicleRemovedThisFrame = false;
         bool modelRemovedThisFrame = false;

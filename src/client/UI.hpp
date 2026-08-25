@@ -12,7 +12,7 @@ namespace VE
     class UI
     {
     public:
-        void tick(bool mouseBtnClicked, Position2 mousePos, Size2 windowSize);
+        void tick(bool mouseBtnClicked, glm::vec2 mousePos, glm::uvec2 windowSize);
 
         [[nodiscard]] UIDrawData getWidgetData() const;
 
@@ -28,6 +28,6 @@ namespace VE
 
         std::unordered_map<WidgetInstanceHandle, std::function<void()>> callbacks;
 
-        [[nodiscard]] bool checkCursorCollision(WidgetInstanceHandle handle, Position2 mousePos, Size2 windowSize) const;
+        [[nodiscard]] bool checkCursorCollision(WidgetInstanceHandle handle, glm::vec2 mousePos, glm::uvec2 windowSize) const;
     };
 }

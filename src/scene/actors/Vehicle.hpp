@@ -16,7 +16,7 @@
 namespace VE
 {
 
-    constexpr float RPM_TO_RADPS_CONVERSION_FACTOR = 2.0f * PI / 60.0f;
+    constexpr float RPM_TO_RADPS_CONVERSION_FACTOR = 2.f * PI / 60.f;
 
     enum TransmissionType
     {
@@ -37,24 +37,24 @@ namespace VE
         ModelHandle bodyModelHandle = ModelHandle::INVALID;
         ModelHandle wheelModelHandle = ModelHandle::INVALID;
 
-        Position3 wheelOffset{0};
+        glm::vec3 wheelOffset{0};
 
         uint32_t peakTorqueNm = 300;
 
         float weightKg = 1200.f;
         uint32_t maxRpm = 6000;
-        float brakingForceN = 15000.0f;
+        float brakingForceN = 15000.f;
         TransmissionType transmissionType = TRANSMISSION_TYPE_AUTOMATIC;
 
         std::vector<float> gearRatios;
         float reverseGearRatio = 3.5f;
-        float finalDriveRatio = 4.0f;
+        float finalDriveRatio = 4.f;
         float drivetrainEfficiency = 0.85f;
         float wheelRadiusM = 0.3f;
         float dragCoeff = 0.31f;
-        float frontalAreaM2 = 2.0f;
+        float frontalAreaM2 = 2.f;
         float maxSteeringAngleRad = 0.55f;
-        float tireGrip = 1.0f;
+        float tireGrip = 1.f;
         uint32_t idleRpm = 800;
         float camberRad = 0;
 
@@ -89,7 +89,7 @@ namespace VE
         [[nodiscard]] glm::vec3 getCollisionPointWorld(uint32_t index)
         {
             assert(index < collisionPoints.size());
-            return bodyMat * glm::vec4(collisionPoints[index], 1.0f);
+            return bodyMat * glm::vec4(collisionPoints[index], 1.f);
         }
 
         [[nodiscard]] glm::vec3 getCollisionPointLocal(uint32_t index)
@@ -123,14 +123,14 @@ namespace VE
 
         struct WheelState
         {
-            float grip = 1.0f;
-            float suspension = 0.0f;
-            float rpm = 0.0f;
-            float spin = 0.0f;
+            float grip = 1.f;
+            float suspension = 0.f;
+            float rpm = 0.f;
+            float spin = 0.f;
 
-            float temperatureK = 0.0f;
+            float temperatureK = 0.f;
 
-            float wear = 0.0f; // Not implemented
+            float wear = 0.f; // Not implemented
         };
 
         VehicleHandle handle;
@@ -138,7 +138,7 @@ namespace VE
         ModelInstanceHandle bodyModelInstanceHandle;
         std::array<ModelInstanceHandle, WHEEL_COUNT> wheelModelInstanceHandles;
 
-        Position3 wheelOffset;
+        glm::vec3 wheelOffset;
 
         uint32_t peakTorqueNm;
         float weightKg;
@@ -163,17 +163,17 @@ namespace VE
         VehicleInputState vis;
 
         Transform transform;
-        glm::vec3 velocityMps = glm::vec3(0.0f);
+        glm::vec3 velocityMps = glm::vec3(0.f);
 
-        float speedMps = 0.0f;
-        float forwardSpeedMps = 0.0f;
+        float speedMps = 0.f;
+        float forwardSpeedMps = 0.f;
         uint32_t gear = 1;
         bool isNeutral = true;
-        float rpm = 0.0f;
-        float wheelRpm = 0.0f;
+        float rpm = 0.f;
+        float wheelRpm = 0.f;
 
-        float steeringAngleRad = 0.0f;
-        float yawRateRadps = 0.0f;
+        float steeringAngleRad = 0.f;
+        float yawRateRadps = 0.f;
 
         float cruiseControlTargetMps = 0;
 
@@ -196,7 +196,7 @@ namespace VE
 
         [[nodiscard]] ModelInstanceHandle getBodyModelInstanceHandle() const { return bodyModelInstanceHandle; }
         [[nodiscard]] ModelInstanceHandle getWheelModelInstanceHandle(Wheel wheel) const { return wheelModelInstanceHandles[wheel]; }
-        [[nodiscard]] Position3 getWheelOffset() const { return wheelOffset; }
+        [[nodiscard]] glm::vec3 getWheelOffset() const { return wheelOffset; }
         [[nodiscard]] uint32_t getPeakTorqueNm() const { return peakTorqueNm; }
         [[nodiscard]] float getWeightKg() const { return weightKg; }
         [[nodiscard]] uint32_t getGearCount() const { return gearCount; }
@@ -204,7 +204,7 @@ namespace VE
         [[nodiscard]] uint32_t getIdleRpm() const { return idleRpm; }
         [[nodiscard]] TransmissionType getTransmissionType() const { return transmissionType; }
         [[nodiscard]] float getBrakingForceN() const { return brakingForceN; }
-        [[nodiscard]] float getGearRatio(uint32_t gear) const { return gear < gearRatios.size() ? gearRatios[gear] : 0.0f; }
+        [[nodiscard]] float getGearRatio(uint32_t gear) const { return gear < gearRatios.size() ? gearRatios[gear] : 0.f; }
         [[nodiscard]] float getFinalDriveRatio() const { return finalDriveRatio; }
         [[nodiscard]] float getDrivetrainEfficiency() const { return drivetrainEfficiency; }
         [[nodiscard]] float getWheelRadius() const { return wheelRadiusM; }
@@ -224,7 +224,7 @@ namespace VE
         [[nodiscard]] float getRpm() const { return rpm; }
 
         // Setters
-        void setWheelOffset(Position3 value) { wheelOffset = value; }
+        void setWheelOffset(glm::vec3 value) { wheelOffset = value; }
         void setPeakTorqueNm(uint32_t value) { peakTorqueNm = value; }
         void setWeightKg(float value) { weightKg = value; }
         void setGearCount(uint32_t value) { gearCount = value; }

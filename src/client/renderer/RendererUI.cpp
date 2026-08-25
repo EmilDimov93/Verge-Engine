@@ -63,7 +63,7 @@ namespace VE
 
         for (const Mesh &mesh : widget.getMeshes())
         {
-            MeshBuffer meshBuffer = createMeshBuffer(mesh, newWidgetBuffer.materials[mesh.getMaterialIndex()].baseColor.a < 1.0f);
+            MeshBuffer meshBuffer = createMeshBuffer(mesh, newWidgetBuffer.materials[mesh.getMaterialIndex()].baseColor.a < 1.f);
 
             newWidgetBuffer.meshBuffers.push_back(meshBuffer);
 
@@ -100,7 +100,7 @@ namespace VE
 
         for (const Mesh &mesh : widget.getMeshes())
         {
-            MeshBuffer meshBuffer = createMeshBuffer(mesh, widgetBuffer.materials[mesh.getMaterialIndex()].baseColor.a < 1.0f);
+            MeshBuffer meshBuffer = createMeshBuffer(mesh, widgetBuffer.materials[mesh.getMaterialIndex()].baseColor.a < 1.f);
 
             widgetBuffer.meshBuffers.push_back(meshBuffer);
 

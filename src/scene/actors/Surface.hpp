@@ -29,33 +29,33 @@ struct SurfaceType
 class Surface
 {
 public:
-    Size2 size = {0, 0};
+    glm::uvec2 size = {0, 0};
 
-    float tileSize = 1.0f;
+    float tileSize = 1.f;
 
     std::vector<float> heightMap;
     std::vector<SurfaceTypeIndex> surfaceTypeMap;
 
-    Position3 position;
+    glm::vec3 position;
 
-    void resize(Size2 size)
+    void resize(glm::uvec2 size)
     {
-        this->size.w = size.w;
-        this->size.h = size.h;
+        this->size.x = size.x;
+        this->size.y = size.y;
 
-        heightMap.resize(size.w * size.h);
-        surfaceTypeMap.resize(size.w * size.h);
+        heightMap.resize(size.x * size.y);
+        surfaceTypeMap.resize(size.x * size.y);
     }
 
-    [[nodiscard]] float sampleHeight(const Position3 &pos) const // world coordinates
+    [[nodiscard]] float sampleHeight(const glm::vec3 &pos) const // world coordinates
     {
-        if (pos.x < position.x - size.w * tileSize / 2 || pos.x > position.x + size.w * tileSize / 2 || pos.z < position.z - size.h * tileSize / 2 || pos.z > position.z + size.h * tileSize / 2)
+        if (pos.x < position.x - size.x * tileSize / 2 || pos.x > position.x + size.x * tileSize / 2 || pos.z < position.z - size.y * tileSize / 2 || pos.z > position.z + size.y * tileSize / 2)
         {
             return FLOAT_MIN;
         }
 
-        float localX = size.w / 2.0f + (pos.x - position.x) / tileSize;
-        float localZ = size.h / 2.0f + (pos.z - position.z) / tileSize;
+        float localX = size.x / 2.f + (pos.x - position.x) / tileSize;
+        float localZ = size.y / 2.f + (pos.z - position.z) / tileSize;
 
         int localXLower = std::floor(localX);
         int localXUpper = std::ceil(localX);
@@ -68,31 +68,31 @@ public:
         return avg;
     }
 
-    [[nodiscard]] SurfaceTypeIndex sampleSurfaceTypeIndex(const Position3 &pos) const // world coordinates
+    [[nodiscard]] SurfaceTypeIndex sampleSurfaceTypeIndex(const glm::vec3 &pos) const // world coordinates
     {
-        if (pos.x < position.x - size.w * tileSize / 2 || pos.x > position.x + size.w * tileSize / 2 || pos.z < position.z - size.h * tileSize / 2 || pos.z > position.z + size.h * tileSize / 2)
+        if (pos.x < position.x - size.x * tileSize / 2 || pos.x > position.x + size.x * tileSize / 2 || pos.z < position.z - size.y * tileSize / 2 || pos.z > position.z + size.y * tileSize / 2)
         {
             return 0;
         }
 
-        return getSurfaceTypeAt(size.w / 2.0f + (pos.x - position.x) / tileSize, size.h / 2.0f + (pos.z - position.z) / tileSize);
+        return getSurfaceTypeAt(size.x / 2.f + (pos.x - position.x) / tileSize, size.y / 2.f + (pos.z - position.z) / tileSize);
     }
 
 private:
     [[nodiscard]] float getHeightAt(uint32_t x, uint32_t y) const // grid coordinates
     {
-        if (x >= size.w || y >= size.h)
+        if (x >= size.x || y >= size.y)
             return FLOAT_MIN;
 
-        return heightMap[size_t(y) * size.w + x];
+        return heightMap[size_t(y) * size.x + x];
     }
 
     [[nodiscard]] SurfaceTypeIndex getSurfaceTypeAt(uint32_t x, uint32_t y) const // grid coordinates
     {
-        if (x >= size.w || y >= size.h)
+        if (x >= size.x || y >= size.y)
             return 0;
 
-        return surfaceTypeMap[size_t(y) * size.w + x];
+        return surfaceTypeMap[size_t(y) * size.x + x];
     }
 };
 

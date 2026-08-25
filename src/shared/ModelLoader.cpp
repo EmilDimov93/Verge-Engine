@@ -54,7 +54,7 @@ namespace VE
                 {
                     currentMat = line.substr(7);
                     trim(currentMat);
-                    materials[currentMat].baseColor.a = 1.0f;
+                    materials[currentMat].baseColor.a = 1.f;
                 }
                 else if (line.starts_with("Kd ") && !currentMat.empty())
                 {
@@ -77,8 +77,8 @@ namespace VE
 
                     if (decodedPixels)
                     {
-                        materials[currentMat].textureSize.w = static_cast<uint32_t>(width);
-                        materials[currentMat].textureSize.h = static_cast<uint32_t>(height);
+                        materials[currentMat].textureSize.x = static_cast<uint32_t>(width);
+                        materials[currentMat].textureSize.y = static_cast<uint32_t>(height);
 
                         materials[currentMat].texturePixels.assign(decodedPixels, decodedPixels + static_cast<size_t>(width) * height * 4);
 
@@ -92,28 +92,28 @@ namespace VE
                 else if (line.starts_with("d ") && !currentMat.empty())
                 {
                     std::stringstream ss(line.substr(2));
-                    float dissolve = 1.0f;
+                    float dissolve = 1.f;
                     ss >> dissolve;
                     materials[currentMat].baseColor.a = dissolve;
                 }
                 else if (line.starts_with("Tr ") && !currentMat.empty())
                 {
                     std::stringstream ss(line.substr(3));
-                    float transparency = 0.0f;
+                    float transparency = 0.f;
                     ss >> transparency;
-                    materials[currentMat].baseColor.a = 1.0f - transparency;
+                    materials[currentMat].baseColor.a = 1.f - transparency;
                 }
                 else if (line.starts_with("Pm ") && !currentMat.empty())
                 {
                     std::stringstream ss(line.substr(3));
-                    float metallic = 0.0f;
+                    float metallic = 0.f;
                     ss >> metallic;
                     materials[currentMat].metallic = metallic;
                 }
                 else if (line.starts_with("Pr ") && !currentMat.empty())
                 {
                     std::stringstream ss(line.substr(3));
-                    float roughness = 1.0f;
+                    float roughness = 1.f;
                     ss >> roughness;
                     materials[currentMat].roughness = roughness;
                 }
@@ -226,8 +226,8 @@ namespace VE
                 {
                     Vertex vertex;
                     vertex.pos = positions[positionIndex];
-                    vertex.tex = (texCoordIndex >= 0 && texCoordIndex < static_cast<int32_t>(texCoords.size())) ? texCoords[texCoordIndex] : glm::vec2(0.0f);
-                    vertex.tex.y = 1.0f - vertex.tex.y;
+                    vertex.tex = (texCoordIndex >= 0 && texCoordIndex < static_cast<int32_t>(texCoords.size())) ? texCoords[texCoordIndex] : glm::vec2(0.f);
+                    vertex.tex.y = 1.f - vertex.tex.y;
                     vertex.norm = (normalIndex >= 0 && normalIndex < static_cast<int32_t>(normals.size())) ? normals[normalIndex] : faceNormal;
 
                     currentMeshIndices.push_back(static_cast<uint32_t>(currentMeshVertices.size()));
@@ -315,8 +315,8 @@ namespace VE
 
                     if (decodedPixels)
                     {
-                        material.textureSize.w = static_cast<uint32_t>(width);
-                        material.textureSize.h = static_cast<uint32_t>(height);
+                        material.textureSize.x = static_cast<uint32_t>(width);
+                        material.textureSize.y = static_cast<uint32_t>(height);
 
                         material.texturePixels.assign(decodedPixels,
                                                       decodedPixels + static_cast<size_t>(width) * height * 4);
@@ -381,30 +381,30 @@ namespace VE
                 {
                     Vertex &vertex = meshVertices[vertexIndex];
 
-                    float position[3] = {0.0f, 0.0f, 0.0f};
+                    float position[3] = {0.f, 0.f, 0.f};
                     cgltf_accessor_read_float(positionAccessor, vertexIndex, position, 3);
                     vertex.pos = glm::vec3(position[0], position[1], position[2]);
 
                     if (normalAccessor)
                     {
-                        float normal[3] = {0.0f, 0.0f, 0.0f};
+                        float normal[3] = {0.f, 0.f, 0.f};
                         cgltf_accessor_read_float(normalAccessor, vertexIndex, normal, 3);
                         vertex.norm = glm::vec3(normal[0], normal[1], normal[2]);
                     }
                     else
                     {
-                        vertex.norm = glm::vec3(0.0f);
+                        vertex.norm = glm::vec3(0.f);
                     }
 
                     if (texCoordAccessor)
                     {
-                        float texCoord[2] = {0.0f, 0.0f};
+                        float texCoord[2] = {0.f, 0.f};
                         cgltf_accessor_read_float(texCoordAccessor, vertexIndex, texCoord, 2);
                         vertex.tex = glm::vec2(texCoord[0], texCoord[1]);
                     }
                     else
                     {
-                        vertex.tex = glm::vec2(0.0f);
+                        vertex.tex = glm::vec2(0.f);
                     }
                 }
 

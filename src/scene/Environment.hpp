@@ -15,11 +15,11 @@ namespace VE
 
     struct Environment
     {
-        color_t backgroundColor = color_t(1.0f);
+        color_t backgroundColor = color_t(1.f);
         float airDensityKgpm3 = 1.225f;
         float gravityMps2 = 9.81f;
         float temperatureK = 293.15f;
-        float outdoorBrightness = 1.0f;
+        float outdoorBrightness = 1.f;
     };
 
 }

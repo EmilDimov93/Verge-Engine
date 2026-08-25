@@ -17,7 +17,7 @@ namespace VE
         glm::vec2 tex;
         glm::vec3 norm;
 
-        Vertex(const glm::vec3 &position = glm::vec3(0.0f), const glm::vec2 &texture = glm::vec2(0.0f), const glm::vec3 &normal = glm::vec3(0.0f, 1.0f, 0.0f)) : pos(position), tex(texture), norm(normal) {}
+        Vertex(const glm::vec3 &position = glm::vec3(0.f), const glm::vec2 &texture = glm::vec2(0.f), const glm::vec3 &normal = glm::vec3(0.f, 1.f, 0.f)) : pos(position), tex(texture), norm(normal) {}
     };
 
     struct Material
@@ -31,7 +31,7 @@ namespace VE
 
         // CPU
         std::vector<uint8_t> texturePixels;
-        Size2 textureSize{};
+        glm::uvec2 textureSize{};
 
         Material(color_t baseColor = color_t(1.f), float metallic = 0.f, float roughness = 1.f) : baseColor(baseColor), metallic(metallic), roughness(roughness) {}
     };

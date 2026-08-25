@@ -14,7 +14,7 @@ namespace VE
     struct ClientCreateInfo
     {
         std::string projectName = "Verge Engine Program";
-        Size2 windowSize = {};
+        glm::uvec2 windowSize = {};
         LogOutputMode logOutputMode = LOG_OUTPUT_MODE_FILE_AND_CONSOLE;
         uint16_t targetFps = DEFAULT_FPS;
     };
@@ -90,15 +90,15 @@ namespace VE
 
         PostEffects bindedEffects;
 
-        float fov = 60.0f;
+        float fov = 60.f;
         float zNear = 0.01f;
-        float zFar = 1000.0f;
+        float zFar = 1000.f;
 
         [[nodiscard]] glm::mat4 getProjectionMat() const;
 
         // Audio
         AudioManager audio;
-        float volume = 1.0f;
+        float volume = 1.f;
 
         // Input
         VehicleKeybinds keybinds;
@@ -109,10 +109,10 @@ namespace VE
         // 1 -> maximum smoothing
         float throttleSmoothing = 0.5f;
         float brakeSmoothing = 0.5f;
-        float handbrakeSmoothing = 0.0f;
+        float handbrakeSmoothing = 0.f;
         float clutchSmoothing = 0.5f;
         float steerSmoothing = 0.5f;
-        float cameraMovementSmoothing = 0.0f;
+        float cameraMovementSmoothing = 0.f;
     };
 
 }

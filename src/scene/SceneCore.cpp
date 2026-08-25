@@ -16,7 +16,7 @@ namespace VE
     Scene::Scene()
     {
         // Fallback surface
-        surfaceTypes.push_back({1.0f, {0.1f, 0.1f, 0.1f, 1.f}});
+        surfaceTypes.push_back({1.f, {0.1f, 0.1f, 0.1f, 1.f}});
     }
 
     Player &Scene::player(PlayerHandle handle)
@@ -117,7 +117,7 @@ namespace VE
             float totalMaxClimb = vehicle.getTransform().position.y + vehicle.getMaxClimb();
 
             std::array<float, Vehicle::CollisionPointCount> surfaceHeightAtCollisionPoints;
-            float heightAvg = 0.0f;
+            float heightAvg = 0.f;
             for (size_t i = 0; i < Vehicle::CollisionPointCount; i++)
             {
                 surfaceHeightAtCollisionPoints[i] = sampleHeightAt(vehicle.getCollisionPointWorld(i));
@@ -135,8 +135,8 @@ namespace VE
             {
                 vehicle.setHeight(heightAvg);
                 glm::vec3 v = vehicle.getVelocityVector();
-                if (v.y < 0.0f)
-                    v.y = 0.0f;
+                if (v.y < 0.f)
+                    v.y = 0.f;
                 vehicle.setVelocityVector(v);
             }
 
@@ -237,7 +237,7 @@ namespace VE
         return newModelHandle;
     }
 
-    float Scene::sampleHeightAt(const Position3 &point) const
+    float Scene::sampleHeightAt(const glm::vec3 &point) const
     {
         float highest = 0;
         if (surfaces.size() == 0)
@@ -263,7 +263,7 @@ namespace VE
         return highest;
     }
 
-    const SurfaceType &Scene::sampleSurfaceTypeAt(const Position3 &point) const
+    const SurfaceType &Scene::sampleSurfaceTypeAt(const glm::vec3 &point) const
     {
         float highest;
         uint32_t highestIndex = 0;
@@ -318,7 +318,7 @@ namespace VE
         oneShotAudioRequests.emplace_back(AudioRequest{fileName, pitch, false, {}});
     }
 
-    void Scene::playAudio3D(std::string fileName, float pitch, Position3 position)
+    void Scene::playAudio3D(std::string fileName, float pitch, glm::vec3 position)
     {
         oneShotAudioRequests.emplace_back(AudioRequest{fileName, pitch, true, position});
     }

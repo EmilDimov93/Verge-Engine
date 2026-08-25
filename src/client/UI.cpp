@@ -12,7 +12,7 @@
 
 namespace VE
 {
-    void UI::tick(bool mouseBtnClicked, Position2 mousePos, Size2 windowSize)
+    void UI::tick(bool mouseBtnClicked, glm::vec2 mousePos, glm::uvec2 windowSize)
     {
         if (!mouseBtnClicked)
             return;
@@ -82,7 +82,7 @@ namespace VE
             callbacks.emplace(handle, std::move(callback));
     }
 
-    bool UI::checkCursorCollision(WidgetInstanceHandle handle, Position2 mousePos, Size2 windowSize) const
+    bool UI::checkCursorCollision(WidgetInstanceHandle handle, glm::vec2 mousePos, glm::uvec2 windowSize) const
     {
         const WidgetInstance *foundInstance = nullptr;
         for (const WidgetInstance &instance : widgetInstances)
@@ -110,7 +110,7 @@ namespace VE
         if (!foundWidget)
             return false;
 
-        glm::mat4 model = Transform(Position3((foundInstance->coords.x + 1) / 2 * windowSize.w, (foundInstance->coords.y + 1) / 2 * windowSize.h, 0.f), Rotation3(), Scale3(foundInstance->uniformScale)).toMat();
+        glm::mat4 model = Transform(glm::vec3((foundInstance->coords.x + 1) / 2 * windowSize.x, (foundInstance->coords.y + 1) / 2 * windowSize.y, 0.f), glm::vec3(), glm::vec3(foundInstance->uniformScale)).toMat();
 
         for (const Mesh &mesh : foundWidget->getMeshes())
         {
@@ -122,7 +122,7 @@ namespace VE
 
             for (const uint32_t &index : indices)
             {
-                triangle[counter] = glm::vec2(model * glm::vec4(vertices[index].pos.x, vertices[index].pos.y, 0.0f, 1.0f));
+                triangle[counter] = glm::vec2(model * glm::vec4(vertices[index].pos.x, vertices[index].pos.y, 0.f, 1.f));
 
                 if (counter == 2)
                 {
@@ -135,8 +135,8 @@ namespace VE
                     float d2 = edgeSign(mousePos, triangle[1], triangle[2]);
                     float d3 = edgeSign(mousePos, triangle[2], triangle[0]);
 
-                    bool has_neg = (d1 < 0.0f) || (d2 < 0.0f) || (d3 < 0.0f);
-                    bool has_pos = (d1 > 0.0f) || (d2 > 0.0f) || (d3 > 0.0f);
+                    bool has_neg = (d1 < 0.f) || (d2 < 0.f) || (d3 < 0.f);
+                    bool has_pos = (d1 > 0.f) || (d2 > 0.f) || (d3 > 0.f);
 
                     if (!(has_neg && has_pos))
                         return true;

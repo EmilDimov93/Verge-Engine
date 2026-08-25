@@ -22,17 +22,17 @@ namespace VE
 
     float AudioManager::attenuation(float distance) const
     {
-        const float ref = 3.0f;
-        const float rolloff = 3.0f;
+        const float ref = 3.f;
+        const float rolloff = 3.f;
         return ref / (ref + rolloff * (max(distance, ref) - ref));
     }
 
     float AudioManager::volumeToGain(float volume) const
     {
-        if (volume <= 0.0f)
-            return 0.0f;
-        const float dB = -60.0f + volume * 60.0f;
-        return std::pow(10.0f, dB / 20.0f);
+        if (volume <= 0.f)
+            return 0.f;
+        const float dB = -60.f + volume * 60.f;
+        return std::pow(10.f, dB / 20.f);
     }
 
     void AudioManager::removeOrphanedAudio(const AudioData &audioData)
@@ -95,8 +95,8 @@ namespace VE
         float cross = fx * posDelta.z - fz * posDelta.x;
 
         float distanceXZ = std::sqrt(posDelta.x * posDelta.x + posDelta.z * posDelta.z);
-        float pan = (distanceXZ > 1e-3f) ? (cross / distanceXZ) : 0.0f;
-        return clamp(pan, -1.0f, 1.0f);
+        float pan = (distanceXZ > 1e-3f) ? (cross / distanceXZ) : 0.f;
+        return clamp(pan, -1.f, 1.f);
     }
 
     void AudioManager::tick(const AudioData &audioData, float volume)
@@ -159,8 +159,8 @@ namespace VE
                     ma_sound_set_looping(&layeredEngineAudios.back().audioFiles[i].sound, MA_TRUE);
                     ma_sound_start(&layeredEngineAudios.back().audioFiles[i].sound);
 
-                    ma_sound_set_volume(&layeredEngineAudios.back().audioFiles[i].sound, 0.0f);
-                    ma_sound_set_pitch(&layeredEngineAudios.back().audioFiles[i].sound, 0.0f);
+                    ma_sound_set_volume(&layeredEngineAudios.back().audioFiles[i].sound, 0.f);
+                    ma_sound_set_pitch(&layeredEngineAudios.back().audioFiles[i].sound, 0.f);
 
                     i++;
                 }
@@ -263,7 +263,7 @@ namespace VE
                 ma_sound_set_looping(&engineAudios.back().sound, MA_TRUE);
                 ma_sound_start(&engineAudios.back().sound);
 
-                ma_sound_set_volume(&engineAudios.back().sound, 0.0f);
+                ma_sound_set_volume(&engineAudios.back().sound, 0.f);
                 ma_sound_set_pitch(&engineAudios.back().sound, req.pitch);
             }
         }

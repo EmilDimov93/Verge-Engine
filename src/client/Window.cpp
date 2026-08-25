@@ -7,14 +7,14 @@
 
 namespace VE
 {
-    Window::Window(Size2 size, std::string name)
+    Window::Window(glm::uvec2 size, std::string name)
     {
         if (!glfwInit())
             Log::add('G', 200);
 
         const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-        if (size.w <= mode->width && size.h <= mode->height)
+        if (size.x <= mode->width && size.y <= mode->height)
         {
             this->size = size;
         }
@@ -27,7 +27,7 @@ namespace VE
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-        window = glfwCreateWindow(this->size.w, this->size.h, name.c_str(), nullptr, nullptr);
+        window = glfwCreateWindow(this->size.x, this->size.y, name.c_str(), nullptr, nullptr);
         if (!window)
             Log::add('G', 201);
 
@@ -46,7 +46,7 @@ namespace VE
         return window;
     }
 
-    Size2 Window::getSize() const
+    glm::uvec2 Window::getSize() const
     {
         return size;
     }
@@ -58,10 +58,10 @@ namespace VE
 
     float Window::getAspectRatio() const
     {
-        if (size.h == 0)
-            return 1.0f;
+        if (size.y == 0)
+            return 1.f;
 
-        return static_cast<float>(size.w) / static_cast<float>(size.h);
+        return static_cast<float>(size.x) / static_cast<float>(size.y);
     }
 
     Window::~Window()

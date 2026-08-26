@@ -182,7 +182,7 @@ namespace VE
         VkImageMemoryBarrier2 depthMemoryBarrier = IMAGE_MEMORY_BARRIER_TEMPLATE;
         depthMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         depthMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        depthMemoryBarrier.image = depthAttachments[currentFrame].image;
+        depthMemoryBarrier.image = gBuffers[currentFrame].depth.image;
         depthMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
         depthMemoryBarrier.srcAccessMask = 0;
         depthMemoryBarrier.dstAccessMask = VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
@@ -208,7 +208,7 @@ namespace VE
 
         VkRenderingAttachmentInfo depthAttachmentInfo{};
         depthAttachmentInfo.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-        depthAttachmentInfo.imageView = depthAttachments[currentFrame].imageView;
+        depthAttachmentInfo.imageView = gBuffers[currentFrame].depth.imageView;
         depthAttachmentInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         depthAttachmentInfo.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         depthAttachmentInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -662,8 +662,13 @@ namespace VE
 
         vkDeviceWaitIdle(device);
 
-        for (ImageAttachment &depthAttachment : depthAttachments)
-            destroyImageAttachment(depthAttachment);
+        for (GeometryBuffer &gBuffers : gBuffers)
+        {
+            destroyImageAttachment(gBuffers.depth);
+            destroyImageAttachment(gBuffers.normal);
+            destroyImageAttachment(gBuffers.metallic);
+            destroyImageAttachment(gBuffers.roughness);
+        }
 
         destroySwapChain(swapChain);
 
@@ -673,6 +678,6 @@ namespace VE
         createSwapChain(glm::uvec2(static_cast<uint32_t>(width), static_cast<uint32_t>(height)));
         createPrePostImages();
         updatePostDescriptorSets();
-        createDepthAttachments();
+        createGeometryBuffers();
     }
 }

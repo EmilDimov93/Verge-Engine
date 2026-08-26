@@ -297,7 +297,16 @@ namespace VE
 
         // Model pass attachments
         std::vector<ImageAttachment> prePostAttachments;
-        std::array<ImageAttachment, FRAMES_IN_FLIGHT> depthAttachments;
+
+        // Geometry Buffer
+        struct GeometryBuffer
+        {
+            ImageAttachment depth;
+            ImageAttachment normal;
+            ImageAttachment metallic;
+            ImageAttachment roughness;
+        };
+        std::array<GeometryBuffer, FRAMES_IN_FLIGHT> gBuffers;
 
         // Pipeline 3: Transparent
         GraphicsPipeline transparentPipeline;
@@ -350,7 +359,7 @@ namespace VE
 
         void createTextureSampler();
 
-        void createDepthAttachments();
+        void createGeometryBuffers();
 
         void createPipelineCache();
 

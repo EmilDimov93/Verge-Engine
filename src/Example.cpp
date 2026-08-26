@@ -9,7 +9,7 @@ using namespace VE;
 class VergeEngine
 {
 public:
-    VergeEngine() : client({"Example", {2560, 1100}}) {}
+    VergeEngine() : client({"Example", {1200, 1000}}) {}
 
     void run()
     {
@@ -137,7 +137,7 @@ private:
 
         const float curveStrength = 30.f;
         const float curveFrequency = 0.005f;
-        const int roadHalfWidth = 30;
+        const uint32_t roadHalfWidth = 30;
         for (size_t i = 0; i < surfaceSize.y; i++)
         {
             const int centerX = static_cast<int>(surfaceSize.x / 2 + std::cos(i * curveFrequency) * curveStrength);

@@ -40,7 +40,7 @@ namespace VE
 
         createShadowPipeline();
 
-        createDepthAttachments();
+        createGeometryBuffers();
         createModelUniformBuffers();
         createModelDescriptors();
         createModelPipeline();
@@ -368,15 +368,15 @@ namespace VE
         }
     }
 
-    void Renderer::createDepthAttachments()
+    void Renderer::createGeometryBuffers()
     {
-        for (ImageAttachment &depthAttachment : depthAttachments)
+        for (GeometryBuffer &gBuffer : gBuffers)
         {
-            depthAttachment.image = createImage(swapChain.extent.width, swapChain.extent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &depthAttachment.memory);
+            gBuffer.depth.image = createImage(swapChain.extent.width, swapChain.extent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &gBuffer.depth.memory);
 
             VkImageViewCreateInfo imageViewCreateInfo{};
             imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-            imageViewCreateInfo.image = depthAttachment.image;
+            imageViewCreateInfo.image = gBuffer.depth.image;
             imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
             imageViewCreateInfo.format = depthFormat;
             imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -388,8 +388,10 @@ namespace VE
             imageViewCreateInfo.subresourceRange.levelCount = 1;
             imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
             imageViewCreateInfo.subresourceRange.layerCount = 1;
-            vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &depthAttachment.imageView), {'R', 205});
+            vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &gBuffer.depth.imageView), {'R', 205});
         }
+
+        // TO DO
     }
 
     void Renderer::createShadowSampler()
@@ -549,8 +551,13 @@ namespace VE
 
         destroyGraphicsPipeline(shadowPipeline);
 
-        for (ImageAttachment &depthAttachment : depthAttachments)
-            destroyImageAttachment(depthAttachment);
+        for (GeometryBuffer &gBuffers : gBuffers)
+        {
+            destroyImageAttachment(gBuffers.depth);
+            destroyImageAttachment(gBuffers.normal);
+            destroyImageAttachment(gBuffers.metallic);
+            destroyImageAttachment(gBuffers.roughness);
+        }
 
         if (shadowSampler)
             vkDestroySampler(device, shadowSampler, nullptr);

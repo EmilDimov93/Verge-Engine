@@ -28,8 +28,6 @@ namespace VE
         if (shadowMapCount <= 1)
             return;
 
-        const VkCommandBuffer commandBuffer = frames[currentFrame].commandBuffer;
-
         for (size_t i = 1; i < shadowMapCount; i++)
         {
             VkImageMemoryBarrier2 imageMemoryBarrier = IMAGE_MEMORY_BARRIER_TEMPLATE;
@@ -120,9 +118,9 @@ namespace VE
         uboCamera.view = viewMat;
 
         void *cameraData;
-        vkCheck(vkMapMemory(device, cameraUniformBufferMemory[currentFrame], 0, sizeof(UboCamera), 0, &cameraData), {'R', 236});
+        vkCheck(vkMapMemory(device, cameraUniformBufferMemory, 0, sizeof(UboCamera), 0, &cameraData), {'R', 236});
         memcpy(cameraData, &uboCamera, sizeof(UboCamera));
-        vkUnmapMemory(device, cameraUniformBufferMemory[currentFrame]);
+        vkUnmapMemory(device, cameraUniformBufferMemory);
 
         UboLighting uboLighting;
         std::memcpy(uboLighting.lightPositions, lightPositions.data(), sizeof(uboLighting.lightPositions));
@@ -133,9 +131,9 @@ namespace VE
         uboLighting.outdoorBrightness = outdoorBrightness;
 
         void *lightingData;
-        vkCheck(vkMapMemory(device, lightingUniformBufferMemory[currentFrame], 0, sizeof(UboLighting), 0, &lightingData), {'R', 236});
+        vkCheck(vkMapMemory(device, lightingUniformBufferMemory, 0, sizeof(UboLighting), 0, &lightingData), {'R', 236});
         memcpy(lightingData, &uboLighting, sizeof(UboLighting));
-        vkUnmapMemory(device, lightingUniformBufferMemory[currentFrame]);
+        vkUnmapMemory(device, lightingUniformBufferMemory);
     }
 
     void Renderer::writeShadowDescriptors()
@@ -167,8 +165,6 @@ namespace VE
 
     void Renderer::recordModelPass(uint32_t currentImage, const std::vector<Model> &models, const std::vector<ModelInstance> &modelInstances, color_t backgroundColor, const glm::vec3 &cameraPosition)
     {
-        const VkCommandBuffer commandBuffer = frames[currentFrame].commandBuffer;
-
         VkImageMemoryBarrier2 imageMemoryBarrier = IMAGE_MEMORY_BARRIER_TEMPLATE;
         imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -182,7 +178,7 @@ namespace VE
         VkImageMemoryBarrier2 depthMemoryBarrier = IMAGE_MEMORY_BARRIER_TEMPLATE;
         depthMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         depthMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        depthMemoryBarrier.image = gBuffers[currentFrame].depth.image;
+        depthMemoryBarrier.image = gBuffer->depth.image;
         depthMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
         depthMemoryBarrier.srcAccessMask = 0;
         depthMemoryBarrier.dstAccessMask = VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
@@ -208,7 +204,7 @@ namespace VE
 
         VkRenderingAttachmentInfo depthAttachmentInfo{};
         depthAttachmentInfo.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-        depthAttachmentInfo.imageView = gBuffers[currentFrame].depth.imageView;
+        depthAttachmentInfo.imageView = gBuffer->depth.imageView;
         depthAttachmentInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         depthAttachmentInfo.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         depthAttachmentInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -333,8 +329,6 @@ namespace VE
 
     void Renderer::recordPostPass(uint32_t currentImage, const PostEffects &postEffects)
     {
-        const VkCommandBuffer commandBuffer = frames[currentFrame].commandBuffer;
-
         VkImageMemoryBarrier2 imageMemoryBarrier = IMAGE_MEMORY_BARRIER_TEMPLATE;
         imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -409,15 +403,13 @@ namespace VE
         uboUI.orthographicProj = glm::ortho(0.f, (float)swapChain.extent.width, 0.f, (float)swapChain.extent.height);
 
         void *uiData;
-        vkCheck(vkMapMemory(device, uiUniformBuffersMemory[currentFrame], 0, sizeof(UboUI), 0, &uiData), {'R', 236});
+        vkCheck(vkMapMemory(device, uiUniformBufferMemory, 0, sizeof(UboUI), 0, &uiData), {'R', 236});
         memcpy(uiData, &uboUI, sizeof(UboUI));
-        vkUnmapMemory(device, uiUniformBuffersMemory[currentFrame]);
+        vkUnmapMemory(device, uiUniformBufferMemory);
     }
 
     void Renderer::recordUIPass(uint32_t currentImage, const std::vector<Widget> &widgets, const std::vector<WidgetInstance> &widgetInstances)
     {
-        const VkCommandBuffer commandBuffer = frames[currentFrame].commandBuffer;
-
         VkImageMemoryBarrier2 imageMemoryBarrier = IMAGE_MEMORY_BARRIER_TEMPLATE;
         imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -517,10 +509,10 @@ namespace VE
 
     void Renderer::drawFrame(const SceneDrawData &sceneDrawData, const UIDrawData &uiDrawData, const glm::mat4 projectionMat, const PostEffects &postEffects)
     {
-        vkCheck(vkWaitForFences(device, 1, &frames[currentFrame].drawFence, VK_TRUE, UINT64_MAX), {'R', 231});
+        vkCheck(vkWaitForFences(device, 1, drawFence.ptr(), VK_TRUE, UINT64_MAX), {'R', 231});
 
         uint32_t imageIndex;
-        VkResult imageResult = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, frames[currentFrame].imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+        VkResult imageResult = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
         if (imageResult == VK_ERROR_OUT_OF_DATE_KHR)
         {
@@ -532,7 +524,7 @@ namespace VE
             Log::add('R', 230);
         }
 
-        vkCheck(vkResetFences(device, 1, &frames[currentFrame].drawFence), {'R', 232});
+        vkCheck(vkResetFences(device, 1, drawFence.ptr()), {'R', 232});
 
         if (sceneDrawData.modelRemovedThisFrame)
         {
@@ -541,8 +533,6 @@ namespace VE
         }
 
         updateUIUniformBuffers(currentFrame);
-
-        const VkCommandBuffer commandBuffer = frames[currentFrame].commandBuffer;
 
         VkCommandBufferBeginInfo commandBufferBeginInfo{};
         commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -617,16 +607,16 @@ namespace VE
         VkSubmitInfo submitInfo = {
             .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
             .waitSemaphoreCount = 1,
-            .pWaitSemaphores = &frames[currentFrame].imageAvailableSemaphore,
+            .pWaitSemaphores = imageAvailableSemaphore.ptr(),
             .pWaitDstStageMask = &waitStage,
             .commandBufferCount = 1,
-            .pCommandBuffers = &commandBuffer,
+            .pCommandBuffers = commandBuffer.ptr(),
             .signalSemaphoreCount = 1,
             .pSignalSemaphores = &renderFinishedSemaphores[imageIndex]};
 
         {
             std::lock_guard<std::mutex> lock(graphicsQueueMutex);
-            vkCheck(vkQueueSubmit(graphicsQueue, 1, &submitInfo, frames[currentFrame].drawFence), {'R', 233});
+            vkCheck(vkQueueSubmit(graphicsQueue, 1, &submitInfo, drawFence), {'R', 233});
         }
 
         VkPresentInfoKHR presentInfo = {
@@ -662,7 +652,7 @@ namespace VE
 
         vkDeviceWaitIdle(device);
 
-        for (GeometryBuffer &gBuffers : gBuffers)
+        for (GeometryBuffer &gBuffers : gBuffer.arr)
         {
             destroyImageAttachment(gBuffers.depth);
             destroyImageAttachment(gBuffers.normal);

@@ -11,7 +11,7 @@
 
 namespace VE
 {
-    Renderer::Renderer(GLFWwindow *window, glm::uvec2 windowSize)
+    Renderer::Renderer(GLFWwindow *window, glm::uvec2 windowSize) : gBuffer(currentFrame), imageAvailableSemaphore(currentFrame), drawFence(currentFrame), commandBuffer(currentFrame), cameraUniformBuffer(currentFrame), cameraUniformBufferMemory(currentFrame), lightingUniformBuffer(currentFrame), lightingUniformBufferMemory(currentFrame), uiUniformBuffer(currentFrame), uiUniformBufferMemory(currentFrame)
     {
         this->window = window;
 
@@ -340,7 +340,7 @@ namespace VE
         vkCheck(vkAllocateCommandBuffers(device, &commandBufferAllocInfo, commandBuffers.data()), {'R', 212});
 
         for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; i++)
-            frames[i].commandBuffer = commandBuffers[i];
+            commandBuffer.arr[i] = commandBuffers[i];
     }
 
     void Renderer::createPrePostImages()
@@ -370,7 +370,7 @@ namespace VE
 
     void Renderer::createGeometryBuffers()
     {
-        for (GeometryBuffer &gBuffer : gBuffers)
+        for (GeometryBuffer &gBuffer : gBuffer.arr)
         {
             gBuffer.depth.image = createImage(swapChain.extent.width, swapChain.extent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &gBuffer.depth.memory);
 
@@ -454,8 +454,8 @@ namespace VE
             .flags = VK_FENCE_CREATE_SIGNALED_BIT};
         for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
-            vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &frames[i].imageAvailableSemaphore), {'R', 215});
-            vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &frames[i].drawFence), {'R', 216});
+            vkCheck(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &imageAvailableSemaphore.arr[i]), {'R', 215});
+            vkCheck(vkCreateFence(device, &fenceCreateInfo, nullptr, &drawFence.arr[i]), {'R', 216});
         }
 
         for (size_t i = 0; i < swapChain.imageCount; i++)
@@ -498,13 +498,13 @@ namespace VE
             for (MeshBuffer &meshBuffer : widgetBuffer.meshBuffers)
                 destroyMeshBuffer(meshBuffer);
 
-        for (FrameData &frame : frames)
-        {
-            if (frame.imageAvailableSemaphore)
-                vkDestroySemaphore(device, frame.imageAvailableSemaphore, nullptr);
-            if (frame.drawFence)
-                vkDestroyFence(device, frame.drawFence, nullptr);
-        }
+        for (VkSemaphore &imageAvailableSemaphore : imageAvailableSemaphore.arr)
+            if (imageAvailableSemaphore)
+                vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
+        for (VkFence &drawFence : drawFence.arr)
+            if (drawFence)
+                vkDestroyFence(device, drawFence, nullptr);
+
         for (size_t i = 0; i < swapChain.imageCount; i++)
             if (renderFinishedSemaphores[i])
                 vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
@@ -527,31 +527,31 @@ namespace VE
 
         for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
-            if (uiUniformBuffers[i])
-                vkDestroyBuffer(device, uiUniformBuffers[i], nullptr);
-            if (uiUniformBuffersMemory[i])
-                vkFreeMemory(device, uiUniformBuffersMemory[i], nullptr);
+            if (uiUniformBuffer.arr[i])
+                vkDestroyBuffer(device, uiUniformBuffer.arr[i], nullptr);
+            if (uiUniformBufferMemory.arr[i])
+                vkFreeMemory(device, uiUniformBufferMemory.arr[i], nullptr);
         }
         destroyGraphicsPipeline(uiPipeline);
 
         for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
-            if (cameraUniformBuffer[i])
-                vkDestroyBuffer(device, cameraUniformBuffer[i], nullptr);
-            if (cameraUniformBufferMemory[i])
-                vkFreeMemory(device, cameraUniformBufferMemory[i], nullptr);
+            if (cameraUniformBuffer.arr[i])
+                vkDestroyBuffer(device, cameraUniformBuffer.arr[i], nullptr);
+            if (cameraUniformBufferMemory.arr[i])
+                vkFreeMemory(device, cameraUniformBufferMemory.arr[i], nullptr);
 
-            if (lightingUniformBuffer[i])
-                vkDestroyBuffer(device, lightingUniformBuffer[i], nullptr);
-            if (lightingUniformBufferMemory[i])
-                vkFreeMemory(device, lightingUniformBufferMemory[i], nullptr);
+            if (lightingUniformBuffer.arr[i])
+                vkDestroyBuffer(device, lightingUniformBuffer.arr[i], nullptr);
+            if (lightingUniformBufferMemory.arr[i])
+                vkFreeMemory(device, lightingUniformBufferMemory.arr[i], nullptr);
         }
         destroyGraphicsPipeline(transparentPipeline);
         destroyGraphicsPipeline(modelPipeline);
 
         destroyGraphicsPipeline(shadowPipeline);
 
-        for (GeometryBuffer &gBuffers : gBuffers)
+        for (GeometryBuffer &gBuffers : gBuffer.arr)
         {
             destroyImageAttachment(gBuffers.depth);
             destroyImageAttachment(gBuffers.normal);

@@ -14,8 +14,8 @@ namespace VE
 
         for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
-            createBuffer(cameraBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &cameraUniformBuffer[i], &cameraUniformBufferMemory[i]);
-            createBuffer(lightingBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &lightingUniformBuffer[i], &lightingUniformBufferMemory[i]);
+            createBuffer(cameraBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &cameraUniformBuffer.arr[i], &cameraUniformBufferMemory.arr[i]);
+            createBuffer(lightingBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &lightingUniformBuffer.arr[i], &lightingUniformBufferMemory.arr[i]);
         }
     }
 
@@ -55,7 +55,7 @@ namespace VE
         // Pool
         VkDescriptorPoolSize uniformPoolSize = {
             .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-            .descriptorCount = static_cast<uint32_t>(cameraUniformBuffer.size() + lightingUniformBuffer.size())};
+            .descriptorCount = static_cast<uint32_t>(cameraUniformBuffer.arr.size() + lightingUniformBuffer.arr.size())};
 
         VkDescriptorPoolSize shadowPoolSize = {
             .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
@@ -87,7 +87,7 @@ namespace VE
         for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
             VkDescriptorBufferInfo cameraBufferInfo = {
-                .buffer = cameraUniformBuffer[i],
+                .buffer = cameraUniformBuffer.arr[i],
                 .offset = 0,
                 .range = sizeof(UboCamera)};
 
@@ -101,7 +101,7 @@ namespace VE
                 .pBufferInfo = &cameraBufferInfo};
 
             VkDescriptorBufferInfo lightingBufferInfo = {
-                .buffer = lightingUniformBuffer[i],
+                .buffer = lightingUniformBuffer.arr[i],
                 .offset = 0,
                 .range = sizeof(UboLighting)};
 
@@ -127,7 +127,7 @@ namespace VE
         VkDeviceSize uiUniformBufferSize = sizeof(UboUI);
 
         for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
-            createBuffer(uiUniformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &uiUniformBuffers[i], &uiUniformBuffersMemory[i]);
+            createBuffer(uiUniformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &uiUniformBuffer.arr[i], &uiUniformBufferMemory.arr[i]);
     }
 
     void Renderer::createUIDescriptors()
@@ -150,7 +150,7 @@ namespace VE
         // Pool
         VkDescriptorPoolSize poolSize = {
             .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-            .descriptorCount = static_cast<uint32_t>(uiUniformBuffers.size())};
+            .descriptorCount = static_cast<uint32_t>(uiUniformBuffer.arr.size())};
 
         VkDescriptorPoolCreateInfo poolCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
@@ -176,7 +176,7 @@ namespace VE
         for (size_t i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
             VkDescriptorBufferInfo uiBufferInfo = {
-                .buffer = uiUniformBuffers[i],
+                .buffer = uiUniformBuffer.arr[i],
                 .offset = 0,
                 .range = sizeof(UboUI)};
 

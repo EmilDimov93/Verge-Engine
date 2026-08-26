@@ -121,6 +121,25 @@ namespace VE
 
         static constexpr VkFormat HDR_COLOR_FORMAT = VK_FORMAT_R16G16B16A16_SFLOAT;
 
+        template <typename T>
+        struct PerFrame
+        {
+            explicit PerFrame(const uint32_t &frameIndexSource) : frameIndex(frameIndexSource) {}
+
+            std::array<T, FRAMES_IN_FLIGHT> arr{};
+
+            const uint32_t &frameIndex;
+
+            operator T &() { return arr[frameIndex]; }
+            operator const T &() const { return arr[frameIndex]; }
+
+            T *operator->() { return &arr[frameIndex]; }
+            const T *operator->() const { return &arr[frameIndex]; }
+
+            T *ptr() { return &arr[frameIndex]; }
+            const T *ptr() const { return &arr[frameIndex]; }
+        };
+
         struct MeshBuffer
         {
             uint32_t vertexCount = 0;
@@ -219,18 +238,10 @@ namespace VE
             uint32_t flags;
         };
 
-        struct FrameData
-        {
-            VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
-            VkFence drawFence = VK_NULL_HANDLE;
-
-            VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-        };
-
         struct ShadowMap
         {
             ModelInstanceHandle instanceHandle;
-            
+
             ImageAttachment depthAttachment;
         };
 
@@ -270,7 +281,10 @@ namespace VE
         // Runtime
         VkCommandPool commandPool = VK_NULL_HANDLE;
 
-        std::array<FrameData, FRAMES_IN_FLIGHT> frames;
+        PerFrame<VkSemaphore> imageAvailableSemaphore;
+        PerFrame<VkFence> drawFence;
+
+        PerFrame<VkCommandBuffer> commandBuffer;
 
         uint32_t currentFrame = 0;
 
@@ -289,11 +303,11 @@ namespace VE
         // Pipeline 2: Model
         GraphicsPipeline modelPipeline;
 
-        std::array<VkBuffer, FRAMES_IN_FLIGHT> cameraUniformBuffer;
-        std::array<VkDeviceMemory, FRAMES_IN_FLIGHT> cameraUniformBufferMemory;
+        PerFrame<VkBuffer> cameraUniformBuffer;
+        PerFrame<VkDeviceMemory> cameraUniformBufferMemory;
 
-        std::array<VkBuffer, FRAMES_IN_FLIGHT> lightingUniformBuffer;
-        std::array<VkDeviceMemory, FRAMES_IN_FLIGHT> lightingUniformBufferMemory;
+        PerFrame<VkBuffer> lightingUniformBuffer;
+        PerFrame<VkDeviceMemory> lightingUniformBufferMemory;
 
         // Model pass attachments
         std::vector<ImageAttachment> prePostAttachments;
@@ -306,7 +320,7 @@ namespace VE
             ImageAttachment metallic;
             ImageAttachment roughness;
         };
-        std::array<GeometryBuffer, FRAMES_IN_FLIGHT> gBuffers;
+        PerFrame<GeometryBuffer> gBuffer;
 
         // Pipeline 3: Transparent
         GraphicsPipeline transparentPipeline;
@@ -314,8 +328,8 @@ namespace VE
         // Pipeline 4: UI
         GraphicsPipeline uiPipeline;
 
-        std::array<VkBuffer, FRAMES_IN_FLIGHT> uiUniformBuffers;
-        std::array<VkDeviceMemory, FRAMES_IN_FLIGHT> uiUniformBuffersMemory;
+        PerFrame<VkBuffer> uiUniformBuffer;
+        PerFrame<VkDeviceMemory> uiUniformBufferMemory;
 
         // Pipeline 5: Post-processing
         GraphicsPipeline postPipeline;

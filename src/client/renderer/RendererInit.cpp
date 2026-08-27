@@ -143,15 +143,15 @@ namespace VE
         {
             if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
             {
-                if(!foundGraphicsQueue)
+                if (!foundGraphicsQueue)
                 {
-                graphicsQueueFamilyIndex = i;
-                foundGraphicsQueue = true;
+                    graphicsQueueFamilyIndex = i;
+                    foundGraphicsQueue = true;
                 }
             }
-            else if(queueFamilies[i].queueFlags & VK_QUEUE_TRANSFER_BIT && queueFamilies[i].queueCount > 0)
+            else if (queueFamilies[i].queueFlags & VK_QUEUE_TRANSFER_BIT && queueFamilies[i].queueCount > 0)
             {
-                if(!foundTransferQueue)
+                if (!foundTransferQueue)
                 {
                     transferQueueFamilyIndex = i;
                     foundTransferQueue = true;
@@ -159,7 +159,7 @@ namespace VE
             }
         }
 
-        if(!foundGraphicsQueue || !foundTransferQueue)
+        if (!foundGraphicsQueue || !foundTransferQueue)
             Log::add('R', 241);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -370,28 +370,13 @@ namespace VE
 
     void Renderer::createGeometryBuffers()
     {
-        for (GeometryBuffer &gBuffer : gBuffer.arr)
+        for (GeometryBuffer &geometryBuffer : gBuffer.arr)
         {
-            gBuffer.depth.image = createImage(swapChain.extent.width, swapChain.extent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &gBuffer.depth.memory);
-
-            VkImageViewCreateInfo imageViewCreateInfo{};
-            imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-            imageViewCreateInfo.image = gBuffer.depth.image;
-            imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-            imageViewCreateInfo.format = depthFormat;
-            imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-            imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-            imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-            imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-            imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-            imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
-            imageViewCreateInfo.subresourceRange.levelCount = 1;
-            imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
-            imageViewCreateInfo.subresourceRange.layerCount = 1;
-            vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &gBuffer.depth.imageView), {'R', 205});
+            geometryBuffer.depth = createAttachment(depthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_ASPECT_DEPTH_BIT, swapChain.extent);
+            geometryBuffer.normal = createAttachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_ASPECT_COLOR_BIT, swapChain.extent);
+            geometryBuffer.metallic = createAttachment(VK_FORMAT_R8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_ASPECT_COLOR_BIT, swapChain.extent);
+            geometryBuffer.roughness = createAttachment(VK_FORMAT_R8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_ASPECT_COLOR_BIT, swapChain.extent);
         }
-
-        // TO DO
     }
 
     void Renderer::createShadowSampler()
@@ -438,7 +423,7 @@ namespace VE
         FenceGuard fence(device);
 
         transitionImageLayout(device, graphicsQueue, commandPool, attachment.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT, graphicsQueueMutex, fence);
-    
+
         shadowMaps[0].depthAttachment = attachment;
         shadowMapCount = 1;
     }

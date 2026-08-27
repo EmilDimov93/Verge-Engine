@@ -113,7 +113,7 @@ namespace VE
 
         static constexpr size_t MAX_SHADOW_MAPS = 10;
 
-        static constexpr glm::uvec2 SHADOW_MAP_EXTENT = {4096, 4096};
+        static constexpr VkExtent2D SHADOW_MAP_EXTENT = {4096, 4096};
 
         static constexpr uint32_t TEXTURE_SAMPLER_POOL_CHUNK_SIZE = 1'000;
 
@@ -412,7 +412,8 @@ namespace VE
         [[nodiscard]] VkResult copyBuffer(VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize, VkFence fence) const;
         [[nodiscard]] static uint32_t rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
         void transitionImageLayout(VkDevice device, VkQueue queue, VkCommandPool commandPool, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlags aspectMask, std::mutex &graphicsQueueMutex, VkFence fence);
-        ShadowMap createShadowMap(ModelInstanceHandle instanceHandle);
+        [[nodiscard]] ImageAttachment createAttachment(VkFormat format, VkImageUsageFlags usageFlags, VkImageAspectFlags aspectMask, VkExtent2D extent);
+        [[nodiscard]] ShadowMap createShadowMap(ModelInstanceHandle instanceHandle);
         void destroyImageAttachment(ImageAttachment &attachment) const;
         void destroySwapChain(SwapChain swapChain) const;
 

@@ -288,28 +288,36 @@ namespace VE
         vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
     }
 
+    ImageAttachment Renderer::createAttachment(VkFormat format, VkImageUsageFlags usageFlags, VkImageAspectFlags aspectMask, VkExtent2D extent)
+    {
+        ImageAttachment attachment;
+
+        attachment.image = createImage(extent.width, extent.height, format, VK_IMAGE_TILING_OPTIMAL, usageFlags, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &attachment.memory);
+
+        VkImageViewCreateInfo imageViewCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+            .image = attachment.image,
+            .viewType = VK_IMAGE_VIEW_TYPE_2D,
+            .format = format,
+            .components = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY},
+            .subresourceRange = {
+                .aspectMask = aspectMask,
+                .baseMipLevel = 0,
+                .levelCount = 1,
+                .baseArrayLayer = 0,
+                .layerCount = 1}};
+
+        vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &attachment.imageView), {'R', 205});
+
+        return attachment;
+    }
+
     Renderer::ShadowMap Renderer::createShadowMap(ModelInstanceHandle instanceHandle)
     {
         ShadowMap shadowMap;
         shadowMap.instanceHandle = instanceHandle;
 
-        shadowMap.depthAttachment.image = createImage(SHADOW_MAP_EXTENT.x, SHADOW_MAP_EXTENT.y, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &shadowMap.depthAttachment.memory);
-
-        VkImageViewCreateInfo imageViewCreateInfo{};
-        imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        imageViewCreateInfo.image = shadowMap.depthAttachment.image;
-        imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        imageViewCreateInfo.format = depthFormat;
-        imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-        imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-        imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-        imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-        imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-        imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
-        imageViewCreateInfo.subresourceRange.levelCount = 1;
-        imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
-        imageViewCreateInfo.subresourceRange.layerCount = 1;
-        vkCheck(vkCreateImageView(device, &imageViewCreateInfo, nullptr, &shadowMap.depthAttachment.imageView), {'R', 205});
+        shadowMap.depthAttachment = createAttachment(depthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_ASPECT_DEPTH_BIT, SHADOW_MAP_EXTENT);
 
         return shadowMap;
     }
@@ -327,7 +335,7 @@ namespace VE
         attachment.image = VK_NULL_HANDLE;
         attachment.memory = VK_NULL_HANDLE;
     }
-    
+
     void Renderer::destroySwapChain(SwapChain swapChain) const
     {
         for (VkImageView view : swapChain.imageViews)

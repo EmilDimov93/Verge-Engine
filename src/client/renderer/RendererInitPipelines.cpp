@@ -366,13 +366,13 @@ namespace VE
 
         VkViewport viewport = {
             0.f, 0.f,
-            static_cast<float>(SHADOW_MAP_EXTENT.x),
-            static_cast<float>(SHADOW_MAP_EXTENT.y),
+            static_cast<float>(SHADOW_MAP_EXTENT.width),
+            static_cast<float>(SHADOW_MAP_EXTENT.height),
             0.f, 1.f};
 
         VkRect2D scissor = {
             {0, 0},
-            {SHADOW_MAP_EXTENT.x, SHADOW_MAP_EXTENT.y}};
+            SHADOW_MAP_EXTENT};
 
         VkPipelineViewportStateCreateInfo viewportStateCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,

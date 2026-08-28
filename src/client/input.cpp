@@ -1,0 +1,336 @@
+// Copyright 2025 Emil Dimov
+// Licensed under the Apache License, Version 2.0
+
+#include "input.hpp"
+
+#include "../shared/log.hpp"
+
+namespace VE
+{
+
+    KeyState Input::mouseBtnStates[MOUSE_BTN_COUNT] = {};
+    KeyState Input::keyStates[KEY_COUNT] = {};
+
+    glm::vec2 Input::mousePosition{0};
+
+    int Input::controllerId = GLFW_JOYSTICK_1;
+    bool Input::controllerConnected = false;
+
+    std::vector<KeyState> Input::controllerBtnStates;
+    std::vector<float> Input::controllerAxes;
+
+    float Input::axisDeadZone = 0.1f;
+
+    GLFWwindow *Input::window = nullptr;
+
+    void Input::init(GLFWwindow *windowRef)
+    {
+        window = windowRef;
+
+        for (size_t i = 0; i < MOUSE_BTN_COUNT; i++)
+            mouseBtnStates[i] = KEY_STATE_UP;
+
+        for (size_t i = 0; i < KEY_COUNT; i++)
+            keyStates[i] = KEY_STATE_UP;
+
+        mousePosition = {0, 0};
+
+        controllerConnected = false;
+        controllerId = GLFW_JOYSTICK_1;
+    }
+
+    void Input::refresh()
+    {
+        glfwPollEvents();
+
+        for (size_t i = 0; i < MOUSE_BTN_COUNT; i++)
+        {
+            bool isKeyDown = glfwGetMouseButton(window, i) == GLFW_PRESS;
+
+            switch (mouseBtnStates[i])
+            {
+            case KEY_STATE_UP:
+            case KEY_STATE_RELEASED:
+                mouseBtnStates[i] = isKeyDown ? KEY_STATE_PRESSED : KEY_STATE_UP;
+                break;
+            case KEY_STATE_DOWN:
+            case KEY_STATE_PRESSED:
+                mouseBtnStates[i] = isKeyDown ? KEY_STATE_DOWN : KEY_STATE_RELEASED;
+                break;
+            }
+        }
+
+        for (size_t i = 0; i < KEY_COUNT; i++)
+        {
+            bool isKeyDown = glfwGetKey(window, i) == GLFW_PRESS;
+
+            switch (keyStates[i])
+            {
+            case KEY_STATE_UP:
+            case KEY_STATE_RELEASED:
+                keyStates[i] = isKeyDown ? KEY_STATE_PRESSED : KEY_STATE_UP;
+                break;
+            case KEY_STATE_DOWN:
+            case KEY_STATE_PRESSED:
+                keyStates[i] = isKeyDown ? KEY_STATE_DOWN : KEY_STATE_RELEASED;
+                break;
+            }
+        }
+
+        double cursorX, cursorY;
+        glfwGetCursorPos(window, &cursorX, &cursorY);
+        mousePosition.x = static_cast<float>(cursorX);
+        mousePosition.y = static_cast<float>(cursorY);
+
+        controllerConnected = glfwJoystickPresent(controllerId);
+
+        if (controllerConnected)
+        {
+            int axisCount = 0;
+            const float *axisValues = glfwGetJoystickAxes(controllerId, &axisCount);
+
+            if (controllerAxes.size() != axisCount)
+                controllerAxes.resize(axisCount);
+
+            for (int i = 0; i < axisCount; i++)
+            {
+                controllerAxes[i] = axisValues[i];
+            }
+
+            int buttonCount = 0;
+            const unsigned char *buttonStates = glfwGetJoystickButtons(controllerId, &buttonCount);
+
+            if (controllerBtnStates.size() != buttonCount)
+                controllerBtnStates.resize(buttonCount);
+
+            for (int i = 0; i < buttonCount; i++)
+            {
+                bool isDownNow = buttonStates[i] == GLFW_PRESS;
+
+                switch (controllerBtnStates[i])
+                {
+                case KEY_STATE_UP:
+                case KEY_STATE_RELEASED:
+                    controllerBtnStates[i] = isDownNow ? KEY_STATE_PRESSED : KEY_STATE_UP;
+                    break;
+                case KEY_STATE_DOWN:
+                case KEY_STATE_PRESSED:
+                    controllerBtnStates[i] = isDownNow ? KEY_STATE_DOWN : KEY_STATE_RELEASED;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < controllerBtnStates.size(); i++)
+            {
+                if (controllerBtnStates[i] == KEY_STATE_DOWN || controllerBtnStates[i] == KEY_STATE_PRESSED)
+                    controllerBtnStates[i] = KEY_STATE_RELEASED;
+                else
+                    controllerBtnStates[i] = KEY_STATE_UP;
+            }
+
+            for (int i = 0; i < controllerAxes.size(); i++)
+                controllerAxes[i] = 0.f;
+        }
+    }
+
+    void Input::setController(uint8_t id)
+    {
+        controllerId = id;
+    }
+
+    void Input::setAxisDeadZone(float deadZone)
+    {
+        axisDeadZone = deadZone;
+    }
+
+    bool Input::isDown(Key key)
+    {
+        if (key == KEY_UNKNOWN)
+            return false;
+        if (key >= KEY_COUNT || key < 0)
+        {
+            Log::add('G', 100);
+            return false;
+        }
+        return keyStates[key] == KEY_STATE_DOWN || keyStates[key] == KEY_STATE_PRESSED;
+    }
+
+    bool Input::isUp(Key key)
+    {
+        if (key == KEY_UNKNOWN)
+            return false;
+        if (key >= KEY_COUNT || key < 0)
+        {
+            Log::add('G', 100);
+            return false;
+        }
+        return keyStates[key] == KEY_STATE_UP || keyStates[key] == KEY_STATE_RELEASED;
+    }
+
+    bool Input::isPressed(Key key)
+    {
+        if (key == KEY_UNKNOWN)
+            return false;
+        if (key >= KEY_COUNT || key < 0)
+        {
+            Log::add('G', 100);
+            return false;
+        }
+        return keyStates[key] == KEY_STATE_PRESSED;
+    }
+
+    bool Input::isReleased(Key key)
+    {
+        if (key == KEY_UNKNOWN)
+            return false;
+        if (key >= KEY_COUNT || key < 0)
+        {
+            Log::add('G', 100);
+            return false;
+        }
+        return keyStates[key] == KEY_STATE_RELEASED;
+    }
+
+    bool Input::isDown(MouseBtn btn)
+    {
+        if (btn == MOUSE_BTN_UNKNOWN)
+            return false;
+        if (btn >= MOUSE_BTN_COUNT || btn < 0)
+        {
+            Log::add('G', 100);
+            return false;
+        }
+        return mouseBtnStates[btn] == KEY_STATE_DOWN || mouseBtnStates[btn] == KEY_STATE_PRESSED;
+    }
+
+    bool Input::isUp(MouseBtn btn)
+    {
+        if (btn == MOUSE_BTN_UNKNOWN)
+            return false;
+        if (btn >= MOUSE_BTN_COUNT || btn < 0)
+        {
+            Log::add('G', 100);
+            return false;
+        }
+        return mouseBtnStates[btn] == KEY_STATE_UP || mouseBtnStates[btn] == KEY_STATE_RELEASED;
+    }
+
+    bool Input::isPressed(MouseBtn btn)
+    {
+        if (btn == MOUSE_BTN_UNKNOWN)
+            return false;
+        if (btn >= MOUSE_BTN_COUNT || btn < 0)
+        {
+            Log::add('G', 100);
+            return false;
+        }
+        return mouseBtnStates[btn] == KEY_STATE_PRESSED;
+    }
+
+    bool Input::isReleased(MouseBtn btn)
+    {
+        if (btn == MOUSE_BTN_UNKNOWN)
+            return false;
+        if (btn >= MOUSE_BTN_COUNT || btn < 0)
+        {
+            Log::add('G', 100);
+            return false;
+        }
+        return mouseBtnStates[btn] == KEY_STATE_RELEASED;
+    }
+
+    glm::vec2 Input::getMousePos()
+    {
+        return mousePosition;
+    }
+
+    bool Input::isDown(ControllerBtn btn)
+    {
+        if (!controllerConnected || btn == CONTROLLER_BTN_UNKNOWN)
+            return false;
+        if (btn >= controllerBtnStates.size() || btn < 0)
+        {
+            Log::add('G', 100);
+            return false;
+        }
+
+        return controllerBtnStates[btn] == KEY_STATE_DOWN || controllerBtnStates[btn] == KEY_STATE_PRESSED;
+    }
+
+    bool Input::isUp(ControllerBtn btn)
+    {
+        if (!controllerConnected || btn == CONTROLLER_BTN_UNKNOWN)
+            return false;
+        if (btn >= controllerBtnStates.size() || btn < 0)
+        {
+            Log::add('G', 100);
+            return false;
+        }
+
+        return controllerBtnStates[btn] == KEY_STATE_UP || controllerBtnStates[btn] == KEY_STATE_RELEASED;
+    }
+
+    bool Input::isPressed(ControllerBtn btn)
+    {
+        if (!controllerConnected || btn == CONTROLLER_BTN_UNKNOWN)
+            return false;
+        if (btn >= controllerBtnStates.size() || btn < 0)
+        {
+            Log::add('G', 100);
+            return false;
+        }
+
+        return controllerBtnStates[btn] == KEY_STATE_PRESSED;
+    }
+
+    bool Input::isReleased(ControllerBtn btn)
+    {
+        if (!controllerConnected || btn == CONTROLLER_BTN_UNKNOWN)
+            return false;
+        if (btn >= controllerBtnStates.size() || btn < 0)
+        {
+            Log::add('G', 100);
+            return false;
+        }
+
+        return controllerBtnStates[btn] == KEY_STATE_RELEASED;
+    }
+
+    float Input::getAxis(ControllerAxis axis)
+    {
+        if (!controllerConnected || axis.index == CONTROLLER_AXIS_UNKNOWN.index)
+            return 0.f;
+        if (axis.index >= controllerAxes.size() || axis.index < 0)
+        {
+            Log::add('G', 100);
+            return 0.f;
+        }
+
+        float axisValue = controllerAxes[axis.index];
+
+        // Dead zone rescaling
+        if (fabsf(axisValue) < axisDeadZone)
+            axisValue = 0.f;
+        else if (axisValue > 0.f)
+            axisValue = (axisValue - axisDeadZone) / (1.f - axisDeadZone);
+        else
+            axisValue = (axisValue + axisDeadZone) / (1.f - axisDeadZone);
+
+        switch (axis.mapping)
+        {
+        case AXIS_MAPPING_FULL:
+            return (axisValue + 1.f) / 2;
+        case AXIS_MAPPING_FULL_INVERTED:
+            return 1.f - (axisValue + 1.f) / 2;
+        case AXIS_MAPPING_POSITIVE_HALF:
+            return clamp01(axisValue);
+        case AXIS_MAPPING_NEGATIVE_HALF:
+            return clamp01(-axisValue);
+        }
+
+        return 0.f;
+    }
+
+}

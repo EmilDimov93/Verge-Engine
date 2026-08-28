@@ -8,33 +8,33 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_executable(VergeEngine 
     src/Example.cpp
     
-    src/shared/Log.cpp
+    src/shared/log.cpp
 
-    src/client/Client.cpp
-    src/client/Window.cpp
-    src/client/AudioManager.cpp
-    src/client/Input.cpp
-    src/client/FpsManager.cpp
-    src/client/UI.cpp
-    src/client/renderer/RendererInit.cpp
-    src/client/renderer/RendererInitDescriptors.cpp
-    src/client/renderer/RendererInitPipelines.cpp
-    src/client/renderer/RendererRuntime.cpp
-    src/client/renderer/RendererHelpers.cpp
-    src/client/renderer/RendererMesh.cpp
-    src/client/renderer/RendererModels.cpp
-    src/client/renderer/RendererUI.cpp
-    src/client/renderer/RendererTextures.cpp
+    src/client/client.cpp
+    src/client/window.cpp
+    src/client/audioManager.cpp
+    src/client/input.cpp
+    src/client/fpsManager.cpp
+    src/client/ui.cpp
+    src/client/renderer/init.cpp
+    src/client/renderer/initDescriptors.cpp
+    src/client/renderer/initPipelines.cpp
+    src/client/renderer/runtime.cpp
+    src/client/renderer/helpers.cpp
+    src/client/renderer/mesh.cpp
+    src/client/renderer/models.cpp
+    src/client/renderer/widgets.cpp
+    src/client/renderer/textures.cpp
 
-    src/scene/SceneCore.cpp
-    src/scene/SceneActors.cpp
-    src/scene/Player.cpp
-    src/scene/actors/VehicleCore.cpp
-    src/scene/actors/VehiclePhysics.cpp
-    src/scene/actors/Prop.cpp
-    src/scene/actors/Trigger.cpp
+    src/scene/sceneCore.cpp
+    src/scene/sceneActors.cpp
+    src/scene/player.cpp
+    src/scene/actors/vehicleCore.cpp
+    src/scene/actors/vehiclePhysics.cpp
+    src/scene/actors/prop.cpp
+    src/scene/actors/trigger.cpp
 
-    src/shared/ModelLoader.cpp
+    src/shared/modelLoader.cpp
 )
 
 target_include_directories(VergeEngine PRIVATE

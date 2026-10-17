@@ -5,6 +5,10 @@
 
 #include "../../shared/log.hpp"
 
+#include <cmath>
+#include <algorithm>
+#include <cstring>
+
 namespace VE
 {
     VkResult copyImageBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkImage image, uint32_t width, uint32_t height, std::mutex &transferQueueMutex, VkFence fence)

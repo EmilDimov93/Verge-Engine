@@ -5,6 +5,8 @@
 
 #include "../../shared/log.hpp"
 
+#include <thread>
+
 namespace VE
 {
 

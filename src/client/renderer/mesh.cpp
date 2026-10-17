@@ -5,6 +5,8 @@
 
 #include "../../shared/log.hpp"
 
+#include <cstring>
+
 namespace VE
 {
     MeshBuffer Renderer::createMeshBuffer(const Mesh &mesh, bool isTransparent)

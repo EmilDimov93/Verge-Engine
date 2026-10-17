@@ -5,6 +5,8 @@
 
 #include "../../shared/log.hpp"
 
+#include <thread>
+
 namespace VE
 {
     void Renderer::syncModelBuffers(const std::vector<Model> &models)
@@ -146,67 +148,5 @@ namespace VE
                 ++it;
             }
         }
-    }
-
-    bool Renderer::syncShadowMaps(const std::vector<ModelInstance> &instances)
-    {
-        bool hasChanged = false;
-
-        for (size_t i = 1; i < shadowMapCount; i++)
-        {
-            bool hasInstance = false;
-            for (const ModelInstance &instance : instances)
-            {
-                if (shadowMaps[i].instanceHandle == instance.handle)
-                {
-                    hasInstance = true;
-                    break;
-                }
-            }
-
-            if (!hasInstance)
-            {
-                vkDeviceWaitIdle(device);
-
-                destroyImageAttachment(shadowMaps[i].depthAttachment);
-
-                shadowMapCount--;
-
-                shadowMaps[i] = shadowMaps[shadowMapCount];
-
-                i--;
-
-                hasChanged = true;
-            }
-        }
-
-        for (const ModelInstance &instance : instances)
-        {
-            if (instance.lightIntensity > 0.f)
-            {
-                bool hasShadowMap = false;
-                for (size_t i = 1; i < shadowMapCount; i++)
-                {
-                    if (shadowMaps[i].instanceHandle == instance.handle)
-                    {
-                        hasShadowMap = true;
-                        break;
-                    }
-                }
-
-                if (!hasShadowMap)
-                {
-                    if (shadowMapCount >= MAX_SHADOW_MAPS)
-                        Log::add('R', 228);
-
-                    shadowMaps[shadowMapCount] = createShadowMap(instance.handle);
-                    shadowMapCount++;
-
-                    hasChanged = true;
-                }
-            }
-        }
-
-        return hasChanged;
     }
 }

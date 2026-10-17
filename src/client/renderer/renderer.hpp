@@ -3,7 +3,20 @@
 
 #pragma once
 
-#include "abstractions.hpp"
+#include "vkabstractions/commandPoolGuard.hpp"
+#include "vkabstractions/fenceGuard.hpp"
+#include "vkabstractions/geometryBuffer.hpp"
+#include "vkabstractions/graphicsPipeline.hpp"
+#include "vkabstractions/imageAttachment.hpp"
+#include "vkabstractions/shaderStageGuard.hpp"
+#include "vkabstractions/shadowMap.hpp"
+#include "vkabstractions/swapChain.hpp"
+#include "vkabstractions/textureResources.hpp"
+
+#include "modelBuffer.hpp"
+#include "widgetBuffer.hpp"
+
+#include "tools.hpp"
 
 #include "../../shared/drawData.hpp"
 
@@ -19,19 +32,17 @@
 
 namespace VE
 {
-    template <typename... Structs>
-    void *chainStructs(Structs *...structures)
-    {
-        void *arr[]{structures...};
-        VkBaseInStructure *last = nullptr;
-        for (auto *s : arr)
-        {
-            auto *vk_base = static_cast<VkBaseInStructure *>(s);
-            vk_base->pNext = last;
-            last = vk_base;
-        }
-        return last;
-    }
+    constexpr VkImageMemoryBarrier2 IMAGE_MEMORY_BARRIER_TEMPLATE = {
+        .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .subresourceRange = {
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1,
+        },
+    };
 
     class Renderer
     {

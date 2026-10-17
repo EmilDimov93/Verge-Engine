@@ -16,15 +16,23 @@ add_executable(VergeEngine
     src/client/input.cpp
     src/client/fpsManager.cpp
     src/client/ui.cpp
-    src/client/renderer/init.cpp
-    src/client/renderer/initDescriptors.cpp
-    src/client/renderer/initPipelines.cpp
-    src/client/renderer/runtime.cpp
-    src/client/renderer/helpers.cpp
+
+    src/client/renderer/context.cpp
+    src/client/renderer/drawFrame.cpp
     src/client/renderer/mesh.cpp
     src/client/renderer/models.cpp
     src/client/renderer/widgets.cpp
+    src/client/renderer/pipelineModel.cpp
+    src/client/renderer/pipelinePost.cpp
+    src/client/renderer/pipelineShadow.cpp
+    src/client/renderer/pipelineTransparent.cpp
+    src/client/renderer/pipelineUI.cpp
+    src/client/renderer/swapChain.cpp
+    src/client/renderer/image.cpp
+    src/client/renderer/buffer.cpp
     src/client/renderer/textures.cpp
+    src/client/renderer/geometryBuffer.cpp
+    src/client/renderer/vkCheck.cpp
 
     src/scene/sceneCore.cpp
     src/scene/sceneActors.cpp

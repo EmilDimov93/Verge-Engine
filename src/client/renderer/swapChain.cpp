@@ -10,7 +10,8 @@ namespace VE
         VkSurfaceCapabilitiesKHR capabilities;
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities);
 
-        swapChain.extent = {windowSize.x, windowSize.y};
+        swapChain.extent = {clamp(windowSize.x, capabilities.minImageExtent.width, capabilities.maxImageExtent.width),
+                            clamp(windowSize.y, capabilities.minImageExtent.height, capabilities.maxImageExtent.height)};
 
         VkSwapchainCreateInfoKHR swapchainCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
@@ -85,6 +86,7 @@ namespace VE
         for (GeometryBuffer &gBuffers : gBuffer.arr)
         {
             destroyImageAttachment(gBuffers.depth);
+            destroyImageAttachment(gBuffers.baseColor);
             destroyImageAttachment(gBuffers.normal);
             destroyImageAttachment(gBuffers.metallic);
             destroyImageAttachment(gBuffers.roughness);

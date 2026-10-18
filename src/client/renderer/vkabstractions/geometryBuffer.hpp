@@ -10,6 +10,7 @@ namespace VE
     struct GeometryBuffer
     {
         ImageAttachment depth;
+        ImageAttachment baseColor;
         ImageAttachment normal;
         ImageAttachment metallic;
         ImageAttachment roughness;

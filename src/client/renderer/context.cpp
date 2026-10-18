@@ -285,7 +285,8 @@ namespace VE
             VkFormatProperties properties;
             vkGetPhysicalDeviceFormatProperties(physicalDevice, f, &properties);
 
-            if (properties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+            constexpr VkFormatFeatureFlags requiredDepthFeatures = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT;
+            if ((properties.optimalTilingFeatures & requiredDepthFeatures) == requiredDepthFeatures)
             {
                 depthFormat = f;
                 break;
@@ -462,6 +463,7 @@ namespace VE
         for (GeometryBuffer &gBuffers : gBuffer.arr)
         {
             destroyImageAttachment(gBuffers.depth);
+            destroyImageAttachment(gBuffers.baseColor);
             destroyImageAttachment(gBuffers.normal);
             destroyImageAttachment(gBuffers.metallic);
             destroyImageAttachment(gBuffers.roughness);

@@ -107,13 +107,13 @@ namespace VE
             .extent = swapChain.extent};
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-        auto drawMesh = [&](const ModelInstance &instance, const MeshBuffer &meshBuffer, const Material &material, VkPipelineLayout layout)
+        auto drawMesh = [&](VkCommandBuffer threadCommandBuffer, const ModelInstance &instance, const MeshBuffer &meshBuffer, const Material &material, VkPipelineLayout layout)
         {
             VkBuffer vertexBuffers[] = {meshBuffer.vertexBuffer};
             VkDeviceSize offsets[] = {0};
-            vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+            vkCmdBindVertexBuffers(threadCommandBuffer, 0, 1, vertexBuffers, offsets);
 
-            vkCmdBindIndexBuffer(commandBuffer, meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindIndexBuffer(threadCommandBuffer, meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
             VertexPushData vertexPushData;
             vertexPushData.model = instance.modelMat;
@@ -124,15 +124,15 @@ namespace VE
             materialPushData.roughness = material.roughness;
             materialPushData.textureIndex = material.texIndex;
 
-            vkCmdPushConstants(commandBuffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VertexPushData), &vertexPushData);
+            vkCmdPushConstants(threadCommandBuffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VertexPushData), &vertexPushData);
 
-            vkCmdPushConstants(commandBuffer, layout, VK_SHADER_STAGE_FRAGMENT_BIT, materialPushDataStructOffset, sizeof(MaterialPushData), &materialPushData);
+            vkCmdPushConstants(threadCommandBuffer, layout, VK_SHADER_STAGE_FRAGMENT_BIT, materialPushDataStructOffset, sizeof(MaterialPushData), &materialPushData);
 
             std::array<VkDescriptorSet, 2> descriptorSetGroup = {modelPipeline.descriptorSets[currentFrame], textures.descriptorSets[material.texIndex]};
 
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, modelPipeline.layout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
+            vkCmdBindDescriptorSets(threadCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
 
-            vkCmdDrawIndexed(commandBuffer, meshBuffer.indexCount, 1, 0, 0, 0);
+            vkCmdDrawIndexed(threadCommandBuffer, meshBuffer.indexCount, 1, 0, 0, 0);
         };
 
         struct TransparentMesh
@@ -160,7 +160,7 @@ namespace VE
                             continue;
                         }
 
-                        drawMesh(instance, meshBuffer, modelBuffer.materials[meshBuffer.materialIndex], modelPipeline.layout);
+                        drawMesh(commandBuffer, instance, meshBuffer, modelBuffer.materials[meshBuffer.materialIndex], modelPipeline.layout);
                     }
 
                     break;
@@ -177,7 +177,7 @@ namespace VE
             vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, transparentPipeline.pipeline);
 
             for (const TransparentMesh &mesh : transparentMeshes)
-                drawMesh(*mesh.instance, *mesh.meshBuffer, *mesh.material, transparentPipeline.layout);
+                drawMesh(commandBuffer, *mesh.instance, *mesh.meshBuffer, *mesh.material, transparentPipeline.layout);
         }
 
         vkCmdEndRendering(commandBuffer);

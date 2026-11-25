@@ -21,6 +21,7 @@ namespace VE
 
         createCommandPool();
         createCommandBuffers();
+        createUploadContexts();
 
         createSwapChain(windowSize);
 
@@ -338,6 +339,13 @@ namespace VE
             commandBuffer.arr[i] = commandBuffers[i];
     }
 
+    void Renderer::createUploadContexts()
+    {
+        uploadContexts.reserve(TEMP_WORKER_COUNT);
+        for(uint32_t i = 0; i < TEMP_WORKER_COUNT; i++)
+            uploadContexts.emplace_back(device, graphicsQueueFamilyIndex, transferQueueFamilyIndex);
+    }
+
     void Renderer::createSyncObjects()
     {
         renderFinishedSemaphores.resize(swapChain.imageCount);
@@ -479,6 +487,8 @@ namespace VE
             destroyImageAttachment(attachment);
 
         destroySwapChain(swapChain);
+
+        uploadContexts.clear();
 
         if (commandPool)
             vkDestroyCommandPool(device, commandPool, nullptr);

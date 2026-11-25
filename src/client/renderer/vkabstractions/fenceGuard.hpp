@@ -23,12 +23,23 @@ namespace VE
 
         ~FenceGuard()
         {
-            vkDestroyFence(device, fence, nullptr);
+            if (fence)
+                vkDestroyFence(device, fence, nullptr);
+            fence = VK_NULL_HANDLE;
         }
 
         [[nodiscard]] operator VkFence() const { return fence; }
-
         [[nodiscard]] const VkFence *ptr() const { return &fence; }
+
+        FenceGuard(const FenceGuard &) = delete;
+        FenceGuard &operator=(const FenceGuard &) = delete;
+
+        FenceGuard(FenceGuard &&other) noexcept
+            : fence(other.fence), device(other.device)
+        {
+            other.fence = VK_NULL_HANDLE;
+        }
+        FenceGuard &operator=(FenceGuard &&) = delete;
 
     private:
         VkFence fence = VK_NULL_HANDLE;

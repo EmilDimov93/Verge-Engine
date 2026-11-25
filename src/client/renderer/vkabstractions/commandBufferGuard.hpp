@@ -35,15 +35,26 @@ namespace VE
 
         ~CommandBufferGuard()
         {
-            vkFreeCommandBuffers(device, pool, 1, &buffer);
+            if (buffer)
+                vkFreeCommandBuffers(device, pool, 1, &buffer);
+            buffer = VK_NULL_HANDLE;
 
-            vkDestroyCommandPool(device, pool, nullptr);
+            if (pool)
+                vkDestroyCommandPool(device, pool, nullptr);
+            pool = VK_NULL_HANDLE;
         }
 
         [[nodiscard]] operator VkCommandBuffer() const { return buffer; }
 
-        CommandBufferGuard(const CommandBufferGuard&) = delete;
-        void operator=(const CommandBufferGuard&) = delete;
+        CommandBufferGuard(const CommandBufferGuard &) = delete;
+        CommandBufferGuard &operator=(const CommandBufferGuard &) = delete;
+        CommandBufferGuard(CommandBufferGuard &&other) noexcept
+            : pool(other.pool), buffer(other.buffer), device(other.device)
+        {
+            other.pool = VK_NULL_HANDLE;
+            other.buffer = VK_NULL_HANDLE;
+        }
+        CommandBufferGuard &operator=(CommandBufferGuard &&) = delete;
 
     private:
         VkCommandPool pool = VK_NULL_HANDLE;

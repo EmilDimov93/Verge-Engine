@@ -18,6 +18,8 @@
 #include "modelBuffer.hpp"
 #include "widgetBuffer.hpp"
 
+#include "uploadContext.hpp"
+
 #include "tools.hpp"
 
 #include "../../shared/drawData.hpp"
@@ -67,6 +69,8 @@ namespace VE
         static constexpr char PIPELINE_CACHE_FILE_NAME[] = "pipeline_cache.bin";
 
         static constexpr VkFormat HDR_COLOR_FORMAT = VK_FORMAT_R16G16B16A16_SFLOAT;
+
+        static constexpr uint32_t TEMP_WORKER_COUNT = 10;
 
         template <typename T>
         struct PerFrame
@@ -174,6 +178,7 @@ namespace VE
         PerFrame<VkFence> drawFence;
 
         PerFrame<VkCommandBuffer> commandBuffer;
+        std::vector<UploadContext> uploadContexts;
 
         uint32_t currentFrame = 0;
 
@@ -240,6 +245,7 @@ namespace VE
 
         void createCommandPool();
         void createCommandBuffers();
+        void createUploadContexts();
 
         void createSwapChain(glm::uvec2 windowSize);
 

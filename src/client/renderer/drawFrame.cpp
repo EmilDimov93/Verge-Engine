@@ -33,7 +33,7 @@ namespace VE
         VkCommandBufferBeginInfo commandBufferBeginInfo{};
         commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-        vkCheck(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo), {'R', 213});
+        vkCheck(vkBeginCommandBuffer(commandBuffers[currentFrame], &commandBufferBeginInfo), {'R', 213});
 
         {
             syncModelBuffers(sceneDrawData.models);
@@ -94,7 +94,7 @@ namespace VE
             recordUIPass(imageIndex, uiDrawData.widgets, uiDrawData.widgetInstances);
         }
 
-        vkCheck(vkEndCommandBuffer(commandBuffer), {'R', 213});
+        vkCheck(vkEndCommandBuffer(commandBuffers[currentFrame]), {'R', 213});
 
         VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
 
@@ -104,7 +104,7 @@ namespace VE
             .pWaitSemaphores = imageAvailableSemaphore.ptr(),
             .pWaitDstStageMask = &waitStage,
             .commandBufferCount = 1,
-            .pCommandBuffers = commandBuffer.ptr(),
+            .pCommandBuffers = commandBuffers[currentFrame].ptr(),
             .signalSemaphoreCount = 1,
             .pSignalSemaphores = &renderFinishedSemaphores[imageIndex]};
 

@@ -35,7 +35,7 @@ namespace VE
         dependencyInfo.imageMemoryBarrierCount = 1;
         dependencyInfo.pImageMemoryBarriers = &imageMemoryBarrier;
 
-        vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
+        vkCmdPipelineBarrier2(commandBuffers[currentFrame], &dependencyInfo);
 
         VkRenderingAttachmentInfo colorAttachment{};
         colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
@@ -53,9 +53,9 @@ namespace VE
         renderingInfo.pColorAttachments = &colorAttachment;
         renderingInfo.pDepthAttachment = nullptr;
 
-        vkCmdBeginRendering(commandBuffer, &renderingInfo);
+        vkCmdBeginRendering(commandBuffers[currentFrame], &renderingInfo);
 
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, uiPipeline.pipeline);
+        vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, uiPipeline.pipeline);
 
         VkViewport viewport = {
             .x = 0.f,
@@ -64,12 +64,12 @@ namespace VE
             .height = static_cast<float>(swapChain.extent.height),
             .minDepth = 0.f,
             .maxDepth = 1.f};
-        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+        vkCmdSetViewport(commandBuffers[currentFrame], 0, 1, &viewport);
 
         VkRect2D scissor = {
             .offset = {0, 0},
             .extent = swapChain.extent};
-        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+        vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
 
         for (const WidgetInstance &instance : widgetInstances)
         {
@@ -81,9 +81,9 @@ namespace VE
                     {
                         VkBuffer vertexBuffers[] = {meshBuffer.vertexBuffer};
                         VkDeviceSize offsets[] = {0};
-                        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+                        vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
 
-                        vkCmdBindIndexBuffer(commandBuffer, meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+                        vkCmdBindIndexBuffer(commandBuffers[currentFrame], meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
                         UIPushData pushData;
                         pushData.model = Transform(glm::vec3((instance.coords.x + 1) / 2 * swapChain.extent.width, (instance.coords.y + 1) / 2 * swapChain.extent.height, 0.f), glm::vec3(), glm::vec3(instance.uniformScale)).toMat();
@@ -91,13 +91,13 @@ namespace VE
                         pushData.textureIndex = widgetBuffer.materials[meshBuffer.materialIndex].texIndex;
                         pushData.color = widgetBuffer.materials[meshBuffer.materialIndex].baseColor;
 
-                        vkCmdPushConstants(commandBuffer, uiPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UIPushData), &pushData);
+                        vkCmdPushConstants(commandBuffers[currentFrame], uiPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UIPushData), &pushData);
 
                         std::array<VkDescriptorSet, 2> descriptorSetGroup = {uiPipeline.descriptorSets[currentFrame], textures.descriptorSets[widgetBuffer.materials[meshBuffer.materialIndex].texIndex]};
 
-                        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, uiPipeline.layout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
+                        vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, uiPipeline.layout, 0, static_cast<uint32_t>(descriptorSetGroup.size()), descriptorSetGroup.data(), 0, nullptr);
 
-                        vkCmdDrawIndexed(commandBuffer, meshBuffer.indexCount, 1, 0, 0, 0);
+                        vkCmdDrawIndexed(commandBuffers[currentFrame], meshBuffer.indexCount, 1, 0, 0, 0);
                     }
 
                     break;
@@ -105,7 +105,7 @@ namespace VE
             }
         }
 
-        vkCmdEndRendering(commandBuffer);
+        vkCmdEndRendering(commandBuffers[currentFrame]);
 
         imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
@@ -114,7 +114,7 @@ namespace VE
         imageMemoryBarrier.srcStageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
         imageMemoryBarrier.dstStageMask = VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT;
 
-        vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
+        vkCmdPipelineBarrier2(commandBuffers[currentFrame], &dependencyInfo);
     }
 
     void Renderer::createUIPipeline()

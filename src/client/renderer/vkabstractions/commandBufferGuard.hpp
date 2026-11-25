@@ -45,6 +45,7 @@ namespace VE
         }
 
         [[nodiscard]] operator VkCommandBuffer() const { return buffer; }
+        [[nodiscard]] const VkCommandBuffer *ptr() const { return &buffer; }
 
         CommandBufferGuard(const CommandBufferGuard &) = delete;
         CommandBufferGuard &operator=(const CommandBufferGuard &) = delete;

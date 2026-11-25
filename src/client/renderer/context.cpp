@@ -8,7 +8,7 @@
 
 namespace VE
 {
-    Renderer::Renderer(GLFWwindow *window, glm::uvec2 windowSize) : gBuffer(currentFrame), imageAvailableSemaphore(currentFrame), drawFence(currentFrame), commandBuffer(currentFrame), cameraUniformBuffer(currentFrame), cameraUniformBufferMemory(currentFrame), lightingUniformBuffer(currentFrame), lightingUniformBufferMemory(currentFrame), uiUniformBuffer(currentFrame), uiUniformBufferMemory(currentFrame), threadPool(TEMP_WORKER_COUNT)
+    Renderer::Renderer(GLFWwindow *window, glm::uvec2 windowSize) : gBuffer(currentFrame), imageAvailableSemaphore(currentFrame), drawFence(currentFrame), cameraUniformBuffer(currentFrame), cameraUniformBufferMemory(currentFrame), lightingUniformBuffer(currentFrame), lightingUniformBufferMemory(currentFrame), uiUniformBuffer(currentFrame), uiUniformBufferMemory(currentFrame), threadPool(TEMP_WORKER_COUNT)
     {
         this->window = window;
 
@@ -19,8 +19,10 @@ namespace VE
 
         findSupportedFormats();
 
-        createCommandPool();
-        createCommandBuffers();
+        commandBuffers.reserve(FRAMES_IN_FLIGHT);
+        for(uint32_t i = 0; i < FRAMES_IN_FLIGHT; i++)
+            commandBuffers.emplace_back(device, graphicsQueueFamilyIndex);
+
         createUploadContexts();
 
         createSwapChain(windowSize);
@@ -313,32 +315,6 @@ namespace VE
         }
     }
 
-    void Renderer::createCommandPool()
-    {
-        VkCommandPoolCreateInfo graphicsCommandPoolCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-            .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-            .queueFamilyIndex = graphicsQueueFamilyIndex};
-
-        vkCheck(vkCreateCommandPool(device, &graphicsCommandPoolCreateInfo, nullptr, &commandPool), {'R', 208});
-    }
-
-    void Renderer::createCommandBuffers()
-    {
-        std::array<VkCommandBuffer, FRAMES_IN_FLIGHT> commandBuffers;
-
-        VkCommandBufferAllocateInfo commandBufferAllocInfo = {
-            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-            .commandPool = commandPool,
-            .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-            .commandBufferCount = static_cast<uint32_t>(commandBuffers.size())};
-
-        vkCheck(vkAllocateCommandBuffers(device, &commandBufferAllocInfo, commandBuffers.data()), {'R', 212});
-
-        for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; i++)
-            commandBuffer.arr[i] = commandBuffers[i];
-    }
-
     void Renderer::createUploadContexts()
     {
         uploadContexts.reserve(TEMP_WORKER_COUNT);
@@ -492,8 +468,7 @@ namespace VE
 
         uploadContexts.clear();
 
-        if (commandPool)
-            vkDestroyCommandPool(device, commandPool, nullptr);
+        commandBuffers.clear();
 
         if (device)
             vkDestroyDevice(device, nullptr);

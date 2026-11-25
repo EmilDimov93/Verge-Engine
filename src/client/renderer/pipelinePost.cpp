@@ -22,7 +22,7 @@ namespace VE
         dependencyInfo.imageMemoryBarrierCount = 1;
         dependencyInfo.pImageMemoryBarriers = &imageMemoryBarrier;
 
-        vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
+        vkCmdPipelineBarrier2(commandBuffers[currentFrame], &dependencyInfo);
 
         VkRenderingAttachmentInfo colorAttachment{};
         colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
@@ -39,9 +39,9 @@ namespace VE
         renderingInfo.colorAttachmentCount = 1;
         renderingInfo.pColorAttachments = &colorAttachment;
 
-        vkCmdBeginRendering(commandBuffer, &renderingInfo);
+        vkCmdBeginRendering(commandBuffers[currentFrame], &renderingInfo);
 
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, postPipeline.pipeline);
+        vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, postPipeline.pipeline);
 
         VkViewport viewport = {
             .x = 0.f,
@@ -50,12 +50,12 @@ namespace VE
             .height = static_cast<float>(swapChain.extent.height),
             .minDepth = 0.f,
             .maxDepth = 1.f};
-        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+        vkCmdSetViewport(commandBuffers[currentFrame], 0, 1, &viewport);
 
         VkRect2D scissor = {
             .offset = {0, 0},
             .extent = swapChain.extent};
-        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+        vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
 
         PostPushData pushData;
         pushData.vignetteStrength = postEffects.vignetteStrength;
@@ -66,13 +66,13 @@ namespace VE
         pushData.flags |= postEffects.fxaa ? POST_EFFECT_FXAA_BIT : 0u;
         pushData.flags |= postEffects.dithering ? POST_EFFECT_DITHERING_BIT : 0u;
 
-        vkCmdPushConstants(commandBuffer, postPipeline.layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PostPushData), &pushData);
+        vkCmdPushConstants(commandBuffers[currentFrame], postPipeline.layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PostPushData), &pushData);
 
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, postPipeline.layout, 0, 1, &postPipeline.descriptorSets[currentImage], 0, nullptr);
+        vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, postPipeline.layout, 0, 1, &postPipeline.descriptorSets[currentImage], 0, nullptr);
 
-        vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+        vkCmdDraw(commandBuffers[currentFrame], 3, 1, 0, 0);
 
-        vkCmdEndRendering(commandBuffer);
+        vkCmdEndRendering(commandBuffers[currentFrame]);
     }
 
     void Renderer::createPostPipeline()

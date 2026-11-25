@@ -62,7 +62,7 @@ namespace VE
         dependencyInfo.imageMemoryBarrierCount = static_cast<uint32_t>(barriers.size());
         dependencyInfo.pImageMemoryBarriers = barriers.data();
 
-        vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
+        vkCmdPipelineBarrier2(commandBuffers[currentFrame], &dependencyInfo);
 
         VkRenderingAttachmentInfo colorAttachment{};
         colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
@@ -89,9 +89,9 @@ namespace VE
         renderingInfo.pColorAttachments = &colorAttachment;
         renderingInfo.pDepthAttachment = &depthAttachmentInfo;
 
-        vkCmdBeginRendering(commandBuffer, &renderingInfo);
+        vkCmdBeginRendering(commandBuffers[currentFrame], &renderingInfo);
 
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, modelPipeline.pipeline);
+        vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, modelPipeline.pipeline);
 
         VkViewport viewport = {
             .x = 0.f,
@@ -100,12 +100,12 @@ namespace VE
             .height = static_cast<float>(swapChain.extent.height),
             .minDepth = 0.f,
             .maxDepth = 1.f};
-        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+        vkCmdSetViewport(commandBuffers[currentFrame], 0, 1, &viewport);
 
         VkRect2D scissor = {
             .offset = {0, 0},
             .extent = swapChain.extent};
-        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+        vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
 
         auto drawMesh = [&](VkCommandBuffer threadCommandBuffer, const ModelInstance &instance, const MeshBuffer &meshBuffer, const Material &material, VkPipelineLayout layout)
         {
@@ -160,7 +160,7 @@ namespace VE
                             continue;
                         }
 
-                        drawMesh(commandBuffer, instance, meshBuffer, modelBuffer.materials[meshBuffer.materialIndex], modelPipeline.layout);
+                        drawMesh(commandBuffers[currentFrame], instance, meshBuffer, modelBuffer.materials[meshBuffer.materialIndex], modelPipeline.layout);
                     }
 
                     break;
@@ -174,13 +174,13 @@ namespace VE
                       [](const TransparentMesh &leftMesh, const TransparentMesh &rightMesh)
                       { return leftMesh.distanceSquared > rightMesh.distanceSquared; });
 
-            vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, transparentPipeline.pipeline);
+            vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, transparentPipeline.pipeline);
 
             for (const TransparentMesh &mesh : transparentMeshes)
-                drawMesh(commandBuffer, *mesh.instance, *mesh.meshBuffer, *mesh.material, transparentPipeline.layout);
+                drawMesh(commandBuffers[currentFrame], *mesh.instance, *mesh.meshBuffer, *mesh.material, transparentPipeline.layout);
         }
 
-        vkCmdEndRendering(commandBuffer);
+        vkCmdEndRendering(commandBuffers[currentFrame]);
 
         imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -194,7 +194,7 @@ namespace VE
         endDependencyInfo.imageMemoryBarrierCount = 1;
         endDependencyInfo.pImageMemoryBarriers = &imageMemoryBarrier;
 
-        vkCmdPipelineBarrier2(commandBuffer, &endDependencyInfo);
+        vkCmdPipelineBarrier2(commandBuffers[currentFrame], &endDependencyInfo);
     }
 
     void Renderer::createPrePostImages()

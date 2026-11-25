@@ -176,12 +176,10 @@ namespace VE
         ThreadPool threadPool;
 
         // Runtime
-        VkCommandPool commandPool = VK_NULL_HANDLE;
-
         PerFrame<VkSemaphore> imageAvailableSemaphore;
         PerFrame<VkFence> drawFence;
 
-        PerFrame<VkCommandBuffer> commandBuffer;
+        std::vector<CommandBufferGuard> commandBuffers;
         std::vector<UploadContext> uploadContexts;
 
         uint32_t currentFrame = 0;
@@ -245,8 +243,6 @@ namespace VE
 
         void findSupportedFormats();
 
-        void createCommandPool();
-        void createCommandBuffers();
         void createUploadContexts();
 
         void createSwapChain(glm::uvec2 windowSize);

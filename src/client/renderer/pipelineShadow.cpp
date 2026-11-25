@@ -27,7 +27,7 @@ namespace VE
             dependencyInfo.imageMemoryBarrierCount = 1;
             dependencyInfo.pImageMemoryBarriers = &imageMemoryBarrier;
 
-            vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
+            vkCmdPipelineBarrier2(commandBuffers[currentFrame], &dependencyInfo);
 
             VkRenderingAttachmentInfo shadowDepthAttachmentInfo{};
             shadowDepthAttachmentInfo.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
@@ -44,9 +44,9 @@ namespace VE
             shadowRenderingInfo.layerCount = 1;
             shadowRenderingInfo.pDepthAttachment = &shadowDepthAttachmentInfo;
 
-            vkCmdBeginRendering(commandBuffer, &shadowRenderingInfo);
+            vkCmdBeginRendering(commandBuffers[currentFrame], &shadowRenderingInfo);
 
-            vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shadowPipeline.pipeline);
+            vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, shadowPipeline.pipeline);
 
             for (const ModelInstance &instance : modelInstances)
             {
@@ -64,23 +64,23 @@ namespace VE
 
                             VkBuffer vertexBuffers[] = {meshBuffer.vertexBuffer};
                             VkDeviceSize offsets[] = {0};
-                            vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-                            vkCmdBindIndexBuffer(commandBuffer, meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+                            vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
+                            vkCmdBindIndexBuffer(commandBuffers[currentFrame], meshBuffer.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
                             ShadowPushData pushData{};
                             pushData.model = instance.modelMat;
                             pushData.lightSpaceMat = lightSpaceMats[i];
 
-                            vkCmdPushConstants(commandBuffer, shadowPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ShadowPushData), &pushData);
+                            vkCmdPushConstants(commandBuffers[currentFrame], shadowPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ShadowPushData), &pushData);
 
-                            vkCmdDrawIndexed(commandBuffer, meshBuffer.indexCount, 1, 0, 0, 0);
+                            vkCmdDrawIndexed(commandBuffers[currentFrame], meshBuffer.indexCount, 1, 0, 0, 0);
                         }
                         break;
                     }
                 }
             }
 
-            vkCmdEndRendering(commandBuffer);
+            vkCmdEndRendering(commandBuffers[currentFrame]);
 
             imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
             imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -89,7 +89,7 @@ namespace VE
             imageMemoryBarrier.srcStageMask = VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT;
             imageMemoryBarrier.dstStageMask = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
 
-            vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
+            vkCmdPipelineBarrier2(commandBuffers[currentFrame], &dependencyInfo);
         }
     }
 

@@ -11,24 +11,14 @@
 
 namespace VE
 {
-    VkResult copyImageBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkImage image, uint32_t width, uint32_t height, std::mutex &transferQueueMutex, VkFence fence)
+    VkResult copyImageBuffer(VkDevice device, VkQueue transferQueue, VkCommandBuffer commandBufferLocal, VkBuffer srcBuffer, VkImage image, uint32_t width, uint32_t height, std::mutex &transferQueueMutex, VkFence fence)
     {
-        VkCommandBufferAllocateInfo allocInfo = {
-            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-            .commandPool = transferCommandPool,
-            .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-            .commandBufferCount = 1};
-
-        VkCommandBuffer transferCommandBuffer;
-
-        Renderer::vkCheck(vkAllocateCommandBuffers(device, &allocInfo, &transferCommandBuffer), {'R', 212});
-
         VkCommandBufferBeginInfo beginInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
             .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
         };
 
-        Renderer::vkCheck(vkBeginCommandBuffer(transferCommandBuffer, &beginInfo), {'R', 213});
+        vkCheck(vkBeginCommandBuffer(commandBufferLocal, &beginInfo), {'R', 213});
 
         VkBufferImageCopy imageRegion = {};
         imageRegion.bufferOffset = 0;
@@ -41,23 +31,21 @@ namespace VE
         imageRegion.imageOffset = {0, 0, 0};
         imageRegion.imageExtent = {width, height, 1};
 
-        vkCmdCopyBufferToImage(transferCommandBuffer, srcBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageRegion);
+        vkCmdCopyBufferToImage(commandBufferLocal, srcBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageRegion);
 
-        Renderer::vkCheck(vkEndCommandBuffer(transferCommandBuffer), {'R', 213});
+        vkCheck(vkEndCommandBuffer(commandBufferLocal), {'R', 213});
 
         VkSubmitInfo submitInfo = {
             .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
             .commandBufferCount = 1,
-            .pCommandBuffers = &transferCommandBuffer};
+            .pCommandBuffers = &commandBufferLocal};
 
         {
             std::lock_guard<std::mutex> lock(transferQueueMutex);
-            Renderer::vkCheck(vkQueueSubmit(transferQueue, 1, &submitInfo, fence), {'R', 233});
+            vkCheck(vkQueueSubmit(transferQueue, 1, &submitInfo, fence), {'R', 233});
         }
 
-        Renderer::vkCheck(vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX), {'R', 231});
-
-        vkFreeCommandBuffers(device, transferCommandPool, 1, &transferCommandBuffer);
+        vkCheck(vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX), {'R', 231});
 
         return VK_SUCCESS;
     }
@@ -79,27 +67,18 @@ namespace VE
         vkCheck(vkCreateDescriptorSetLayout(device, &textureLayoutCreateInfo, nullptr, &textures.descriptorSetLayout), {'R', 217});
     }
 
-    VkResult generateMipmaps(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue queue, VkCommandPool commandPool, VkImage image, VkFormat imageFormat, int32_t textureWidth, int32_t textureHeight, uint32_t mipLevelCount, std::mutex &graphicsQueueMutex, VkFence fence)
+    VkResult generateMipmaps(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue queue, VkCommandBuffer commandBufferLocal, VkImage image, VkFormat imageFormat, int32_t textureWidth, int32_t textureHeight, uint32_t mipLevelCount, std::mutex &graphicsQueueMutex, VkFence fence)
     {
         VkFormatProperties formatProperties;
         vkGetPhysicalDeviceFormatProperties(physicalDevice, imageFormat, &formatProperties);
         if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT))
             return VK_ERROR_FEATURE_NOT_PRESENT;
 
-        VkCommandBufferAllocateInfo allocInfo = {
-            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-            .commandPool = commandPool,
-            .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-            .commandBufferCount = 1};
-
-        VkCommandBuffer commandBuffer;
-        Renderer::vkCheck(vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer), {'R', 212});
-
         VkCommandBufferBeginInfo beginInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
             .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
 
-        Renderer::vkCheck(vkBeginCommandBuffer(commandBuffer, &beginInfo), {'R', 213});
+        vkCheck(vkBeginCommandBuffer(commandBufferLocal, &beginInfo), {'R', 213});
 
         VkImageMemoryBarrier barrier = {};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -121,7 +100,7 @@ namespace VE
             initBarrier.subresourceRange.baseMipLevel = 1;
             initBarrier.subresourceRange.levelCount = mipLevelCount - 1;
 
-            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &initBarrier);
+            vkCmdPipelineBarrier(commandBufferLocal, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &initBarrier);
         }
 
         int32_t currentMipWidth = textureWidth;
@@ -136,7 +115,7 @@ namespace VE
             barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
             barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 
-            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+            vkCmdPipelineBarrier(commandBufferLocal, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
             int32_t nextMipWidth = currentMipWidth > 1 ? currentMipWidth / 2 : 1;
             int32_t nextMipHeight = currentMipHeight > 1 ? currentMipHeight / 2 : 1;
@@ -155,14 +134,14 @@ namespace VE
             blit.dstSubresource.baseArrayLayer = 0;
             blit.dstSubresource.layerCount = 1;
 
-            vkCmdBlitImage(commandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
+            vkCmdBlitImage(commandBufferLocal, image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
 
             barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
             barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
             barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+            vkCmdPipelineBarrier(commandBufferLocal, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
             currentMipWidth = nextMipWidth;
             currentMipHeight = nextMipHeight;
@@ -175,23 +154,21 @@ namespace VE
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-        vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+        vkCmdPipelineBarrier(commandBufferLocal, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
-        Renderer::vkCheck(vkEndCommandBuffer(commandBuffer), {'R', 213});
+        vkCheck(vkEndCommandBuffer(commandBufferLocal), {'R', 213});
 
         VkSubmitInfo submitInfo = {
             .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
             .commandBufferCount = 1,
-            .pCommandBuffers = &commandBuffer};
+            .pCommandBuffers = &commandBufferLocal};
 
         {
             std::lock_guard<std::mutex> lock(graphicsQueueMutex);
-            Renderer::vkCheck(vkQueueSubmit(queue, 1, &submitInfo, fence), {'R', 233});
+            vkCheck(vkQueueSubmit(queue, 1, &submitInfo, fence), {'R', 233});
         }
 
-        Renderer::vkCheck(vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX), {'R', 231});
-
-        vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+        vkCheck(vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX), {'R', 231});
 
         return VK_SUCCESS;
     }
@@ -214,16 +191,16 @@ namespace VE
         VkDeviceMemory texImageMemory;
         texImage = createImage(1, 1, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &texImageMemory);
 
-        CommandPoolGuard graphicsCommandPoolLocal(device, graphicsQueueFamilyIndex);
-        CommandPoolGuard transferCommandPoolLocal(device, transferQueueFamilyIndex);
+        CommandBufferGuard graphicsCommandBufferLocal(device, graphicsQueueFamilyIndex);
+        CommandBufferGuard transferCommandBufferLocal(device, transferQueueFamilyIndex);
 
         FenceGuard uploadFence(device);
 
-        transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT, graphicsQueueMutex, uploadFence);
+        transitionImageLayout(device, graphicsQueue, graphicsCommandBufferLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT, graphicsQueueMutex, uploadFence);
         vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
-        vkCheck(copyImageBuffer(device, transferQueue, transferCommandPoolLocal, stagingBuffer, texImage, 1, 1, transferQueueMutex, uploadFence), {'R', 239});
+        vkCheck(copyImageBuffer(device, transferQueue, transferCommandBufferLocal, stagingBuffer, texImage, 1, 1, transferQueueMutex, uploadFence), {'R', 239});
         vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
-        transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT, graphicsQueueMutex, uploadFence);
+        transitionImageLayout(device, graphicsQueue, graphicsCommandBufferLocal, texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT, graphicsQueueMutex, uploadFence);
 
         VkImageViewCreateInfo imageViewCreateInfo{};
         imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -272,16 +249,16 @@ namespace VE
 
         texImage = createImage(size.x, size.y, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mipLevelCount, &texImageMemory);
 
-        CommandPoolGuard graphicsCommandPoolLocal(device, graphicsQueueFamilyIndex);
-        CommandPoolGuard transferCommandPoolLocal(device, transferQueueFamilyIndex);
+        CommandBufferGuard graphicsCommandBufferLocal(device, graphicsQueueFamilyIndex);
+        CommandBufferGuard transferCommandBufferLocal(device, transferQueueFamilyIndex);
 
         FenceGuard uploadFence(device);
 
-        transitionImageLayout(device, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT, graphicsQueueMutex, uploadFence);
+        transitionImageLayout(device, graphicsQueue, graphicsCommandBufferLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT, graphicsQueueMutex, uploadFence);
         vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
-        vkCheck(copyImageBuffer(device, transferQueue, transferCommandPoolLocal, imageStagingBuffer, texImage, size.x, size.y, transferQueueMutex, uploadFence), {'R', 239});
+        vkCheck(copyImageBuffer(device, transferQueue, transferCommandBufferLocal, imageStagingBuffer, texImage, size.x, size.y, transferQueueMutex, uploadFence), {'R', 239});
         vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
-        vkCheck(generateMipmaps(device, physicalDevice, graphicsQueue, graphicsCommandPoolLocal, texImage, VK_FORMAT_R8G8B8A8_SRGB, size.x, size.y, mipLevelCount, graphicsQueueMutex, uploadFence), {'R', 240});
+        vkCheck(generateMipmaps(device, physicalDevice, graphicsQueue, graphicsCommandBufferLocal, texImage, VK_FORMAT_R8G8B8A8_SRGB, size.x, size.y, mipLevelCount, graphicsQueueMutex, uploadFence), {'R', 240});
 
         uint32_t resultIndex;
         {

@@ -42,24 +42,14 @@ namespace VE
         return image;
     }
 
-    void Renderer::transitionImageLayout(VkDevice device, VkQueue queue, VkCommandPool commandPool, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlags aspectMask, std::mutex &graphicsQueueMutex, VkFence fence)
+    void Renderer::transitionImageLayout(VkDevice device, VkQueue queue, VkCommandBuffer commandBufferLocal, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlags aspectMask, std::mutex &graphicsQueueMutex, VkFence fence)
     {
-        VkCommandBufferAllocateInfo allocInfo = {
-            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-            .commandPool = commandPool,
-            .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-            .commandBufferCount = 1};
-
-        VkCommandBuffer commandBuffer;
-
-        vkCheck(vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer), {'R', 212});
-
         VkCommandBufferBeginInfo beginInfo = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
             .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
         };
 
-        vkCheck(vkBeginCommandBuffer(commandBuffer, &beginInfo), {'R', 213});
+        vkCheck(vkBeginCommandBuffer(commandBufferLocal, &beginInfo), {'R', 213});
 
         VkImageMemoryBarrier imageMemoryBarrier = {};
         imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -102,14 +92,14 @@ namespace VE
             dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
         }
 
-        vkCmdPipelineBarrier(commandBuffer, srcStage, dstStage, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+        vkCmdPipelineBarrier(commandBufferLocal, srcStage, dstStage, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 
-        vkCheck(vkEndCommandBuffer(commandBuffer), {'R', 213});
+        vkCheck(vkEndCommandBuffer(commandBufferLocal), {'R', 213});
 
         VkSubmitInfo submitInfo = {
             .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
             .commandBufferCount = 1,
-            .pCommandBuffers = &commandBuffer};
+            .pCommandBuffers = &commandBufferLocal};
 
         {
             std::lock_guard<std::mutex> lock(graphicsQueueMutex);
@@ -117,8 +107,6 @@ namespace VE
         }
 
         vkCheck(vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX), {'R', 231});
-
-        vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
     }
 
     ImageAttachment Renderer::createAttachment(VkFormat format, VkImageUsageFlags usageFlags, VkImageAspectFlags aspectMask, VkExtent2D extent)

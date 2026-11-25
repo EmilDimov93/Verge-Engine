@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "vkabstractions/commandPoolGuard.hpp"
+#include "vkabstractions/commandBufferGuard.hpp"
 #include "vkabstractions/fenceGuard.hpp"
 #include "vkabstractions/geometryBuffer.hpp"
 #include "vkabstractions/graphicsPipeline.hpp"
@@ -12,6 +12,8 @@
 #include "vkabstractions/shadowMap.hpp"
 #include "vkabstractions/swapChain.hpp"
 #include "vkabstractions/textureResources.hpp"
+
+#include "vkCheck.hpp"
 
 #include "modelBuffer.hpp"
 #include "widgetBuffer.hpp"
@@ -52,8 +54,6 @@ namespace VE
         void drawFrame(const SceneDrawData &sceneDrawData, const UIDrawData &uiDrawData, const glm::mat4 projectionMat, const PostEffects &postEffects);
 
         ~Renderer();
-
-        static void vkCheck(VkResult res, ErrorCode errorCode);
 
     private:
         static constexpr uint32_t FRAMES_IN_FLIGHT = 2;
@@ -284,9 +284,9 @@ namespace VE
 
         // Helpers
         void createBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags bufferPropertyFlags, VkBuffer *buffer, VkDeviceMemory *bufferMemory) const;
-        [[nodiscard]] VkResult copyBuffer(VkCommandPool transferCommandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize, VkFence fence) const;
+        [[nodiscard]] VkResult copyBuffer(VkCommandBuffer commandBuffer, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize, VkFence fence) const;
         [[nodiscard]] static uint32_t rateDevice(VkPhysicalDevice device, VkSurfaceKHR surface);
-        void transitionImageLayout(VkDevice device, VkQueue queue, VkCommandPool commandPool, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlags aspectMask, std::mutex &graphicsQueueMutex, VkFence fence);
+        void transitionImageLayout(VkDevice device, VkQueue queue, VkCommandBuffer commandBuffer, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlags aspectMask, std::mutex &graphicsQueueMutex, VkFence fence);
         [[nodiscard]] ImageAttachment createAttachment(VkFormat format, VkImageUsageFlags usageFlags, VkImageAspectFlags aspectMask, VkExtent2D extent);
         [[nodiscard]] ShadowMap createShadowMap(ModelInstanceHandle instanceHandle);
         void destroyImageAttachment(ImageAttachment &attachment) const;

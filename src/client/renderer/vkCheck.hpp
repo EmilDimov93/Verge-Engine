@@ -1,11 +1,15 @@
 // Copyright 2025 Emil Dimov
 // Licensed under the Apache License, Version 2.0
 
-#include "renderer.hpp"
+#pragma once
+
+#include "../../shared/log.hpp"
+
+#include <vulkan/vulkan.h>
 
 namespace VE
 {
-    void Renderer::vkCheck(VkResult res, ErrorCode errorCode)
+    inline void vkCheck(VkResult res, ErrorCode errorCode)
     {
         switch (res)
         {

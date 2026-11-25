@@ -3,6 +3,7 @@ build/
 logo/
 early_dev/
 lib/
+src/client/renderer/uploadCommandBuffers.hpp
 desktop.ini
 lines.ps1
 git.ps1

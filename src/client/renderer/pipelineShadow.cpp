@@ -226,7 +226,9 @@ namespace VE
 
         FenceGuard fence(device);
 
-        transitionImageLayout(device, graphicsQueue, commandPool, attachment.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT, graphicsQueueMutex, fence);
+        CommandBufferGuard commandBufferLocal(device, graphicsQueueFamilyIndex);
+
+        transitionImageLayout(device, graphicsQueue, commandBufferLocal, attachment.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT, graphicsQueueMutex, fence);
 
         shadowMaps[0].depthAttachment = attachment;
         shadowMapCount = 1;

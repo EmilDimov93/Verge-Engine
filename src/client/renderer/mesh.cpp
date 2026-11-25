@@ -20,7 +20,7 @@ namespace VE
         meshBuffer.vertexCount = vertices.size();
         meshBuffer.indexCount = indices.size();
 
-        CommandPoolGuard transferCommandPoolLocal(device, transferQueueFamilyIndex);
+        CommandBufferGuard commandBufferLocal(device, transferQueueFamilyIndex);
 
         FenceGuard uploadFence(device);
 
@@ -40,7 +40,7 @@ namespace VE
 
             createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &meshBuffer.vertexBuffer, &meshBuffer.vertexBufferMemory);
 
-            vkCheck(copyBuffer(transferCommandPoolLocal, stagingBuffer, meshBuffer.vertexBuffer, bufferSize, uploadFence), {'R', 224});
+            vkCheck(copyBuffer(commandBufferLocal, stagingBuffer, meshBuffer.vertexBuffer, bufferSize, uploadFence), {'R', 224});
 
             vkDestroyBuffer(device, stagingBuffer, nullptr);
             vkFreeMemory(device, stagingBufferMemory, nullptr);
@@ -63,7 +63,7 @@ namespace VE
 
             createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &meshBuffer.indexBuffer, &meshBuffer.indexBufferMemory);
 
-            vkCheck(copyBuffer(transferCommandPoolLocal, stagingBuffer, meshBuffer.indexBuffer, bufferSize, uploadFence), {'R', 224});
+            vkCheck(copyBuffer(commandBufferLocal, stagingBuffer, meshBuffer.indexBuffer, bufferSize, uploadFence), {'R', 224});
 
             vkDestroyBuffer(device, stagingBuffer, nullptr);
             vkFreeMemory(device, stagingBufferMemory, nullptr);

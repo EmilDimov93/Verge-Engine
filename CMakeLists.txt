@@ -32,7 +32,6 @@ add_executable(VergeEngine
     src/client/renderer/buffer.cpp
     src/client/renderer/textures.cpp
     src/client/renderer/geometryBuffer.cpp
-    src/client/renderer/vkCheck.cpp
 
     src/scene/sceneCore.cpp
     src/scene/sceneActors.cpp

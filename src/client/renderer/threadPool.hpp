@@ -18,11 +18,11 @@ namespace VE
         explicit ThreadPool(uint32_t workerCount)
         {
             for (uint32_t workerIndex = 0; workerIndex < workerCount; ++workerIndex)
-                workerThreads.emplace_back([this](std::stop_token stopToken)
-                                           { loop(stopToken); });
+                workerThreads.emplace_back([this, workerIndex](std::stop_token stopToken)
+                                           { loop(stopToken, workerIndex); });
         }
 
-        void submit(std::function<void()> job)
+        void submit(std::function<void(uint32_t workerIndex)> job)
         {
             {
                 std::lock_guard lock(queueMutex);
@@ -32,18 +32,25 @@ namespace VE
             queueCondition.notify_all();
         }
 
+        void wait()
+        {
+            std::unique_lock lock(queueMutex);
+            queueCondition.wait(lock, [this]
+                                { return unfinishedJobCount == 0; });
+        }
+
     private:
-        void loop(std::stop_token stopToken)
+        void loop(std::stop_token stopToken, uint32_t workerIndex)
         {
             std::unique_lock lock(queueMutex);
             while (queueCondition.wait(lock, stopToken, [this]
                                        { return !pendingJobs.empty(); }))
             {
-                std::function<void()> job = std::move(pendingJobs.front());
+                std::function<void(uint32_t workerIndex)> job = std::move(pendingJobs.front());
                 pendingJobs.pop();
 
                 lock.unlock();
-                job();
+                job(workerIndex);
                 lock.lock();
 
                 if (--unfinishedJobCount == 0)
@@ -53,7 +60,7 @@ namespace VE
 
         std::mutex queueMutex;
         std::condition_variable_any queueCondition;
-        std::queue<std::function<void()>> pendingJobs;
+        std::queue<std::function<void(uint32_t workerIndex)>> pendingJobs;
         uint32_t unfinishedJobCount = 0;
         std::vector<std::jthread> workerThreads;
     };

@@ -20,6 +20,8 @@
 
 #include "uploadContext.hpp"
 
+#include "threadPool.hpp"
+
 #include "tools.hpp"
 
 #include "../../shared/drawData.hpp"
@@ -171,6 +173,8 @@ namespace VE
 
         SwapChain swapChain;
 
+        ThreadPool threadPool;
+
         // Runtime
         VkCommandPool commandPool = VK_NULL_HANDLE;
 
@@ -231,8 +235,6 @@ namespace VE
 
         std::mutex graphicsQueueMutex;
         mutable std::mutex transferQueueMutex;
-        std::recursive_mutex modelMutex;
-        std::recursive_mutex widgetMutex;
         std::mutex textureMutex;
 
         // Init
@@ -304,14 +306,14 @@ namespace VE
 
         // Models
         void syncModelBuffers(const std::vector<Model> &models);
-        void initModelBuffer(const Model &model);
+        ModelBuffer createModelBuffer(const Model &model);
         void updateModelBuffer(ModelBuffer &modelBuffer, const Model &model);
         void removeOrphanedModel(const std::vector<ModelInstance> &modelInstances);
         bool syncShadowMaps(const std::vector<ModelInstance> &instances);
 
         // UI
         void syncWidgetBuffers(const std::vector<Widget> &widgets);
-        void initWidgetBuffer(const Widget &widget);
+        WidgetBuffer createWidgetBuffer(const Widget &widget);
         void updateWidgetBuffer(WidgetBuffer &widgetBuffer, const Widget &widget);
 
         // Textures

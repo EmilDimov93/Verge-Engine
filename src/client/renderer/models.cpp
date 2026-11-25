@@ -5,8 +5,6 @@
 
 #include "../../shared/log.hpp"
 
-#include <thread>
-
 namespace VE
 {
     void Renderer::syncModelBuffers(const std::vector<Model> &models)
@@ -33,30 +31,20 @@ namespace VE
                 modelsToInit.push_back(&model);
         }
 
-        if (modelsToInit.size() == 1)
+        if (!modelsToInit.empty())
         {
-            initModelBuffer(*modelsToInit.front());
-        }
-        else if (modelsToInit.size() > 1)
-        {
-            modelMutex.unlock();
+            std::vector<ModelBuffer> results(modelsToInit.size());
+            for (size_t i = 0; i < modelsToInit.size(); ++i)
+                threadPool.submit([this, &results, &modelsToInit, i](uint32_t workerIndex)
+                                  { results[i] = createModelBuffer(*modelsToInit[i]); });
+            threadPool.wait();
 
-            std::vector<std::thread> workers;
-            workers.reserve(modelsToInit.size());
-            for (const Model *modelPtr : modelsToInit)
-            {
-                workers.emplace_back([this, modelPtr]
-                                     { initModelBuffer(*modelPtr); });
-            }
-
-            for (std::thread &w : workers)
-                w.join();
-
-            modelMutex.lock();
+            for (ModelBuffer &modelBuffer : results)
+                modelBuffers.push_back(std::move(modelBuffer));
         }
     }
 
-    void Renderer::initModelBuffer(const Model &model)
+    ModelBuffer Renderer::createModelBuffer(const Model &model)
     {
         ModelBuffer newModelBuffer(model.getHandle());
 
@@ -76,10 +64,7 @@ namespace VE
                 material.texIndex = createTexture(material.texturePixels, material.textureSize);
         }
 
-        {
-            std::lock_guard<std::recursive_mutex> lock(modelMutex);
-            modelBuffers.push_back(newModelBuffer);
-        }
+        return newModelBuffer;
     }
 
     void Renderer::updateModelBuffer(ModelBuffer &modelBuffer, const Model &model)

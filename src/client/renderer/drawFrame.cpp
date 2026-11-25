@@ -26,10 +26,7 @@ namespace VE
         vkCheck(vkResetFences(device, 1, drawFence.ptr()), {'R', 232});
 
         if (sceneDrawData.modelRemovedThisFrame)
-        {
-            std::lock_guard<std::recursive_mutex> lock(modelMutex);
             removeOrphanedModel(sceneDrawData.modelInstances);
-        }
 
         updateUIUniformBuffers(currentFrame);
 
@@ -39,7 +36,6 @@ namespace VE
         vkCheck(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo), {'R', 213});
 
         {
-            std::lock_guard<std::recursive_mutex> lock(modelMutex);
             syncModelBuffers(sceneDrawData.models);
 
             bool hasShadowMapsChanged = syncShadowMaps(sceneDrawData.modelInstances);
@@ -93,7 +89,6 @@ namespace VE
         recordPostPass(imageIndex, postEffects);
 
         {
-            std::lock_guard<std::recursive_mutex> lock(widgetMutex);
             syncWidgetBuffers(uiDrawData.widgets);
 
             recordUIPass(imageIndex, uiDrawData.widgets, uiDrawData.widgetInstances);

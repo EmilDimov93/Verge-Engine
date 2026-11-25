@@ -8,7 +8,7 @@
 
 namespace VE
 {
-    Renderer::Renderer(GLFWwindow *window, glm::uvec2 windowSize) : gBuffer(currentFrame), imageAvailableSemaphore(currentFrame), drawFence(currentFrame), commandBuffer(currentFrame), cameraUniformBuffer(currentFrame), cameraUniformBufferMemory(currentFrame), lightingUniformBuffer(currentFrame), lightingUniformBufferMemory(currentFrame), uiUniformBuffer(currentFrame), uiUniformBufferMemory(currentFrame)
+    Renderer::Renderer(GLFWwindow *window, glm::uvec2 windowSize) : gBuffer(currentFrame), imageAvailableSemaphore(currentFrame), drawFence(currentFrame), commandBuffer(currentFrame), cameraUniformBuffer(currentFrame), cameraUniformBufferMemory(currentFrame), lightingUniformBuffer(currentFrame), lightingUniformBufferMemory(currentFrame), uiUniformBuffer(currentFrame), uiUniformBufferMemory(currentFrame), threadPool(TEMP_WORKER_COUNT)
     {
         this->window = window;
 
@@ -383,6 +383,8 @@ namespace VE
 
     Renderer::~Renderer()
     {
+        threadPool.wait();
+
         if (device != VK_NULL_HANDLE)
             vkCheck(vkDeviceWaitIdle(device), {'R', 235});
 

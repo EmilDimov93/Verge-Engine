@@ -23,6 +23,6 @@ namespace VE
 
         uint64_t version = 0;
 
-        ModelBuffer(ModelHandle handle) : handle(handle) {}
+        ModelBuffer(ModelHandle handle = ModelHandle::INVALID) : handle(handle) {}
     };
 }

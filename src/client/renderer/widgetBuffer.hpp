@@ -23,6 +23,6 @@ namespace VE
 
         uint64_t version = 0;
 
-        WidgetBuffer(WidgetHandle handle) : handle(handle) {}
+        WidgetBuffer(WidgetHandle handle = WidgetHandle::INVALID) : handle(handle) {}
     };
 }

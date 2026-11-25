@@ -5,8 +5,6 @@
 
 #include "../../shared/log.hpp"
 
-#include <thread>
-
 namespace VE
 {
 
@@ -24,7 +22,7 @@ namespace VE
                     widgetBufferFound = true;
                     if (widget.getVersion() > widgetBuffer.version)
                         updateWidgetBuffer(widgetBuffer, widget);
-                    
+
                     break;
                 }
             }
@@ -33,30 +31,20 @@ namespace VE
                 widgetsToInit.push_back(&widget);
         }
 
-        if (widgetsToInit.size() == 1)
+        if (!widgetsToInit.empty())
         {
-            initWidgetBuffer(*widgetsToInit.front());
-        }
-        else if (widgetsToInit.size() > 1)
-        {
-            widgetMutex.unlock();
+            std::vector<WidgetBuffer> results(widgetsToInit.size());
+            for (size_t i = 0; i < widgetsToInit.size(); i++)
+                threadPool.submit([this, &results, &widgetsToInit, i](uint32_t workerIndex)
+                                  { results[i] = createWidgetBuffer(*widgetsToInit[i]); });
+            threadPool.wait();
 
-            std::vector<std::thread> workers;
-            workers.reserve(widgetsToInit.size());
-            for (const Widget *widgetPtr : widgetsToInit)
-            {
-                workers.emplace_back([this, widgetPtr]
-                                     { initWidgetBuffer(*widgetPtr); });
-            }
-
-            for (std::thread &w : workers)
-                w.join();
-
-            widgetMutex.lock();
+            for (WidgetBuffer &widgetBuffer : results)
+                widgetBuffers.push_back(std::move(widgetBuffer));
         }
     }
 
-    void Renderer::initWidgetBuffer(const Widget &widget)
+    WidgetBuffer Renderer::createWidgetBuffer(const Widget &widget)
     {
         WidgetBuffer newWidgetBuffer(widget.getHandle());
 
@@ -71,14 +59,11 @@ namespace VE
 
             Material &material = newWidgetBuffer.materials[meshBuffer.materialIndex];
 
-            if(!material.texturePixels.empty())
-                    material.texIndex = createTexture(material.texturePixels, material.textureSize);
+            if (!material.texturePixels.empty())
+                material.texIndex = createTexture(material.texturePixels, material.textureSize);
         }
 
-        {
-            std::lock_guard<std::recursive_mutex> lock(widgetMutex);
-            widgetBuffers.push_back(newWidgetBuffer);
-        }
+        return newWidgetBuffer;
     }
 
     void Renderer::updateWidgetBuffer(WidgetBuffer &widgetBuffer, const Widget &widget)
@@ -92,8 +77,8 @@ namespace VE
         {
             destroyMeshBuffer(meshBuffer);
 
-            if(widgetBuffer.materials[meshBuffer.materialIndex].texIndex != INVALID_TEXTURE_INDEX)
-                        destroyImageAttachment(textures.attachments[widgetBuffer.materials[meshBuffer.materialIndex].texIndex]);
+            if (widgetBuffer.materials[meshBuffer.materialIndex].texIndex != INVALID_TEXTURE_INDEX)
+                destroyImageAttachment(textures.attachments[widgetBuffer.materials[meshBuffer.materialIndex].texIndex]);
         }
 
         widgetBuffer.meshBuffers.clear();
@@ -108,8 +93,8 @@ namespace VE
 
             Material &material = widgetBuffer.materials[meshBuffer.materialIndex];
 
-            if(!material.texturePixels.empty())
-                    material.texIndex = createTexture(material.texturePixels, material.textureSize);
+            if (!material.texturePixels.empty())
+                material.texIndex = createTexture(material.texturePixels, material.textureSize);
         }
 
         widgetBuffer.version = widget.getVersion();

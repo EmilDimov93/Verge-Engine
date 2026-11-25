@@ -301,26 +301,26 @@ namespace VE
         void destroySwapChain(SwapChain swapChain) const;
 
         // Mesh
-        [[nodiscard]] MeshBuffer createMeshBuffer(const Mesh &mesh, bool isTransparent);
+        [[nodiscard]] MeshBuffer createMeshBuffer(const Mesh &mesh, bool isTransparent, uint32_t uploadContextIndex);
         void destroyMeshBuffer(MeshBuffer &meshBuffer) const;
 
         // Models
         void syncModelBuffers(const std::vector<Model> &models);
-        ModelBuffer createModelBuffer(const Model &model);
+        ModelBuffer createModelBuffer(const Model &model, uint32_t uploadContextIndex);
         void updateModelBuffer(ModelBuffer &modelBuffer, const Model &model);
         void removeOrphanedModel(const std::vector<ModelInstance> &modelInstances);
         bool syncShadowMaps(const std::vector<ModelInstance> &instances);
 
         // UI
         void syncWidgetBuffers(const std::vector<Widget> &widgets);
-        WidgetBuffer createWidgetBuffer(const Widget &widget);
+        WidgetBuffer createWidgetBuffer(const Widget &widget, uint32_t uploadContextIndex);
         void updateWidgetBuffer(WidgetBuffer &widgetBuffer, const Widget &widget);
 
         // Textures
         void createFallbackTexture();
         void createTextureDescriptorSetLayout();
-        [[nodiscard]] uint32_t createTexture(std::vector<uint8_t> texturePixels, glm::uvec2 textureSize);
-        [[nodiscard]] uint32_t createTextureImage(const uint8_t *imageData, glm::uvec2 size);
+        [[nodiscard]] uint32_t createTexture(std::vector<uint8_t> texturePixels, glm::uvec2 textureSize, uint32_t uploadContextIndex);
+        [[nodiscard]] uint32_t createTextureImage(const uint8_t *imageData, glm::uvec2 size, uint32_t uploadContextIndex);
         [[nodiscard]] uint32_t createTextureDescriptor(VkImageView textureImageView);
         [[nodiscard]] VkImage createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags useFlags, VkMemoryPropertyFlags propFlags, uint32_t mipLevelCount, VkDeviceMemory *imageMemory);
     };

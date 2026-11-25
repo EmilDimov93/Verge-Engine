@@ -36,7 +36,7 @@ namespace VE
             std::vector<WidgetBuffer> results(widgetsToInit.size());
             for (size_t i = 0; i < widgetsToInit.size(); i++)
                 threadPool.submit([this, &results, &widgetsToInit, i](uint32_t workerIndex)
-                                  { results[i] = createWidgetBuffer(*widgetsToInit[i]); });
+                                  { results[i] = createWidgetBuffer(*widgetsToInit[i], workerIndex); });
             threadPool.wait();
 
             for (WidgetBuffer &widgetBuffer : results)
@@ -44,7 +44,7 @@ namespace VE
         }
     }
 
-    WidgetBuffer Renderer::createWidgetBuffer(const Widget &widget)
+    WidgetBuffer Renderer::createWidgetBuffer(const Widget &widget, uint32_t uploadContextIndex)
     {
         WidgetBuffer newWidgetBuffer(widget.getHandle());
 
@@ -53,14 +53,14 @@ namespace VE
 
         for (const Mesh &mesh : widget.getMeshes())
         {
-            MeshBuffer meshBuffer = createMeshBuffer(mesh, newWidgetBuffer.materials[mesh.getMaterialIndex()].baseColor.a < 1.f);
+            MeshBuffer meshBuffer = createMeshBuffer(mesh, newWidgetBuffer.materials[mesh.getMaterialIndex()].baseColor.a < 1.f, uploadContextIndex);
 
             newWidgetBuffer.meshBuffers.push_back(meshBuffer);
 
             Material &material = newWidgetBuffer.materials[meshBuffer.materialIndex];
 
             if (!material.texturePixels.empty())
-                material.texIndex = createTexture(material.texturePixels, material.textureSize);
+                material.texIndex = createTexture(material.texturePixels, material.textureSize, uploadContextIndex);
         }
 
         return newWidgetBuffer;
@@ -87,14 +87,14 @@ namespace VE
 
         for (const Mesh &mesh : widget.getMeshes())
         {
-            MeshBuffer meshBuffer = createMeshBuffer(mesh, widgetBuffer.materials[mesh.getMaterialIndex()].baseColor.a < 1.f);
+            MeshBuffer meshBuffer = createMeshBuffer(mesh, widgetBuffer.materials[mesh.getMaterialIndex()].baseColor.a < 1.f, 0);
 
             widgetBuffer.meshBuffers.push_back(meshBuffer);
 
             Material &material = widgetBuffer.materials[meshBuffer.materialIndex];
 
             if (!material.texturePixels.empty())
-                material.texIndex = createTexture(material.texturePixels, material.textureSize);
+                material.texIndex = createTexture(material.texturePixels, material.textureSize, 0);
         }
 
         widgetBuffer.version = widget.getVersion();

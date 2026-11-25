@@ -9,7 +9,7 @@
 
 namespace VE
 {
-    MeshBuffer Renderer::createMeshBuffer(const Mesh &mesh, bool isTransparent)
+    MeshBuffer Renderer::createMeshBuffer(const Mesh &mesh, bool isTransparent, uint32_t uploadContextIndex)
     {
         const std::vector<Vertex> &vertices = mesh.getVertices();
         const std::vector<uint32_t> &indices = mesh.getIndices();
@@ -19,10 +19,6 @@ namespace VE
         meshBuffer.isTransparent = isTransparent;
         meshBuffer.vertexCount = vertices.size();
         meshBuffer.indexCount = indices.size();
-
-        CommandBufferGuard commandBufferLocal(device, transferQueueFamilyIndex);
-
-        FenceGuard uploadFence(device);
 
         // Vertex Buffer
         {
@@ -40,13 +36,11 @@ namespace VE
 
             createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &meshBuffer.vertexBuffer, &meshBuffer.vertexBufferMemory);
 
-            vkCheck(copyBuffer(commandBufferLocal, stagingBuffer, meshBuffer.vertexBuffer, bufferSize, uploadFence), {'R', 224});
+            vkCheck(copyBuffer(uploadContexts[uploadContextIndex].transfer, stagingBuffer, meshBuffer.vertexBuffer, bufferSize, uploadContexts[uploadContextIndex].fence), {'R', 224});
 
             vkDestroyBuffer(device, stagingBuffer, nullptr);
             vkFreeMemory(device, stagingBufferMemory, nullptr);
         }
-
-        vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
 
         // Index Buffer
         {
@@ -63,7 +57,7 @@ namespace VE
 
             createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &meshBuffer.indexBuffer, &meshBuffer.indexBufferMemory);
 
-            vkCheck(copyBuffer(commandBufferLocal, stagingBuffer, meshBuffer.indexBuffer, bufferSize, uploadFence), {'R', 224});
+            vkCheck(copyBuffer(uploadContexts[uploadContextIndex].transfer, stagingBuffer, meshBuffer.indexBuffer, bufferSize, uploadContexts[uploadContextIndex].fence), {'R', 224});
 
             vkDestroyBuffer(device, stagingBuffer, nullptr);
             vkFreeMemory(device, stagingBufferMemory, nullptr);

@@ -54,11 +54,11 @@ namespace VE
             .commandBufferCount = 1,
             .pCommandBuffers = &commandBuffer};
 
+        vkCheck(vkResetFences(device, 1, &fence), {'R', 232});
         {
             std::lock_guard<std::mutex> lock(transferQueueMutex);
             vkCheck(vkQueueSubmit(transferQueue, 1, &submitInfo, fence), {'R', 233});
         }
-
         vkCheck(vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX), {'R', 231});
 
         return VK_SUCCESS;

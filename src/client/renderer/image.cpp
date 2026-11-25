@@ -101,11 +101,11 @@ namespace VE
             .commandBufferCount = 1,
             .pCommandBuffers = &commandBufferLocal};
 
+        vkCheck(vkResetFences(device, 1, &fence), {'R', 232});
         {
             std::lock_guard<std::mutex> lock(graphicsQueueMutex);
             vkCheck(vkQueueSubmit(queue, 1, &submitInfo, fence), {'R', 233});
         }
-
         vkCheck(vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX), {'R', 231});
     }
 

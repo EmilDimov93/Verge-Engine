@@ -40,11 +40,11 @@ namespace VE
             .commandBufferCount = 1,
             .pCommandBuffers = &commandBufferLocal};
 
+        vkCheck(vkResetFences(device, 1, &fence), {'R', 232});
         {
             std::lock_guard<std::mutex> lock(transferQueueMutex);
             vkCheck(vkQueueSubmit(transferQueue, 1, &submitInfo, fence), {'R', 233});
         }
-
         vkCheck(vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX), {'R', 231});
 
         return VK_SUCCESS;
@@ -163,11 +163,11 @@ namespace VE
             .commandBufferCount = 1,
             .pCommandBuffers = &commandBufferLocal};
 
+        vkCheck(vkResetFences(device, 1, &fence), {'R', 232});
         {
             std::lock_guard<std::mutex> lock(graphicsQueueMutex);
             vkCheck(vkQueueSubmit(queue, 1, &submitInfo, fence), {'R', 233});
         }
-
         vkCheck(vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX), {'R', 231});
 
         return VK_SUCCESS;
@@ -223,7 +223,7 @@ namespace VE
         vkFreeMemory(device, stagingBufferMemory, nullptr);
     }
 
-    uint32_t Renderer::createTextureImage(const uint8_t *imageData, glm::uvec2 size)
+    uint32_t Renderer::createTextureImage(const uint8_t *imageData, glm::uvec2 size, uint32_t uploadContextIndex)
     {
         if (!imageData || size.x <= 0 || size.y <= 0)
         {
@@ -249,16 +249,9 @@ namespace VE
 
         texImage = createImage(size.x, size.y, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mipLevelCount, &texImageMemory);
 
-        CommandBufferGuard graphicsCommandBufferLocal(device, graphicsQueueFamilyIndex);
-        CommandBufferGuard transferCommandBufferLocal(device, transferQueueFamilyIndex);
-
-        FenceGuard uploadFence(device);
-
-        transitionImageLayout(device, graphicsQueue, graphicsCommandBufferLocal, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT, graphicsQueueMutex, uploadFence);
-        vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
-        vkCheck(copyImageBuffer(device, transferQueue, transferCommandBufferLocal, imageStagingBuffer, texImage, size.x, size.y, transferQueueMutex, uploadFence), {'R', 239});
-        vkCheck(vkResetFences(device, 1, uploadFence.ptr()), {'R', 232});
-        vkCheck(generateMipmaps(device, physicalDevice, graphicsQueue, graphicsCommandBufferLocal, texImage, VK_FORMAT_R8G8B8A8_SRGB, size.x, size.y, mipLevelCount, graphicsQueueMutex, uploadFence), {'R', 240});
+        transitionImageLayout(device, graphicsQueue, uploadContexts[uploadContextIndex].graphics, texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT, graphicsQueueMutex, uploadContexts[uploadContextIndex].fence);
+        vkCheck(copyImageBuffer(device, transferQueue, uploadContexts[uploadContextIndex].transfer, imageStagingBuffer, texImage, size.x, size.y, transferQueueMutex, uploadContexts[uploadContextIndex].fence), {'R', 239});
+        vkCheck(generateMipmaps(device, physicalDevice, graphicsQueue, uploadContexts[uploadContextIndex].graphics, texImage, VK_FORMAT_R8G8B8A8_SRGB, size.x, size.y, mipLevelCount, graphicsQueueMutex, uploadContexts[uploadContextIndex].fence), {'R', 240});
 
         uint32_t resultIndex;
         {
@@ -273,9 +266,9 @@ namespace VE
         return resultIndex;
     }
 
-    uint32_t Renderer::createTexture(std::vector<uint8_t> texturePixels, glm::uvec2 textureSize)
+    uint32_t Renderer::createTexture(std::vector<uint8_t> texturePixels, glm::uvec2 textureSize, uint32_t uploadContextIndex)
     {
-        uint32_t textureImageIndex = createTextureImage(texturePixels.data(), textureSize);
+        uint32_t textureImageIndex = createTextureImage(texturePixels.data(), textureSize, uploadContextIndex);
 
         if (textureImageIndex == INVALID_TEXTURE_INDEX)
             return INVALID_TEXTURE_INDEX;

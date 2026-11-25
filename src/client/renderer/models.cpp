@@ -36,7 +36,7 @@ namespace VE
             std::vector<ModelBuffer> results(modelsToInit.size());
             for (size_t i = 0; i < modelsToInit.size(); ++i)
                 threadPool.submit([this, &results, &modelsToInit, i](uint32_t workerIndex)
-                                  { results[i] = createModelBuffer(*modelsToInit[i]); });
+                                  { results[i] = createModelBuffer(*modelsToInit[i], workerIndex); });
             threadPool.wait();
 
             for (ModelBuffer &modelBuffer : results)
@@ -44,7 +44,7 @@ namespace VE
         }
     }
 
-    ModelBuffer Renderer::createModelBuffer(const Model &model)
+    ModelBuffer Renderer::createModelBuffer(const Model &model, uint32_t uploadContextIndex)
     {
         ModelBuffer newModelBuffer(model.getHandle());
 
@@ -54,14 +54,14 @@ namespace VE
 
         for (const Mesh &mesh : model.getMeshes())
         {
-            MeshBuffer meshBuffer = createMeshBuffer(mesh, newModelBuffer.materials[mesh.getMaterialIndex()].baseColor.a < 1.f);
+            MeshBuffer meshBuffer = createMeshBuffer(mesh, newModelBuffer.materials[mesh.getMaterialIndex()].baseColor.a < 1.f, uploadContextIndex);
 
             newModelBuffer.meshBuffers.push_back(meshBuffer);
 
             Material &material = newModelBuffer.materials[meshBuffer.materialIndex];
 
             if (!material.texturePixels.empty())
-                material.texIndex = createTexture(material.texturePixels, material.textureSize);
+                material.texIndex = createTexture(material.texturePixels, material.textureSize, uploadContextIndex);
         }
 
         return newModelBuffer;
@@ -88,14 +88,14 @@ namespace VE
 
         for (const Mesh &mesh : model.getMeshes())
         {
-            MeshBuffer meshBuffer = createMeshBuffer(mesh, modelBuffer.materials[mesh.getMaterialIndex()].baseColor.a < 1.f);
+            MeshBuffer meshBuffer = createMeshBuffer(mesh, modelBuffer.materials[mesh.getMaterialIndex()].baseColor.a < 1.f, 0);
 
             modelBuffer.meshBuffers.push_back(meshBuffer);
 
             Material &material = modelBuffer.materials[meshBuffer.materialIndex];
 
             if (!material.texturePixels.empty())
-                material.texIndex = createTexture(material.texturePixels, material.textureSize);
+                material.texIndex = createTexture(material.texturePixels, material.textureSize, 0);
         }
 
         modelBuffer.version = model.getVersion();

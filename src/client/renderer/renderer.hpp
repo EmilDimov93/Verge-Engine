@@ -72,8 +72,6 @@ namespace VE
 
         static constexpr VkFormat HDR_COLOR_FORMAT = VK_FORMAT_R16G16B16A16_SFLOAT;
 
-        static constexpr uint32_t TEMP_WORKER_COUNT = 10;
-
         template <typename T>
         struct PerFrame
         {
@@ -173,6 +171,8 @@ namespace VE
 
         SwapChain swapChain;
 
+        uint32_t workerCount = 0;
+
         ThreadPool uploadThreadPool;
         ThreadPool recordingThreadPool;
 
@@ -244,8 +244,6 @@ namespace VE
         void createLogicalDevice();
 
         void findSupportedFormats();
-
-        void createUploadContexts();
 
         void createSwapChain(glm::uvec2 windowSize);
 

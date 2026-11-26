@@ -155,7 +155,7 @@ namespace VE
             .flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT,
             .pInheritanceInfo = &commandBufferInheritanceInfo};
         
-        for (uint32_t i = TEMP_WORKER_COUNT * currentFrame; i < TEMP_WORKER_COUNT * (currentFrame + 1); i++)
+        for (uint32_t i = workerCount * currentFrame; i < workerCount * (currentFrame + 1); i++)
         {
             vkCheck(vkBeginCommandBuffer(secondaryCommandBuffers[i], &commandBufferBeginInfo), {'R', 213});
             vkCmdBindPipeline(secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, modelPipeline.pipeline);
@@ -180,7 +180,7 @@ namespace VE
                         }
 
                         recordingThreadPool.submit([&](uint32_t workerIndex)
-                                                   { drawMesh(secondaryCommandBuffers[workerIndex + TEMP_WORKER_COUNT * currentFrame], instance, meshBuffer, modelBuffer.materials[meshBuffer.materialIndex], modelPipeline.layout); });
+                                                   { drawMesh(secondaryCommandBuffers[workerIndex + workerCount * currentFrame], instance, meshBuffer, modelBuffer.materials[meshBuffer.materialIndex], modelPipeline.layout); });
                     }
 
                     break;
@@ -190,12 +190,12 @@ namespace VE
 
         recordingThreadPool.wait();
 
-        for (uint32_t i = TEMP_WORKER_COUNT * currentFrame; i < TEMP_WORKER_COUNT * (currentFrame + 1); i++)
+        for (uint32_t i = workerCount * currentFrame; i < workerCount * (currentFrame + 1); i++)
             vkCheck(vkEndCommandBuffer(secondaryCommandBuffers[i]), {'R', 213});
 
         vkCmdBeginRendering(commandBuffers[currentFrame], &renderingInfo);
 
-        for (uint32_t i = TEMP_WORKER_COUNT * currentFrame; i < TEMP_WORKER_COUNT * (currentFrame + 1); i++)
+        for (uint32_t i = workerCount * currentFrame; i < workerCount * (currentFrame + 1); i++)
             vkCmdExecuteCommands(commandBuffers[currentFrame], 1, secondaryCommandBuffers[i].ptr());
 
         vkCmdEndRendering(commandBuffers[currentFrame]);

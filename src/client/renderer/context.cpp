@@ -8,7 +8,7 @@
 
 namespace VE
 {
-    Renderer::Renderer(GLFWwindow *window, glm::uvec2 windowSize) : gBuffer(currentFrame), imageAvailableSemaphore(currentFrame), drawFence(currentFrame), cameraUniformBuffer(currentFrame), cameraUniformBufferMemory(currentFrame), lightingUniformBuffer(currentFrame), lightingUniformBufferMemory(currentFrame), uiUniformBuffer(currentFrame), uiUniformBufferMemory(currentFrame), uploadThreadPool(TEMP_WORKER_COUNT), recordingThreadPool(TEMP_WORKER_COUNT)
+    Renderer::Renderer(GLFWwindow *window, glm::uvec2 windowSize) : gBuffer(currentFrame), imageAvailableSemaphore(currentFrame), drawFence(currentFrame), cameraUniformBuffer(currentFrame), cameraUniformBufferMemory(currentFrame), lightingUniformBuffer(currentFrame), lightingUniformBufferMemory(currentFrame), uiUniformBuffer(currentFrame), uiUniformBufferMemory(currentFrame), workerCount(clamp(std::thread::hardware_concurrency(), 2u, 9u) - 1u), uploadThreadPool(workerCount), recordingThreadPool(workerCount)
     {
         this->window = window;
 
@@ -23,11 +23,13 @@ namespace VE
         for(uint32_t i = 0; i < FRAMES_IN_FLIGHT; i++)
             commandBuffers.emplace_back(device, graphicsQueueFamilyIndex, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
-        secondaryCommandBuffers.reserve(TEMP_WORKER_COUNT * FRAMES_IN_FLIGHT);
-        for(uint32_t i = 0; i < TEMP_WORKER_COUNT * FRAMES_IN_FLIGHT; i++)
+        secondaryCommandBuffers.reserve(workerCount * FRAMES_IN_FLIGHT);
+        for(uint32_t i = 0; i < workerCount * FRAMES_IN_FLIGHT; i++)
             secondaryCommandBuffers.emplace_back(device, graphicsQueueFamilyIndex, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
 
-        createUploadContexts();
+        uploadContexts.reserve(workerCount);
+        for(uint32_t i = 0; i < workerCount; i++)
+            uploadContexts.emplace_back(device, graphicsQueueFamilyIndex, transferQueueFamilyIndex);
 
         createSwapChain(windowSize);
 
@@ -317,13 +319,6 @@ namespace VE
                 break;
             }
         }
-    }
-
-    void Renderer::createUploadContexts()
-    {
-        uploadContexts.reserve(TEMP_WORKER_COUNT);
-        for(uint32_t i = 0; i < TEMP_WORKER_COUNT; i++)
-            uploadContexts.emplace_back(device, graphicsQueueFamilyIndex, transferQueueFamilyIndex);
     }
 
     void Renderer::createSyncObjects()

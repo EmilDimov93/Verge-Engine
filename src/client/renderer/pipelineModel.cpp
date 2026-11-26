@@ -82,16 +82,13 @@ namespace VE
 
         VkRenderingInfo renderingInfo{};
         renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+        renderingInfo.flags = VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT;
         renderingInfo.renderArea.offset = {0, 0};
         renderingInfo.renderArea.extent = swapChain.extent;
         renderingInfo.layerCount = 1;
         renderingInfo.colorAttachmentCount = 1;
         renderingInfo.pColorAttachments = &colorAttachment;
         renderingInfo.pDepthAttachment = &depthAttachmentInfo;
-
-        vkCmdBeginRendering(commandBuffers[currentFrame], &renderingInfo);
-
-        vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, modelPipeline.pipeline);
 
         VkViewport viewport = {
             .x = 0.f,
@@ -100,12 +97,10 @@ namespace VE
             .height = static_cast<float>(swapChain.extent.height),
             .minDepth = 0.f,
             .maxDepth = 1.f};
-        vkCmdSetViewport(commandBuffers[currentFrame], 0, 1, &viewport);
 
         VkRect2D scissor = {
             .offset = {0, 0},
             .extent = swapChain.extent};
-        vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
 
         auto drawMesh = [&](VkCommandBuffer threadCommandBuffer, const ModelInstance &instance, const MeshBuffer &meshBuffer, const Material &material, VkPipelineLayout layout)
         {
@@ -144,6 +139,30 @@ namespace VE
         };
         std::vector<TransparentMesh> transparentMeshes;
 
+        VkCommandBufferInheritanceRenderingInfo commandBufferInheritanceRenderingInfo{
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDERING_INFO,
+            .colorAttachmentCount = 1,
+            .pColorAttachmentFormats = &HDR_COLOR_FORMAT,
+            .depthAttachmentFormat = depthFormat,
+            .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT};
+
+        VkCommandBufferInheritanceInfo commandBufferInheritanceInfo{
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO,
+            .pNext = &commandBufferInheritanceRenderingInfo};
+
+        VkCommandBufferBeginInfo commandBufferBeginInfo{
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+            .flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT,
+            .pInheritanceInfo = &commandBufferInheritanceInfo};
+        
+        for (uint32_t i = TEMP_WORKER_COUNT * currentFrame; i < TEMP_WORKER_COUNT * (currentFrame + 1); i++)
+        {
+            vkCheck(vkBeginCommandBuffer(secondaryCommandBuffers[i], &commandBufferBeginInfo), {'R', 213});
+            vkCmdBindPipeline(secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, modelPipeline.pipeline);
+            vkCmdSetViewport(secondaryCommandBuffers[i], 0, 1, &viewport);
+            vkCmdSetScissor(secondaryCommandBuffers[i], 0, 1, &scissor);
+        }
+
         for (const ModelInstance &instance : modelInstances)
         {
             for (const ModelBuffer &modelBuffer : modelBuffers)
@@ -160,7 +179,8 @@ namespace VE
                             continue;
                         }
 
-                        drawMesh(commandBuffers[currentFrame], instance, meshBuffer, modelBuffer.materials[meshBuffer.materialIndex], modelPipeline.layout);
+                        recordingThreadPool.submit([&](uint32_t workerIndex)
+                                                   { drawMesh(secondaryCommandBuffers[workerIndex + TEMP_WORKER_COUNT * currentFrame], instance, meshBuffer, modelBuffer.materials[meshBuffer.materialIndex], modelPipeline.layout); });
                     }
 
                     break;
@@ -168,19 +188,38 @@ namespace VE
             }
         }
 
+        recordingThreadPool.wait();
+
+        for (uint32_t i = TEMP_WORKER_COUNT * currentFrame; i < TEMP_WORKER_COUNT * (currentFrame + 1); i++)
+            vkCheck(vkEndCommandBuffer(secondaryCommandBuffers[i]), {'R', 213});
+
+        vkCmdBeginRendering(commandBuffers[currentFrame], &renderingInfo);
+
+        for (uint32_t i = TEMP_WORKER_COUNT * currentFrame; i < TEMP_WORKER_COUNT * (currentFrame + 1); i++)
+            vkCmdExecuteCommands(commandBuffers[currentFrame], 1, secondaryCommandBuffers[i].ptr());
+
+        vkCmdEndRendering(commandBuffers[currentFrame]);
+
         if (!transparentMeshes.empty())
         {
             std::sort(transparentMeshes.begin(), transparentMeshes.end(),
                       [](const TransparentMesh &leftMesh, const TransparentMesh &rightMesh)
                       { return leftMesh.distanceSquared > rightMesh.distanceSquared; });
 
+            colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+            depthAttachmentInfo.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+            renderingInfo.flags = 0;
+            vkCmdBeginRendering(commandBuffers[currentFrame], &renderingInfo);
+
             vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, transparentPipeline.pipeline);
+            vkCmdSetViewport(commandBuffers[currentFrame], 0, 1, &viewport);
+            vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
 
             for (const TransparentMesh &mesh : transparentMeshes)
                 drawMesh(commandBuffers[currentFrame], *mesh.instance, *mesh.meshBuffer, *mesh.material, transparentPipeline.layout);
-        }
 
-        vkCmdEndRendering(commandBuffers[currentFrame]);
+            vkCmdEndRendering(commandBuffers[currentFrame]);
+        }
 
         imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

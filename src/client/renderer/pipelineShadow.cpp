@@ -226,7 +226,7 @@ namespace VE
 
         FenceGuard fence(device);
 
-        CommandBufferGuard commandBufferLocal(device, graphicsQueueFamilyIndex);
+        CommandBufferGuard commandBufferLocal(device, graphicsQueueFamilyIndex, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
         transitionImageLayout(device, graphicsQueue, commandBufferLocal, attachment.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT, graphicsQueueMutex, fence);
 

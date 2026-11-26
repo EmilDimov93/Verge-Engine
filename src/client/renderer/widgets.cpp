@@ -35,9 +35,9 @@ namespace VE
         {
             std::vector<WidgetBuffer> results(widgetsToInit.size());
             for (size_t i = 0; i < widgetsToInit.size(); i++)
-                threadPool.submit([this, &results, &widgetsToInit, i](uint32_t workerIndex)
+                uploadThreadPool.submit([this, &results, &widgetsToInit, i](uint32_t workerIndex)
                                   { results[i] = createWidgetBuffer(*widgetsToInit[i], workerIndex); });
-            threadPool.wait();
+            uploadThreadPool.wait();
 
             for (WidgetBuffer &widgetBuffer : results)
                 widgetBuffers.push_back(std::move(widgetBuffer));

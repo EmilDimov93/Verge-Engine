@@ -16,7 +16,7 @@ namespace VE
     class CommandBufferGuard
     {
     public:
-        CommandBufferGuard(VkDevice device, uint32_t queueFamilyIndex) : device(device)
+        CommandBufferGuard(VkDevice device, uint32_t queueFamilyIndex, VkCommandBufferLevel level) : device(device)
         {
             VkCommandPoolCreateInfo poolCreateInfo = {
                 .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
@@ -27,7 +27,7 @@ namespace VE
             VkCommandBufferAllocateInfo allocInfo = {
                 .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
                 .commandPool = pool,
-                .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+                .level = level,
                 .commandBufferCount = 1};
 
             vkCheck(vkAllocateCommandBuffers(device, &allocInfo, &buffer), {'R', 212});

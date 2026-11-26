@@ -35,9 +35,9 @@ namespace VE
         {
             std::vector<ModelBuffer> results(modelsToInit.size());
             for (size_t i = 0; i < modelsToInit.size(); ++i)
-                threadPool.submit([this, &results, &modelsToInit, i](uint32_t workerIndex)
+                uploadThreadPool.submit([this, &results, &modelsToInit, i](uint32_t workerIndex)
                                   { results[i] = createModelBuffer(*modelsToInit[i], workerIndex); });
-            threadPool.wait();
+            uploadThreadPool.wait();
 
             for (ModelBuffer &modelBuffer : results)
                 modelBuffers.push_back(std::move(modelBuffer));

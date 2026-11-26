@@ -191,8 +191,8 @@ namespace VE
         VkDeviceMemory texImageMemory;
         texImage = createImage(1, 1, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, &texImageMemory);
 
-        CommandBufferGuard graphicsCommandBufferLocal(device, graphicsQueueFamilyIndex);
-        CommandBufferGuard transferCommandBufferLocal(device, transferQueueFamilyIndex);
+        CommandBufferGuard graphicsCommandBufferLocal(device, graphicsQueueFamilyIndex, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+        CommandBufferGuard transferCommandBufferLocal(device, transferQueueFamilyIndex, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
         FenceGuard uploadFence(device);
 

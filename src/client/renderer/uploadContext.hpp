@@ -14,8 +14,8 @@ namespace VE
         CommandBufferGuard transfer;
         FenceGuard fence;
 
-        UploadContext(VkDevice device, uint32_t graphicsQueueFamilyIndex, uint32_t transferQueueFamilyIndex) : graphics(device, graphicsQueueFamilyIndex),
-                                                                                                               transfer(device, transferQueueFamilyIndex),
+        UploadContext(VkDevice device, uint32_t graphicsQueueFamilyIndex, uint32_t transferQueueFamilyIndex) : graphics(device, graphicsQueueFamilyIndex, VK_COMMAND_BUFFER_LEVEL_PRIMARY),
+                                                                                                               transfer(device, transferQueueFamilyIndex, VK_COMMAND_BUFFER_LEVEL_PRIMARY),
                                                                                                                fence(device) {}
     };
 }

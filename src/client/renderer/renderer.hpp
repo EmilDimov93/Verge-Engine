@@ -173,13 +173,15 @@ namespace VE
 
         SwapChain swapChain;
 
-        ThreadPool threadPool;
+        ThreadPool uploadThreadPool;
+        ThreadPool recordingThreadPool;
 
         // Runtime
         PerFrame<VkSemaphore> imageAvailableSemaphore;
         PerFrame<VkFence> drawFence;
 
         std::vector<CommandBufferGuard> commandBuffers;
+        std::vector<CommandBufferGuard> secondaryCommandBuffers;
         std::vector<UploadContext> uploadContexts;
 
         uint32_t currentFrame = 0;

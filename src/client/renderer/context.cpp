@@ -8,7 +8,7 @@
 
 namespace VE
 {
-    Renderer::Renderer(GLFWwindow *window, glm::uvec2 windowSize) : gBuffer(currentFrame), imageAvailableSemaphore(currentFrame), drawFence(currentFrame), cameraUniformBuffer(currentFrame), cameraUniformBufferMemory(currentFrame), lightingUniformBuffer(currentFrame), lightingUniformBufferMemory(currentFrame), uiUniformBuffer(currentFrame), uiUniformBufferMemory(currentFrame), threadPool(TEMP_WORKER_COUNT)
+    Renderer::Renderer(GLFWwindow *window, glm::uvec2 windowSize) : gBuffer(currentFrame), imageAvailableSemaphore(currentFrame), drawFence(currentFrame), cameraUniformBuffer(currentFrame), cameraUniformBufferMemory(currentFrame), lightingUniformBuffer(currentFrame), lightingUniformBufferMemory(currentFrame), uiUniformBuffer(currentFrame), uiUniformBufferMemory(currentFrame), uploadThreadPool(TEMP_WORKER_COUNT), recordingThreadPool(TEMP_WORKER_COUNT)
     {
         this->window = window;
 
@@ -21,7 +21,11 @@ namespace VE
 
         commandBuffers.reserve(FRAMES_IN_FLIGHT);
         for(uint32_t i = 0; i < FRAMES_IN_FLIGHT; i++)
-            commandBuffers.emplace_back(device, graphicsQueueFamilyIndex);
+            commandBuffers.emplace_back(device, graphicsQueueFamilyIndex, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+
+        secondaryCommandBuffers.reserve(TEMP_WORKER_COUNT * FRAMES_IN_FLIGHT);
+        for(uint32_t i = 0; i < TEMP_WORKER_COUNT * FRAMES_IN_FLIGHT; i++)
+            secondaryCommandBuffers.emplace_back(device, graphicsQueueFamilyIndex, VK_COMMAND_BUFFER_LEVEL_SECONDARY);
 
         createUploadContexts();
 
@@ -359,7 +363,8 @@ namespace VE
 
     Renderer::~Renderer()
     {
-        threadPool.wait();
+        uploadThreadPool.wait();
+        recordingThreadPool.wait();
 
         if (device != VK_NULL_HANDLE)
             vkCheck(vkDeviceWaitIdle(device), {'R', 235});
@@ -469,6 +474,8 @@ namespace VE
         uploadContexts.clear();
 
         commandBuffers.clear();
+
+        secondaryCommandBuffers.clear();
 
         if (device)
             vkDestroyDevice(device, nullptr);

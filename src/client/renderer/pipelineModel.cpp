@@ -370,10 +370,10 @@ namespace VE
 
             std::array<VkWriteDescriptorSet, 2> setWrites = {cameraSetWrite, lightingSetWrite};
 
-            writeShadowDescriptors();
-
             vkUpdateDescriptorSets(device, static_cast<uint32_t>(setWrites.size()), setWrites.data(), 0, nullptr);
         }
+
+        writeShadowDescriptors();
     }
 
     void Renderer::createModelPipeline()
